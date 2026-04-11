@@ -193,6 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Start typing loop after an initial delay
         setTimeout(type, 2000);
+    } // CRITICAL FIX: Properly close the statusText block so sub-page APIs execute!
     
     // Spotify Data Fetching
     const artistsContainer = document.getElementById("spotify-artists-container");
@@ -383,5 +384,4 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-}
 });

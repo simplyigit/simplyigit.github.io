@@ -37,6 +37,7 @@ class handler(BaseHTTPRequestHandler):
                 title = item.find('title').text if item.find('title') is not None else "Unknown Title"
                 author = item.find('author_name').text if item.find('author_name') is not None else "Unknown Author"
                 cover_url = item.find('book_image_url').text if item.find('book_image_url') is not None else ""
+                link = item.find('link').text if item.find('link') is not None else "#"
                 
                 # Remove thumbnail constraints (e.g. `._SY75_`) to get clearer/higher-res covers
                 if cover_url:
@@ -45,7 +46,8 @@ class handler(BaseHTTPRequestHandler):
                 books_data.append({
                     "title": title,
                     "author": author,
-                    "cover_url": cover_url
+                    "cover_url": cover_url,
+                    "link": link
                 })
 
             response = {

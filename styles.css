@@ -854,6 +854,7 @@ footer p {
 .spotify-artists-grid {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-evenly;
     gap: 32px;
     margin-bottom: 60px;
 }
@@ -867,8 +868,8 @@ footer p {
 }
 
 .spotify-artist-img {
-    width: 100px;
-    height: 100px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     object-fit: cover;
     box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05), 0 0 0 6px rgba(255, 255, 255, 0.1); 
@@ -889,7 +890,7 @@ footer p {
 
 .spotify-tracks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 20px;
 }
 
@@ -1029,7 +1030,7 @@ footer p {
 /* Favorites Grid (Most Prominent) */
 .movies-favorites-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 32px;
 }
 

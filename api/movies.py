@@ -8,7 +8,7 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         # Set aggressive caching headers to explicitly prevent page loading latency
         # s-maxage=86400 -> Vercel edge CDN caches the response for 24 hours.
-        # stale-while-revalidate -> Vercel serves the old cache instantly to users, while rebuilding the new cache invisibly in the background!
+        # stale-while-revalidate -> Vercel serves the old cache instantly to users, while rebuilding the new cache invisibly in the background.
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.send_header('Cache-Control', 's-maxage=86400, stale-while-revalidate')
@@ -19,10 +19,22 @@ class handler(BaseHTTPRequestHandler):
             import xml.etree.ElementTree as ET
 
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36: simplyigit caching'
             }
             username = "oneyigit"
             base_url = "https://letterboxd.com"
+
+            def get_hd_poster(film_link):
+                try:
+                    res = requests.get(base_url + film_link, headers=headers)
+                    if res.status_code == 200:
+                        s = BeautifulSoup(res.text, 'html.parser')
+                        meta = s.find("meta", property="og:image")
+                        if meta and meta.get("content"):
+                            return meta.get("content")
+                except:
+                    pass
+                return ""
 
             # 1. Fetch Recent Activity (via RSS)
             recent_activity = []
@@ -56,18 +68,15 @@ class handler(BaseHTTPRequestHandler):
                 if fav_section:
                     for div in fav_section.find_all('div', class_='react-component'):
                         fav_title = div.get('data-item-full-display-name', '')
-                        target_link = div.get('data-target-link', '')
-                        poster_url = div.get('data-poster-url', '')
-                        if not poster_url:
-                            img = div.find('img')
-                            poster_url = img.get('src', '') if img else ''
-                        else:
-                            poster_url = base_url + poster_url
+                        target_link = div.get('data-target-link', '') # Example: /film/interstellar/
+                        base_film_link = div.get('data-film-link', target_link)
+                        
+                        cover_url = get_hd_poster(base_film_link)
 
                         favorite_films.append({
                             "title": fav_title,
-                            "link": base_url + target_link if target_link else "",
-                            "cover_url": poster_url
+                            "link": base_url + base_film_link if base_film_link else "",
+                            "cover_url": cover_url
                         })
 
             # 3. Fetch Watchlist
@@ -75,21 +84,16 @@ class handler(BaseHTTPRequestHandler):
             watch_resp = requests.get(f"{base_url}/{username}/watchlist/", headers=headers)
             if watch_resp.status_code == 200:
                 watch_soup = BeautifulSoup(watch_resp.text, 'html.parser')
-                # Find all LazyPosters directly, handling cases where grid wrapper classes change
-                for div in watch_soup.find_all('div', attrs={'data-component-class': 'LazyPoster'})[:10]: # limit to top 10
+                for div in watch_soup.find_all('div', attrs={'data-component-class': 'LazyPoster'})[:10]:
                     watch_title = div.get('data-item-full-display-name', '')
-                    target_link = div.get('data-target-link', '')
-                    poster_url = div.get('data-poster-url', '')
-                    if not poster_url:
-                        img = div.find('img')
-                        poster_url = img.get('src', '') if img else ''
-                    else:
-                        poster_url = base_url + poster_url
+                    target_link = div.get('data-film-link', div.get('data-target-link', ''))
+                    
+                    cover_url = get_hd_poster(target_link)
 
                     watchlist_films.append({
                         "title": watch_title,
                         "link": base_url + target_link if target_link else "",
-                        "cover_url": poster_url
+                        "cover_url": cover_url
                     })
 
             movies_data = {

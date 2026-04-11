@@ -238,9 +238,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         const delayClass = `delay-${(index % 4) + 1}`;
                         const html = `
                             <a href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="glass-card spotify-track-card fade-in ${delayClass}" style="text-decoration: none;">
-                                <img src="${track.cover_url || ""}" alt="${track.name}" class="spotify-track-img">
+                                <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
                                 <div class="spotify-track-info">
-                                    <span class="spotify-track-title">${track.name}</span>
+                                    <span class="spotify-track-title">${track.title}</span>
                                     <span class="spotify-track-artist">${track.artist}</span>
                                 </div>
                             </a>
@@ -272,35 +272,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Goodreads Data Fetching
     const booksContainer = document.getElementById("goodreads-books-container");
+    const indexBooksContainer = document.getElementById("index-books-container");
 
-    if (booksContainer) {
+    if (booksContainer || indexBooksContainer) {
         fetch("/api/books")
             .then(res => res.json())
             .then(json => {
-                if (!json.success || !json.data) {
-                    booksContainer.innerHTML = `<p style="color: #ff6b6b; font-family: 'Playfair Display', serif;">Failed to load Library.</p>`;
-                    return;
+                const books = json.data || [];
+
+                if (booksContainer) {
+                    booksContainer.innerHTML = "";
+                    if (books.length === 0) {
+                        booksContainer.innerHTML = `<p style="color: rgba(230,223,204,0.6); font-family: 'Playfair Display', serif; font-style: italic;">No books found on the shelf.</p>`;
+                    } else {
+                        books.forEach((book, index) => {
+                            const delayClass = `delay-${(index % 4) + 1}`;
+                            const html = `
+                                <a href="${book.link || "#"}" target="_blank" rel="noopener noreferrer" class="classical-book-card fade-in ${delayClass}" style="text-decoration: none;">
+                                    <img src="${book.cover_url || ""}" alt="${book.title}" class="classical-book-cover">
+                                    <div class="classical-book-info">
+                                        <span class="classical-book-title">${book.title}</span>
+                                        <span class="classical-book-author">${book.author}</span>
+                                    </div>
+                                </a>
+                            `;
+                            booksContainer.insertAdjacentHTML("beforeend", html);
+                        });
+                    }
                 }
 
-                const books = json.data;
-                booksContainer.innerHTML = "";
-
-                if (books.length === 0) {
-                    booksContainer.innerHTML = `<p style="color: rgba(230,223,204,0.6); font-family: 'Playfair Display', serif; font-style: italic;">No books found on the shelf.</p>`;
-                } else {
-                    books.forEach((book, index) => {
-                        const delayClass = `delay-${(index % 4) + 1}`;
-                        const html = `
-                            <a href="#" target="_blank" rel="noopener noreferrer" class="classical-book-card fade-in ${delayClass}" style="text-decoration: none;">
-                                <img src="${book.cover_url || ""}" alt="${book.title}" class="classical-book-cover">
-                                <div class="classical-book-info">
-                                    <span class="classical-book-title">${book.title}</span>
-                                    <span class="classical-book-author">${book.author}</span>
-                                </div>
-                            </a>
-                        `;
-                        booksContainer.insertAdjacentHTML("beforeend", html);
-                    });
+                if (indexBooksContainer) {
+                    indexBooksContainer.innerHTML = "";
+                    if (books.length === 0) {
+                        indexBooksContainer.innerHTML = `<p style="color: var(--text-secondary);">No books active.</p>`;
+                    } else {
+                        books.slice(0, 4).forEach((book, index) => {
+                            const delayClass = `delay-${(index % 4) + 1}`;
+                            const html = `
+                                <a href="${book.link || "#"}" target="_blank" rel="noopener noreferrer" class="glass-card list-card fade-in ${delayClass}" style="text-decoration: none; display: flex; align-items: center; gap: 16px;">
+                                    <img src="${book.cover_url || ""}" alt="${book.title}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                                    <div class="list-title">
+                                        <h3 style="color: var(--text-primary); font-size: 1.05rem;">${book.title}</h3>
+                                        <p style="color: var(--text-secondary); font-size: 0.9rem;">${book.author}</p>
+                                    </div>
+                                </a>
+                            `;
+                            indexBooksContainer.insertAdjacentHTML("beforeend", html);
+                        });
+                        
+                        // Manually rebind index glass card 3D tilt
+                        document.querySelectorAll("#index-books-container .glass-card").forEach(card => {
+                            card.addEventListener("mousemove", e => handleOnMouseMove(e));
+                            card.addEventListener("mouseleave", () => {
+                                card.style.transform = "perspective(1200px) rotateX(0) rotateY(0) scale3d(1, 1, 1)";
+                                card.style.transition = "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.4s ease";
+                            });
+                            card.addEventListener("mouseenter", () => {
+                                card.style.transition = "none";
+                            });
+                        });
+                    }
                 }
 
                 document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));

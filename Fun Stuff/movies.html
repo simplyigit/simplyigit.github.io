@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies | Yigit</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body>
+    <!-- Cinematic Dark Gradient Background for this page only -->
+    <div style="position: fixed; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(20, 30, 48, 0.4) 0%, rgba(36, 59, 85, 0.1) 100%); z-index: -2; pointer-events: none;"></div>
+
+    <div class="container fade-in">
+        <header class="hero">
+            <h1 class="gradient-text" style="font-size: 3.5rem;">Cinema.</h1>
+            <p class="subtitle" style="font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; line-height: 1.6; margin-top: 12px;">Data synced directly from Letterboxd. A collection of cinematic experiences that left an impression.</p>
+        </header>
+
+        <section class="section" style="margin-bottom: 50px;">
+            <a href="../index.html" class="glass-card back-btn" style="display:inline-flex; align-items:center;">
+                <span class="arrow" style="transform: rotate(180deg); margin-right: 8px;">→</span> Back to Portfolio
+            </a>
+        </section>
+
+        <!-- Block 1: Favorite Films (Highly Prominent) -->
+        <section class="section" style="margin-bottom: 80px;">
+            <h2 class="section-title" style="border-left: 4px solid #FF8000; padding-left: 12px; margin-bottom: 30px;">All-Time Favorites</h2>
+            <div id="movies-favorites-container" class="movies-favorites-grid">
+                <p id="movies-loading" style="color: var(--text-secondary);">Connecting to Letterboxd <span class="loading-dots">...</span></p>
+            </div>
+        </section>
+
+        <!-- Block 2: Recent Activity & Watchlist (Split Layout) -->
+        <div class="movies-split-layout">
+            <section class="section" style="flex: 1;">
+                <h2 class="section-title" style="border-left: 4px solid #00E5FF; padding-left: 12px;">Recent Watches</h2>
+                <div id="movies-recent-container" class="movies-recent-grid">
+                </div>
+            </section>
+            
+            <section class="section" style="flex: 1;">
+                <h2 class="section-title" style="border-left: 4px solid #00E054; padding-left: 12px;">Watchlist</h2>
+                <div id="movies-watchlist-container" class="movies-watchlist-grid">
+                </div>
+            </section>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 yiğit.</p>
+        </footer>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html>

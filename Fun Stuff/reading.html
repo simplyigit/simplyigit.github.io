@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading List | Yigit</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Add Playfair Display explicitly for the 'Classical' look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body>
+    <div class="container fade-in">
+        <header class="hero">
+            <h1>Library.</h1>
+            <p class="subtitle" style="font-family: 'Playfair Display', serif; font-style: italic; max-width: 600px; color: var(--text-secondary); line-height: 1.6; margin-top: 12px; font-size: 1.1rem;">
+                "A reader lives a thousand lives before he dies."<br>
+                Dynamically synced from my Goodreads bookshelf.
+            </p>
+        </header>
+
+        <section class="section" style="margin-bottom: 60px;">
+            <a href="../index.html" class="glass-card back-btn" style="display:inline-flex; align-items:center;">
+                <span class="arrow" style="transform: rotate(180deg); margin-right: 8px;">→</span> Back to Portfolio
+            </a>
+        </section>
+        
+        <section class="section">
+            <h2 class="section-title" style="font-family: 'Playfair Display', serif;">Currently Reading & Backlog</h2>
+            <div id="goodreads-books-container" class="classical-books-grid">
+                <p id="books-loading" style="color: var(--text-secondary); font-family: 'Playfair Display', serif; font-style: italic;">Dusting off the shelves <span class="loading-dots">...</span></p>
+            </div>
+        </section>
+        
+        <footer>
+            <p>&copy; 2026 yiğit.</p>
+        </footer>
+    </div>
+    
+    <script src="../script.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heavy Rotation | Yigit</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body>
+    <div class="container fade-in">
+        <header class="hero">
+            <h1>Heavy Rotation.</h1>
+            <p class="subtitle" style="max-width: 600px; color: var(--text-secondary); line-height: 1.6; margin-top: 12px;">Data natively pulled from Spotify API. Below are my most played tracks and artists from the last 4 weeks.</p>
+        </header>
+
+        <section class="section" style="margin-bottom: 60px;">
+            <a href="../index.html" class="glass-card back-btn" style="display:inline-flex; align-items:center;">
+                <span class="arrow" style="transform: rotate(180deg); margin-right: 8px;">→</span> Back to Portfolio
+            </a>
+        </section>
+
+        <!-- Artists Section -->
+        <section class="section">
+            <h2 class="section-title">Top Artists</h2>
+            <div id="spotify-artists-container" class="spotify-artists-grid">
+                <p id="spotify-loading" style="color: var(--text-secondary);">Connecting to Spotify <span class="loading-dots">...</span></p>
+            </div>
+        </section>
+
+        <!-- Tracks Section -->
+        <section class="section">
+            <h2 class="section-title">Top Tracks</h2>
+            <div id="spotify-tracks-container" class="spotify-tracks-grid">
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 yiğit.</p>
+        </footer>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html>

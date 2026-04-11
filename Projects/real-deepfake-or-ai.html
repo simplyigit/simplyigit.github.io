@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real, Deepfake or AI | yiğit</title>
+    <meta name="robots" content="noindex, nofollow">
+    <!-- Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body>
+    <div class="blob blob-1" style="background: rgba(100, 200, 255, 0.1)"></div>
+    <div class="blob blob-2" style="background: rgba(180, 50, 255, 0.08)"></div>
+
+    <div class="container fade-in">
+
+        <section class="section"
+            style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="../index.html" class="glass-card back-btn">
+                <span class="arrow" style="transform: rotate(180deg); margin-right: 8px;">→</span> Portfolio
+            </a>
+
+            <a href="https://github.com/simplyigit/Real-Deepfake-or-AI" target="_blank" rel="noopener noreferrer"
+                class="glass-card repo-btn">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <path
+                        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                    </path>
+                </svg>
+                Repository <span class="arrow" style="margin-right: 8px;"></span>→
+            </a>
+        </section>
+
+        <section class="section">
+            <div class="list-grid">
+                <div class="glass-card list-card fade-in delay-1"
+                    style="flex-direction: column; align-items: flex-start; gap: 20px;">
+                    <img src="../images/real-deepfake-or-ai-thumb.png"
+                        style="width: 100%; object-fit: cover; border-radius: 8px; margin-bottom: -15px; margin-top: 8px;"
+                        alt="Real, Deepfake or AI">
+                    <div id="github-content" style="width: 100%;">
+                        <p style="text-align: center; color: var(--text-secondary);">Loading project data from GitHub
+                            <span class="loading-dots">...</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Yigit.</p>
+        </footer>
+    </div>
+
+    <script src="../script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const repo = "simplyigit/Real-Deepfake-or-AI"; // Replace if capitalization or name differs
+
+            // Try fetching README from main, fallback to master
+            const fetchReadme = (branch) => fetch(`https://raw.githubusercontent.com/${repo}/${branch}/README.md`).then(r => {
+                if (!r.ok) throw new Error("Not found");
+                return r.text();
+            });
+
+            fetchReadme('main')
+                .catch(() => fetchReadme('master'))
+                .then(text => {
+                    const html = marked.parse(text);
+                    document.getElementById("github-content").innerHTML = html;
+                })
+                .catch(err => {
+                    document.getElementById("github-content").innerHTML =
+                        "<p style='color: #ff6b6b;'>Could not load README from GitHub. Please verify the repository name and make sure it is public.</p>";
+                });
+        });
+    </script>
+</body>
+
+</html>

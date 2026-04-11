@@ -17,6 +17,7 @@ class handler(BaseHTTPRequestHandler):
 
         try:
             import xml.etree.ElementTree as ET
+            import re
 
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36: simplyigit caching'
@@ -28,10 +29,10 @@ class handler(BaseHTTPRequestHandler):
                 try:
                     res = requests.get(base_url + film_link, headers=headers)
                     if res.status_code == 200:
-                        s = BeautifulSoup(res.text, 'html.parser')
-                        meta = s.find("meta", property="og:image")
-                        if meta and meta.get("content"):
-                            return meta.get("content")
+                        # Extract explicit 2:3 poster from JSON-LD instead of the og:image backdrops
+                        m = re.search(r'"image":"(https://a\.ltrbxd\.com[^"]+)"', res.text)
+                        if m:
+                            return m.group(1)
                 except:
                     pass
                 return ""

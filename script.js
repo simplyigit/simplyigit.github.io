@@ -309,27 +309,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         books.slice(0, 4).forEach((book, index) => {
                             const delayClass = `delay-${(index % 4) + 1}`;
                             const html = `
-                                <a href="${book.link || "#"}" target="_blank" rel="noopener noreferrer" class="glass-card list-card fade-in ${delayClass}" style="text-decoration: none; display: flex; align-items: center; gap: 16px;">
-                                    <img src="${book.cover_url || ""}" alt="${book.title}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                                    <div class="list-title">
-                                        <h3 style="color: var(--text-primary); font-size: 1.05rem;">${book.title}</h3>
-                                        <p style="color: var(--text-secondary); font-size: 0.9rem;">${book.author}</p>
-                                    </div>
-                                </a>
+                                <img src="${book.cover_url || ""}" alt="${book.title}" title="${book.title}" class="book fade-in ${delayClass}" style="object-fit: cover; box-shadow: 0 2px 5px rgba(0,0,0,0.4); cursor: pointer;" onclick="event.preventDefault(); window.open('${book.link || "#"}', '_blank');">
                             `;
                             indexBooksContainer.insertAdjacentHTML("beforeend", html);
-                        });
-                        
-                        // Manually rebind index glass card 3D tilt
-                        document.querySelectorAll("#index-books-container .glass-card").forEach(card => {
-                            card.addEventListener("mousemove", e => handleOnMouseMove(e));
-                            card.addEventListener("mouseleave", () => {
-                                card.style.transform = "perspective(1200px) rotateX(0) rotateY(0) scale3d(1, 1, 1)";
-                                card.style.transition = "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.4s ease";
-                            });
-                            card.addEventListener("mouseenter", () => {
-                                card.style.transition = "none";
-                            });
                         });
                     }
                 }

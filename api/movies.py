@@ -9,11 +9,9 @@ class handler(BaseHTTPRequestHandler):
         # Set aggressive caching headers to explicitly prevent page loading latency
         # s-maxage=86400 -> Vercel edge CDN caches the response for 24 hours.
         # stale-while-revalidate -> Vercel serves the old cache instantly to users, while rebuilding the new cache invisibly in the background.
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Cache-Control', 's-maxage=86400, stale-while-revalidate')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
+        response_data = None
+        response_status = 200
+        cache_header = 's-maxage=86400, stale-while-revalidate'
 
         try:
             import xml.etree.ElementTree as ET
@@ -46,14 +44,14 @@ class handler(BaseHTTPRequestHandler):
                     title_text = item.find('title').text if item.find('title') is not None else ""
                     link_text = item.find('link').text if item.find('link') is not None else ""
                     desc_html = item.find('description').text if item.find('description') is not None else ""
-                    
+
                     cover_url = ""
                     if desc_html:
                         desc_soup = BeautifulSoup(desc_html, 'html.parser')
                         img = desc_soup.find('img')
                         if img:
                             cover_url = img.get('src')
-                            
+
                     recent_activity.append({
                         "title_and_rating": title_text,
                         "link": link_text,
@@ -71,7 +69,7 @@ class handler(BaseHTTPRequestHandler):
                         fav_title = div.get('data-item-full-display-name', '')
                         target_link = div.get('data-target-link', '') # Example: /film/interstellar/
                         base_film_link = div.get('data-film-link', target_link)
-                        
+
                         cover_url = get_hd_poster(base_film_link)
 
                         favorite_films.append({
@@ -88,7 +86,7 @@ class handler(BaseHTTPRequestHandler):
                 for div in watch_soup.find_all('div', attrs={'data-component-class': 'LazyPoster'})[:10]:
                     watch_title = div.get('data-item-full-display-name', '')
                     target_link = div.get('data-film-link', div.get('data-target-link', ''))
-                    
+
                     cover_url = get_hd_poster(target_link)
 
                     watchlist_films.append({
@@ -108,10 +106,20 @@ class handler(BaseHTTPRequestHandler):
                 "data": movies_data,
                 "timestamp": time.time()
             }
-            
-            self.wfile.write(json.dumps(response).encode('utf-8'))
+
+            response_data = response
 
         except Exception as e:
             error_response = {"success": False, "error": str(e)}
-            self.wfile.write(json.dumps(error_response).encode('utf-8'))
+            response_data = error_response
+            response_status = 500
+            cache_header = 'no-store, no-cache, must-revalidate, max-age=0'
+
+        self.send_response(response_status)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Cache-Control', cache_header)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        if response_data:
+            self.wfile.write(json.dumps(response_data).encode('utf-8'))
         return

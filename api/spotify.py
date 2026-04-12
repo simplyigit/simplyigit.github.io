@@ -7,17 +7,16 @@ from base64 import b64encode
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
+        response_data = None
+        response_status = 200
+        cache_header = 's-maxage=86400, stale-while-revalidate'
+
         # Set aggressive caching headers to explicitly prevent page loading latency
-        self.send_header('Cache-Control', 's-maxage=86400, stale-while-revalidate')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
 
         try:
             client_id = os.environ.get('CLIENT_ID')
             client_secret = os.environ.get('CLIENT_SECRET')
-            
+
             # Gist DB credentials for Serverless Token Rotation
             gist_id = os.environ.get('GIST_ID')
             github_token = os.environ.get('GITHUB_TOKEN')
@@ -32,17 +31,17 @@ class handler(BaseHTTPRequestHandler):
             }
             gist_url = f"https://api.github.com/gists/{gist_id}"
             gist_response = requests.get(gist_url, headers=gist_headers)
-            
+
             if gist_response.status_code != 200:
                 raise Exception(f"Failed to read Gist DB: {gist_response.text}")
-                
+
             gist_data = gist_response.json()
             files = gist_data.get("files", {})
             first_file = list(files.values())[0] if files else None
-            
+
             if not first_file:
                 raise Exception("Gist database is empty.")
-                
+
             current_refresh_token = first_file.get("content", "").strip()
 
             if not current_refresh_token:
@@ -61,10 +60,10 @@ class handler(BaseHTTPRequestHandler):
                 'client_id': client_id
             }
             token_response = requests.post('https://accounts.spotify.com/api/token', data=token_data, headers=token_headers)
-            
+
             if token_response.status_code != 200:
                 raise Exception(f"Failed to refresh token: {token_response.text}")
-            
+
             token_json = token_response.json()
             access_token = token_json.get('access_token')
             new_refresh_token = token_json.get('refresh_token')
@@ -87,13 +86,13 @@ class handler(BaseHTTPRequestHandler):
             # 4. Fetch Top Tracks (short_term = approx last 4 weeks)
             tracks_url = "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5"
             api_headers = {"Authorization": f"Bearer {access_token}"}
-            
+
             tracks_response = requests.get(tracks_url, headers=api_headers)
             if tracks_response.status_code != 200:
                  raise Exception(f"Failed to fetch top tracks: {tracks_response.text}")
-                 
+
             tracks_data = tracks_response.json()
-            
+
             # 5. Format Top Tracks
             top_tracks = []
             for item in tracks_data.get('items', []):
@@ -109,9 +108,9 @@ class handler(BaseHTTPRequestHandler):
             artists_response = requests.get(artists_url, headers=api_headers)
             if artists_response.status_code != 200:
                  raise Exception(f"Failed to fetch top artists: {artists_response.text}")
-                 
+
             artists_data = artists_response.json()
-            
+
             # 7. Format Top Artists
             top_artists = []
             for item in artists_data.get('items', []):
@@ -129,9 +128,19 @@ class handler(BaseHTTPRequestHandler):
                 },
                 "timestamp": time.time()
             }
-            self.wfile.write(json.dumps(response).encode('utf-8'))
+            response_data = response
 
         except Exception as e:
             error_response = {"success": False, "error": str(e)}
-            self.wfile.write(json.dumps(error_response).encode('utf-8'))
+            response_data = error_response
+            response_status = 500
+            cache_header = 'no-store, no-cache, must-revalidate, max-age=0'
+
+        self.send_response(response_status)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Cache-Control', cache_header)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        if response_data:
+            self.wfile.write(json.dumps(response_data).encode('utf-8'))
         return

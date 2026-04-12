@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {
-                    artistsContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to load Spotify data.</p>`;
+                    artistsContainer.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Spotify Edge DB Error: ${json.error || "Unknown Failure"}</p>`;
                     return;
                 }
 

@@ -9,6 +9,7 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
+        # Set aggressive caching headers to explicitly prevent page loading latency
         self.send_header('Cache-Control', 's-maxage=86400, stale-while-revalidate')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
@@ -16,12 +17,38 @@ class handler(BaseHTTPRequestHandler):
         try:
             client_id = os.environ.get('CLIENT_ID')
             client_secret = os.environ.get('CLIENT_SECRET')
-            refresh_token = os.environ.get('REFRESH_TOKEN')
+            
+            # Gist DB credentials for Serverless Token Rotation
+            gist_id = os.environ.get('GIST_ID')
+            github_token = os.environ.get('GITHUB_TOKEN')
 
-            if not all([client_id, client_secret, refresh_token]):
-                raise ValueError("Missing Spotify credentials in environment variables.")
+            if not all([client_id, client_secret, gist_id, github_token]):
+                raise ValueError("Missing Spotify or Gist credentials in environment variables.")
 
-            # 1. Get Access Token
+            # 1. READ Refresh Token from Gist (Stateless DB)
+            gist_headers = {
+                "Authorization": f"token {github_token}",
+                "Accept": "application/vnd.github.v3+json"
+            }
+            gist_url = f"https://api.github.com/gists/{gist_id}"
+            gist_response = requests.get(gist_url, headers=gist_headers)
+            
+            if gist_response.status_code != 200:
+                raise Exception(f"Failed to read Gist DB: {gist_response.text}")
+                
+            gist_data = gist_response.json()
+            files = gist_data.get("files", {})
+            first_file = list(files.values())[0] if files else None
+            
+            if not first_file:
+                raise Exception("Gist database is empty.")
+                
+            current_refresh_token = first_file.get("content", "").strip()
+
+            if not current_refresh_token:
+                raise Exception("Refresh token in Gist is empty.")
+
+            # 2. Get Access Token
             auth_str = f"{client_id}:{client_secret}"
             b64_auth_str = b64encode(auth_str.encode()).decode()
             token_headers = {
@@ -30,7 +57,7 @@ class handler(BaseHTTPRequestHandler):
             }
             token_data = {
                 'grant_type': 'refresh_token',
-                'refresh_token': refresh_token,
+                'refresh_token': current_refresh_token,
                 'client_id': client_id
             }
             token_response = requests.post('https://accounts.spotify.com/api/token', data=token_data, headers=token_headers)
@@ -38,9 +65,24 @@ class handler(BaseHTTPRequestHandler):
             if token_response.status_code != 200:
                 raise Exception(f"Failed to refresh token: {token_response.text}")
             
-            access_token = token_response.json().get('access_token')
+            token_json = token_response.json()
+            access_token = token_json.get('access_token')
+            new_refresh_token = token_json.get('refresh_token')
 
-            # 2. Fetch Top Tracks (short_term = approx last 4 weeks)
+            # 3. ROTATE Refresh Token in Gist DB (if Spotify issued a new one)
+            if new_refresh_token and new_refresh_token != current_refresh_token:
+                filename = list(files.keys())[0]
+                patch_data = {
+                    "files": {
+                        filename: {
+                            "content": new_refresh_token
+                        }
+                    }
+                }
+                # Seamlessly write back to the Gist without touching Vercel's read-only .env!
+                requests.patch(gist_url, headers=gist_headers, json=patch_data)
+
+            # 4. Fetch Top Tracks (short_term = approx last 4 weeks)
             tracks_url = "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5"
             api_headers = {"Authorization": f"Bearer {access_token}"}
             
@@ -50,7 +92,7 @@ class handler(BaseHTTPRequestHandler):
                  
             tracks_data = tracks_response.json()
             
-            # 3. Format Top Tracks
+            # 5. Format Top Tracks
             top_tracks = []
             for item in tracks_data.get('items', []):
                 top_tracks.append({
@@ -60,7 +102,7 @@ class handler(BaseHTTPRequestHandler):
                     "cover_url": item.get('album', {}).get('images', [{}])[0].get('url') if item.get('album', {}).get('images') else None
                 })
 
-            # 4. Fetch Top Artists (short_term = approx last 4 weeks)
+            # 6. Fetch Top Artists (short_term = approx last 4 weeks)
             artists_url = "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=5"
             artists_response = requests.get(artists_url, headers=api_headers)
             if artists_response.status_code != 200:
@@ -68,7 +110,7 @@ class handler(BaseHTTPRequestHandler):
                  
             artists_data = artists_response.json()
             
-            # 5. Format Top Artists
+            # 7. Format Top Artists
             top_artists = []
             for item in artists_data.get('items', []):
                 top_artists.append({

@@ -6,12 +6,12 @@ const projects = [
         type: "wide",
         customClass: "project-real",
         visualHtml: '<img src="images/real-deepfake-or-ai.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Real, Deepfake or AI">',
-        url: "Projects/real-deepfake-or-ai.html"
+        url: "projects/real-deepfake-or-ai.html"
     }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-    
+
     // Inject hardware-accelerated ambient meshes to destroy banding
     document.body.insertAdjacentHTML('afterbegin', `
         <div id="ambient-mesh">
@@ -20,7 +20,64 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="orb orb-3"></div>
         </div>
     `);
-    
+
+    // Avatar 3D Tracking Logic
+    const heroTube = document.querySelector('.unified-hero-tube');
+    const avatar = document.querySelector('.avatar-memoji');
+    if (heroTube && avatar) {
+        heroTube.addEventListener('mousemove', (e) => {
+            const rect = heroTube.getBoundingClientRect();
+            const x = e.clientX - rect.left - (rect.width / 2);
+            const y = e.clientY - rect.top - (rect.height / 2);
+            const rotateX = (y / (rect.height / 2)) * -15;
+            const rotateY = (x / (rect.width / 2)) * 15;
+            avatar.style.transformOrigin = 'center center';
+            avatar.style.transform = `scale(1.15) perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            avatar.style.transition = 'none';
+        });
+
+        heroTube.addEventListener('mouseleave', () => {
+            avatar.style.transform = `scale(1.15) perspective(500px) rotateX(0deg) rotateY(0deg)`;
+            avatar.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        });
+
+        heroTube.addEventListener('mouseenter', () => {
+            avatar.style.transition = 'none';
+        });
+    }
+
+    // Fun Stuff Floating Emoji Spawner
+    const emojis = {
+        'fun-aoty': ['🎵', '🎶', '🎸', '🎹', '🎧'],
+        'fun-books': ['📖', '📚', '🔖', '🖋️', '☕'],
+        'fun-movies': ['🎬', '🍿', '🎞️', '⭐', '🎥']
+    };
+
+    document.querySelectorAll('.fun-aoty, .fun-books, .fun-movies').forEach(card => {
+        let lastSpawnTime = 0;
+        card.addEventListener('mousemove', (e) => {
+            const now = Date.now();
+            if (now - lastSpawnTime < 150) return; // Throttle spawn rate
+            lastSpawnTime = now;
+
+            let classSet = [];
+            if (card.classList.contains('fun-aoty')) classSet = emojis['fun-aoty'];
+            else if (card.classList.contains('fun-books')) classSet = emojis['fun-books'];
+            else if (card.classList.contains('fun-movies')) classSet = emojis['fun-movies'];
+
+            const randomEmoji = classSet[Math.floor(Math.random() * classSet.length)];
+            const particle = document.createElement('div');
+            particle.textContent = randomEmoji;
+            particle.className = 'floating-emoji';
+            // Spawning coordinate tracking exact cursor document position
+            particle.style.left = `${e.pageX + (Math.random() * 20 - 10)}px`;
+            particle.style.top = `${e.pageY + (Math.random() * 20 - 10)}px`;
+
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 1000);
+        });
+    });
+
     const container = document.getElementById("projects-container");
 
     if (container) {
@@ -83,24 +140,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Scroll-interactive background mesh
     let scrollPercent = 0;
-    
+
     const updateMesh = (mouseXPercent = 0.5, mouseYPercent = 0.5) => {
         // Blend scroll math and mouse parallax
         const y1 = 20 + (scrollPercent * 40) + ((mouseYPercent - 0.5) * 10);
         const x1 = 20 + ((mouseXPercent - 0.5) * 10);
-        
+
         const y2 = 80 - (scrollPercent * 50) + ((mouseYPercent - 0.5) * -15);
         const x2 = 80 + ((mouseXPercent - 0.5) * -15);
-        
+
         const y3 = 50 + (scrollPercent * 30) + ((mouseYPercent - 0.5) * 8);
         const x3 = 50 + (scrollPercent * 20) + ((mouseXPercent - 0.5) * 12);
-        
+
         document.body.style.setProperty('--bg-y1', `${y1}%`);
         document.body.style.setProperty('--bg-x1', `${x1}%`);
-        
+
         document.body.style.setProperty('--bg-y2', `${y2}%`);
         document.body.style.setProperty('--bg-x2', `${x2}%`);
-        
+
         document.body.style.setProperty('--bg-y3', `${y3}%`);
         document.body.style.setProperty('--bg-x3', `${x3}%`);
     };
@@ -116,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         updateMesh();
     });
-    
+
     window.addEventListener('mousemove', (e) => {
         const mouseXPercent = e.clientX / window.innerWidth;
         const mouseYPercent = e.clientY / window.innerHeight;
@@ -159,14 +216,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Typewriter Effect
     const statusText = document.querySelector('.status-text');
     if (statusText) {
-        const phrases = ["Machine Learning & Software", "Python Developer", "AI Research Student"];
+        const phrases = ["Machine Learning & Software", "Python Developer", "AI & Robotics Student"];
         let phraseIndex = 0;
         let charIndex = phrases[0].length;
         let isDeleting = true;
 
         const type = () => {
             const currentPhrase = phrases[phraseIndex];
-            
+
             if (isDeleting) {
                 charIndex--;
             } else {
@@ -194,17 +251,20 @@ document.addEventListener("DOMContentLoaded", () => {
         // Start typing loop after an initial delay
         setTimeout(type, 2000);
     } // CRITICAL FIX: Properly close the statusText block so sub-page APIs execute!
-    
+
     // Spotify Data Fetching
     const artistsContainer = document.getElementById("spotify-artists-container");
     const tracksContainer = document.getElementById("spotify-tracks-container");
+    const indexSpotifyContainer = document.getElementById("index-spotify-container");
+    const vinylCenter = document.querySelector(".vinyl-center");
 
-    if (artistsContainer && tracksContainer) {
+    if (artistsContainer || tracksContainer || indexSpotifyContainer) {
         fetch("/api/spotify?v=3.5")
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {
-                    artistsContainer.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Spotify Edge DB Error: ${json.error || "Unknown Failure"}</p>`;
+                    if(artistsContainer) artistsContainer.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Spotify Edge DB Error: ${json.error || "Unknown Failure"}</p>`;
+                    if(indexSpotifyContainer) indexSpotifyContainer.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Failed</p>`;
                     return;
                 }
 
@@ -213,45 +273,71 @@ document.addEventListener("DOMContentLoaded", () => {
                 const tracks = data.top_tracks_last_month || [];
 
                 // Render Artists
-                artistsContainer.innerHTML = "";
-                if (artists.length === 0) {
-                    artistsContainer.innerHTML = `<p style="color: var(--text-secondary);">No artists found.</p>`;
-                } else {
-                    artists.forEach((artist, index) => {
-                        const delayClass = `delay-${(index % 3) + 1}`;
-                        const html = `
-                            <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item fade-in ${delayClass}" style="text-decoration: none;">
-                                <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img">
-                                <span class="spotify-artist-name">${artist.name}</span>
-                            </a>
-                        `;
-                        artistsContainer.insertAdjacentHTML("beforeend", html);
-                    });
+                if(artistsContainer) {
+                    artistsContainer.innerHTML = "";
+                    if (artists.length === 0) {
+                        artistsContainer.innerHTML = `<p style="color: var(--text-secondary);">No artists found.</p>`;
+                    } else {
+                        artists.forEach((artist, index) => {
+                            const delayClass = `delay-${(index % 3) + 1}`;
+                            const html = `
+                                <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item fade-in ${delayClass}" style="text-decoration: none;">
+                                    <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img">
+                                    <span class="spotify-artist-name">${artist.name}</span>
+                                </a>
+                            `;
+                            artistsContainer.insertAdjacentHTML("beforeend", html);
+                        });
+                    }
                 }
 
                 // Render Tracks
-                tracksContainer.innerHTML = "";
-                if (tracks.length === 0) {
-                    tracksContainer.innerHTML = `<p style="color: var(--text-secondary);">No tracks found.</p>`;
-                } else {
-                    tracks.forEach((track, index) => {
-                        const delayClass = `delay-${(index % 4) + 1}`;
-                        const html = `
-                            <a href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="glass-card spotify-track-card fade-in ${delayClass}" style="text-decoration: none;">
-                                <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
-                                <div class="spotify-track-info">
-                                    <span class="spotify-track-title">${track.title}</span>
-                                    <span class="spotify-track-artist">${track.artist}</span>
-                                </div>
-                            </a>
-                        `;
-                        tracksContainer.insertAdjacentHTML("beforeend", html);
-                    });
+                if(tracksContainer) {
+                    tracksContainer.innerHTML = "";
+                    if (tracks.length === 0) {
+                        tracksContainer.innerHTML = `<p style="color: var(--text-secondary);">No tracks found.</p>`;
+                    } else {
+                        tracks.forEach((track, index) => {
+                            const delayClass = `delay-${(index % 4) + 1}`;
+                            const html = `
+                                <a href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card fade-in ${delayClass}" style="text-decoration: none;">
+                                    <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
+                                    <div class="spotify-track-info">
+                                        <span class="spotify-track-title">${track.title}</span>
+                                        <span class="spotify-track-artist">${track.artist}</span>
+                                    </div>
+                                </a>
+                            `;
+                            tracksContainer.insertAdjacentHTML("beforeend", html);
+                        });
+                    }
+                }
+
+                // Render Index Spotify Block
+                if(indexSpotifyContainer && tracks.length > 0) {
+                    const topTrack = tracks[0];
+                    indexSpotifyContainer.innerHTML = `
+                        <img src="${topTrack.cover_url || ""}" class="fade-in" style="width: 54px; height: 54px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                        <div style="display: flex; flex-direction: column; justify-content: center; overflow: hidden;">
+                            <span class="fade-in" style="font-weight: 600; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;" title="${topTrack.title}">${topTrack.title}</span>
+                            <span class="fade-in" style="font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;" title="${topTrack.artist}">${topTrack.artist}</span>
+                        </div>
+                    `;
+                    indexSpotifyContainer.style.flexDirection = "row";
+                    indexSpotifyContainer.style.alignItems = "center";
+                    indexSpotifyContainer.style.gap = "14px";
+                    
+                    if(vinylCenter && topTrack.cover_url) {
+                        vinylCenter.style.backgroundImage = `url(${topTrack.cover_url})`;
+                        vinylCenter.style.backgroundSize = 'cover';
+                        vinylCenter.style.backgroundPosition = 'center';
+                        vinylCenter.classList.add("fade-in");
+                    }
                 }
 
                 // Re-trigger intersection observer for newly injected elements
                 document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
-                
+
                 // Re-trigger 3D tilt bindings for new glass cards
                 document.querySelectorAll(".glass-card").forEach(card => {
                     card.addEventListener("mousemove", e => handleOnMouseMove(e));
@@ -304,12 +390,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (indexBooksContainer) {
                     indexBooksContainer.innerHTML = "";
                     if (books.length === 0) {
-                        indexBooksContainer.innerHTML = `<p style="color: var(--text-secondary);">No books active.</p>`;
+                        indexBooksContainer.innerHTML = `<p style="color: var(--text-secondary);">Empty.</p>`;
                     } else {
-                        books.slice(0, 4).forEach((book, index) => {
+                        // Fan out 3 books majestically overlapping each other
+                        books.slice(0, 3).forEach((book, index) => {
                             const delayClass = `delay-${(index % 4) + 1}`;
+                            const rotateOffset = (index - 1) * 8; // -8deg, 0deg, 8deg
                             const html = `
-                                <img src="${book.cover_url || ""}" alt="${book.title}" title="${book.title}" class="book fade-in ${delayClass}" style="object-fit: cover; box-shadow: 0 2px 5px rgba(0,0,0,0.4); cursor: pointer;" onclick="event.preventDefault(); window.open('${book.link || "#"}', '_blank');">
+                                <img src="${book.cover_url || ""}" alt="${book.title}" title="${book.title}" class="book fade-in ${delayClass}" style="width: 48px; height: 72px; object-fit: cover; box-shadow: -4px 0 12px rgba(0,0,0,0.4); cursor: pointer; border-radius: 4px; margin-left: ${index === 0 ? '0' : '-24px'}; transform: rotate(${rotateOffset}deg) translateY(${Math.abs(rotateOffset)}px); z-index: ${index}; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);" onmouseenter="this.style.transform='scale(1.15) translateY(-15px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${Math.abs(rotateOffset)}px)'; this.style.zIndex='${index}';" onclick="event.preventDefault(); window.open('${book.link || "#"}', '_blank');">
                             `;
                             indexBooksContainer.insertAdjacentHTML("beforeend", html);
                         });
@@ -329,8 +417,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const favContainer = document.getElementById("movies-favorites-container");
     const recentContainer = document.getElementById("movies-recent-container");
     const watchlistContainer = document.getElementById("movies-watchlist-container");
+    const indexMoviesContainer = document.getElementById("index-movies-container");
 
-    if (favContainer && recentContainer && watchlistContainer) {
+    if (favContainer || recentContainer || watchlistContainer || indexMoviesContainer) {
         fetch("/api/movies?v=3.5")
             .then(res => res.json())
             .then(json => {
@@ -367,27 +456,43 @@ document.addEventListener("DOMContentLoaded", () => {
                 recentContainer.innerHTML = "";
                 recent.forEach((film, index) => {
                     const html = `
-                        <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="glass-card movie-recent-card fade-in" style="text-decoration: none; transition-delay: ${index * 0.1}s">
-                            <img src="${film.cover_url || ""}" alt="${film.title_and_rating}" class="movie-recent-poster">
-                            <div style="display:flex; flex-direction:column; gap:6px;">
-                                <span style="font-weight:600; color:var(--text-primary); font-size:1.05rem;">${film.title_and_rating}</span>
-                                <span style="color:rgba(255,255,255,0.4); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Recently Logged</span>
-                            </div>
+                        <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s">
+                            <img src="${film.cover_url || ""}" alt="${film.title_and_rating}" class="movie-watchlist-poster" title="${film.title_and_rating}">
                         </a>
                     `;
                     recentContainer.insertAdjacentHTML("beforeend", html);
                 });
 
                 // 3. Render Watchlist
-                watchlistContainer.innerHTML = "";
-                watchlist.forEach((film, index) => {
-                    const html = `
-                        <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s">
-                            <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-watchlist-poster" title="${film.title}">
-                        </a>
-                    `;
-                    watchlistContainer.insertAdjacentHTML("beforeend", html);
-                });
+                if(watchlistContainer) {
+                    watchlistContainer.innerHTML = "";
+                    watchlist.forEach((film, index) => {
+                        const html = `
+                            <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s">
+                                <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-watchlist-poster" title="${film.title}">
+                            </a>
+                        `;
+                        watchlistContainer.insertAdjacentHTML("beforeend", html);
+                    });
+                }
+
+                // 4. Render Index Movies Block
+                if(indexMoviesContainer) {
+                    indexMoviesContainer.innerHTML = "";
+                    if (recent.length === 0) {
+                        indexMoviesContainer.innerHTML = `<p style="color: var(--text-secondary);">Empty.</p>`;
+                    } else {
+                        // Fan out 3 movies majestically overlapping identically to books
+                        recent.slice(0, 3).forEach((film, index) => {
+                            const delayClass = `delay-${(index % 4) + 1}`;
+                            const rotateOffset = (index - 1) * 8; // -8deg, 0deg, 8deg
+                            const html = `
+                                <img src="${film.cover_url || ""}" alt="${film.title}" title="${film.title}" class="book fade-in ${delayClass}" style="width: 48px; height: 72px; object-fit: cover; box-shadow: -4px 0 12px rgba(0,0,0,0.4); cursor: pointer; border-radius: 4px; margin-left: ${index === 0 ? '0' : '-24px'}; transform: rotate(${rotateOffset}deg) translateY(${Math.abs(rotateOffset)}px); z-index: ${index}; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);" onmouseenter="this.style.transform='scale(1.15) translateY(-15px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${Math.abs(rotateOffset)}px)'; this.style.zIndex='${index}';" onclick="event.preventDefault(); window.open('${film.link || "#"}', '_blank');">
+                            `;
+                            indexMoviesContainer.insertAdjacentHTML("beforeend", html);
+                        });
+                    }
+                }
 
                 document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
             })

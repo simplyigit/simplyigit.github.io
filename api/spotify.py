@@ -80,7 +80,9 @@ class handler(BaseHTTPRequestHandler):
                     }
                 }
                 # Seamlessly write back to the Gist without touching Vercel's read-only .env!
-                requests.patch(gist_url, headers=gist_headers, json=patch_data)
+                patch_res = requests.patch(gist_url, headers=gist_headers, json=patch_data)
+                if patch_res.status_code != 200:
+                    raise Exception(f"Spotify rotated token but Gist DB failed to update: {patch_res.text}")
 
             # 4. Fetch Top Tracks (short_term = approx last 4 weeks)
             tracks_url = "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5"

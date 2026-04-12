@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tracksContainer = document.getElementById("spotify-tracks-container");
 
     if (artistsContainer && tracksContainer) {
-        fetch("/api/spotify")
+        fetch("/api/spotify?v=3.5")
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {
@@ -275,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const indexBooksContainer = document.getElementById("index-books-container");
 
     if (booksContainer || indexBooksContainer) {
-        fetch("/api/books")
+        fetch("/api/books?v=3.5")
             .then(res => res.json())
             .then(json => {
                 const books = json.data || [];
@@ -331,7 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const watchlistContainer = document.getElementById("movies-watchlist-container");
 
     if (favContainer && recentContainer && watchlistContainer) {
-        fetch("/api/movies")
+        fetch("/api/movies?v=3.5")
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {

@@ -763,6 +763,17 @@ footer p {
     );
     width: 8px;
     margin: 0 auto;
+    animation: filmScroll 1s linear infinite;
+    animation-play-state: paused;
+}
+
+.fun-movies:hover .film-strip::after {
+    animation-play-state: running;
+}
+
+@keyframes filmScroll {
+    from { background-position: 0 0; }
+    to { background-position: 0 14px; }
 }
 
 .film-strip.left { left: 0; border-right: 1px solid rgba(255,255,255,0.05); }
@@ -832,6 +843,7 @@ footer p {
     border-radius: 14px;
     transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
     min-width: 0;
+    will-change: transform;
 }
 
 .cassette-link:hover {

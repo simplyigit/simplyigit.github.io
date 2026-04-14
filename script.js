@@ -343,18 +343,33 @@ document.addEventListener("DOMContentLoaded", () => {
                         const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
                         if (marquee) {
                             const trackText = `${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; `;
-                            // Create two identical spans for a seamless loop
+                            // Create three identical spans: the middle one will be centered initially
                             marquee.innerHTML = `
+                                <span class="cassette-song-title-text fade-in">${trackText}</span>
                                 <span class="cassette-song-title-text fade-in">${trackText}</span>
                                 <span class="cassette-song-title-text fade-in">${trackText}</span>
                             `;
                         }
                     }
 
-                    // Set cover art across entire cassette body
+                    // Set cover art and dynamic tint
                     if(cassetteBody && topTrack.cover_url) {
                         cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
-                        cassetteBody.classList.add('has-art');
+                        
+                        // Extract prominent color for tinting
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        img.src = topTrack.cover_url;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = 1;
+                            canvas.height = 1;
+                            ctx.drawImage(img, 0, 0, 1, 1);
+                            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+                            cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
+                            cassetteBody.classList.add('has-art');
+                        };
                     }
                 }
 

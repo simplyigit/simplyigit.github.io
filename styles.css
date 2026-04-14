@@ -713,6 +713,18 @@ footer p {
     box-sizing: border-box;
 }
 
+/* Subtly tint the background with the cover art color */
+.cassette-body::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--cassette-art-color, transparent);
+    opacity: 0.1;
+    mix-blend-mode: color;
+    pointer-events: none;
+    z-index: 1;
+}
+
 /* Top Label: Dymo / Handwritten style */
 .cassette-label-top {
     display: flex;
@@ -799,7 +811,9 @@ footer p {
     min-width: 0;
     overflow: hidden;
     margin: 0 5px;
-    mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 30%, black 70%, transparent);
+    display: flex;
+    justify-content: center;
 }
 
 .cassette-song-marquee {
@@ -816,17 +830,19 @@ footer p {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     display: inline-block;
-    padding-right: 0;
+    padding: 0 5px; /* Added slight padding between tracks */
 }
 
-/* Tape loop animation on hover: Moves by exactly 50% for a seamless loop */
+/* Tape loop animation on hover: 
+   Moves by exactly 33.33% (one span's width) to loop through the 3 spans
+*/
 .cassette-link:hover .cassette-song-marquee {
-    animation: tapeMarquee 10s linear infinite;
+    animation: tapeMarquee 12s linear infinite;
 }
 
 @keyframes tapeMarquee {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    100% { transform: translateX(-33.333%); }
 }
 
 /* Spools */
@@ -838,7 +854,19 @@ footer p {
     flex-shrink: 0;
     position: relative;
     z-index: 1;
-    /* Metallic/Gray spools for better visibility */
+    overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    box-shadow: 
+        0 4px 10px rgba(0,0,0,0.6),
+        inset 0 0 8px rgba(0,0,0,0.5);
+}
+
+/* Rotating metallic background */
+.spool::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
     background:
         radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 45%),
         radial-gradient(circle, transparent 7px, rgba(255,255,255,0.1) 7px, rgba(255,255,255,0.1) 8px, transparent 8px),
@@ -847,10 +875,32 @@ footer p {
             #222 0px, #222 1.5px,
             #2a2a2a 1.5px, #2a2a2a 3px
         );
-    border: 1.5px solid rgba(255,255,255,0.15);
-    box-shadow: 
-        0 4px 10px rgba(0,0,0,0.6),
-        inset 0 0 8px rgba(0,0,0,0.5);
+    z-index: 0;
+}
+
+.cassette-link:hover .spool::before {
+    animation: spinSpool 3s linear infinite;
+}
+
+.spool-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Spool spin on hover (spokes) */
+.cassette-link:hover .spool-inner {
+    animation: spinSpool 2s linear infinite;
+}
+
+@keyframes spinSpool {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* Bottom Area: Integrated Cover Art */

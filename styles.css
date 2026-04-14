@@ -697,11 +697,11 @@ footer p {
 .cassette-body {
     background: linear-gradient(180deg, #2d2a31 0%, #24222a 40%, #1e1c24 100%);
     border-radius: 14px;
-    padding: 22px 20px 14px;
+    padding: 12px;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    justify-content: space-between;
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.07),
         inset 0 -2px 0 rgba(0,0,0,0.2),
@@ -712,160 +712,106 @@ footer p {
     box-sizing: border-box;
 }
 
-/* Corner screws */
-.cassette-screw {
-    position: absolute;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    z-index: 2;
-}
-
-/* Label sticker */
-.cassette-label {
-    position: relative;
-    background: rgba(0,0,0,0.2);
-    border-radius: 6px;
-    padding: 14px 16px;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.04);
-}
-
-/* Improved Cover Art: Sticker wrapping the label */
-.cassette-sticker {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%) rotate(-1deg);
-    width: 42px;
-    height: 42px;
-    background-image: var(--cassette-art, none);
-    background-size: cover;
-    border-radius: 3px;
-    box-shadow: 1px 1px 4px rgba(0,0,0,0.4);
-    z-index: 2;
-    border: 1px solid rgba(255,255,255,0.1);
-    opacity: 0;
-    transition: opacity 0.6s ease;
-}
-
-.has-art .cassette-sticker {
-    opacity: 1;
-}
-
-/* Blurred album art behind label (subtle hint of color) */
-.cassette-label::before {
-    content: '';
-    position: absolute;
-    inset: -10px;
-    background-image: var(--cassette-art, none);
-    background-size: cover;
-    background-position: center;
-    filter: blur(20px) brightness(0.3) saturate(1.4);
-    opacity: 0;
-    z-index: 0;
-    transition: opacity 0.8s ease;
-}
-
-.has-art .cassette-label::before {
-    opacity: 0.6;
-}
-
-/* Horizontal lines on label */
-.cassette-label-lines {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-        180deg,
-        transparent 0px,
-        transparent 17px,
-        rgba(255,255,255,0.025) 17px,
-        rgba(255,255,255,0.025) 18px
-    );
-    pointer-events: none;
-    z-index: 0;
-}
-
-.cassette-label-content {
-    position: relative;
-    z-index: 1;
-}
-
-.cassette-label-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 8px;
-}
-
-.cassette-label-header span {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-.cassette-song-info {
+/* Top Label: Dymo / Handwritten style */
+.cassette-label-top {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
+    padding-top: 8px;
+    z-index: 2;
 }
 
-.cassette-song-title {
-    font-size: 1rem;
+.cassette-label-brand {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #111;
+    padding: 2px 8px;
+    border-radius: 2px;
+    box-shadow: inset 0 0 2px rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.cassette-label-brand span {
+    font-size: 0.55rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #eee;
+    text-transform: uppercase;
+}
+
+.cassette-label-artist {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #fff;
+    background: #222;
+    padding: 3px 10px;
+    border-radius: 2px;
+    box-shadow: 
+        0 1px 3px rgba(0,0,0,0.5),
+        inset 0 1px 1px rgba(255,255,255,0.1);
+    letter-spacing: 0.5px;
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
     font-weight: 600;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
 }
 
-.cassette-song-artist {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
-
-/* Tape window */
+/* Centered Window */
 .cassette-window {
-    background: rgba(0,0,0,0.45);
-    border-radius: 40px;
-    padding: 12px 24px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 8px;
+    margin: 0 10px;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 0 20px;
     position: relative;
-    border: 1px solid rgba(255,255,255,0.04);
-    min-height: 56px;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    overflow: hidden;
 }
 
-/* Tape strand connecting the spools */
 .tape-strand {
     position: absolute;
     top: 50%;
-    left: 45px;
-    right: 45px;
-    height: 12px;
+    left: 10px;
+    right: 10px;
+    height: 14px;
     background: linear-gradient(180deg, #1a1815 0%, #11100d 100%);
     transform: translateY(-50%);
     z-index: 0;
-    opacity: 0.6;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    opacity: 0.8;
     pointer-events: none;
+}
+
+.cassette-song-on-tape {
+    z-index: 2;
+    text-align: center;
+    max-width: 100px;
+}
+
+.cassette-song-title-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
 }
 
 /* Spools */
 .spool {
-    --spool-size: 44px;
+    --spool-size: 40px;
     width: var(--spool-size);
     height: var(--spool-size);
     border-radius: 50%;
@@ -873,84 +819,70 @@ footer p {
     position: relative;
     z-index: 1;
     background:
-        radial-gradient(circle, transparent 7px, rgba(60,55,65,0.5) 7px, rgba(60,55,65,0.5) 8px, transparent 8px),
+        radial-gradient(circle, transparent 7px, rgba(255,255,255,0.05) 7px, rgba(255,255,255,0.05) 8px, transparent 8px),
         repeating-radial-gradient(
             circle at center,
-            #1a191e 0px, #1a191e 1.5px,
-            #201f24 1.5px, #201f24 3px
+            #111 0px, #111 1.5px,
+            #181818 1.5px, #181818 3px
         );
-    transition: width 0.4s ease, height 0.4s ease;
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
-.spool-inner {
+/* Bottom Area: Cover Art Shield */
+.cassette-bottom-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding-bottom: 4px;
+}
+
+.cassette-cover-art-wrapper {
+    width: 60px;
+    height: 30px;
+    background: #111;
+    padding: 2px;
+    border-radius: 2px 2px 0 0;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-bottom: none;
+    position: relative;
+    z-index: 2;
+}
+
+.cassette-cover-art {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    background-image: var(--cassette-art, none);
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    border-radius: 1px;
+}
+
+.has-art .cassette-cover-art {
+    opacity: 1;
+}
+
+.cassette-head {
+    width: 70%;
+    height: 12px;
+    background: #1a1a1a;
+    border-radius: 0 0 8px 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-top: none;
     display: flex;
-    align-items: center;
     justify-content: center;
-}
-
-/* Spool spin on hover */
-.cassette-link:hover .spool-inner {
-    animation: spinSpool 2s linear infinite;
-}
-
-@keyframes spinSpool {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.spool-hub {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.18);
-    background: rgba(0,0,0,0.3);
+    align-items: center;
     position: relative;
 }
 
-.spool-spoke {
-    position: absolute;
-    width: 100%;
-    height: 1.5px;
-    background: rgba(255,255,255,0.18);
-    top: 50%;
-    left: 0;
-    transform-origin: center center;
-}
-
-.spool-spoke:nth-child(1) { transform: translateY(-50%) rotate(0deg); }
-.spool-spoke:nth-child(2) { transform: translateY(-50%) rotate(60deg); }
-.spool-spoke:nth-child(3) { transform: translateY(-50%) rotate(120deg); }
-
-/* Tape path (U-shape under spools) */
-.tape-path {
-    position: absolute;
-    bottom: 4px;
-    left: 20%;
-    right: 20%;
-    height: 16px;
-    border: 1px solid rgba(139, 90, 43, 0.18);
-    border-top: none;
-    border-radius: 0 0 12px 12px;
-    pointer-events: none;
-}
-
-/* Bottom head opening */
-.cassette-head {
-    display: flex;
-    justify-content: center;
-    padding: 0 16px;
-}
-
 .cassette-head-inner {
-    width: 65%;
-    height: 10px;
-    background: rgba(0,0,0,0.4);
-    border-radius: 0 0 6px 6px;
-    border: 1px solid rgba(255,255,255,0.03);
-    border-top: none;
+    width: 80%;
+    height: 4px;
+    background: #000;
+    border-radius: 2px;
+    opacity: 0.5;
 }
 
 @media (max-width: 700px) {

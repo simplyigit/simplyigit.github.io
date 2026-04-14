@@ -255,7 +255,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Spotify Data Fetching
     const artistsContainer = document.getElementById("spotify-artists-container");
     const tracksContainer = document.getElementById("spotify-tracks-container");
-    const cassetteSongInfo = document.getElementById("cassette-song-info");
+    const cassetteArtistName = document.getElementById("cassette-artist-name");
+    const cassetteSongTitle = document.getElementById("cassette-song-title");
     const cassetteBody = document.getElementById("cassette-body");
     const spoolLeft = document.getElementById("spool-left");
     const spoolRight = document.getElementById("spool-right");
@@ -276,13 +277,13 @@ document.addEventListener("DOMContentLoaded", () => {
         spoolRight.style.setProperty('--spool-size', `${rightSize}px`);
     }
 
-    if (artistsContainer || tracksContainer || cassetteSongInfo) {
+    if (artistsContainer || tracksContainer || cassetteArtistName || cassetteSongTitle) {
         fetch("/api/spotify?v=3.5")
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {
                     if(artistsContainer) artistsContainer.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Spotify Edge DB Error: ${json.error || "Unknown Failure"}</p>`;
-                    if(cassetteSongInfo) cassetteSongInfo.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Failed</p>`;
+                    if(cassetteArtistName) cassetteArtistName.innerHTML = `<p style="color: #ff6b6b; font-size: 0.7rem">Failed</p>`;
                     return;
                 }
 
@@ -332,16 +333,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 // Render Cassette (index page)
-                if(cassetteSongInfo && tracks.length > 0) {
+                if((cassetteArtistName || cassetteSongTitle) && tracks.length > 0) {
                     const topTrack = tracks[0];
 
-                    // Populate song info on the label
-                    cassetteSongInfo.innerHTML = `
-                        <span class="cassette-song-title fade-in" title="${topTrack.title}">${topTrack.title}</span>
-                        <span class="cassette-song-artist fade-in" title="${topTrack.artist}">${topTrack.artist}</span>
-                    `;
+                    if(cassetteArtistName) {
+                        cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
+                    }
+                    if(cassetteSongTitle) {
+                        cassetteSongTitle.innerHTML = `<span class="cassette-song-title-text fade-in" title="${topTrack.title}">${topTrack.title}</span>`;
+                    }
 
-                    // Set blurred album art across entire cassette body
+                    // Set cover art across entire cassette body
                     if(cassetteBody && topTrack.cover_url) {
                         cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
                         cassetteBody.classList.add('has-art');

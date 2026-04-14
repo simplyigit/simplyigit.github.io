@@ -797,6 +797,7 @@ footer p {
     overflow: hidden;
     margin: 0 5px;
     mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    min-width: 0;
 }
 
 .cassette-song-marquee {

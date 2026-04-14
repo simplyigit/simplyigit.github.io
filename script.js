@@ -256,8 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const artistsContainer = document.getElementById("spotify-artists-container");
     const tracksContainer = document.getElementById("spotify-tracks-container");
     const cassetteSongInfo = document.getElementById("cassette-song-info");
-    const cassetteArt = document.getElementById("cassette-art");
-    const cassetteLabel = document.getElementById("cassette-label");
+    const cassetteBody = document.getElementById("cassette-body");
     const spoolLeft = document.getElementById("spool-left");
     const spoolRight = document.getElementById("spool-right");
 
@@ -268,8 +267,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
         const progress = dayOfMonth / daysInMonth; // 0 at start, 1 at end
 
-        const minSize = 22; // Hub + minimal tape
-        const maxSize = 48; // Full spool
+        const minSize = 28; // Hub + minimal tape
+        const maxSize = 56; // Full spool
         const leftSize = minSize + (1 - progress) * (maxSize - minSize);
         const rightSize = minSize + progress * (maxSize - minSize);
 
@@ -342,15 +341,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         <span class="cassette-song-artist fade-in" title="${topTrack.artist}">${topTrack.artist}</span>
                     `;
 
-                    // Set album art in window center
-                    if(cassetteArt && topTrack.cover_url) {
-                        cassetteArt.innerHTML = `<img src="${topTrack.cover_url}" alt="${topTrack.title}" class="fade-in">`;
-                    }
-
-                    // Set blurred album art behind label
-                    if(cassetteLabel && topTrack.cover_url) {
-                        cassetteLabel.style.setProperty('--album-bg', `url(${topTrack.cover_url})`);
-                        cassetteLabel.classList.add('has-art');
+                    // Set blurred album art across entire cassette body
+                    if(cassetteBody && topTrack.cover_url) {
+                        cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
+                        cassetteBody.classList.add('has-art');
                     }
                 }
 

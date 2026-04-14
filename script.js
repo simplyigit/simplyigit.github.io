@@ -342,8 +342,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     if(cassetteSongTitle) {
                         const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
                         if (marquee) {
-                            const repeatedText = `${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; `.repeat(6);
-                            marquee.innerHTML = `<span class="cassette-song-title-text fade-in">${repeatedText}</span>`;
+                            const trackText = `${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; `;
+                            // Create two identical spans for a seamless loop
+                            marquee.innerHTML = `
+                                <span class="cassette-song-title-text fade-in">${trackText}</span>
+                                <span class="cassette-song-title-text fade-in">${trackText}</span>
+                            `;
                         }
                     }
 

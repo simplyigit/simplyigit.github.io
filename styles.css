@@ -794,36 +794,39 @@ footer p {
 .cassette-song-on-tape {
     z-index: 2;
     text-align: center;
-    flex-grow: 1;
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
     overflow: hidden;
     margin: 0 5px;
-    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-    min-width: 0;
+    mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
 }
 
 .cassette-song-marquee {
     display: flex;
     white-space: nowrap;
+    width: fit-content;
 }
 
 .cassette-song-title-text {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.65rem;
-    color: rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.4);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     display: inline-block;
+    padding-right: 0;
 }
 
-/* Tape loop animation on hover */
+/* Tape loop animation on hover: Moves by exactly 50% for a seamless loop */
 .cassette-link:hover .cassette-song-marquee {
-    animation: tapeMarquee 15s linear infinite;
+    animation: tapeMarquee 10s linear infinite;
 }
 
 @keyframes tapeMarquee {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-33.33%); }
+    100% { transform: translateX(-50%); }
 }
 
 /* Spools */
@@ -835,19 +838,19 @@ footer p {
     flex-shrink: 0;
     position: relative;
     z-index: 1;
-    /* Subtle color and metallic shine */
+    /* Metallic/Gray spools for better visibility */
     background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 40%),
-        radial-gradient(circle, transparent 7px, rgba(255,255,255,0.08) 7px, rgba(255,255,255,0.08) 8px, transparent 8px),
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 45%),
+        radial-gradient(circle, transparent 7px, rgba(255,255,255,0.1) 7px, rgba(255,255,255,0.1) 8px, transparent 8px),
         repeating-radial-gradient(
             circle at center,
-            #15141a 0px, #15141a 1.5px,
-            #1c1b21 1.5px, #1c1b21 3px
+            #222 0px, #222 1.5px,
+            #2a2a2a 1.5px, #2a2a2a 3px
         );
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1.5px solid rgba(255,255,255,0.15);
     box-shadow: 
-        0 2px 5px rgba(0,0,0,0.5),
-        inset 0 0 10px rgba(0,0,0,0.8);
+        0 4px 10px rgba(0,0,0,0.6),
+        inset 0 0 8px rgba(0,0,0,0.5);
 }
 
 /* Bottom Area: Integrated Cover Art */

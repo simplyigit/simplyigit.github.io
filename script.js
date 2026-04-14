@@ -6,7 +6,7 @@ const projects = [
         type: "wide",
         customClass: "project-real",
         visualHtml: '<img src="images/real-deepfake-or-ai.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Real, Deepfake or AI">',
-        url: "projects/real-deepfake-or-ai.html"
+        url: "Projects/real-deepfake-or-ai.html"
     }
 ];
 
@@ -392,12 +392,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (books.length === 0) {
                         indexBooksContainer.innerHTML = `<p style="color: var(--text-secondary);">Empty.</p>`;
                     } else {
-                        // Fan out 3 books majestically overlapping each other
+                        // Fan out 3 books with subtle overlap
                         books.slice(0, 3).forEach((book, index) => {
                             const delayClass = `delay-${(index % 4) + 1}`;
-                            const rotateOffset = (index - 1) * 8; // -8deg, 0deg, 8deg
+                            const rotateOffset = (index - 1) * 6; // -6deg, 0deg, 6deg
+                            const translateY = Math.abs(rotateOffset) * 0.5;
                             const html = `
-                                <img src="${book.cover_url || ""}" alt="${book.title}" title="${book.title}" class="book fade-in ${delayClass}" style="width: 48px; height: 72px; object-fit: cover; box-shadow: -4px 0 12px rgba(0,0,0,0.4); cursor: pointer; border-radius: 4px; margin-left: ${index === 0 ? '0' : '-24px'}; transform: rotate(${rotateOffset}deg) translateY(${Math.abs(rotateOffset)}px); z-index: ${index}; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);" onmouseenter="this.style.transform='scale(1.15) translateY(-15px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${Math.abs(rotateOffset)}px)'; this.style.zIndex='${index}';" onclick="event.preventDefault(); window.open('${book.link || "#"}', '_blank');">
+                                <img src="${book.cover_url || ""}" alt="${book.title}" title="${book.title}" class="index-book-cover fade-in ${delayClass}" style="width: 40px; height: 60px; object-fit: cover; box-shadow: -3px 2px 10px rgba(0,0,0,0.5); cursor: pointer; border-radius: 3px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotateOffset}deg) translateY(${translateY}px); z-index: ${index}; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), z-index 0s;" onmouseenter="this.style.transform='scale(1.18) translateY(-8px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${translateY}px)'; this.style.zIndex='${index}';" onclick="event.preventDefault(); window.open('${book.link || "#"}', '_blank');">
                             `;
                             indexBooksContainer.insertAdjacentHTML("beforeend", html);
                         });
@@ -424,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {
-                    favContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to load Letterboxd.</p>`;
+                    if(favContainer) favContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to load Letterboxd.</p>`;
                     return;
                 }
 
@@ -434,34 +435,38 @@ document.addEventListener("DOMContentLoaded", () => {
                 const watchlist = data.watchlist || [];
 
                 // 1. Render Favorites
-                favContainer.innerHTML = "";
-                if (favorites.length === 0) {
-                    favContainer.innerHTML = `<p style="color: var(--text-secondary);">No favorites found.</p>`;
-                } else {
-                    favorites.forEach((film, index) => {
-                        const delayClass = `delay-${(index % 4) + 1}`;
-                        const html = `
-                            <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-fav-card fade-in ${delayClass}" style="text-decoration: none;">
-                                <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-fav-poster">
-                                <div class="movie-fav-overlay">
-                                    <span class="movie-fav-title">${film.title}</span>
-                                </div>
-                            </a>
-                        `;
-                        favContainer.insertAdjacentHTML("beforeend", html);
-                    });
+                if(favContainer) {
+                    favContainer.innerHTML = "";
+                    if (favorites.length === 0) {
+                        favContainer.innerHTML = `<p style="color: var(--text-secondary);">No favorites found.</p>`;
+                    } else {
+                        favorites.forEach((film, index) => {
+                            const delayClass = `delay-${(index % 4) + 1}`;
+                            const html = `
+                                <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-fav-card fade-in ${delayClass}" style="text-decoration: none;">
+                                    <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-fav-poster">
+                                    <div class="movie-fav-overlay">
+                                        <span class="movie-fav-title">${film.title}</span>
+                                    </div>
+                                </a>
+                            `;
+                            favContainer.insertAdjacentHTML("beforeend", html);
+                        });
+                    }
                 }
 
                 // 2. Render Recent Activity
-                recentContainer.innerHTML = "";
-                recent.forEach((film, index) => {
-                    const html = `
-                        <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s">
-                            <img src="${film.cover_url || ""}" alt="${film.title_and_rating}" class="movie-watchlist-poster" title="${film.title_and_rating}">
-                        </a>
-                    `;
-                    recentContainer.insertAdjacentHTML("beforeend", html);
-                });
+                if(recentContainer) {
+                    recentContainer.innerHTML = "";
+                    recent.forEach((film, index) => {
+                        const html = `
+                            <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s">
+                                <img src="${film.cover_url || ""}" alt="${film.title_and_rating}" class="movie-watchlist-poster" title="${film.title_and_rating}">
+                            </a>
+                        `;
+                        recentContainer.insertAdjacentHTML("beforeend", html);
+                    });
+                }
 
                 // 3. Render Watchlist
                 if(watchlistContainer) {
@@ -482,12 +487,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (recent.length === 0) {
                         indexMoviesContainer.innerHTML = `<p style="color: var(--text-secondary);">Empty.</p>`;
                     } else {
-                        // Fan out 3 movies majestically overlapping identically to books
+                        // Fan out 3 movies with subtle overlap matching books
                         recent.slice(0, 3).forEach((film, index) => {
                             const delayClass = `delay-${(index % 4) + 1}`;
-                            const rotateOffset = (index - 1) * 8; // -8deg, 0deg, 8deg
+                            const rotateOffset = (index - 1) * 6; // -6deg, 0deg, 6deg
+                            const translateY = Math.abs(rotateOffset) * 0.5;
+                            const filmTitle = (film.title_and_rating || film.title || "").replace(/ - ★.*$/, '');
                             const html = `
-                                <img src="${film.cover_url || ""}" alt="${film.title}" title="${film.title}" class="book fade-in ${delayClass}" style="width: 48px; height: 72px; object-fit: cover; box-shadow: -4px 0 12px rgba(0,0,0,0.4); cursor: pointer; border-radius: 4px; margin-left: ${index === 0 ? '0' : '-24px'}; transform: rotate(${rotateOffset}deg) translateY(${Math.abs(rotateOffset)}px); z-index: ${index}; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);" onmouseenter="this.style.transform='scale(1.15) translateY(-15px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${Math.abs(rotateOffset)}px)'; this.style.zIndex='${index}';" onclick="event.preventDefault(); window.open('${film.link || "#"}', '_blank');">
+                                <img src="${film.cover_url || ""}" alt="${filmTitle}" title="${filmTitle}" class="index-movie-cover fade-in ${delayClass}" style="width: 40px; height: 60px; object-fit: cover; box-shadow: -3px 2px 10px rgba(0,0,0,0.5); cursor: pointer; border-radius: 3px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotateOffset}deg) translateY(${translateY}px); z-index: ${index}; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), z-index 0s;" onmouseenter="this.style.transform='scale(1.18) translateY(-8px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${translateY}px)'; this.style.zIndex='${index}';" onclick="event.preventDefault(); window.open('${film.link || "#"}', '_blank');">
                             `;
                             indexMoviesContainer.insertAdjacentHTML("beforeend", html);
                         });
@@ -498,7 +505,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(err => {
                 console.error("Letterboxd API Error:", err);
-                favContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to connect to /api/movies.</p>`;
+                if(favContainer) favContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to connect to /api/movies.</p>`;
             });
     }
 

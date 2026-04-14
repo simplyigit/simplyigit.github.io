@@ -67,14 +67,17 @@ class handler(BaseHTTPRequestHandler):
                 if fav_section:
                     for div in fav_section.find_all('div', class_='react-component'):
                         fav_title = div.get('data-item-full-display-name', '')
-                        target_link = div.get('data-target-link', '') # Example: /film/interstellar/
-                        base_film_link = div.get('data-film-link', target_link)
+                        # data-item-link gives the canonical film path (e.g. /film/interstellar/)
+                        # data-target-link gives user-specific paths (e.g. /oneyigit/film/interstellar/)
+                        # which don't contain JSON-LD poster data, so always prefer data-item-link
+                        film_link = div.get('data-item-link', '')
+                        target_link = div.get('data-target-link', film_link)
 
-                        cover_url = get_hd_poster(base_film_link)
+                        cover_url = get_hd_poster(film_link) if film_link else ""
 
                         favorite_films.append({
                             "title": fav_title,
-                            "link": base_url + base_film_link if base_film_link else "",
+                            "link": base_url + target_link if target_link else "",
                             "cover_url": cover_url
                         })
 

@@ -343,8 +343,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
                         if (marquee) {
                             const trackText = `${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; `;
-                            // Create three identical spans: the middle one will be centered initially
+                            // Create 7 identical spans: the middle one (4th) will be centered initially
                             marquee.innerHTML = `
+                                <span class="cassette-song-title-text fade-in">${trackText}</span>
+                                <span class="cassette-song-title-text fade-in">${trackText}</span>
+                                <span class="cassette-song-title-text fade-in">${trackText}</span>
+                                <span class="cassette-song-title-text fade-in">${trackText}</span>
                                 <span class="cassette-song-title-text fade-in">${trackText}</span>
                                 <span class="cassette-song-title-text fade-in">${trackText}</span>
                                 <span class="cassette-song-title-text fade-in">${trackText}</span>

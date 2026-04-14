@@ -123,15 +123,19 @@
         <section class="section">
             <div style="display: flex; align-items: center; justify-content: flex-start; gap: 16px; margin-bottom: 24px;">
                 <h2 class="section-title" style="margin-bottom: 0;">Library of Interest</h2>
-                <div class="social-tube tech-tube" style="margin-bottom: 0; padding: 6px 14px; width: fit-content; gap: 14px; background: rgba(255, 255, 255, 0.02);">
-                    <span style="font-size: 0.75rem; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px;">Live Data Feed</span>
-                </div>
             </div>
             <div class="library-grid">
 
                 <!-- Books (left) -->
                 <a href="library/reading.html" class="glass-card fun-side-card fun-books">
-                    <span class="fun-side-emoji">📚</span>
+                    <div class="book-texture"></div>
+                    <div class="bookmark-ribbon"></div>
+                    
+                    <div class="side-card-header book-header">
+                        <span class="side-card-title">LIBRARY</span>
+                        <span class="side-card-subtitle">RECENT READS</span>
+                    </div>
+
                     <div class="fun-side-previews" id="index-books-container">
                         <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
                         <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
@@ -198,13 +202,22 @@
                         </div>
 
                         <div class="cassette-screw" style="bottom: 10px; left: 14px;"></div>
+                        <div class="cassette-screw" style="bottom: 10px; left: 50%; transform: translateX(-50%);"></div>
                         <div class="cassette-screw" style="bottom: 10px; right: 14px;"></div>
                     </div>
                 </a>
 
                 <!-- Movies (right) -->
                 <a href="library/movies.html" class="glass-card fun-side-card fun-movies">
-                    <span class="fun-side-emoji">🍿</span>
+                    <div class="film-strip left"></div>
+                    <div class="film-strip right"></div>
+                    <div class="projector-beam"></div>
+
+                    <div class="side-card-header movie-header">
+                        <span class="side-card-title">CINEMA</span>
+                        <span class="side-card-subtitle">RECENT WATCHES</span>
+                    </div>
+
                     <div class="fun-side-previews" id="index-movies-container">
                         <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
                         <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>

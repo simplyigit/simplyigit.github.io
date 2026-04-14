@@ -217,7 +217,7 @@ p {
 
 .library-grid {
     display: grid;
-    grid-template-columns: 1fr 2.4fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr) minmax(0, 1fr);
     gap: 20px;
     align-items: stretch;
 }
@@ -687,6 +687,7 @@ footer p {
     color: inherit;
     border-radius: 14px;
     transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+    min-width: 0;
 }
 
 .cassette-link:hover {

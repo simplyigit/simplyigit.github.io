@@ -255,16 +255,35 @@ document.addEventListener("DOMContentLoaded", () => {
     // Spotify Data Fetching
     const artistsContainer = document.getElementById("spotify-artists-container");
     const tracksContainer = document.getElementById("spotify-tracks-container");
-    const indexSpotifyContainer = document.getElementById("index-spotify-container");
-    const vinylCenter = document.querySelector(".vinyl-center");
+    const cassetteSongInfo = document.getElementById("cassette-song-info");
+    const cassetteArt = document.getElementById("cassette-art");
+    const cassetteLabel = document.getElementById("cassette-label");
+    const spoolLeft = document.getElementById("spool-left");
+    const spoolRight = document.getElementById("spool-right");
 
-    if (artistsContainer || tracksContainer || indexSpotifyContainer) {
+    // Set spool sizes based on day of month
+    if (spoolLeft && spoolRight) {
+        const now = new Date();
+        const dayOfMonth = now.getDate();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const progress = dayOfMonth / daysInMonth; // 0 at start, 1 at end
+
+        const minSize = 22; // Hub + minimal tape
+        const maxSize = 48; // Full spool
+        const leftSize = minSize + (1 - progress) * (maxSize - minSize);
+        const rightSize = minSize + progress * (maxSize - minSize);
+
+        spoolLeft.style.setProperty('--spool-size', `${leftSize}px`);
+        spoolRight.style.setProperty('--spool-size', `${rightSize}px`);
+    }
+
+    if (artistsContainer || tracksContainer || cassetteSongInfo) {
         fetch("/api/spotify?v=3.5")
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {
                     if(artistsContainer) artistsContainer.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Spotify Edge DB Error: ${json.error || "Unknown Failure"}</p>`;
-                    if(indexSpotifyContainer) indexSpotifyContainer.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Failed</p>`;
+                    if(cassetteSongInfo) cassetteSongInfo.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Failed</p>`;
                     return;
                 }
 
@@ -313,25 +332,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 }
 
-                // Render Index Spotify Block
-                if(indexSpotifyContainer && tracks.length > 0) {
+                // Render Cassette (index page)
+                if(cassetteSongInfo && tracks.length > 0) {
                     const topTrack = tracks[0];
-                    indexSpotifyContainer.innerHTML = `
-                        <img src="${topTrack.cover_url || ""}" class="fade-in" style="width: 54px; height: 54px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                        <div style="display: flex; flex-direction: column; justify-content: center; overflow: hidden;">
-                            <span class="fade-in" style="font-weight: 600; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;" title="${topTrack.title}">${topTrack.title}</span>
-                            <span class="fade-in" style="font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;" title="${topTrack.artist}">${topTrack.artist}</span>
-                        </div>
+
+                    // Populate song info on the label
+                    cassetteSongInfo.innerHTML = `
+                        <span class="cassette-song-title fade-in" title="${topTrack.title}">${topTrack.title}</span>
+                        <span class="cassette-song-artist fade-in" title="${topTrack.artist}">${topTrack.artist}</span>
                     `;
-                    indexSpotifyContainer.style.flexDirection = "row";
-                    indexSpotifyContainer.style.alignItems = "center";
-                    indexSpotifyContainer.style.gap = "14px";
-                    
-                    if(vinylCenter && topTrack.cover_url) {
-                        vinylCenter.style.backgroundImage = `url(${topTrack.cover_url})`;
-                        vinylCenter.style.backgroundSize = 'cover';
-                        vinylCenter.style.backgroundPosition = 'center';
-                        vinylCenter.classList.add("fade-in");
+
+                    // Set album art in window center
+                    if(cassetteArt && topTrack.cover_url) {
+                        cassetteArt.innerHTML = `<img src="${topTrack.cover_url}" alt="${topTrack.title}" class="fade-in">`;
+                    }
+
+                    // Set blurred album art behind label
+                    if(cassetteLabel && topTrack.cover_url) {
+                        cassetteLabel.style.setProperty('--album-bg', `url(${topTrack.cover_url})`);
+                        cassetteLabel.classList.add('has-art');
                     }
                 }
 

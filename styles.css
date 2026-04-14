@@ -217,8 +217,9 @@ p {
 
 .fun-stuff-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 2.4fr 1fr;
     gap: 20px;
+    align-items: stretch;
 }
 
 .stacked-cards {
@@ -623,6 +624,298 @@ footer p {
     animation-delay: 0.2s;
 }
 
+/* ======================== */
+/*   FUN STUFF SIDE CARDS   */
+/* ======================== */
+
+.fun-side-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 24px 12px;
+}
+
+.fun-side-emoji {
+    font-size: 1.8rem;
+    line-height: 1;
+    display: block;
+}
+
+.fun-side-previews {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* ======================== */
+/*     CASSETTE TAPE        */
+/* ======================== */
+
+.cassette-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+}
+
+.cassette-link:hover {
+    transform: translateY(-4px);
+}
+
+.cassette-body {
+    background: linear-gradient(180deg, #2d2a31 0%, #24222a 40%, #1e1c24 100%);
+    border-radius: 14px;
+    padding: 22px 20px 14px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.07),
+        inset 0 -2px 0 rgba(0,0,0,0.2),
+        0 8px 30px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.04);
+    overflow: hidden;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Corner screws */
+.cassette-screw {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    z-index: 2;
+}
+
+/* Label sticker */
+.cassette-label {
+    position: relative;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Blurred album art behind label */
+.cassette-label::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    background-image: var(--album-bg, none);
+    background-size: cover;
+    background-position: center;
+    filter: blur(18px) brightness(0.25) saturate(1.6);
+    opacity: 0;
+    z-index: 0;
+    transition: opacity 0.6s ease;
+}
+
+.cassette-label.has-art::before {
+    opacity: 0.7;
+}
+
+/* Horizontal lines on label */
+.cassette-label-lines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 17px,
+        rgba(255,255,255,0.025) 17px,
+        rgba(255,255,255,0.025) 18px
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+.cassette-label-content {
+    position: relative;
+    z-index: 1;
+}
+
+.cassette-label-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.cassette-label-header span {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.cassette-song-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.cassette-song-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cassette-song-artist {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Tape window */
+.cassette-window {
+    background: rgba(0,0,0,0.45);
+    border-radius: 40px;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.04);
+    gap: 0;
+    min-height: 56px;
+}
+
+/* Spools */
+.spool {
+    --spool-size: 44px;
+    width: var(--spool-size);
+    height: var(--spool-size);
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    background:
+        radial-gradient(circle, transparent 7px, rgba(60,55,65,0.5) 7px, rgba(60,55,65,0.5) 8px, transparent 8px),
+        repeating-radial-gradient(
+            circle at center,
+            #1a191e 0px, #1a191e 1.5px,
+            #201f24 1.5px, #201f24 3px
+        );
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.spool-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Spool spin on hover */
+.cassette-link:hover .spool-inner {
+    animation: spinSpool 2s linear infinite;
+}
+
+@keyframes spinSpool {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spool-hub {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.18);
+    background: rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.spool-spoke {
+    position: absolute;
+    width: 100%;
+    height: 1.5px;
+    background: rgba(255,255,255,0.18);
+    top: 50%;
+    left: 0;
+    transform-origin: center center;
+}
+
+.spool-spoke:nth-child(1) { transform: translateY(-50%) rotate(0deg); }
+.spool-spoke:nth-child(2) { transform: translateY(-50%) rotate(60deg); }
+.spool-spoke:nth-child(3) { transform: translateY(-50%) rotate(120deg); }
+
+/* Album art in window center */
+.cassette-art {
+    width: 38px;
+    height: 38px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.04);
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 1;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.cassette-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Tape path (U-shape under spools) */
+.tape-path {
+    position: absolute;
+    bottom: 4px;
+    left: 20%;
+    right: 20%;
+    height: 16px;
+    border: 1px solid rgba(139, 90, 43, 0.18);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    pointer-events: none;
+}
+
+/* Bottom head opening */
+.cassette-head {
+    display: flex;
+    justify-content: center;
+    padding: 0 16px;
+}
+
+.cassette-head-inner {
+    width: 65%;
+    height: 10px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 0 0 6px 6px;
+    border: 1px solid rgba(255,255,255,0.03);
+    border-top: none;
+}
+
+@media (max-width: 700px) {
+    .fun-stuff-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .cassette-link {
+        grid-column: span 2;
+        order: -1;
+    }
+}
+
 @media (max-width: 600px) {
     .container {
         padding: 60px 20px;
@@ -630,6 +923,13 @@ footer p {
 
     h1 {
         font-size: 2.5rem;
+    }
+
+    .fun-stuff-grid {
+        grid-template-columns: 1fr;
+    }
+    .cassette-link {
+        grid-column: span 1;
     }
 }
 

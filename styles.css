@@ -215,7 +215,7 @@ p {
     gap: 20px;
 }
 
-.fun-stuff-grid {
+.library-grid {
     display: grid;
     grid-template-columns: 1fr 2.4fr 1fr;
     gap: 20px;
@@ -279,7 +279,7 @@ p {
     -webkit-backdrop-filter: blur(16px);
     border-radius: 16px;
     padding: 24px;
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease;
     position: relative;
     overflow: hidden;
     text-decoration: none;
@@ -294,9 +294,9 @@ p {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
+    background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.035), transparent 45%);
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: opacity 0.8s ease;
     pointer-events: none;
 }
 
@@ -637,10 +637,23 @@ footer p {
     padding: 24px 12px;
 }
 
+.fun-books {
+    background: linear-gradient(135deg, #1a1512 0%, #110d0a 100%);
+    border-left: 10px solid #4a3424; /* Book spine feel */
+}
+
+.fun-movies {
+    background: #0d0d0d;
+    position: relative;
+    border-top: 8px dashed rgba(255,255,255,0.05); /* Film sprocket feel */
+    border-bottom: 8px dashed rgba(255,255,255,0.05);
+}
+
 .fun-side-emoji {
     font-size: 1.8rem;
     line-height: 1;
     display: block;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
 }
 
 .fun-side-previews {
@@ -649,6 +662,10 @@ footer p {
     gap: 0;
     margin: 0;
     padding: 0;
+}
+
+.index-book-cover, .index-movie-cover {
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
 /* ======================== */
@@ -669,7 +686,7 @@ footer p {
 }
 
 .cassette-body {
-    background: linear-gradient(180deg, #2d2a31 0%, #24222a 40%, #1e1c24 100%);
+    background: #1a191e;
     border-radius: 14px;
     padding: 22px 22px 14px;
     position: relative;
@@ -677,133 +694,126 @@ footer p {
     flex-direction: column;
     gap: 12px;
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.07),
-        inset 0 -2px 0 rgba(0,0,0,0.2),
-        0 8px 30px rgba(0,0,0,0.35);
-    border: 1px solid rgba(255,255,255,0.06);
+        inset 0 1px 1px rgba(255,255,255,0.05),
+        inset 0 -2px 4px rgba(0,0,0,0.5),
+        0 15px 35px rgba(0,0,0,0.5);
+    border: 1px solid #2a2830;
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
 }
 
-/* Album art bleed across entire cassette body */
-.cassette-body::after {
-    content: '';
+/* Sticker on the label */
+.cassette-sticker {
     position: absolute;
-    inset: -20px;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-2deg);
+    width: 45px;
+    height: 45px;
     background-image: var(--cassette-art, none);
     background-size: cover;
-    background-position: center;
-    filter: blur(40px) brightness(0.35) saturate(1.8);
-    opacity: 0;
-    z-index: 0;
-    transition: opacity 0.8s ease;
-    pointer-events: none;
-}
-
-.cassette-body.has-art::after {
-    opacity: 1;
-}
-
-/* Corner screws */
-.cassette-screw {
-    position: absolute;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.04);
+    border-radius: 4px;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    z-index: 2;
     border: 1px solid rgba(255,255,255,0.1);
-    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+
+.has-art .cassette-sticker {
+    opacity: 1;
 }
 
 /* Label sticker */
 .cassette-label {
     position: relative;
     z-index: 1;
-    background: rgba(0,0,0,0.15);
-    border-radius: 6px;
+    background: #d1d1d1; /* Classic grey/white paper label */
+    border-radius: 4px;
     padding: 12px 16px 14px;
     overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid rgba(0,0,0,0.1);
     text-align: center;
-}
-
-/* Horizontal ruled lines on label */
-.cassette-label-lines {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-        180deg,
-        transparent 0px,
-        transparent 16px,
-        rgba(255,255,255,0.04) 16px,
-        rgba(255,255,255,0.04) 17px
-    );
-    pointer-events: none;
-    z-index: 0;
-}
-
-.cassette-label-content {
-    position: relative;
-    z-index: 1;
-}
-
-.cassette-label-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 10px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
 }
 
 .cassette-label-header span {
     font-size: 0.6rem;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: rgba(255,255,255,0.4);
-    font-weight: 600;
-}
-
-.cassette-song-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    color: rgba(0,0,0,0.4);
+    font-weight: 700;
 }
 
 .cassette-song-title {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #222;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    letter-spacing: 0.3px;
+    letter-spacing: -0.2px;
+    font-family: 'Inter', sans-serif;
 }
 
 .cassette-song-artist {
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.5);
+    font-size: 0.75rem;
+    color: #555;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    letter-spacing: 0.5px;
 }
 
 /* Tape window */
 .cassette-window {
-    background: rgba(0,0,0,0.5);
-    border-radius: 40px;
+    background: #0a0a0c;
+    border-radius: 4px;
     padding: 14px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: relative;
     z-index: 1;
-    border: 1px solid rgba(255,255,255,0.05);
-    min-height: 66px;
+    border: 2px solid #141318;
+    min-height: 70px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+}
+
+.tape-strand {
+    position: absolute;
+    top: 50%;
+    left: 45px;
+    right: 45px;
+    height: 14px;
+    background: linear-gradient(180deg, #1a1815 0%, #11100d 100%);
+    transform: translateY(-50%);
+    z-index: 0;
+    opacity: 0.8;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.cassette-window-marks {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.cassette-window-marks span {
+    font-size: 8px;
+    font-weight: 800;
+    color: #fff;
+    font-family: monospace;
+    text-align: center;
 }
 
 /* Spools — larger and more prominent */
@@ -872,14 +882,15 @@ footer p {
 /* Tape path (U-shape under spools) */
 .tape-path {
     position: absolute;
-    bottom: 6px;
-    left: 18%;
-    right: 18%;
-    height: 18px;
-    border: 1px solid rgba(139, 90, 43, 0.15);
+    bottom: 5px;
+    left: 20%;
+    right: 20%;
+    height: 12px;
+    border: 2px solid rgba(139, 90, 43, 0.3);
     border-top: none;
-    border-radius: 0 0 14px 14px;
+    border-radius: 0 0 10px 10px;
     pointer-events: none;
+    z-index: 1;
 }
 
 /* Bottom head opening */
@@ -889,19 +900,37 @@ footer p {
     padding: 0 20px;
     position: relative;
     z-index: 1;
+    margin-top: -4px;
 }
 
 .cassette-head-inner {
-    width: 60%;
-    height: 10px;
-    background: rgba(0,0,0,0.45);
-    border-radius: 0 0 6px 6px;
-    border: 1px solid rgba(255,255,255,0.04);
+    width: 70%;
+    height: 14px;
+    background: #111;
+    border-radius: 0 0 8px 8px;
+    border: 1px solid #222;
     border-top: none;
+    box-shadow: inset 0 -2px 5px rgba(255,255,255,0.05);
 }
 
+/* Mechanical rollers */
+.cassette-window::before,
+.cassette-window::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #222;
+    border-radius: 50%;
+    bottom: 8px;
+    box-shadow: inset 0 0 3px #000;
+}
+
+.cassette-window::before { left: 15%; }
+.cassette-window::after { right: 15%; }
+
 @media (max-width: 700px) {
-    .fun-stuff-grid {
+    .library-grid {
         grid-template-columns: 1fr 1fr;
     }
     .cassette-link {
@@ -919,7 +948,7 @@ footer p {
         font-size: 2.5rem;
     }
 
-    .fun-stuff-grid {
+    .library-grid {
         grid-template-columns: 1fr;
     }
     .cassette-link {

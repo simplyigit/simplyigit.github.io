@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         card.addEventListener('mouseenter', () => {
-            card.style.transition = 'none'; // Snappy tracking when mouse is inside
+            // Remove transition: 'none' to keep the entry smooth
         });
     }
 

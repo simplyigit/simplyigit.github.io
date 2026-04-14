@@ -1,0 +1,7 @@
+- [x] Hover glow in the main page looks clunky. You can see the color changes.
+- [x] Revamp “Fun Stuff” title
+- [x] The problems with the Cassette Design:
+    - [x] There's nothing that connects two spools together. It isn't realistic and looks weird.
+    - [x] The area that stores spools looks very empty compared to the top where there is cassette title and the song title etc.
+    - [x] The cover art looks aesthetic at first but the real cassettes doesn't look like that. You need to come up with a way to wrap the cover art on the cassette.
+    - [x] Because we moved the song card to the middle, the old design of movie and book cards look bad. They need their own rework too but that's second priority.

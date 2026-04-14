@@ -641,15 +641,18 @@ footer p {
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
 }
 
 .fun-side-card::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 70%);
+    background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 70%);
     opacity: 0;
     transition: opacity 0.5s ease;
+    pointer-events: none;
 }
 
 .fun-side-card:hover::before {
@@ -751,6 +754,8 @@ footer p {
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
 }
 
 /* Subtly tint the background with the cover art color */
@@ -899,6 +904,8 @@ footer p {
     box-shadow: 
         0 4px 10px rgba(0,0,0,0.6),
         inset 0 0 8px rgba(0,0,0,0.5);
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
 }
 
 /* Rotating metallic background */
@@ -908,8 +915,8 @@ footer p {
     inset: -2px;
     border-radius: 50%;
     background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 45%),
-        radial-gradient(circle, transparent 7px, rgba(255,255,255,0.1) 7px, rgba(255,255,255,0.1) 8px, transparent 8px),
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 45%),
+        radial-gradient(circle, rgba(255,255,255,0) 7px, rgba(255,255,255,0.1) 7px, rgba(255,255,255,0.1) 8px, rgba(255,255,255,0) 8px),
         repeating-radial-gradient(
             circle at center,
             #222 0px, #222 1.5px,
@@ -940,7 +947,7 @@ footer p {
 
 @keyframes spinSpool {
     from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    to { transform: rotate(-360deg); }
 }
 
 /* Bottom Area: Integrated Cover Art */

@@ -340,7 +340,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
                     }
                     if(cassetteSongTitle) {
-                        cassetteSongTitle.innerHTML = `<span class="cassette-song-title-text fade-in" title="${topTrack.title}">${topTrack.title}</span>`;
+                        const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
+                        if (marquee) {
+                            const repeatedText = `${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; `.repeat(6);
+                            marquee.innerHTML = `<span class="cassette-song-title-text fade-in">${repeatedText}</span>`;
+                        }
                     }
 
                     // Set cover art across entire cassette body

@@ -793,60 +793,95 @@ footer p {
 .cassette-song-on-tape {
     z-index: 2;
     text-align: center;
-    max-width: 100px;
+    flex-grow: 1;
+    overflow: hidden;
+    margin: 0 5px;
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+}
+
+.cassette-song-marquee {
+    display: flex;
+    white-space: nowrap;
 }
 
 .cassette-song-title-text {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.4);
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.3);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
+    display: inline-block;
+}
+
+/* Tape loop animation on hover */
+.cassette-link:hover .cassette-song-marquee {
+    animation: tapeMarquee 15s linear infinite;
+}
+
+@keyframes tapeMarquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-33.33%); }
 }
 
 /* Spools */
 .spool {
-    --spool-size: 40px;
+    --spool-size: 42px;
     width: var(--spool-size);
     height: var(--spool-size);
     border-radius: 50%;
     flex-shrink: 0;
     position: relative;
     z-index: 1;
+    /* Subtle color and metallic shine */
     background:
-        radial-gradient(circle, transparent 7px, rgba(255,255,255,0.05) 7px, rgba(255,255,255,0.05) 8px, transparent 8px),
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 40%),
+        radial-gradient(circle, transparent 7px, rgba(255,255,255,0.08) 7px, rgba(255,255,255,0.08) 8px, transparent 8px),
         repeating-radial-gradient(
             circle at center,
-            #111 0px, #111 1.5px,
-            #181818 1.5px, #181818 3px
+            #15141a 0px, #15141a 1.5px,
+            #1c1b21 1.5px, #1c1b21 3px
         );
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 
+        0 2px 5px rgba(0,0,0,0.5),
+        inset 0 0 10px rgba(0,0,0,0.8);
 }
 
-/* Bottom Area: Cover Art Shield */
+/* Bottom Area: Integrated Cover Art */
 .cassette-bottom-area {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding-bottom: 4px;
+    gap: 0;
+    padding-bottom: 2px;
+    margin-top: 4px;
 }
 
 .cassette-cover-art-wrapper {
-    width: 60px;
-    height: 30px;
+    width: 100px;
+    height: 44px;
     background: #111;
-    padding: 2px;
-    border-radius: 2px 2px 0 0;
-    border: 1px solid rgba(255,255,255,0.05);
+    padding: 3px;
+    border-radius: 4px 4px 0 0;
+    border: 1px solid rgba(255,255,255,0.08);
     border-bottom: none;
     position: relative;
     z-index: 2;
+    overflow: hidden;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
+}
+
+/* Grainy Texture for Cover Art */
+.cassette-cover-art-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.15;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 3;
 }
 
 .cassette-cover-art {
@@ -857,19 +892,20 @@ footer p {
     background-position: center;
     opacity: 0;
     transition: opacity 0.6s ease;
-    border-radius: 1px;
+    border-radius: 2px;
+    filter: saturate(0.8) contrast(1.1);
 }
 
 .has-art .cassette-cover-art {
-    opacity: 1;
+    opacity: 0.9;
 }
 
 .cassette-head {
-    width: 70%;
-    height: 12px;
-    background: #1a1a1a;
-    border-radius: 0 0 8px 8px;
-    border: 1px solid rgba(255,255,255,0.05);
+    width: 110px;
+    height: 14px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #111 100%);
+    border-radius: 0 0 10px 10px;
+    border: 1px solid rgba(255,255,255,0.08);
     border-top: none;
     display: flex;
     justify-content: center;

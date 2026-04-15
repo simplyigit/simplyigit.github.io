@@ -47,7 +47,7 @@ class handler(BaseHTTPRequestHandler):
             rss_resp = session.get(f"{base_url}/{username}/rss/", headers=headers, timeout=10)
             if rss_resp.status_code == 200:
                 root = ET.fromstring(rss_resp.content)
-                for item in root.findall('./channel/item')[:5]:
+                for item in root.findall('./channel/item')[:7]:  # Increased to 7
                     title_text = item.find('title').text if item.find('title') is not None else ""
                     link_text = item.find('link').text if item.find('link') is not None else ""
                     desc_html = item.find('description').text if item.find('description') is not None else ""
@@ -73,22 +73,32 @@ class handler(BaseHTTPRequestHandler):
                 fav_section = prof_soup.find(id='favourites')
                 if fav_section:
                     fav_items = []
+                    # Letterboxd favorites are naturally in order in the DOM
                     for div in fav_section.find_all('div', class_='react-component'):
                         fav_title = div.get('data-item-full-display-name', '')
+                        # Remove year from title (usually in format "Movie Title (YYYY)")
+                        fav_title = re.sub(r'\s\(\d{4}\)$', '', fav_title)
+                        
                         film_link = div.get('data-item-link', '')
                         target_link = div.get('data-target-link', film_link)
                         fav_items.append((fav_title, film_link, target_link))
                     
                     # Fetch posters in parallel
                     poster_futures = {executor.submit(get_hd_poster, item[1]): item for item in fav_items}
-                    for future in concurrent.futures.as_completed(poster_futures):
-                        item = poster_futures[future]
-                        cover_url = future.result()
-                        favorite_films.append({
-                            "title": item[0],
-                            "link": base_url + item[2] if item[2] else "",
-                            "cover_url": cover_url
-                        })
+                    # To maintain order, we shouldn't use as_completed or we need to sort them back
+                    # Using wait and then iterating in original order is better
+                    concurrent.futures.wait(poster_futures)
+                    for item in fav_items:
+                        # find the future for this item
+                        for fut, itm in poster_futures.items():
+                            if itm == item:
+                                cover_url = fut.result()
+                                favorite_films.append({
+                                    "title": item[0],
+                                    "link": base_url + item[2] if item[2] else "",
+                                    "cover_url": cover_url
+                                })
+                                break
 
             # 3. Fetch Watchlist
             watchlist_films = []
@@ -96,21 +106,24 @@ class handler(BaseHTTPRequestHandler):
             if watch_resp.status_code == 200:
                 watch_soup = BeautifulSoup(watch_resp.text, 'html.parser')
                 watch_items = []
-                for div in watch_soup.find_all('div', attrs={'data-component-class': 'LazyPoster'})[:10]:
+                for div in watch_soup.find_all('div', attrs={'data-component-class': 'LazyPoster'})[:7]:  # Limited to 7
                     watch_title = div.get('data-item-full-display-name', '')
                     target_link = div.get('data-film-link', div.get('data-target-link', ''))
                     watch_items.append((watch_title, target_link))
                 
                 # Fetch posters in parallel
                 poster_futures = {executor.submit(get_hd_poster, item[1]): item for item in watch_items}
-                for future in concurrent.futures.as_completed(poster_futures):
-                    item = poster_futures[future]
-                    cover_url = future.result()
-                    watchlist_films.append({
-                        "title": item[0],
-                        "link": base_url + item[1] if item[1] else "",
-                        "cover_url": cover_url
-                    })
+                concurrent.futures.wait(poster_futures)
+                for item in watch_items:
+                    for fut, itm in poster_futures.items():
+                        if itm == item:
+                            cover_url = fut.result()
+                            watchlist_films.append({
+                                "title": item[0],
+                                "link": base_url + item[1] if item[1] else "",
+                                "cover_url": cover_url
+                            })
+                            break
 
             executor.shutdown(wait=False)
 

@@ -262,9 +262,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // Initial state: hide containers slightly to reveal them together
         const containers = [indexBooksContainer, indexMoviesContainer, cassetteArtistName, cassetteSongTitle].filter(Boolean);
         
-        const fetchSpotify = fetch("/api/spotify?v=3.6").then(res => res.json()).catch(() => ({ success: false }));
-        const fetchBooks = fetch("/api/books?v=3.6").then(res => res.json()).catch(() => ({ success: false }));
-        const fetchMovies = fetch("/api/movies?v=3.6").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchSpotify = fetch("/api/spotify?v=4.0").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchBooks = fetch("/api/books?v=4.0").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchMovies = fetch("/api/movies?v=4.0").then(res => res.json()).catch(() => ({ success: false }));
 
         Promise.all([fetchSpotify, fetchBooks, fetchMovies]).then(([spotify, books, movies]) => {
             // 1. Process Spotify (Cassette)
@@ -348,7 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tracksContainer = document.getElementById("spotify-tracks-container");
 
     if (artistsContainer || tracksContainer) {
-        fetch("/api/spotify?v=3.6")
+        fetch("/api/spotify?v=4.0")
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {
@@ -381,7 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Sub-pages: Goodreads and Letterboxd (Full list pages)
     const booksContainer = document.getElementById("goodreads-books-container");
     if (booksContainer) {
-        fetch("/api/books?v=3.6").then(res => res.json()).then(json => {
+        fetch("/api/books?v=4.0").then(res => res.json()).then(json => {
             const books = json.data || [];
             booksContainer.innerHTML = books.length === 0 ? `<p style="color: rgba(230,223,204,0.6); font-family: 'Playfair Display', serif; font-style: italic;">No books found.</p>` : "";
             books.forEach((book, index) => {
@@ -397,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const watchlistContainer = document.getElementById("movies-watchlist-container");
 
     if (favContainer || recentContainer || watchlistContainer) {
-        fetch("/api/movies?v=3.6").then(res => res.json()).then(json => {
+        fetch("/api/movies?v=4.0").then(res => res.json()).then(json => {
             if (!json.success || !json.data) return;
             const { favorite_films: favorites, recent_activity: recent, watchlist } = json.data;
 

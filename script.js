@@ -140,44 +140,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Scroll-interactive background mesh
     let scrollPercent = 0;
+    let ticking = false;
+    let currentMouseX = 0.5;
+    let currentMouseY = 0.5;
 
-    const updateMesh = (mouseXPercent = 0.5, mouseYPercent = 0.5) => {
+    const updateMesh = () => {
         // Blend scroll math and mouse parallax
-        const y1 = 20 + (scrollPercent * 40) + ((mouseYPercent - 0.5) * 10);
-        const x1 = 20 + ((mouseXPercent - 0.5) * 10);
+        const y1 = 20 + (scrollPercent * 40) + ((currentMouseY - 0.5) * 10);
+        const x1 = 20 + ((currentMouseX - 0.5) * 10);
 
-        const y2 = 80 - (scrollPercent * 50) + ((mouseYPercent - 0.5) * -15);
-        const x2 = 80 + ((mouseXPercent - 0.5) * -15);
+        const y2 = 80 - (scrollPercent * 50) + ((currentMouseY - 0.5) * -15);
+        const x2 = 80 + ((currentMouseX - 0.5) * -15);
 
-        const y3 = 50 + (scrollPercent * 30) + ((mouseYPercent - 0.5) * 8);
-        const x3 = 50 + (scrollPercent * 20) + ((mouseXPercent - 0.5) * 12);
+        const y3 = 50 + (scrollPercent * 30) + ((currentMouseY - 0.5) * 8);
+        const x3 = 50 + (scrollPercent * 20) + ((currentMouseX - 0.5) * 12);
 
-        document.body.style.setProperty('--bg-y1', `${y1}%`);
-        document.body.style.setProperty('--bg-x1', `${x1}%`);
+        const ambientMesh = document.getElementById('ambient-mesh');
+        if (ambientMesh) {
+            ambientMesh.style.setProperty('--bg-y1', `${y1}vh`);
+            ambientMesh.style.setProperty('--bg-x1', `${x1}vw`);
 
-        document.body.style.setProperty('--bg-y2', `${y2}%`);
-        document.body.style.setProperty('--bg-x2', `${x2}%`);
+            ambientMesh.style.setProperty('--bg-y2', `${y2}vh`);
+            ambientMesh.style.setProperty('--bg-x2', `${x2}vw`);
 
-        document.body.style.setProperty('--bg-y3', `${y3}%`);
-        document.body.style.setProperty('--bg-x3', `${x3}%`);
+            ambientMesh.style.setProperty('--bg-y3', `${y3}vh`);
+            ambientMesh.style.setProperty('--bg-x3', `${x3}vw`);
+        }
+        
+        ticking = false;
     };
 
     window.addEventListener('scroll', () => {
         const scrolled = window.scrollY;
         const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-
-        if (maxScroll > 0) {
-            scrollPercent = scrolled / maxScroll;
-        } else {
-            scrollPercent = 0;
+        scrollPercent = maxScroll > 0 ? scrolled / maxScroll : 0;
+        
+        if (!ticking) {
+            window.requestAnimationFrame(updateMesh);
+            ticking = true;
         }
-        updateMesh();
     });
 
     window.addEventListener('mousemove', (e) => {
-        const mouseXPercent = e.clientX / window.innerWidth;
-        const mouseYPercent = e.clientY / window.innerHeight;
-        updateMesh(mouseXPercent, mouseYPercent);
+        currentMouseX = e.clientX / window.innerWidth;
+        currentMouseY = e.clientY / window.innerHeight;
+        
+        if (!ticking) {
+            window.requestAnimationFrame(updateMesh);
+            ticking = true;
+        }
     });
 
     // Mouse tracking for glass card glow and 3D parallax tilt
@@ -370,8 +381,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 if(tracksContainer) {
                     tracksContainer.innerHTML = tracks.length === 0 ? `<p style="color: var(--text-secondary);">No tracks found.</p>` : "";
                     tracks.forEach((track, index) => {
-                        const html = `<a href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card fade-in delay-${(index % 4) + 1}" style="text-decoration: none;"><img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img"><div class="spotify-track-info"><span class="spotify-track-title">${track.title}</span><span class="spotify-track-artist">${track.artist}</span></div></a>`;
+                        const cardId = `track-card-${index}`;
+                        const html = `<a id="${cardId}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card fade-in delay-${(index % 4) + 1}" style="text-decoration: none;"><img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img"><div class="spotify-track-info"><span class="spotify-track-title"><span class="marquee-text">${track.title}</span></span><span class="spotify-track-artist">${track.artist}</span></div></a>`;
                         tracksContainer.insertAdjacentHTML("beforeend", html);
+                        
+                        if (track.cover_url) {
+                            const img = new Image();
+                            img.crossOrigin = "Anonymous";
+                            img.src = track.cover_url;
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                canvas.width = 1; canvas.height = 1;
+                                ctx.drawImage(img, 0, 0, 1, 1);
+                                const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+                                const card = document.getElementById(cardId);
+                                if(card) card.style.setProperty('--track-color', `rgb(${r}, ${g}, ${b})`);
+                            };
+                        }
                     });
                 }
                 document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));

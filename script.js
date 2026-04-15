@@ -252,123 +252,46 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(type, 2000);
     } // CRITICAL FIX: Properly close the statusText block so sub-page APIs execute!
 
-    // Spotify Data Fetching
-    const artistsContainer = document.getElementById("spotify-artists-container");
-    const tracksContainer = document.getElementById("spotify-tracks-container");
+    // Optimized Index Data Orchestration
+    const indexBooksContainer = document.getElementById("index-books-container");
+    const indexMoviesContainer = document.getElementById("index-movies-container");
     const cassetteArtistName = document.getElementById("cassette-artist-name");
     const cassetteSongTitle = document.getElementById("cassette-song-title");
-    const cassetteBody = document.getElementById("cassette-body");
-    const spoolLeft = document.getElementById("spool-left");
-    const spoolRight = document.getElementById("spool-right");
 
-    // Set spool sizes based on day of month
-    if (spoolLeft && spoolRight) {
-        const now = new Date();
-        const dayOfMonth = now.getDate();
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        const progress = dayOfMonth / daysInMonth; // 0 at start, 1 at end
+    if (indexBooksContainer && indexMoviesContainer && (cassetteArtistName || cassetteSongTitle)) {
+        // Initial state: hide containers slightly to reveal them together
+        const containers = [indexBooksContainer, indexMoviesContainer, cassetteArtistName, cassetteSongTitle].filter(Boolean);
+        
+        const fetchSpotify = fetch("/api/spotify?v=3.6").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchBooks = fetch("/api/books?v=3.6").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchMovies = fetch("/api/movies?v=3.6").then(res => res.json()).catch(() => ({ success: false }));
 
-        const minSize = 28; // Hub + minimal tape
-        const maxSize = 56; // Full spool
-        const leftSize = minSize + (1 - progress) * (maxSize - minSize);
-        const rightSize = minSize + progress * (maxSize - minSize);
-
-        spoolLeft.style.setProperty('--spool-size', `${leftSize}px`);
-        spoolRight.style.setProperty('--spool-size', `${rightSize}px`);
-    }
-
-    if (artistsContainer || tracksContainer || cassetteArtistName || cassetteSongTitle) {
-        fetch("/api/spotify?v=3.5")
-            .then(res => res.json())
-            .then(json => {
-                if (!json.success || !json.data) {
-                    if(artistsContainer) artistsContainer.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Spotify Edge DB Error: ${json.error || "Unknown Failure"}</p>`;
-                    if(cassetteArtistName) cassetteArtistName.innerHTML = `<p style="color: #ff6b6b; font-size: 0.7rem">Failed</p>`;
-                    return;
-                }
-
-                const data = json.data;
-                const artists = data.top_artists_last_month || [];
-                const tracks = data.top_tracks_last_month || [];
-
-                // Render Artists
-                if(artistsContainer) {
-                    artistsContainer.innerHTML = "";
-                    if (artists.length === 0) {
-                        artistsContainer.innerHTML = `<p style="color: var(--text-secondary);">No artists found.</p>`;
-                    } else {
-                        artists.forEach((artist, index) => {
-                            const delayClass = `delay-${(index % 3) + 1}`;
-                            const html = `
-                                <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item fade-in ${delayClass}" style="text-decoration: none;">
-                                    <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img">
-                                    <span class="spotify-artist-name">${artist.name}</span>
-                                </a>
-                            `;
-                            artistsContainer.insertAdjacentHTML("beforeend", html);
-                        });
-                    }
-                }
-
-                // Render Tracks
-                if(tracksContainer) {
-                    tracksContainer.innerHTML = "";
-                    if (tracks.length === 0) {
-                        tracksContainer.innerHTML = `<p style="color: var(--text-secondary);">No tracks found.</p>`;
-                    } else {
-                        tracks.forEach((track, index) => {
-                            const delayClass = `delay-${(index % 4) + 1}`;
-                            const html = `
-                                <a href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card fade-in ${delayClass}" style="text-decoration: none;">
-                                    <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
-                                    <div class="spotify-track-info">
-                                        <span class="spotify-track-title">${track.title}</span>
-                                        <span class="spotify-track-artist">${track.artist}</span>
-                                    </div>
-                                </a>
-                            `;
-                            tracksContainer.insertAdjacentHTML("beforeend", html);
-                        });
-                    }
-                }
-
-                // Render Cassette (index page)
-                if((cassetteArtistName || cassetteSongTitle) && tracks.length > 0) {
+        Promise.all([fetchSpotify, fetchBooks, fetchMovies]).then(([spotify, books, movies]) => {
+            // 1. Process Spotify (Cassette)
+            if (spotify.success && spotify.data) {
+                const tracks = spotify.data.top_tracks_last_month || [];
+                if (tracks.length > 0) {
                     const topTrack = tracks[0];
-
-                    if(cassetteArtistName) {
+                    if (cassetteArtistName) {
                         cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
                     }
-                    if(cassetteSongTitle) {
+                    if (cassetteSongTitle) {
                         const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
                         if (marquee) {
                             const trackText = `${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; `;
-                            // Create 7 identical spans: the middle one (4th) will be centered initially
-                            marquee.innerHTML = `
-                                <span class="cassette-song-title-text fade-in">${trackText}</span>
-                                <span class="cassette-song-title-text fade-in">${trackText}</span>
-                                <span class="cassette-song-title-text fade-in">${trackText}</span>
-                                <span class="cassette-song-title-text fade-in">${trackText}</span>
-                                <span class="cassette-song-title-text fade-in">${trackText}</span>
-                                <span class="cassette-song-title-text fade-in">${trackText}</span>
-                                <span class="cassette-song-title-text fade-in">${trackText}</span>
-                            `;
+                            marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text fade-in">${trackText}</span>`).join('');
                         }
                     }
-
-                    // Set cover art and dynamic tint
-                    if(cassetteBody && topTrack.cover_url) {
+                    const cassetteBody = document.getElementById("cassette-body");
+                    if (cassetteBody && topTrack.cover_url) {
                         cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
-                        
-                        // Extract prominent color for tinting
                         const img = new Image();
                         img.crossOrigin = "Anonymous";
                         img.src = topTrack.cover_url;
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
-                            canvas.width = 1;
-                            canvas.height = 1;
+                            canvas.width = 1; canvas.height = 1;
                             ctx.drawImage(img, 0, 0, 1, 1);
                             const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
                             cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
@@ -376,179 +299,133 @@ document.addEventListener("DOMContentLoaded", () => {
                         };
                     }
                 }
+            }
 
-                // Re-trigger intersection observer for newly injected elements
-                document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+            // 2. Process Books
+            if (books.success && books.data) {
+                const bookList = books.data || [];
+                indexBooksContainer.innerHTML = "";
+                if (bookList.length === 0) {
+                    indexBooksContainer.innerHTML = `<p style="color: var(--text-secondary);">Empty.</p>`;
+                } else {
+                    bookList.slice(0, 3).forEach((book, index) => {
+                        const rotateOffset = (index - 1) * 6;
+                        const translateY = Math.abs(rotateOffset) * 0.5;
+                        const html = `
+                            <img src="${book.cover_url || ""}" alt="${book.title}" title="${book.title}" class="index-book-cover fade-in" style="width: 40px; height: 60px; object-fit: cover; box-shadow: -3px 2px 10px rgba(0,0,0,0.5); border-radius: 3px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotateOffset}deg) translateY(${translateY}px); z-index: ${index}; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), z-index 0s;" onmouseenter="this.style.transform='scale(1.18) translateY(-8px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${translateY}px)'; this.style.zIndex='${index}';">
+                        `;
+                        indexBooksContainer.insertAdjacentHTML("beforeend", html);
+                    });
+                }
+            }
 
-                // Re-trigger 3D tilt bindings for new glass cards
-                document.querySelectorAll(".glass-card").forEach(card => {
-                    card.addEventListener("mousemove", e => handleOnMouseMove(e));
-                    card.addEventListener("mouseleave", () => {
-                        card.style.transform = "perspective(1200px) rotateX(0) rotateY(0) scale3d(1, 1, 1)";
-                        card.style.transition = "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.4s ease";
+            // 3. Process Movies
+            if (movies.success && movies.data) {
+                const recent = movies.data.recent_activity || [];
+                indexMoviesContainer.innerHTML = "";
+                if (recent.length === 0) {
+                    indexMoviesContainer.innerHTML = `<p style="color: var(--text-secondary);">Empty.</p>`;
+                } else {
+                    recent.slice(0, 3).forEach((film, index) => {
+                        const rotateOffset = (index - 1) * 6;
+                        const translateY = Math.abs(rotateOffset) * 0.5;
+                        const filmTitle = (film.title_and_rating || film.title || "").replace(/ - ★.*$/, '');
+                        const html = `
+                            <img src="${film.cover_url || ""}" alt="${filmTitle}" title="${filmTitle}" class="index-movie-cover fade-in" style="width: 40px; height: 60px; object-fit: cover; box-shadow: -3px 2px 10px rgba(0,0,0,0.5); border-radius: 3px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotateOffset}deg) translateY(${translateY}px); z-index: ${index}; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), z-index 0s;" onmouseenter="this.style.transform='scale(1.18) translateY(-8px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${translateY}px)'; this.style.zIndex='${index}';">
+                        `;
+                        indexMoviesContainer.insertAdjacentHTML("beforeend", html);
                     });
-                    card.addEventListener("mouseenter", () => {
-                        card.style.transition = "none";
-                    });
-                });
-            })
-            .catch(err => {
-                console.error("Spotify API Error:", err);
-                artistsContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to connect to /api/spotify.</p>`;
-            });
+                }
+            }
+
+            // Trigger animations
+            document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+        });
     }
 
-    // Goodreads Data Fetching
-    const booksContainer = document.getElementById("goodreads-books-container");
-    const indexBooksContainer = document.getElementById("index-books-container");
+    // Spotify Page Data Fetching (Separate from index orchestration)
+    const artistsContainer = document.getElementById("spotify-artists-container");
+    const tracksContainer = document.getElementById("spotify-tracks-container");
 
-    if (booksContainer || indexBooksContainer) {
-        fetch("/api/books?v=3.5")
-            .then(res => res.json())
-            .then(json => {
-                const books = json.data || [];
-
-                if (booksContainer) {
-                    booksContainer.innerHTML = "";
-                    if (books.length === 0) {
-                        booksContainer.innerHTML = `<p style="color: rgba(230,223,204,0.6); font-family: 'Playfair Display', serif; font-style: italic;">No books found on the shelf.</p>`;
-                    } else {
-                        books.forEach((book, index) => {
-                            const delayClass = `delay-${(index % 4) + 1}`;
-                            const html = `
-                                <a href="${book.link || "#"}" target="_blank" rel="noopener noreferrer" class="classical-book-card fade-in ${delayClass}" style="text-decoration: none;">
-                                    <img src="${book.cover_url || ""}" alt="${book.title}" class="classical-book-cover">
-                                    <div class="classical-book-info">
-                                        <span class="classical-book-title">${book.title}</span>
-                                        <span class="classical-book-author">${book.author}</span>
-                                    </div>
-                                </a>
-                            `;
-                            booksContainer.insertAdjacentHTML("beforeend", html);
-                        });
-                    }
-                }
-
-                if (indexBooksContainer) {
-                    indexBooksContainer.innerHTML = "";
-                    if (books.length === 0) {
-                        indexBooksContainer.innerHTML = `<p style="color: var(--text-secondary);">Empty.</p>`;
-                    } else {
-                        // Fan out 3 books with subtle overlap
-                        books.slice(0, 3).forEach((book, index) => {
-                            const delayClass = `delay-${(index % 4) + 1}`;
-                            const rotateOffset = (index - 1) * 6; // -6deg, 0deg, 6deg
-                            const translateY = Math.abs(rotateOffset) * 0.5;
-                            const html = `
-                                <img src="${book.cover_url || ""}" alt="${book.title}" title="${book.title}" class="index-book-cover fade-in ${delayClass}" style="width: 40px; height: 60px; object-fit: cover; box-shadow: -3px 2px 10px rgba(0,0,0,0.5); border-radius: 3px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotateOffset}deg) translateY(${translateY}px); z-index: ${index}; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), z-index 0s;" onmouseenter="this.style.transform='scale(1.18) translateY(-8px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${translateY}px)'; this.style.zIndex='${index}';">
-                            `;
-                            indexBooksContainer.insertAdjacentHTML("beforeend", html);
-                        });
-                    }
-                }
-
-                document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
-            })
-            .catch(err => {
-                console.error("Goodreads API Error:", err);
-                booksContainer.innerHTML = `<p style="color: #ff6b6b; font-family: 'Playfair Display', serif;">Failed to connect to /api/books.</p>`;
-            });
-    }
-
-
-    // Letterboxd Data Fetching
-    const favContainer = document.getElementById("movies-favorites-container");
-    const recentContainer = document.getElementById("movies-recent-container");
-    const watchlistContainer = document.getElementById("movies-watchlist-container");
-    const indexMoviesContainer = document.getElementById("index-movies-container");
-
-    if (favContainer || recentContainer || watchlistContainer || indexMoviesContainer) {
-        fetch("/api/movies?v=3.5")
+    if (artistsContainer || tracksContainer) {
+        fetch("/api/spotify?v=3.6")
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {
-                    if(favContainer) favContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to load Letterboxd.</p>`;
+                    if(artistsContainer) artistsContainer.innerHTML = `<p style="color: #ff6b6b; font-size: 0.85rem">Spotify Edge DB Error: ${json.error || "Unknown Failure"}</p>`;
                     return;
                 }
-
                 const data = json.data;
-                const favorites = data.favorite_films || [];
-                const recent = data.recent_activity || [];
-                const watchlist = data.watchlist || [];
+                const artists = data.top_artists_last_month || [];
+                const tracks = data.top_tracks_last_month || [];
 
-                // 1. Render Favorites
-                if(favContainer) {
-                    favContainer.innerHTML = "";
-                    if (favorites.length === 0) {
-                        favContainer.innerHTML = `<p style="color: var(--text-secondary);">No favorites found.</p>`;
-                    } else {
-                        favorites.forEach((film, index) => {
-                            const delayClass = `delay-${(index % 4) + 1}`;
-                            const html = `
-                                <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-fav-card fade-in ${delayClass}" style="text-decoration: none;">
-                                    <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-fav-poster">
-                                    <div class="movie-fav-overlay">
-                                        <span class="movie-fav-title">${film.title}</span>
-                                    </div>
-                                </a>
-                            `;
-                            favContainer.insertAdjacentHTML("beforeend", html);
-                        });
-                    }
-                }
-
-                // 2. Render Recent Activity
-                if(recentContainer) {
-                    recentContainer.innerHTML = "";
-                    recent.forEach((film, index) => {
-                        const html = `
-                            <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s">
-                                <img src="${film.cover_url || ""}" alt="${film.title_and_rating}" class="movie-watchlist-poster" title="${film.title_and_rating}">
-                            </a>
-                        `;
-                        recentContainer.insertAdjacentHTML("beforeend", html);
+                if(artistsContainer) {
+                    artistsContainer.innerHTML = artists.length === 0 ? `<p style="color: var(--text-secondary);">No artists found.</p>` : "";
+                    artists.forEach((artist, index) => {
+                        const html = `<a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item fade-in delay-${(index % 3) + 1}" style="text-decoration: none;"><img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img"><span class="spotify-artist-name">${artist.name}</span></a>`;
+                        artistsContainer.insertAdjacentHTML("beforeend", html);
                     });
                 }
 
-                // 3. Render Watchlist
-                if(watchlistContainer) {
-                    watchlistContainer.innerHTML = "";
-                    watchlist.forEach((film, index) => {
-                        const html = `
-                            <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s">
-                                <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-watchlist-poster" title="${film.title}">
-                            </a>
-                        `;
-                        watchlistContainer.insertAdjacentHTML("beforeend", html);
+                if(tracksContainer) {
+                    tracksContainer.innerHTML = tracks.length === 0 ? `<p style="color: var(--text-secondary);">No tracks found.</p>` : "";
+                    tracks.forEach((track, index) => {
+                        const html = `<a href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card fade-in delay-${(index % 4) + 1}" style="text-decoration: none;"><img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img"><div class="spotify-track-info"><span class="spotify-track-title">${track.title}</span><span class="spotify-track-artist">${track.artist}</span></div></a>`;
+                        tracksContainer.insertAdjacentHTML("beforeend", html);
                     });
                 }
-
-                // 4. Render Index Movies Block
-                if(indexMoviesContainer) {
-                    indexMoviesContainer.innerHTML = "";
-                    if (recent.length === 0) {
-                        indexMoviesContainer.innerHTML = `<p style="color: var(--text-secondary);">Empty.</p>`;
-                    } else {
-                        // Fan out 3 movies with subtle overlap matching books
-                        recent.slice(0, 3).forEach((film, index) => {
-                            const delayClass = `delay-${(index % 4) + 1}`;
-                            const rotateOffset = (index - 1) * 6; // -6deg, 0deg, 6deg
-                            const translateY = Math.abs(rotateOffset) * 0.5;
-                            const filmTitle = (film.title_and_rating || film.title || "").replace(/ - ★.*$/, '');
-                            const html = `
-                                <img src="${film.cover_url || ""}" alt="${filmTitle}" title="${filmTitle}" class="index-movie-cover fade-in ${delayClass}" style="width: 40px; height: 60px; object-fit: cover; box-shadow: -3px 2px 10px rgba(0,0,0,0.5); border-radius: 3px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotateOffset}deg) translateY(${translateY}px); z-index: ${index}; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), z-index 0s;" onmouseenter="this.style.transform='scale(1.18) translateY(-8px) rotate(0deg)'; this.style.zIndex='10';" onmouseleave="this.style.transform='rotate(${rotateOffset}deg) translateY(${translateY}px)'; this.style.zIndex='${index}';">
-                            `;
-                            indexMoviesContainer.insertAdjacentHTML("beforeend", html);
-                        });
-                    }
-                }
-
                 document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
-            })
-            .catch(err => {
-                console.error("Letterboxd API Error:", err);
-                if(favContainer) favContainer.innerHTML = `<p style="color: #ff6b6b;">Failed to connect to /api/movies.</p>`;
             });
+    }
+
+    // Sub-pages: Goodreads and Letterboxd (Full list pages)
+    const booksContainer = document.getElementById("goodreads-books-container");
+    if (booksContainer) {
+        fetch("/api/books?v=3.6").then(res => res.json()).then(json => {
+            const books = json.data || [];
+            booksContainer.innerHTML = books.length === 0 ? `<p style="color: rgba(230,223,204,0.6); font-family: 'Playfair Display', serif; font-style: italic;">No books found.</p>` : "";
+            books.forEach((book, index) => {
+                const html = `<a href="${book.link || "#"}" target="_blank" rel="noopener noreferrer" class="classical-book-card fade-in delay-${(index % 4) + 1}" style="text-decoration: none;"><img src="${book.cover_url || ""}" alt="${book.title}" class="classical-book-cover"><div class="classical-book-info"><span class="classical-book-title">${book.title}</span><span class="classical-book-author">${book.author}</span></div></a>`;
+                booksContainer.insertAdjacentHTML("beforeend", html);
+            });
+            document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+        });
+    }
+
+    const favContainer = document.getElementById("movies-favorites-container");
+    const recentContainer = document.getElementById("movies-recent-container");
+    const watchlistContainer = document.getElementById("movies-watchlist-container");
+
+    if (favContainer || recentContainer || watchlistContainer) {
+        fetch("/api/movies?v=3.6").then(res => res.json()).then(json => {
+            if (!json.success || !json.data) return;
+            const { favorite_films: favorites, recent_activity: recent, watchlist } = json.data;
+
+            if(favContainer) {
+                favContainer.innerHTML = favorites.length === 0 ? `<p style="color: var(--text-secondary);">No favorites found.</p>` : "";
+                favorites.forEach((film, index) => {
+                    const html = `<a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-fav-card fade-in delay-${(index % 4) + 1}" style="text-decoration: none;"><img src="${film.cover_url || ""}" alt="${film.title}" class="movie-fav-poster"><div class="movie-fav-overlay"><span class="movie-fav-title">${film.title}</span></div></a>`;
+                    favContainer.insertAdjacentHTML("beforeend", html);
+                });
+            }
+
+            if(recentContainer) {
+                recentContainer.innerHTML = "";
+                recent.forEach((film, index) => {
+                    const html = `<a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s"><img src="${film.cover_url || ""}" alt="${film.title_and_rating}" class="movie-watchlist-poster" title="${film.title_and_rating}"></a>`;
+                    recentContainer.insertAdjacentHTML("beforeend", html);
+                });
+            }
+
+            if(watchlistContainer) {
+                watchlistContainer.innerHTML = "";
+                watchlist.forEach((film, index) => {
+                    const html = `<a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s"><img src="${film.cover_url || ""}" alt="${film.title}" class="movie-watchlist-poster" title="${film.title}"></a>`;
+                    watchlistContainer.insertAdjacentHTML("beforeend", html);
+                });
+            }
+            document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+        });
     }
 
 });

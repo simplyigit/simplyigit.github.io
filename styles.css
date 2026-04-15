@@ -660,9 +660,9 @@ footer p {
 }
 
 .fun-books:hover {
-    background: rgba(212, 175, 55, 0.03);
-    border-color: rgba(212, 175, 55, 0.15);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 0 20px rgba(212, 175, 55, 0.05);
+    background: rgba(212, 175, 120, 0.04);
+    border-color: rgba(212, 175, 120, 0.2);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3), inset 0 0 25px rgba(212, 175, 120, 0.08);
 }
 
 .fun-movies:hover {
@@ -682,18 +682,18 @@ footer p {
 
 .side-card-title {
     font-family: "Playfair Display", Georgia, serif;
-    font-size: 1.5rem;
+    font-size: 1.35rem; /* Adjusted for better balance */
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 2.5px;
     color: rgba(255,255,255,0.9);
     text-transform: uppercase;
 }
 
 .side-card-subtitle {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
+    font-size: 0.6rem; /* Slightly smaller for refinement */
     color: var(--text-secondary);
-    letter-spacing: 2px;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
 }
 
@@ -706,12 +706,49 @@ footer p {
     position: absolute;
     inset: 0;
     background: 
-        linear-gradient(to right, rgba(0,0,0,0.6) 0%, transparent 10%, transparent 90%, rgba(0,0,0,0.6) 100%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 2px, transparent 2px, transparent 4px);
+        linear-gradient(to right, rgba(0,0,0,0.4) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.4) 100%);
     opacity: 0.3;
     pointer-events: none;
     z-index: 0;
     transition: opacity 0.5s ease;
+}
+
+/* Book Spine Ribs */
+.fun-books::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 24px;
+    background: linear-gradient(90deg, 
+        rgba(0,0,0,0.4) 0%, 
+        rgba(255,255,255,0.02) 20%, 
+        rgba(0,0,0,0.2) 40%, 
+        rgba(255,255,255,0.01) 60%, 
+        rgba(0,0,0,0.3) 100%);
+    border-right: 1px solid rgba(255,255,255,0.05);
+    z-index: 1;
+}
+
+/* Ribbed Texture for the spine */
+.fun-books .book-ribs {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 24px;
+    background: repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 30px,
+        rgba(0,0,0,0.3) 30px,
+        rgba(0,0,0,0.3) 32px,
+        rgba(255,255,255,0.03) 32px,
+        rgba(255,255,255,0.03) 33px
+    );
+    z-index: 2;
+    opacity: 0.6;
 }
 
 .fun-books:hover .book-texture {
@@ -756,14 +793,14 @@ footer p {
     inset: 0;
     background: repeating-linear-gradient(
         180deg,
-        transparent 0px,
-        transparent 8px,
-        rgba(255,255,255,0.15) 8px,
-        rgba(255,255,255,0.15) 14px
+        rgba(255,255,255,0.1) 0px,
+        rgba(255,255,255,0.1) 6px,
+        transparent 6px,
+        transparent 14px
     );
     width: 8px;
     margin: 0 auto;
-    animation: filmScroll 1s linear infinite;
+    animation: filmScroll 0.8s linear infinite;
     animation-play-state: paused;
 }
 
@@ -773,7 +810,7 @@ footer p {
 
 @keyframes filmScroll {
     from { background-position: 0 0; }
-    to { background-position: 0 14px; }
+    to { background-position: 0 -14px; }
 }
 
 .film-strip.left { left: 0; border-right: 1px solid rgba(255,255,255,0.05); }
@@ -963,7 +1000,7 @@ footer p {
 .cassette-window {
     background: rgba(0,0,0,0.6);
     border-radius: 8px;
-    margin: 0 10px;
+    margin: 6px 10px 0; /* Nudged down slightly */
     height: 64px;
     display: flex;
     align-items: center;
@@ -1107,7 +1144,7 @@ footer p {
 }
 
 .cassette-cover-art-wrapper {
-    width: 100px;
+    width: 104px;
     height: 44px;
     background: #111;
     padding: 3px;
@@ -1118,6 +1155,8 @@ footer p {
     z-index: 2;
     overflow: hidden;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
+    /* Trapezoidal lock-in effect */
+    clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%);
 }
 
 /* Grainy Texture for Cover Art */
@@ -1149,7 +1188,7 @@ footer p {
 }
 
 .cassette-head {
-    width: 110px;
+    width: 114px;
     height: 14px;
     background: linear-gradient(180deg, #1a1a1a 0%, #111 100%);
     border-radius: 0 0 10px 10px;
@@ -1159,6 +1198,8 @@ footer p {
     justify-content: center;
     align-items: center;
     position: relative;
+    /* Trapezoidal lock-in effect matching the wrapper */
+    clip-path: polygon(0% 0%, 100% 0%, 92% 100%, 8% 100%);
 }
 
 .cassette-head-inner {

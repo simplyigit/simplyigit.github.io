@@ -3,6 +3,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 import time
+import concurrent.futures
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -23,11 +24,14 @@ class handler(BaseHTTPRequestHandler):
             username = "oneyigit"
             base_url = "https://letterboxd.com"
 
+            session = requests.Session()
+
             def get_hd_poster(film_link):
+                if not film_link: return ""
                 try:
-                    res = requests.get(base_url + film_link, headers=headers)
+                    res = session.get(base_url + film_link, headers=headers, timeout=5)
                     if res.status_code == 200:
-                        # Extract explicit 2:3 poster from JSON-LD instead of the og:image backdrops
+                        # Extract explicit 2:3 poster from JSON-LD
                         m = re.search(r'"image":"(https://a\.ltrbxd\.com[^"]+)"', res.text)
                         if m:
                             return m.group(1)
@@ -35,12 +39,15 @@ class handler(BaseHTTPRequestHandler):
                     pass
                 return ""
 
+            # Use ThreadPoolExecutor for parallel poster fetching
+            executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+
             # 1. Fetch Recent Activity (via RSS)
             recent_activity = []
-            rss_resp = requests.get(f"{base_url}/{username}/rss/", headers=headers)
+            rss_resp = session.get(f"{base_url}/{username}/rss/", headers=headers, timeout=10)
             if rss_resp.status_code == 200:
                 root = ET.fromstring(rss_resp.content)
-                for item in root.findall('./channel/item')[:5]:  # limit to top 5
+                for item in root.findall('./channel/item')[:5]:
                     title_text = item.find('title').text if item.find('title') is not None else ""
                     link_text = item.find('link').text if item.find('link') is not None else ""
                     desc_html = item.find('description').text if item.find('description') is not None else ""
@@ -60,43 +67,52 @@ class handler(BaseHTTPRequestHandler):
 
             # 2. Fetch Favorite Films (via Profile)
             favorite_films = []
-            prof_resp = requests.get(f"{base_url}/{username}/", headers=headers)
+            prof_resp = session.get(f"{base_url}/{username}/", headers=headers, timeout=10)
             if prof_resp.status_code == 200:
                 prof_soup = BeautifulSoup(prof_resp.text, 'html.parser')
                 fav_section = prof_soup.find(id='favourites')
                 if fav_section:
+                    fav_items = []
                     for div in fav_section.find_all('div', class_='react-component'):
                         fav_title = div.get('data-item-full-display-name', '')
-                        # data-item-link gives the canonical film path (e.g. /film/interstellar/)
-                        # data-target-link gives user-specific paths (e.g. /oneyigit/film/interstellar/)
-                        # which don't contain JSON-LD poster data, so always prefer data-item-link
                         film_link = div.get('data-item-link', '')
                         target_link = div.get('data-target-link', film_link)
-
-                        cover_url = get_hd_poster(film_link) if film_link else ""
-
+                        fav_items.append((fav_title, film_link, target_link))
+                    
+                    # Fetch posters in parallel
+                    poster_futures = {executor.submit(get_hd_poster, item[1]): item for item in fav_items}
+                    for future in concurrent.futures.as_completed(poster_futures):
+                        item = poster_futures[future]
+                        cover_url = future.result()
                         favorite_films.append({
-                            "title": fav_title,
-                            "link": base_url + target_link if target_link else "",
+                            "title": item[0],
+                            "link": base_url + item[2] if item[2] else "",
                             "cover_url": cover_url
                         })
 
             # 3. Fetch Watchlist
             watchlist_films = []
-            watch_resp = requests.get(f"{base_url}/{username}/watchlist/", headers=headers)
+            watch_resp = session.get(f"{base_url}/{username}/watchlist/", headers=headers, timeout=10)
             if watch_resp.status_code == 200:
                 watch_soup = BeautifulSoup(watch_resp.text, 'html.parser')
+                watch_items = []
                 for div in watch_soup.find_all('div', attrs={'data-component-class': 'LazyPoster'})[:10]:
                     watch_title = div.get('data-item-full-display-name', '')
                     target_link = div.get('data-film-link', div.get('data-target-link', ''))
-
-                    cover_url = get_hd_poster(target_link)
-
+                    watch_items.append((watch_title, target_link))
+                
+                # Fetch posters in parallel
+                poster_futures = {executor.submit(get_hd_poster, item[1]): item for item in watch_items}
+                for future in concurrent.futures.as_completed(poster_futures):
+                    item = poster_futures[future]
+                    cover_url = future.result()
                     watchlist_films.append({
-                        "title": watch_title,
-                        "link": base_url + target_link if target_link else "",
+                        "title": item[0],
+                        "link": base_url + item[1] if item[1] else "",
                         "cover_url": cover_url
                     })
+
+            executor.shutdown(wait=False)
 
             movies_data = {
                 "recent_activity": recent_activity,

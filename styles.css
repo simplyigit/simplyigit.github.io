@@ -1459,10 +1459,11 @@ footer p {
 /* Spotify Grids */
 .spotify-artists-grid {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Force single row */
     justify-content: space-evenly;
-    gap: 32px;
+    gap: 16px; /* Reduced gap to fit */
     margin-bottom: 60px;
+    width: 100%;
 }
 
 .spotify-artist-item {
@@ -1470,16 +1471,16 @@ footer p {
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    width: 140px;
+    width: 130px; /* Slightly smaller to fit 5 */
 }
 
 .artist-img-wrapper {
-    width: 140px;
-    height: 140px;
+    width: 130px;
+    height: 130px;
     position: relative;
     border-radius: 50%;
-    overflow: hidden;
-    isolation: isolate;
+    padding: 6px; /* Space for the ring shadow to grow without clipping */
+    box-sizing: border-box;
 }
 
 .spotify-artist-img {
@@ -1498,7 +1499,7 @@ footer p {
 }
 
 .spotify-artist-name {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: var(--text-primary);
     text-align: center;
@@ -1514,8 +1515,8 @@ footer p {
 .spotify-track-card.top-track-banner {
     grid-column: 1 / -1;
     min-height: auto;
-    height: 300px;
-    padding: 30px 40px;
+    height: 270px; /* Reduced height */
+    padding: 15px 40px; /* Reduced top/bottom padding */
     background: rgba(18, 18, 18, 0.8);
     border-radius: 24px;
     display: flex;
@@ -1523,7 +1524,7 @@ footer p {
     align-items: center;
     gap: 40px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 60px var(--track-color-glow, rgba(0,0,0,0.5));
+    box-shadow: 0 0 40px var(--track-color-glow, rgba(0,0,0,0.3)); /* Reduced default glow */
     position: relative;
     overflow: hidden;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
@@ -1531,21 +1532,22 @@ footer p {
 
 .top-track-banner:hover {
     transform: scale(1.01) translateY(-5px);
-    box-shadow: 0 0 80px var(--track-color-glow, rgba(0,0,0,0.6));
+    box-shadow: 0 0 70px var(--track-color-glow, rgba(0,0,0,0.5));
     border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Blurred background layer for depth */
 .banner-bg-blur {
     position: absolute;
-    inset: -20px;
+    inset: 0; /* Match card exactly */
     background-image: var(--track-art);
     background-size: cover;
     background-position: center;
-    filter: blur(40px) brightness(0.3);
-    opacity: 0.4;
+    filter: blur(50px) brightness(0.2);
+    opacity: 0.5;
     z-index: 0;
     pointer-events: none;
+    border-radius: inherit; /* Follow card radius */
 }
 
 .top-track-banner .case-art-wrapper {
@@ -1673,7 +1675,7 @@ footer p {
 /* Artist play count overlay */
 .artist-playcount-overlay {
     position: absolute;
-    inset: 0;
+    inset: 6px; /* Offset by padding to match img */
     background: rgba(0, 0, 0, 0.7);
     display: flex;
     flex-direction: column;
@@ -1692,7 +1694,7 @@ footer p {
 }
 
 .artist-playcount-value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 800;
 }
 
@@ -1704,6 +1706,11 @@ footer p {
 }
 
 @media (max-width: 900px) {
+    .spotify-artists-grid {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
     .spotify-tracks-grid {
         grid-template-columns: 1fr;
     }
@@ -1712,6 +1719,7 @@ footer p {
         flex-direction: column;
         text-align: center;
         padding: 30px;
+        height: auto;
     }
     
     .top-track-banner .case-art-wrapper {

@@ -376,12 +376,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     artists.forEach((artist, index) => {
                         const html = `
                             <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item fade-in delay-${(index % 3) + 1}" style="text-decoration: none;">
-                                <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img">
-                                <span class="spotify-artist-name">${artist.name}</span>
-                                <div class="artist-playcount-overlay">
-                                    <span class="artist-playcount-value">${Number(artist.playcount).toLocaleString()}</span>
-                                    <span class="artist-playcount-label">Plays</span>
+                                <div class="artist-img-wrapper">
+                                    <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img">
+                                    <div class="artist-playcount-overlay">
+                                        <span class="artist-playcount-value">${Number(artist.playcount).toLocaleString()}</span>
+                                        <span class="artist-playcount-label">Plays</span>
+                                    </div>
                                 </div>
+                                <span class="spotify-artist-name">${artist.name}</span>
                             </a>`;
                         artistsContainer.insertAdjacentHTML("beforeend", html);
                     });
@@ -407,7 +409,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                     <span class="case-title">${track.title}</span>
                                     <span class="case-artist">${track.artist}</span>
                                     <div class="play-count-display">
-                                        <span style="opacity: 0.7;">📊</span>
                                         <span>${Number(track.playcount).toLocaleString()} plays</span>
                                     </div>
                                 </div>

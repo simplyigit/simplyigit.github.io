@@ -396,6 +396,17 @@ document.addEventListener("DOMContentLoaded", () => {
                         const isTop = index === 0;
                         const cardClass = isTop ? 'top-track-banner' : 'grid-track';
                         
+                        const playsHtml = `${Number(track.playcount).toLocaleString()} plays`;
+                        const statsPill = isTop
+                            ? `<div class="track-stats-pill">
+                                    <span class="stats-badge">#1 THIS MONTH</span>
+                                    <div class="stats-pill-divider"></div>
+                                    <span class="stats-plays">${playsHtml}</span>
+                                </div>`
+                            : `<div class="track-stats-pill">
+                                    <span class="stats-plays">${playsHtml}</span>
+                                </div>`;
+
                         const html = `
                             <a id="${cardId}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${cardClass} fade-in delay-${(index % 4) + 1}" style="text-decoration: none; ${isTop ? `--track-art: url('${track.cover_url || ''}')` : ''}">
                                 ${isTop ? `<div class="banner-bg-blur"></div>` : ''}
@@ -403,12 +414,9 @@ document.addEventListener("DOMContentLoaded", () => {
                                     <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
                                 </div>
                                 <div class="case-info">
-                                    ${isTop ? `<span class="top-track-badge">#1 THIS MONTH</span>` : ''}
                                     <span class="case-title">${track.title}</span>
                                     <span class="case-artist">${track.artist}</span>
-                                    <div class="play-count-display">
-                                        <span>${Number(track.playcount).toLocaleString()} plays</span>
-                                    </div>
+                                    ${statsPill}
                                 </div>
                             </a>`;
                         tracksContainer.insertAdjacentHTML("beforeend", html);
@@ -430,6 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 const glowOpacity = isTop ? 0.5 : 0.35;
                                 const card = document.getElementById(cardId);
                                 if(card) {
+                                    card.style.setProperty('--track-color-rgb', `${R}, ${G}, ${B}`);
                                     card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${glowOpacity})`);
                                     if(isTop) {
                                         card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;

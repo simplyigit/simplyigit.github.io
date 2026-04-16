@@ -1575,20 +1575,41 @@ footer p {
     overflow: hidden;
 }
 
-.top-track-badge {
+/* Unified stats pill: used in both banner and grid tracks */
+.track-stats-pill {
     display: inline-flex;
     align-items: center;
-    background: rgba(29, 185, 84, 0.1);
-    border: 1px solid rgba(29, 185, 84, 0.3);
-    color: #1DB954;
+    margin-top: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    width: fit-content;
+    flex-shrink: 0;
+}
+
+.stats-badge {
+    padding: 5px 12px;
+    background: rgba(var(--track-color-rgb, 29, 185, 84), 0.12);
+    color: rgb(var(--track-color-rgb, 29, 185, 84));
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: 2.5px;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    padding: 4px 12px;
-    border-radius: 20px;
-    margin-bottom: 10px;
-    width: fit-content;
+    white-space: nowrap;
+}
+
+.stats-pill-divider {
+    width: 1px;
+    align-self: stretch;
+    background: rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+}
+
+.stats-plays {
+    padding: 5px 14px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
 }
 
 .top-track-banner .case-title {
@@ -1610,15 +1631,17 @@ footer p {
     font-weight: 500;
 }
 
-.play-count-display {
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    font-size: 0.9rem;
+/* Compact pill overrides for grid track cards */
+.grid-track .track-stats-pill {
+    margin-top: 5px;
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.grid-track .stats-plays {
+    padding: 3px 10px;
+    font-size: 0.78rem;
     color: rgba(255, 255, 255, 0.45);
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
 /* Track #2-5: Grid Style (2x2) */
@@ -1650,6 +1673,7 @@ footer p {
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
+    gap: 2px;
 }
 
 .grid-track .case-title {

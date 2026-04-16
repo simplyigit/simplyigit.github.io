@@ -4,6 +4,7 @@ import os
 import requests
 import time
 from base64 import b64encode
+import concurrent.futures
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -11,128 +12,121 @@ class handler(BaseHTTPRequestHandler):
         response_status = 200
         cache_header = 's-maxage=86400, stale-while-revalidate'
 
-        # Set aggressive caching headers to explicitly prevent page loading latency
-
         try:
+            # 1. Credentials
             client_id = os.environ.get('CLIENT_ID')
             client_secret = os.environ.get('CLIENT_SECRET')
-
-            # Gist DB credentials for Serverless Token Rotation
             gist_id = os.environ.get('GIST_ID')
             github_token = os.environ.get('GITHUB_TOKEN')
+            lfm_key = os.environ.get('LASTFM_API_KEY')
+            lfm_user = os.environ.get('LASTFM_USER')
 
-            if not all([client_id, client_secret, gist_id, github_token]):
-                raise ValueError("Missing Spotify or Gist credentials in environment variables.")
+            if not all([client_id, client_secret, gist_id, github_token, lfm_key, lfm_user]):
+                raise ValueError("Missing credentials in environment variables.")
 
-            # 1. READ Refresh Token from Gist (Stateless DB)
-            gist_headers = {
-                "Authorization": f"token {github_token}",
-                "Accept": "application/vnd.github.v3+json"
-            }
+            # 2. Get Spotify Access Token (Gist rotation logic)
+            gist_headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
             gist_url = f"https://api.github.com/gists/{gist_id}"
-            gist_response = requests.get(gist_url, headers=gist_headers)
+            gist_resp = requests.get(gist_url, headers=gist_headers)
+            if gist_resp.status_code != 200: raise Exception("Failed to read Gist DB")
+            
+            gist_files = gist_resp.json().get("files", {})
+            first_file_key = list(gist_files.keys())[0] if gist_files else None
+            refresh_token = gist_files[first_file_key].get("content", "").strip()
 
-            if gist_response.status_code != 200:
-                raise Exception(f"Failed to read Gist DB: {gist_response.text}")
-
-            gist_data = gist_response.json()
-            files = gist_data.get("files", {})
-            first_file = list(files.values())[0] if files else None
-
-            if not first_file:
-                raise Exception("Gist database is empty.")
-
-            current_refresh_token = first_file.get("content", "").strip()
-
-            if not current_refresh_token:
-                raise Exception("Refresh token in Gist is empty.")
-
-            # 2. Get Access Token
             auth_str = f"{client_id}:{client_secret}"
-            b64_auth_str = b64encode(auth_str.encode()).decode()
-            token_headers = {
-                'Authorization': f'Basic {b64_auth_str}',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-            token_data = {
-                'grant_type': 'refresh_token',
-                'refresh_token': current_refresh_token,
-                'client_id': client_id
-            }
-            token_response = requests.post('https://accounts.spotify.com/api/token', data=token_data, headers=token_headers)
-
-            if token_response.status_code != 200:
-                raise Exception(f"Failed to refresh token: {token_response.text}")
-
-            token_json = token_response.json()
+            b64_auth = b64encode(auth_str.encode()).decode()
+            token_resp = requests.post('https://accounts.spotify.com/api/token', 
+                                     data={'grant_type': 'refresh_token', 'refresh_token': refresh_token},
+                                     headers={'Authorization': f'Basic {b64_auth}'})
+            
+            if token_resp.status_code != 200: raise Exception("Failed to refresh Spotify token")
+            token_json = token_resp.json()
             access_token = token_json.get('access_token')
-            new_refresh_token = token_json.get('refresh_token')
+            new_refresh = token_json.get('refresh_token')
 
-            # 3. ROTATE Refresh Token in Gist DB (if Spotify issued a new one)
-            if new_refresh_token and new_refresh_token != current_refresh_token:
-                filename = list(files.keys())[0]
-                patch_data = {
-                    "files": {
-                        filename: {
-                            "content": new_refresh_token
-                        }
-                    }
-                }
-                # Seamlessly write back to the Gist without touching Vercel's read-only .env!
-                patch_res = requests.patch(gist_url, headers=gist_headers, json=patch_data)
-                if patch_res.status_code != 200:
-                    raise Exception(f"Spotify rotated token but Gist DB failed to update: {patch_res.text}")
+            if new_refresh and new_refresh != refresh_token:
+                patch_data = {"files": {first_file_key: {"content": new_refresh}}}
+                requests.patch(gist_url, headers=gist_headers, json=patch_data)
 
-            # 4. Fetch Top Tracks (short_term = approx last 4 weeks)
-            tracks_url = "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5"
-            api_headers = {"Authorization": f"Bearer {access_token}"}
+            # 3. Fetch Top 5 Tracks & Artists from Last.fm
+            lfm_base = "https://ws.audioscrobbler.com/2.0/"
+            lfm_headers = {"User-Agent": f"simplyigit-api/1.0 ({lfm_user})"}
+            lfm_params = {"api_key": lfm_key, "user": lfm_user, "format": "json", "period": "1month", "limit": 5}
 
-            tracks_response = requests.get(tracks_url, headers=api_headers)
-            if tracks_response.status_code != 200:
-                 raise Exception(f"Failed to fetch top tracks: {tracks_response.text}")
+            lfm_tracks_res = requests.get(lfm_base, params={**lfm_params, "method": "user.getTopTracks"}, headers=lfm_headers)
+            lfm_artists_res = requests.get(lfm_base, params={**lfm_params, "method": "user.getTopArtists"}, headers=lfm_headers)
 
-            tracks_data = tracks_response.json()
+            raw_lfm_tracks = lfm_tracks_res.json().get("toptracks", {}).get("track", [])
+            raw_lfm_artists = lfm_artists_res.json().get("topartists", {}).get("artist", [])
 
-            # 5. Format Top Tracks
-            top_tracks = []
-            for item in tracks_data.get('items', []):
-                top_tracks.append({
-                    "title": item.get('name'),
-                    "artist": ", ".join([artist.get('name') for artist in item.get('artists', [])]),
-                    "spotify_url": item.get('external_urls', {}).get('spotify'),
-                    "cover_url": item.get('album', {}).get('images', [{}])[0].get('url') if item.get('album', {}).get('images') else None
+            # 4. Define Safe Search helper for Parallel execution
+            def safe_search(item_name, artist_name, search_type):
+                query = f"{search_type}:\"{item_name}\""
+                if artist_name: query += f" artist:\"{artist_name}\""
+                
+                s_headers = {"Authorization": f"Bearer {access_token}"}
+                s_params = {"q": query, "type": search_type, "limit": 3}
+                try:
+                    s_res = requests.get("https://api.spotify.com/v1/search", headers=s_headers, params=s_params, timeout=5)
+                    s_data = s_res.json()
+                    results = s_data.get(f"{search_type}s", {}).get("items", [])
+                    
+                    target = artist_name.lower() if artist_name else item_name.lower()
+                    for res_item in results:
+                        res_name = res_item['artists'][0]['name'].lower() if search_type == "track" else res_item['name'].lower()
+                        if res_name == target:
+                            imgs = res_item.get("images", []) if search_type == "artist" else res_item.get("album", {}).get("images", [])
+                            return {
+                                "spotify_url": res_item['external_urls']['spotify'],
+                                "cover_url": imgs[0]['url'] if imgs else None,
+                                "spotify_id": res_item['id']
+                            }
+                except: pass
+                return None
+
+            # 5. Parallel Spotify Search for all 10 items
+            final_tracks = []
+            final_artists = []
+            executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+            
+            track_futures = {executor.submit(safe_search, t['name'], t['artist']['name'], "track"): t for t in raw_lfm_tracks}
+            artist_futures = {executor.submit(safe_search, a['name'], None, "artist"): a for a in raw_lfm_artists}
+
+            for fut, t in track_futures.items():
+                s_info = fut.result()
+                final_tracks.append({
+                    "title": t['name'],
+                    "artist": t['artist']['name'],
+                    "playcount": t['playcount'],
+                    "spotify_url": s_info['spotify_url'] if s_info else None,
+                    "cover_url": s_info['cover_url'] if s_info else t.get('image', [{}])[-1].get('#text'),
+                    "spotify_id": s_info['spotify_id'] if s_info else None
                 })
 
-            # 6. Fetch Top Artists (short_term = approx last 4 weeks)
-            artists_url = "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=5"
-            artists_response = requests.get(artists_url, headers=api_headers)
-            if artists_response.status_code != 200:
-                 raise Exception(f"Failed to fetch top artists: {artists_response.text}")
-
-            artists_data = artists_response.json()
-
-            # 7. Format Top Artists
-            top_artists = []
-            for item in artists_data.get('items', []):
-                top_artists.append({
-                    "name": item.get('name'),
-                    "spotify_url": item.get('external_urls', {}).get('spotify'),
-                    "image_url": item.get('images', [{}])[0].get('url') if item.get('images') else None
+            for fut, a in artist_futures.items():
+                s_info = fut.result()
+                final_artists.append({
+                    "name": a['name'],
+                    "playcount": a['playcount'],
+                    "spotify_url": s_info['spotify_url'] if s_info else None,
+                    "image_url": s_info['cover_url'] if s_info else a.get('image', [{}])[-1].get('#text'),
+                    "spotify_id": s_info['spotify_id'] if s_info else None
                 })
+            
+            executor.shutdown(wait=True)
 
-            response = {
+            response_data = {
                 "success": True,
                 "data": {
-                    "top_tracks_last_month": top_tracks,
-                    "top_artists_last_month": top_artists
+                    "top_tracks_last_month": final_tracks,
+                    "top_artists_last_month": final_artists
                 },
                 "timestamp": time.time()
             }
-            response_data = response
 
         except Exception as e:
-            error_response = {"success": False, "error": str(e)}
-            response_data = error_response
+            response_data = {"success": False, "error": str(e)}
             response_status = 500
             cache_header = 'no-store, no-cache, must-revalidate, max-age=0'
 
@@ -141,6 +135,6 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Cache-Control', cache_header)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        if response_data:
-            self.wfile.write(json.dumps(response_data).encode('utf-8'))
-        return
+        self.wfile.write(json.dumps(response_data).encode('utf-8'))
+
+handler = handler

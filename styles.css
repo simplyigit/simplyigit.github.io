@@ -1497,74 +1497,151 @@ footer p {
 
 .spotify-tracks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
 }
 
-.spotify-track-card {
+/* Track #1: Banner Style (Full Width) */
+.spotify-track-card.top-track-banner {
+    grid-column: 1 / -1;
+    min-height: 280px;
+    padding: 40px;
+    background: rgba(18, 18, 18, 0.8);
+    border-radius: 24px;
     display: flex;
-    background: rgba(255, 255, 255, 0.03);
+    flex-direction: row;
+    align-items: center;
+    gap: 40px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    height: 120px;
-    overflow: hidden;
+    box-shadow: 0 4px 1px rgba(255, 255, 255, 0.1), 0 20px 60px -10px var(--track-color-glow, rgba(0,0,0,0.5));
     position: relative;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(12px);
+    overflow: hidden;
+}
+
+/* Blurred background layer for depth */
+.banner-bg-blur {
+    position: absolute;
+    inset: -20px;
+    background-image: var(--track-art);
+    background-size: cover;
+    background-position: center;
+    filter: blur(40px) brightness(0.3);
+    opacity: 0.4;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.top-track-banner .case-art-wrapper {
+    width: 240px;
+    height: 240px;
+    flex-shrink: 0;
+    z-index: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6);
+}
+
+.top-track-banner .case-info {
+    z-index: 1;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.top-track-tag {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.top-track-banner .case-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.top-track-banner .case-artist {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+
+.play-count-display {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Track #2-5: Grid Style (2x2) */
+.spotify-track-card.grid-track {
+    background: rgba(18, 18, 18, 0.7);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px var(--track-color-glow, transparent);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+    height: 120px;
+}
+
+.grid-track .case-art-wrapper {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.grid-track .case-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.grid-track .case-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.grid-track .case-artist {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .spotify-track-card:hover {
-    transform: translateY(-8px) scale(1.05);
-    border-color: var(--track-color, rgba(255, 255, 255, 0.3));
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px var(--track-color, transparent);
-    z-index: 10;
+    transform: scale(1.02);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Cassette Spine */
-.cassette-case-spine {
-    width: 28px;
-    background: var(--track-color, #333);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid rgba(0, 0, 0, 0.3);
-    position: relative;
-    flex-shrink: 0;
-}
-
-.spine-text {
-    transform: rotate(-90deg);
-    white-space: nowrap;
-    color: #fff;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    width: 100px; /* Fixed width for rotation centering */
-    text-align: center;
-    opacity: 0.8;
-}
-
-/* Case Front */
-.cassette-case-front {
-    flex-grow: 1;
-    display: flex;
-    padding: 8px;
-    gap: 10px;
-    align-items: center;
-    position: relative;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
-}
-
-.case-art-wrapper {
-    width: 80px;
-    height: 80px;
-    position: relative;
-    flex-shrink: 0;
-    border-radius: 2px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+.grid-track:hover {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 35px var(--track-color-glow, transparent);
 }
 
 .spotify-track-img {
@@ -1573,42 +1650,62 @@ footer p {
     object-fit: cover;
 }
 
-.case-reflection {
+/* Artist play count overlay */
+.spotify-artist-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.artist-playcount-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 40%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 50%;
+    color: #fff;
     pointer-events: none;
 }
 
-.case-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
-    gap: 4px;
-}
-
-.case-title {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.case-artist {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.6);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Hover Spine Animation */
-.spotify-track-card:hover .spine-text {
+.spotify-artist-item:hover .artist-playcount-overlay {
     opacity: 1;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.artist-playcount-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.artist-playcount-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+    .spotify-tracks-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .top-track-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px;
+    }
+    
+    .top-track-banner .case-art-wrapper {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .top-track-banner .case-title {
+        font-size: 2.2rem;
+    }
 }
 
 

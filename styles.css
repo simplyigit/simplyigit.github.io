@@ -1580,8 +1580,11 @@ footer p {
     display: inline-flex;
     align-items: center;
     margin-top: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 50px;
     overflow: hidden;
     width: fit-content;
     flex-shrink: 0;
@@ -1601,7 +1604,7 @@ footer p {
 .stats-pill-divider {
     width: 1px;
     align-self: stretch;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
 }
 
@@ -1616,7 +1619,8 @@ footer p {
     font-size: 2.8rem;
     font-weight: 800;
     color: #fff;
-    line-height: 1.15;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
     margin-bottom: 8px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -1634,8 +1638,7 @@ footer p {
 /* Compact pill overrides for grid track cards */
 .grid-track .track-stats-pill {
     margin-top: 5px;
-    border-color: rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .grid-track .stats-plays {
@@ -1699,8 +1702,8 @@ footer p {
 }
 
 .grid-track:hover {
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 35px var(--track-color-glow, transparent);
-    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(var(--track-color-rgb, 255, 255, 255), 0.3);
+    border-color: rgba(var(--track-color-rgb, 255, 255, 255), 0.25);
 }
 
 .spotify-track-img {

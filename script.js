@@ -431,10 +431,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                 canvas.width = 1; canvas.height = 1;
                                 ctx.drawImage(img, 0, 0, 1, 1);
                                 const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-                                // Cap brightness so very light album art doesn't create an overpowering glow
-                                const peak = Math.max(r, g, b);
-                                const scale = peak > 180 ? 180 / peak : 1;
-                                const [R, G, B] = [r, g, b].map(c => Math.round(c * scale));
+                                // Cap using perceptual luminance so warm/neutral album art never creates a white glow
+                                const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+                                const lumaScale = luma > 110 ? 110 / luma : 1;
+                                const [R, G, B] = [r, g, b].map(c => Math.round(c * lumaScale));
                                 const glowOpacity = isTop ? 0.5 : 0.35;
                                 const card = document.getElementById(cardId);
                                 if(card) {

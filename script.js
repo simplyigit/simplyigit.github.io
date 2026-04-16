@@ -397,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         const cardClass = isTop ? 'top-track-banner' : 'grid-track';
                         
                         const html = `
-                            <a id="${cardId}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${cardClass} fade-in delay-${(index % 4) + 1}" style="text-decoration: none; --track-art: url('${track.cover_url || ''}')">
+                            <a id="${cardId}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${cardClass} fade-in delay-${(index % 4) + 1}" style="text-decoration: none; ${isTop ? `--track-art: url('${track.cover_url || ''}')` : ''}">
                                 ${isTop ? `
                                     <div class="banner-bg-blur"></div>
                                     <div class="top-track-tag">#1 THIS MONTH</div>

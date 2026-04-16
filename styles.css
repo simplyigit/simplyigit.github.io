@@ -1461,7 +1461,7 @@ footer p {
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between; /* Maximum width utilization */
-    gap: 12px;
+    gap: 8px; /* Minimal gap to allow largest possible circles */
     margin-bottom: 60px;
     width: 100%;
 }
@@ -1471,13 +1471,13 @@ footer p {
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    width: 140px; /* Base width */
+    width: 155px; /* Increased size to take up max width */
     flex-shrink: 1;
 }
 
 .artist-img-wrapper {
-    width: 130px;
-    height: 130px;
+    width: 145px;
+    height: 145px;
     position: relative;
     border-radius: 50%;
     padding: 6px;
@@ -1520,8 +1520,8 @@ footer p {
 .spotify-track-card.top-track-banner {
     grid-column: 1 / -1;
     min-height: auto;
-    height: 270px;
-    padding: 15px 40px 15px 15px; /* Even 15px padding on Left, Top, Bottom */
+    height: 270px; /* Art(240px) + 15px top + 15px bottom = 270px */
+    padding: 15px; /* Even 15px padding on all sides */
     background: rgba(18, 18, 18, 0.85);
     border-radius: 24px;
     display: flex;
@@ -1529,7 +1529,7 @@ footer p {
     align-items: center;
     gap: 40px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--track-color-glow, rgba(0,0,0,0.1)); /* Reduced default glow */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--track-color-glow, rgba(0,0,0,0.1)); /* Reduced default glow further */
     position: relative;
     overflow: hidden;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
@@ -1537,22 +1537,23 @@ footer p {
 
 .top-track-banner:hover {
     transform: scale(1.01) translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 35px var(--track-color-glow, rgba(0,0,0,0.2)); /* Reduced hover glow */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, rgba(0,0,0,0.2)); /* Reduced hover glow further */
     border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Blurred background layer for depth */
 .banner-bg-blur {
     position: absolute;
-    inset: -50px; /* Extend beyond edges to kill sharp rectangle */
+    inset: -20px; /* Extend beyond edges but scale down artifacting */
     background-image: var(--track-art);
     background-size: cover;
     background-position: center;
-    filter: blur(60px) brightness(0.15);
-    opacity: 0.6;
+    filter: blur(60px) brightness(0.12); 
+    opacity: 0.7;
     z-index: 0;
     pointer-events: none;
     border-radius: inherit;
+    transform: scale(1.4); /* Scale up significantly to hide edges */
 }
 
 .top-track-banner .case-art-wrapper {
@@ -1562,7 +1563,7 @@ footer p {
     z-index: 1;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 30px var(--track-color-glow, transparent); /* Added glow behind art */
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, transparent); /* Added glow behind art */
 }
 
 .top-track-banner .case-info {

@@ -1520,8 +1520,8 @@ footer p {
 .spotify-track-card.top-track-banner {
     grid-column: 1 / -1;
     min-height: auto;
-    height: 270px; /* Art(240px) + 15px top + 15px bottom = 270px */
-    padding: 15px; /* Even 15px padding on all sides */
+    height: 240px; /* Content height = art size; 15px padding provides equal spacing on all sides */
+    padding: 15px;
     background: rgba(18, 18, 18, 0.85);
     border-radius: 24px;
     display: flex;
@@ -1575,15 +1575,20 @@ footer p {
     overflow: hidden;
 }
 
-.top-track-tag {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: rgba(255, 255, 255, 0.6);
+.top-track-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(29, 185, 84, 0.1);
+    border: 1px solid rgba(29, 185, 84, 0.3);
+    color: #1DB954;
+    font-size: 10px;
     font-weight: 800;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    width: fit-content;
 }
 
 .top-track-banner .case-title {
@@ -1606,9 +1611,11 @@ footer p {
 }
 
 .play-count-display {
-    margin-top: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.45);
     display: flex;
     align-items: center;
     gap: 8px;

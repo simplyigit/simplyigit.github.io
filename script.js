@@ -398,14 +398,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         
                         const html = `
                             <a id="${cardId}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${cardClass} fade-in delay-${(index % 4) + 1}" style="text-decoration: none; ${isTop ? `--track-art: url('${track.cover_url || ''}')` : ''}">
-                                ${isTop ? `
-                                    <div class="banner-bg-blur"></div>
-                                    <div class="top-track-tag">#1 THIS MONTH</div>
-                                ` : ''}
+                                ${isTop ? `<div class="banner-bg-blur"></div>` : ''}
                                 <div class="case-art-wrapper">
                                     <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
                                 </div>
                                 <div class="case-info">
+                                    ${isTop ? `<span class="top-track-badge">#1 THIS MONTH</span>` : ''}
                                     <span class="case-title">${track.title}</span>
                                     <span class="case-artist">${track.artist}</span>
                                     <div class="play-count-display">
@@ -425,11 +423,16 @@ document.addEventListener("DOMContentLoaded", () => {
                                 canvas.width = 1; canvas.height = 1;
                                 ctx.drawImage(img, 0, 0, 1, 1);
                                 const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+                                // Cap brightness so very light album art doesn't create an overpowering glow
+                                const peak = Math.max(r, g, b);
+                                const scale = peak > 180 ? 180 / peak : 1;
+                                const [R, G, B] = [r, g, b].map(c => Math.round(c * scale));
+                                const glowOpacity = isTop ? 0.5 : 0.35;
                                 const card = document.getElementById(cardId);
                                 if(card) {
-                                    card.style.setProperty('--track-color-glow', `rgba(${r}, ${g}, ${b}, 0.5)`);
+                                    card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${glowOpacity})`);
                                     if(isTop) {
-                                        card.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.3)`;
+                                        card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;
                                     }
                                 }
                             };

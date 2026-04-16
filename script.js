@@ -207,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const rotateX = ((y - centerY) / centerY) * -4;
         const rotateY = ((x - centerX) / centerX) * 4;
 
+        target.style.transition = 'none'; // CRITICAL: Disable transition during mousemove for zero lag
         target.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
     };
 
@@ -220,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         card.addEventListener('mouseenter', () => {
-            // Remove transition: 'none' to keep the entry smooth
+            // No transition: 'none' here, it's handled in handleOnMouseMove to ensure the FIRST move is also instant
         });
     }
 
@@ -382,7 +383,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     tracksContainer.innerHTML = tracks.length === 0 ? `<p style="color: var(--text-secondary);">No tracks found.</p>` : "";
                     tracks.forEach((track, index) => {
                         const cardId = `track-card-${index}`;
-                        const html = `<a id="${cardId}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card fade-in delay-${(index % 4) + 1}" style="text-decoration: none;"><img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img"><div class="spotify-track-info"><span class="spotify-track-title"><span class="marquee-text">${track.title}</span></span><span class="spotify-track-artist">${track.artist}</span></div></a>`;
+                        const html = `
+                            <a id="${cardId}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card fade-in delay-${(index % 4) + 1}" style="text-decoration: none;">
+                                <div class="cassette-case-spine">
+                                    <span class="spine-text marquee-text">${track.title}</span>
+                                </div>
+                                <div class="cassette-case-front">
+                                    <div class="case-art-wrapper">
+                                        <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
+                                        <div class="case-reflection"></div>
+                                    </div>
+                                    <div class="case-info">
+                                        <span class="case-title">${track.title}</span>
+                                        <span class="case-artist">${track.artist}</span>
+                                    </div>
+                                </div>
+                            </a>`;
                         tracksContainer.insertAdjacentHTML("beforeend", html);
                         
                         if (track.cover_url) {
@@ -430,23 +446,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if(favContainer) {
                 favContainer.innerHTML = favorites.length === 0 ? `<p style="color: var(--text-secondary);">No favorites found.</p>` : "";
+                // Favorites are naturally returned newest to oldest or vice-versa, Letterboxd Profile order is usually Top 4.
                 favorites.forEach((film, index) => {
-                    const html = `<a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-fav-card fade-in delay-${(index % 4) + 1}" style="text-decoration: none;"><img src="${film.cover_url || ""}" alt="${film.title}" class="movie-fav-poster"><div class="movie-fav-overlay"><span class="movie-fav-title">${film.title}</span></div></a>`;
+                    const html = `
+                        <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-fav-card fade-in delay-${(index % 4) + 1}" style="text-decoration: none;">
+                            <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-fav-poster">
+                            <div class="movie-fav-overlay">
+                                <span class="movie-fav-title">${film.title}</span>
+                            </div>
+                        </a>`;
                     favContainer.insertAdjacentHTML("beforeend", html);
                 });
             }
 
             if(recentContainer) {
                 recentContainer.innerHTML = "";
-                recent.forEach((film, index) => {
-                    const html = `<a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s"><img src="${film.cover_url || ""}" alt="${film.title_and_rating}" class="movie-watchlist-poster" title="${film.title_and_rating}"></a>`;
+                recent.slice(0, 7).forEach((film, index) => {
+                    let badges = "";
+                    if (film.is_favorite) badges += '<span class="movie-badge fav">♥</span>';
+                    if (film.is_rewatch) badges += '<span class="movie-badge rewatch">↺</span>';
+                    
+                    const html = `
+                        <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card movie-recent-item fade-in" style="transition-delay: ${index * 0.05}s">
+                            <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-watchlist-poster" title="${film.title}">
+                            <div class="movie-card-info-overlay">
+                                ${film.rating ? `<div class="movie-rating-stars">${film.rating}</div>` : ""}
+                                <div class="movie-badges">${badges}</div>
+                            </div>
+                        </a>`;
                     recentContainer.insertAdjacentHTML("beforeend", html);
                 });
             }
 
             if(watchlistContainer) {
                 watchlistContainer.innerHTML = "";
-                watchlist.forEach((film, index) => {
+                watchlist.slice(0, 7).forEach((film, index) => {
                     const html = `<a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s"><img src="${film.cover_url || ""}" alt="${film.title}" class="movie-watchlist-poster" title="${film.title}"></a>`;
                     watchlistContainer.insertAdjacentHTML("beforeend", html);
                 });

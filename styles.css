@@ -1497,108 +1497,118 @@ footer p {
 
 .spotify-tracks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 30px;
 }
 
 .spotify-track-card {
     display: flex;
-    flex-direction: column;
-    padding: 12px;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px; /* Sharp corners like a CD case */
-    align-items: center;
-    text-align: center;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    position: relative;
+    border-radius: 4px;
+    height: 120px;
     overflow: hidden;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
-/* CD Case plastic reflection */
-.spotify-track-card::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent 0%,
-        rgba(255,255,255,0.03) 45%,
-        rgba(255,255,255,0.08) 50%,
-        rgba(255,255,255,0.03) 55%,
-        transparent 100%
-    );
-    transform: rotate(30deg);
-    transition: transform 0.6s ease;
-    pointer-events: none;
+    position: relative;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
 }
 
 .spotify-track-card:hover {
-    background: rgba(255, 255, 255, 0.04);
-    transform: translateY(-8px) scale(1.02);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 25px var(--track-color, transparent);
+    transform: translateY(-8px) scale(1.05);
+    border-color: var(--track-color, rgba(255, 255, 255, 0.3));
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px var(--track-color, transparent);
+    z-index: 10;
 }
 
-.spotify-track-card:hover::after {
-    transform: rotate(30deg) translate(10%, 10%);
+/* Cassette Spine */
+.cassette-case-spine {
+    width: 28px;
+    background: var(--track-color, #333);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid rgba(0, 0, 0, 0.3);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.spine-text {
+    transform: rotate(-90deg);
+    white-space: nowrap;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 100px; /* Fixed width for rotation centering */
+    text-align: center;
+    opacity: 0.8;
+}
+
+/* Case Front */
+.cassette-case-front {
+    flex-grow: 1;
+    display: flex;
+    padding: 8px;
+    gap: 10px;
+    align-items: center;
+    position: relative;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+}
+
+.case-art-wrapper {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    flex-shrink: 0;
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .spotify-track-img {
     width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: 2px;
+    height: 100%;
     object-fit: cover;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(0,0,0,0.2);
 }
 
-.spotify-track-info {
+.case-reflection {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 40%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+    pointer-events: none;
+}
+
+.case-info {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
     gap: 4px;
-    width: 100%;
 }
 
-.spotify-track-title {
-    font-size: 0.9rem;
+.case-title {
+    font-size: 0.8rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
-    position: relative;
 }
 
-.spotify-track-card:hover .spotify-track-title {
-    text-overflow: clip;
-}
-
-.spotify-track-card:hover .marquee-text {
-    display: inline-block;
-    animation: trackHoverMarquee 4s linear infinite alternate;
-}
-
-@keyframes trackHoverMarquee {
-    0%, 20% { transform: translateX(0); }
-    80%, 100% { transform: translateX(min(0px, calc(110px - 100%))); }
-}
-
-.spotify-track-artist {
+.case-artist {
     font-size: 0.7rem;
-    color: #a7a7a7;
+    color: rgba(255, 255, 255, 0.6);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
+}
+
+/* Hover Spine Animation */
+.spotify-track-card:hover .spine-text {
+    opacity: 1;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
 
@@ -1740,18 +1750,51 @@ footer p {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
+/* Favorite Films (Shelf Aesthetic) */
+.movies-favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+    position: relative;
+    margin-top: 20px;
+}
+
+.movies-favorites-grid::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    left: 24px;
+    right: 24px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    border-radius: 2px;
+}
+
+.movie-fav-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 2 / 3;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .movie-fav-card:hover {
-    transform: translateY(-15px) scale(1.08);
-    box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.7), 
-        0 0 30px rgba(255, 128, 0, 0.3),
-        0 0 0 2px rgba(255, 128, 0, 0.4);
+    transform: scale(1.08) translateY(-10px);
+    box-shadow: 0 15px 45px rgba(64, 188, 244, 0.3); /* Letterboxd Blue Glow */
+    border-color: rgba(64, 188, 244, 0.5);
     z-index: 10;
 }
 
 .movie-fav-poster {
     width: 100%;
-    aspect-ratio: 2 / 3;
+    height: 100%;
     object-fit: cover;
     display: block;
 }
@@ -1762,10 +1805,11 @@ footer p {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 20px 12px 12px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+    padding: 30px 12px 12px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 40%, transparent 100%);
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -1775,55 +1819,84 @@ footer p {
 }
 
 .movie-fav-title {
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
     color: #fff;
     line-height: 1.2;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     text-align: center;
+    letter-spacing: 0.5px;
 }
 
-/* Recent Activity Grid */
-.movies-recent-grid {
+/* Movie Ratings and Badges Overlays */
+.movie-card-info-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
-    gap: 16px;
-}
-
-.movie-recent-card {
-    display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 12px;
-    border-radius: 16px;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(2px);
+    gap: 8px;
 }
 
-.movie-recent-poster {
-    width: 60px;
-    height: 90px;
-    border-radius: 6px;
-    object-fit: cover;
+.movie-watchlist-card:hover .movie-card-info-overlay {
+    opacity: 1;
+}
+
+.movie-rating-stars {
+    color: #ffb400;
+    font-size: 1.1rem;
+    text-shadow: 0 0 10px rgba(255, 180, 0, 0.4);
+    font-weight: bold;
+}
+
+.movie-badges {
+    display: flex;
+    gap: 6px;
+}
+
+.movie-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.movie-badge.fav {
+    color: #ff8000;
+    text-shadow: 0 0 8px rgba(255, 128, 0, 0.4);
+}
+
+.movie-badge.rewatch {
+    color: #40bcf4;
+    text-shadow: 0 0 8px rgba(64, 188, 244, 0.4);
 }
 
 /* Watchlist Grid */
 .movies-watchlist-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
 }
 
 .movie-watchlist-card {
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
     position: relative;
-    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .movie-watchlist-card:hover {
-    transform: scale(1.1) translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    transform: scale(1.1) translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
     z-index: 5;
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .movie-watchlist-poster {

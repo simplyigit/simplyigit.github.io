@@ -47,20 +47,49 @@ class handler(BaseHTTPRequestHandler):
             rss_resp = session.get(f"{base_url}/{username}/rss/", headers=headers, timeout=10)
             if rss_resp.status_code == 200:
                 root = ET.fromstring(rss_resp.content)
-                for item in root.findall('./channel/item')[:7]:  # Increased to 7
+                for item in root.findall('./channel/item')[:7]:
                     title_text = item.find('title').text if item.find('title') is not None else ""
                     link_text = item.find('link').text if item.find('link') is not None else ""
                     desc_html = item.find('description').text if item.find('description') is not None else ""
 
                     cover_url = ""
+                    rating = ""
+                    is_rewatch = False
+                    is_favorite = False
+
                     if desc_html:
                         desc_soup = BeautifulSoup(desc_html, 'html.parser')
                         img = desc_soup.find('img')
                         if img:
                             cover_url = img.get('src')
+                        
+                        # Extract rating, favorite, rewatch from the text
+                        # Letterboxd RSS description usually contains "Watched on ...", "Rating: ...", etc.
+                        text_content = desc_soup.get_text()
+                        
+                        # Rating extraction from title (e.g., "Movie Title, 2023 - ★★★★")
+                        rating_match = re.search(r' - (★+½?|½)$', title_text)
+                        if rating_match:
+                            rating = rating_match.group(1)
+                        
+                        # Rewatch/Favorite check in description or title
+                        if "This review may contain spoilers" in text_content or "Watched on" in text_content:
+                            if "rewatch" in title_text.lower() or " (rewatch)" in title_text.lower():
+                                is_rewatch = True
+                        
+                        # Check for the heart icon or text in the description
+                        if "♥" in title_text or "♥" in desc_html:
+                            is_favorite = True
+
+                    # Clean title for display
+                    display_title = re.sub(r' - ★+½?|½$', '', title_text)
+                    display_title = display_title.replace(' (rewatch)', '').replace(' ♥', '')
 
                     recent_activity.append({
-                        "title_and_rating": title_text,
+                        "title": display_title,
+                        "rating": rating,
+                        "is_rewatch": is_rewatch,
+                        "is_favorite": is_favorite,
                         "link": link_text,
                         "cover_url": cover_url
                     })

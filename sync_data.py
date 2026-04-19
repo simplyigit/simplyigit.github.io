@@ -15,43 +15,63 @@ from google.genai import types
 def get_genius_access_token():
     client_id = os.environ.get('GENIUS_CLIENT_ID')
     client_secret = os.environ.get('GENIUS_CLIENT_SECRET')
-    if not client_id or not client_secret: return None
+    if not client_id or not client_secret: 
+        print("Genius credentials missing.")
+        return None
     url = "https://api.genius.com/oauth/token"
     data = {'client_id': client_id, 'client_secret': client_secret, 'grant_type': 'client_credentials'}
     try:
         res = requests.post(url, data=data, timeout=5)
+        print(f"Genius Token Response: {res.status_code}")
         return res.json().get('access_token')
-    except: return None
+    except Exception as e:
+        print(f"Genius Token Error: {str(e)}")
+        return None
 
 def get_lyrics(song_title, artist_name):
+    print(f"Searching lyrics for: {song_title} - {artist_name}")
     token = get_genius_access_token()
     if not token: return None
     headers = {"Authorization": f"Bearer {token}"}
     try:
         search_res = requests.get("https://api.genius.com/search", params={"q": f"{song_title} {artist_name}"}, headers=headers, timeout=5).json()
         hits = search_res.get("response", {}).get("hits", [])
-        if not hits: return None
+        if not hits: 
+            print("No hits on Genius.")
+            return None
         song_url = hits[0]["result"]["url"]
+        print(f"Found Genius URL: {song_url}")
         page = requests.get(song_url, timeout=5).text
         soup = BeautifulSoup(page, "html.parser")
         divs = soup.select('div[class^="Lyrics__Container"]')
-        if divs: return "\n".join(d.get_text(separator="\n") for d in divs).strip()
-    except: pass
+        if divs: 
+            lyrics = "\n".join(d.get_text(separator="\n") for d in divs).strip()
+            print(f"Extracted lyrics: {len(lyrics)} characters.")
+            return lyrics
+        else:
+            print("No Lyrics__Container found on page.")
+    except Exception as e: 
+        print(f"Lyrics Error: {str(e)}")
     return None
 
 def generate_lyric_snippets(title, artist, lyrics):
     api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key or not lyrics: return None
+    if not api_key or not lyrics: 
+        print("Missing Gemini API key or lyrics.")
+        return None
     try:
         client = genai.Client(api_key=api_key)
         prompt = f"From song '{title}' by {artist}, return a JSON object with keys 'lyric1','lyric2','lyric3' and values of ONLY the most hard-hitting lyrics. Lyrics: {lyrics}"
+        # Using a more stable model ID
         response = client.models.generate_content(
             model="gemini-2.0-flash-lite-preview-02-05", 
             contents=prompt,
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
         return json.loads(response.text)
-    except: return None
+    except Exception as e:
+        print(f"Gemini API Error: {str(e)}")
+        return None
 
 def fetch_spotify_data():
     client_id = os.environ.get('CLIENT_ID')
@@ -172,16 +192,26 @@ def fetch_spotify_data():
             "image_url": s_info['cover_url'] if s_info else a.get('image', [{}])[-1].get('#text'),
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
-    
+    # 6. Process AI Lyrics
     if final_tracks and lyric_future:
+        print("Processing AI Lyrics for #1 track...")
         try:
-            lyrics_text = lyric_future.result(timeout=10)
+            lyrics_text = lyric_future.result(timeout=15)
             if lyrics_text:
+                print(f"Lyrics found ({len(lyrics_text)} chars). Requesting Gemini snippets...")
                 top_track = final_tracks[0]
                 top_track['ai_lyrics'] = generate_lyric_snippets(top_track['title'], top_track['artist'], lyrics_text)
-        except: pass
+                if top_track.get('ai_lyrics'):
+                    print("AI Lyrics generated successfully!")
+                else:
+                    print("Gemini returned no snippets.")
+            else:
+                print("No lyrics found on Genius.")
+        except Exception as e:
+            print(f"Error in lyric processing: {str(e)}")
 
     executor.shutdown(wait=True)
+
     return {"top_tracks_last_month": final_tracks, "top_artists_last_month": final_artists}
 
 # --- HELPERS: MOVIES ---

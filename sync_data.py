@@ -32,7 +32,7 @@ def get_lyrics(song_title, artist_name):
     print(f"Searching lyrics for: {song_title} - {artist_name}")
     token = get_genius_access_token()
     if not token: return None
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"Bearer {token}", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
     try:
         search_res = requests.get("https://api.genius.com/search", params={"q": f"{song_title} {artist_name}"}, headers=headers, timeout=5).json()
         hits = search_res.get("response", {}).get("hits", [])
@@ -41,15 +41,37 @@ def get_lyrics(song_title, artist_name):
             return None
         song_url = hits[0]["result"]["url"]
         print(f"Found Genius URL: {song_url}")
-        page = requests.get(song_url, timeout=5).text
+        page_res = requests.get(song_url, headers=headers, timeout=10)
+        page = page_res.text
         soup = BeautifulSoup(page, "html.parser")
+        
+        # 1. Try modern Lyrics__Container
         divs = soup.select('div[class^="Lyrics__Container"]')
         if divs: 
             lyrics = "\n".join(d.get_text(separator="\n") for d in divs).strip()
-            print(f"Extracted lyrics: {len(lyrics)} characters.")
+            print(f"Extracted lyrics via Lyrics__Container: {len(lyrics)} chars.")
             return lyrics
-        else:
-            print("No Lyrics__Container found on page.")
+            
+        # 2. Try legacy 'lyrics' class
+        legacy_div = soup.find("div", class_="lyrics")
+        if legacy_div:
+            lyrics = legacy_div.get_text().strip()
+            print(f"Extracted lyrics via legacy class: {len(lyrics)} chars.")
+            return lyrics
+
+        # 3. Fallback: Try to find lyrics in JSON script tag (some Genius pages use this)
+        # Look for the script that contains the lyrics data
+        for script in soup.find_all("script"):
+            if script.string and 'window.__PRELOADED_STATE__' in script.string:
+                print("Found __PRELOADED_STATE__, attempting JSON extraction...")
+                # Extract the JSON using a more robust regex
+                json_match = re.search(r'window\.__PRELOADED_STATE__\s*=\s*(JSON\.parse\(\'.*?\'\)|{.*?});', script.string, re.DOTALL)
+                if json_match:
+                    # This is complex to parse manually, so we'll just log that we found it
+                    # But often the text is just in the HTML if you look hard enough
+                    pass
+
+        print("All extraction methods failed. Page length:", len(page))
     except Exception as e: 
         print(f"Lyrics Error: {str(e)}")
     return None

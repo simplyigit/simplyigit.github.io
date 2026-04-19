@@ -65,6 +65,7 @@ def fetch_spotify_data():
         return {"success": False, "error": "Missing Spotify credentials"}
 
     gist_headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
+    gist_url = f"https://api.github.com/gists/{gist_id}"
     print(f"Reading Gist: {gist_url}")
     gist_resp = requests.get(gist_url, headers=gist_headers)
     if gist_resp.status_code != 200: 

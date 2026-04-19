@@ -407,6 +407,15 @@ document.addEventListener("DOMContentLoaded", () => {
                                     <span class="stats-plays">${playsHtml}</span>
                                 </div>`;
 
+                        let lyricHtml = '';
+                        if (isTop && track.ai_lyrics) {
+                            const lyrics = [track.ai_lyrics.lyric1, track.ai_lyrics.lyric2, track.ai_lyrics.lyric3].filter(Boolean);
+                            if (lyrics.length > 0) {
+                                const randomLyric = lyrics[Math.floor(Math.random() * lyrics.length)];
+                                lyricHtml = `<div class="track-ai-lyric">"${randomLyric}"</div>`;
+                            }
+                        }
+
                         const html = `
                             <a id="${cardId}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${cardClass} fade-in delay-${(index % 4) + 1}" style="text-decoration: none; ${isTop ? `--track-art: url('${track.cover_url || ''}')` : ''}">
                                 ${isTop ? `<div class="banner-bg-blur"></div>` : ''}
@@ -416,6 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <div class="case-info">
                                     <span class="case-title">${track.title}</span>
                                     <span class="case-artist">${track.artist}</span>
+                                    ${lyricHtml}
                                     ${statsPill}
                                 </div>
                             </a>`;

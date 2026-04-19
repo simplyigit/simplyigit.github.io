@@ -1635,6 +1635,31 @@ footer p {
     font-weight: 500;
 }
 
+.track-ai-lyric {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 16px;
+    max-width: 90%;
+    line-height: 1.4;
+    position: relative;
+    padding-left: 0;
+    opacity: 0.9;
+    animation: lyricSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes lyricSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 0.9;
+        transform: translateY(0);
+    }
+}
+
 /* Compact pill overrides for grid track cards */
 .grid-track .track-stats-pill {
     margin-top: 5px;

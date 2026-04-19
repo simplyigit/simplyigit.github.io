@@ -329,12 +329,12 @@ def fetch_projects_data():
             try:
                 res = requests.get(url, headers=headers, timeout=10)
                 if res.status_code == 200:
-                    # Convert Markdown to HTML with more robust extensions
+                    # Convert Markdown to HTML with standard extensions
+                    # 'nl2br' is removed as it often breaks block-level elements like lists
                     html = markdown.markdown(res.text, extensions=[
                         'fenced_code', 
                         'tables',
                         'extra',
-                        'nl2br',
                         'sane_lists'
                     ])
                     projects_html[repo] = html

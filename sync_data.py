@@ -65,32 +65,41 @@ def fetch_spotify_data():
         return {"success": False, "error": "Missing Spotify credentials"}
 
     gist_headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
-    gist_url = f"https://api.github.com/gists/{gist_id}"
+    print(f"Reading Gist: {gist_url}")
     gist_resp = requests.get(gist_url, headers=gist_headers)
-    if gist_resp.status_code != 200: return {"success": False, "error": "Failed to read Gist"}
+    if gist_resp.status_code != 200: 
+        print(f"Gist Read Failed: {gist_resp.status_code}")
+        return {"success": False, "error": f"Failed to read Gist: {gist_resp.status_code}"}
     
     gist_files = gist_resp.json().get("files", {})
-    # Find the file that contains the refresh token (not data.json and likely has a .txt or no extension)
-    # We'll look for the first file that isn't data.json and isn't a known metadata file.
+    print(f"Files found in Gist: {list(gist_files.keys())}")
+    
+    # Find the file that contains the refresh token (not data.json)
     token_file_key = next((k for k in gist_files.keys() if k != "data.json"), None)
     
     if not token_file_key:
-        print(f"Error: No token file found in Gist. Files present: {list(gist_files.keys())}")
+        print("Error: No token file found in Gist (other than data.json).")
         return {"success": False, "error": "No token file found in Gist"}
     
-    print(f"Using token file: {token_file_key}")
+    print(f"Attempting refresh with file: {token_file_key}")
     refresh_token = gist_files[token_file_key].get("content", "").strip()
+    print(f"Refresh token starts with: {refresh_token[:5]}...")
 
     auth_str = f"{client_id}:{client_secret}"
     b64_auth = b64encode(auth_str.encode()).decode()
+    
+    print("Requesting new access token from Spotify...")
     token_resp = requests.post('https://accounts.spotify.com/api/token', 
                              data={'grant_type': 'refresh_token', 'refresh_token': refresh_token},
-                             headers={'Authorization': f'Basic {b64_auth}'})
+                             headers={'Authorization': f'Basic {b64_auth}'},
+                             timeout=10)
     
     if token_resp.status_code != 200:
-        print(f"Spotify Token Refresh Failed! Status: {token_resp.status_code}")
-        print(f"Response: {token_resp.text}")
+        print(f"Spotify API Error: {token_resp.status_code}")
+        print(f"Spotify Response: {token_resp.text}")
         return {"success": False, "error": f"Spotify refresh failed: {token_resp.status_code}"}
+    
+    print("Spotify token refreshed successfully!")
     token_json = token_resp.json()
     access_token = token_json.get('access_token')
     new_refresh = token_json.get('refresh_token')

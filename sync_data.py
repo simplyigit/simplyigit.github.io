@@ -70,10 +70,15 @@ def fetch_spotify_data():
     if gist_resp.status_code != 200: return {"success": False, "error": "Failed to read Gist"}
     
     gist_files = gist_resp.json().get("files", {})
-    # Find the file that contains the refresh token (not data.json)
+    # Find the file that contains the refresh token (not data.json and likely has a .txt or no extension)
+    # We'll look for the first file that isn't data.json and isn't a known metadata file.
     token_file_key = next((k for k in gist_files.keys() if k != "data.json"), None)
-    if not token_file_key: return {"success": False, "error": "No token file found in Gist"}
     
+    if not token_file_key:
+        print(f"Error: No token file found in Gist. Files present: {list(gist_files.keys())}")
+        return {"success": False, "error": "No token file found in Gist"}
+    
+    print(f"Using token file: {token_file_key}")
     refresh_token = gist_files[token_file_key].get("content", "").strip()
 
     auth_str = f"{client_id}:{client_secret}"
@@ -82,7 +87,10 @@ def fetch_spotify_data():
                              data={'grant_type': 'refresh_token', 'refresh_token': refresh_token},
                              headers={'Authorization': f'Basic {b64_auth}'})
     
-    if token_resp.status_code != 200: return {"success": False, "error": "Failed to refresh Spotify token"}
+    if token_resp.status_code != 200:
+        print(f"Spotify Token Refresh Failed! Status: {token_resp.status_code}")
+        print(f"Response: {token_resp.text}")
+        return {"success": False, "error": f"Spotify refresh failed: {token_resp.status_code}"}
     token_json = token_resp.json()
     access_token = token_json.get('access_token')
     new_refresh = token_json.get('refresh_token')

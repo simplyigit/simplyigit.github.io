@@ -647,7 +647,7 @@ footer p {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 70%);
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 70%);
     opacity: 0;
     transition: opacity 0.5s ease;
     pointer-events: none;
@@ -660,13 +660,13 @@ footer p {
 .fun-books:hover {
     background: rgba(212, 175, 120, 0.04);
     border-color: rgba(212, 175, 120, 0.2);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3), inset 0 0 25px rgba(212, 175, 120, 0.08);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 0 25px rgba(212, 175, 120, 0.08);
 }
 
 .fun-movies:hover {
     background: rgba(255, 128, 0, 0.03);
     border-color: rgba(255, 128, 0, 0.15);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 0 20px rgba(255, 128, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 128, 0, 0.05);
 }
 
 .side-card-header {
@@ -680,16 +680,18 @@ footer p {
 
 .side-card-title {
     font-family: "Playfair Display", Georgia, serif;
-    font-size: 1.35rem; /* Adjusted for better balance */
+    font-size: 1.35rem;
+    /* Adjusted for better balance */
     font-weight: 700;
     letter-spacing: 2.5px;
-    color: rgba(255,255,255,0.9);
+    color: rgba(255, 255, 255, 0.9);
     text-transform: uppercase;
 }
 
 .side-card-subtitle {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem; /* Slightly smaller for refinement */
+    font-size: 0.6rem;
+    /* Slightly smaller for refinement */
     color: var(--text-secondary);
     letter-spacing: 2.5px;
     text-transform: uppercase;
@@ -703,8 +705,8 @@ footer p {
 .book-texture {
     position: absolute;
     inset: 0;
-    background: 
-        linear-gradient(to right, rgba(0,0,0,0.4) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.4) 100%);
+    background:
+        linear-gradient(to right, rgba(0, 0, 0, 0.4) 0%, transparent 15%, transparent 85%, rgba(0, 0, 0, 0.4) 100%);
     opacity: 0.3;
     pointer-events: none;
     z-index: 0;
@@ -719,13 +721,13 @@ footer p {
     bottom: 0;
     left: 0;
     width: 24px;
-    background: linear-gradient(90deg, 
-        rgba(0,0,0,0.4) 0%, 
-        rgba(255,255,255,0.02) 20%, 
-        rgba(0,0,0,0.2) 40%, 
-        rgba(255,255,255,0.01) 60%, 
-        rgba(0,0,0,0.3) 100%);
-    border-right: 1px solid rgba(255,255,255,0.05);
+    background: linear-gradient(90deg,
+            rgba(0, 0, 0, 0.4) 0%,
+            rgba(255, 255, 255, 0.02) 20%,
+            rgba(0, 0, 0, 0.2) 40%,
+            rgba(255, 255, 255, 0.01) 60%,
+            rgba(0, 0, 0, 0.3) 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     z-index: 1;
 }
 
@@ -736,15 +738,13 @@ footer p {
     top: 0;
     bottom: 0;
     width: 24px;
-    background: repeating-linear-gradient(
-        180deg,
-        transparent 0px,
-        transparent 30px,
-        rgba(0,0,0,0.3) 30px,
-        rgba(0,0,0,0.3) 32px,
-        rgba(255,255,255,0.03) 32px,
-        rgba(255,255,255,0.03) 33px
-    );
+    background: repeating-linear-gradient(180deg,
+            transparent 0px,
+            transparent 30px,
+            rgba(0, 0, 0, 0.3) 30px,
+            rgba(0, 0, 0, 0.3) 32px,
+            rgba(255, 255, 255, 0.03) 32px,
+            rgba(255, 255, 255, 0.03) 33px);
     z-index: 2;
     opacity: 0.6;
 }
@@ -760,7 +760,7 @@ footer p {
     width: 24px;
     height: 60px;
     background: linear-gradient(180deg, #8B0000 0%, #600000 100%);
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     z-index: 1;
     transform-origin: top;
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -777,7 +777,7 @@ footer p {
     top: 0;
     bottom: 0;
     width: 20px;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0, 0, 0, 0.8);
     z-index: 0;
     display: flex;
     flex-direction: column;
@@ -789,13 +789,11 @@ footer p {
     content: '';
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-        180deg,
-        rgba(255,255,255,0.1) 0px,
-        rgba(255,255,255,0.1) 6px,
-        transparent 6px,
-        transparent 14px
-    );
+    background: repeating-linear-gradient(180deg,
+            rgba(255, 255, 255, 0.1) 0px,
+            rgba(255, 255, 255, 0.1) 6px,
+            transparent 6px,
+            transparent 14px);
     width: 8px;
     margin: 0 auto;
     animation: filmScroll 0.8s linear infinite;
@@ -807,12 +805,24 @@ footer p {
 }
 
 @keyframes filmScroll {
-    from { background-position: 0 0; }
-    to { background-position: 0 -14px; }
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 -14px;
+    }
 }
 
-.film-strip.left { left: 0; border-right: 1px solid rgba(255,255,255,0.05); }
-.film-strip.right { right: 0; border-left: 1px solid rgba(255,255,255,0.05); }
+.film-strip.left {
+    left: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.film-strip.right {
+    right: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
 
 .projector-beam {
     position: absolute;
@@ -852,19 +862,20 @@ footer p {
     left: -10px;
     right: -10px;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
     border-radius: 2px;
 }
 
-.index-book-cover, .index-movie-cover {
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 2px 5px 15px rgba(0,0,0,0.4);
+.index-book-cover,
+.index-movie-cover {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.4);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.fun-side-card:hover .index-book-cover, 
+.fun-side-card:hover .index-book-cover,
 .fun-side-card:hover .index-movie-cover {
-    box-shadow: 5px 15px 25px rgba(0,0,0,0.5);
+    box-shadow: 5px 15px 25px rgba(0, 0, 0, 0.5);
 }
 
 /* ======================== */
@@ -883,7 +894,7 @@ footer p {
 
 .cassette-link:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
 }
 
 .cassette-body {
@@ -895,10 +906,10 @@ footer p {
     flex-direction: column;
     justify-content: space-between;
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.07),
-        inset 0 -2px 0 rgba(0,0,0,0.2),
-        0 8px 30px rgba(0,0,0,0.35);
-    border: 1px solid rgba(255,255,255,0.04);
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+        0 8px 30px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.04);
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
@@ -913,10 +924,10 @@ footer p {
     height: 10px;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, #444, #111);
-    border: 1px solid rgba(0,0,0,0.8);
-    box-shadow: 
-        inset 0 1px 2px rgba(255,255,255,0.2),
-        0 1px 1px rgba(255,255,255,0.05);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        0 1px 1px rgba(255, 255, 255, 0.05);
     z-index: 5;
     display: flex;
     align-items: center;
@@ -925,12 +936,12 @@ footer p {
 
 .cassette-screw::after {
     content: '+';
-    color: rgba(0,0,0,0.8);
+    color: rgba(0, 0, 0, 0.8);
     font-size: 10px;
     font-weight: 900;
     font-family: sans-serif;
     transform: rotate(45deg);
-    text-shadow: 0 1px 0 rgba(255,255,255,0.1);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Subtly tint the background with the cover art color */
@@ -962,8 +973,8 @@ footer p {
     background: #111;
     padding: 2px 8px;
     border-radius: 2px;
-    box-shadow: inset 0 0 2px rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .cassette-label-brand span {
@@ -982,9 +993,9 @@ footer p {
     background: #222;
     padding: 3px 10px;
     border-radius: 2px;
-    box-shadow: 
-        0 1px 3px rgba(0,0,0,0.5),
-        inset 0 1px 1px rgba(255,255,255,0.1);
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
     letter-spacing: 0.5px;
     max-width: 160px;
     white-space: nowrap;
@@ -996,17 +1007,18 @@ footer p {
 
 /* Centered Window */
 .cassette-window {
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     border-radius: 8px;
-    margin: 6px 10px 0; /* Nudged down slightly */
+    margin: 6px 10px 0;
+    /* Nudged down slightly */
     height: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 20px;
     position: relative;
-    border: 1px solid rgba(255,255,255,0.05);
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
     overflow: hidden;
 }
 
@@ -1049,12 +1061,13 @@ footer p {
 .cassette-song-title-text {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.65rem;
-    color: rgba(255,255,255,0.4);
+    color: rgba(255, 255, 255, 0.4);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     display: inline-block;
-    padding: 0 5px; /* Added slight padding between tracks */
+    padding: 0 5px;
+    /* Added slight padding between tracks */
 }
 
 /* Tape loop animation on hover: 
@@ -1065,8 +1078,13 @@ footer p {
 }
 
 @keyframes tapeMarquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-14.285%); }
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-14.285%);
+    }
 }
 
 /* Spools */
@@ -1079,10 +1097,10 @@ footer p {
     position: relative;
     z-index: 1;
     overflow: hidden;
-    border: 1.5px solid rgba(255,255,255,0.15);
-    box-shadow: 
-        0 4px 10px rgba(0,0,0,0.6),
-        inset 0 0 8px rgba(0,0,0,0.5);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.6),
+        inset 0 0 8px rgba(0, 0, 0, 0.5);
     -webkit-mask-image: -webkit-radial-gradient(white, black);
     mask-image: radial-gradient(white, black);
 }
@@ -1094,13 +1112,11 @@ footer p {
     inset: -2px;
     border-radius: 50%;
     background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 45%),
-        radial-gradient(circle, rgba(255,255,255,0) 7px, rgba(255,255,255,0.1) 7px, rgba(255,255,255,0.1) 8px, rgba(255,255,255,0) 8px),
-        repeating-radial-gradient(
-            circle at center,
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 45%),
+        radial-gradient(circle, rgba(255, 255, 255, 0) 7px, rgba(255, 255, 255, 0.1) 7px, rgba(255, 255, 255, 0.1) 8px, rgba(255, 255, 255, 0) 8px),
+        repeating-radial-gradient(circle at center,
             #222 0px, #222 1.5px,
-            #2a2a2a 1.5px, #2a2a2a 3px
-        );
+            #2a2a2a 1.5px, #2a2a2a 3px);
     z-index: 0;
     animation: spinSpool 3s linear infinite;
     animation-play-state: paused;
@@ -1133,8 +1149,13 @@ footer p {
 }
 
 @keyframes spinSpool {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(-360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(-360deg);
+    }
 }
 
 /* Bottom Area: Integrated Cover Art */
@@ -1153,12 +1174,12 @@ footer p {
     background: #111;
     padding: 3px;
     border-radius: 4px 4px 0 0;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-bottom: none;
     position: relative;
     z-index: 2;
     overflow: hidden;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
 }
 
 /* Grainy Texture for Cover Art */
@@ -1194,7 +1215,7 @@ footer p {
     height: 14px;
     background: linear-gradient(180deg, #1a1a1a 0%, #111 100%);
     border-radius: 0 0 10px 10px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-top: none;
     display: flex;
     justify-content: center;
@@ -1216,6 +1237,7 @@ footer p {
     .library-grid {
         grid-template-columns: 1fr 1fr;
     }
+
     .cassette-link {
         grid-column: span 2;
         order: -1;
@@ -1234,6 +1256,7 @@ footer p {
     .library-grid {
         grid-template-columns: 1fr;
     }
+
     .cassette-link {
         grid-column: span 1;
     }
@@ -1460,8 +1483,10 @@ footer p {
 .spotify-artists-grid {
     display: flex;
     flex-wrap: nowrap;
-    justify-content: space-between; /* Maximum width utilization */
-    gap: 8px; /* Minimal gap to allow largest possible circles */
+    justify-content: space-between;
+    /* Maximum width utilization */
+    gap: 8px;
+    /* Minimal gap to allow largest possible circles */
     margin-bottom: 60px;
     width: 100%;
 }
@@ -1471,7 +1496,8 @@ footer p {
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    width: 155px; /* Increased size to take up max width */
+    width: 155px;
+    /* Increased size to take up max width */
     flex-shrink: 1;
 }
 
@@ -1496,7 +1522,8 @@ footer p {
 }
 
 .spotify-artist-item:hover .artist-img-wrapper {
-    transform: scale(1.08); /* Scales both image and overlay */
+    transform: scale(1.08);
+    /* Scales both image and overlay */
 }
 
 .spotify-artist-item:hover .spotify-artist-img {
@@ -1520,7 +1547,8 @@ footer p {
 .spotify-track-card.top-track-banner {
     grid-column: 1 / -1;
     min-height: auto;
-    height: 240px; /* Content height = art size; 15px padding provides equal spacing on all sides */
+    height: 240px;
+    /* Content height = art size; 15px padding provides equal spacing on all sides */
     padding: 15px;
     background: rgba(18, 18, 18, 0.85);
     border-radius: 24px;
@@ -1529,7 +1557,8 @@ footer p {
     align-items: center;
     gap: 40px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--track-color-glow, rgba(0,0,0,0.1)); /* Reduced default glow further */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--track-color-glow, rgba(0, 0, 0, 0.1));
+    /* Reduced default glow further */
     position: relative;
     overflow: hidden;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
@@ -1537,23 +1566,26 @@ footer p {
 
 .top-track-banner:hover {
     transform: scale(1.01) translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, rgba(0,0,0,0.2)); /* Reduced hover glow further */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, rgba(0, 0, 0, 0.2));
+    /* Reduced hover glow further */
     border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Blurred background layer for depth */
 .banner-bg-blur {
     position: absolute;
-    inset: -20px; /* Extend beyond edges but scale down artifacting */
+    inset: -20px;
+    /* Extend beyond edges but scale down artifacting */
     background-image: var(--track-art);
     background-size: cover;
     background-position: center;
-    filter: blur(60px) brightness(0.12); 
+    filter: blur(60px) brightness(0.12);
     opacity: 0.7;
     z-index: 0;
     pointer-events: none;
     border-radius: inherit;
-    transform: scale(1.4); /* Scale up significantly to hide edges */
+    transform: scale(1.4);
+    /* Scale up significantly to hide edges */
 }
 
 .top-track-banner .case-art-wrapper {
@@ -1563,7 +1595,8 @@ footer p {
     z-index: 1;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, transparent); /* Added glow behind art */
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, transparent);
+    /* Added glow behind art */
 }
 
 .top-track-banner .case-info {
@@ -1619,7 +1652,8 @@ footer p {
     font-size: 2.8rem;
     font-weight: 800;
     color: #fff;
-    line-height: 1.2; /* Increased to prevent cut-off */
+    line-height: 1.2;
+    /* Increased to prevent cut-off */
     letter-spacing: -0.03em;
     margin-bottom: 8px;
     display: -webkit-box;
@@ -1640,8 +1674,10 @@ footer p {
     font-style: italic;
     font-size: 1.15rem;
     color: rgba(255, 255, 255, 0.7);
-    margin-top: 12px; /* Reduced from 24px */
-    padding-top: 12px; /* Reduced from 24px */
+    margin-top: 12px;
+    /* Reduced from 24px */
+    padding-top: 12px;
+    /* Reduced from 24px */
     max-width: 90%;
     line-height: 1.5;
     position: relative;
@@ -1655,7 +1691,8 @@ footer p {
     position: absolute;
     top: 0;
     left: 0;
-    width: 120px; /* Made longer for better presence */
+    width: 240px;
+    /* Made longer for better presence */
     height: 1px;
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent);
 }
@@ -1665,6 +1702,7 @@ footer p {
         opacity: 0;
         transform: translateY(15px);
     }
+
     to {
         opacity: 0.9;
         transform: translateY(0);
@@ -1681,11 +1719,12 @@ footer p {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-radius: 50px;
-    padding: 2px; /* Container padding */
+    padding: 2px;
+    /* Container padding */
     overflow: hidden;
     width: fit-content;
     flex-shrink: 0;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .stats-badge {
@@ -1697,11 +1736,13 @@ footer p {
     letter-spacing: 1.5px;
     text-transform: uppercase;
     white-space: nowrap;
-    border-radius: 50px; /* Fully pill-shaped badge inside tube */
+    border-radius: 50px;
+    /* Fully pill-shaped badge inside tube */
 }
 
 .stats-pill-divider {
-    display: none; /* Removed in favor of better spacing */
+    display: none;
+    /* Removed in favor of better spacing */
 }
 
 .stats-plays {
@@ -1780,19 +1821,24 @@ footer p {
 
 /* Compact overrides for grid track cards (tracks #2-5) */
 .grid-track .track-stats-pill {
-    margin-top: 8px; /* Reduced from 18px */
-    padding: 1px; /* Tighter padding for small cards */
+    margin-top: 8px;
+    /* Reduced from 18px */
+    padding: 1px;
+    /* Tighter padding for small cards */
 }
 
 .grid-track .stats-plays {
-    padding: 2px 12px; /* Tighter padding */
-    font-size: 0.75rem; /* Slightly smaller for small cards */
+    padding: 2px 12px;
+    /* Tighter padding */
+    font-size: 0.75rem;
+    /* Slightly smaller for small cards */
 }
 
 /* Artist play count overlay */
 .artist-playcount-overlay {
     position: absolute;
-    inset: 6px; /* Offset by padding to match img */
+    inset: 6px;
+    /* Offset by padding to match img */
     background: rgba(0, 0, 0, 0.7);
     display: flex;
     flex-direction: column;
@@ -1831,19 +1877,19 @@ footer p {
     .spotify-tracks-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .top-track-banner {
         flex-direction: column;
         text-align: center;
         padding: 30px;
         height: auto;
     }
-    
+
     .top-track-banner .case-art-wrapper {
         width: 180px;
         height: 180px;
     }
-    
+
     .top-track-banner .case-title {
         font-size: 2.2rem;
     }
@@ -1954,7 +2000,7 @@ footer p {
     background: rgba(255, 255, 255, 0.02);
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: inset 0 0 50px rgba(0,0,0,0.2);
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.2);
     position: relative;
 }
 
@@ -2019,13 +2065,14 @@ footer p {
     overflow: hidden;
     aspect-ratio: 2 / 3;
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .movie-fav-card:hover {
     transform: scale(1.08) translateY(-10px);
-    box-shadow: 0 15px 45px rgba(64, 188, 244, 0.3); /* Letterboxd Blue Glow */
+    box-shadow: 0 15px 45px rgba(64, 188, 244, 0.3);
+    /* Letterboxd Blue Glow */
     border-color: rgba(64, 188, 244, 0.5);
     z-index: 10;
 }
@@ -2070,7 +2117,7 @@ footer p {
 .movie-card-info-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
     align-items: center;

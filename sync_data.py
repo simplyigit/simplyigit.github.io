@@ -9,6 +9,7 @@ import concurrent.futures
 from base64 import b64encode
 from google import genai
 from google.genai import types
+import markdown
 
 # --- HELPERS: SPOTIFY ---
 
@@ -310,6 +311,33 @@ def fetch_books_data():
         return books_data
     except: return []
 
+# --- HELPERS: PROJECTS ---
+
+def fetch_projects_data():
+    """Fetches and pre-renders READMEs for featured projects."""
+    project_repos = [
+        "simplyigit/Real-Deepfake-or-AI"
+    ]
+    projects_html = {}
+    headers = {'User-Agent': 'Mozilla/5.0: simplyigit sync'}
+    
+    for repo in project_repos:
+        print(f"Fetching README for {repo}...")
+        # Try main branch, then master
+        for branch in ["main", "master"]:
+            url = f"https://raw.githubusercontent.com/{repo}/{branch}/README.md"
+            try:
+                res = requests.get(url, headers=headers, timeout=10)
+                if res.status_code == 200:
+                    # Convert Markdown to HTML
+                    html = markdown.markdown(res.text, extensions=['fenced_code', 'tables'])
+                    projects_html[repo] = html
+                    print(f"Successfully rendered {repo} from {branch}")
+                    break
+            except: continue
+            
+    return projects_html
+
 # --- MAIN SYNC ---
 
 def main():
@@ -318,6 +346,7 @@ def main():
         "spotify": fetch_spotify_data(),
         "movies": fetch_movies_data(),
         "books": fetch_books_data(),
+        "projects": fetch_projects_data(),
         "last_updated": time.time()
     }
     

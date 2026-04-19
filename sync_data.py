@@ -12,108 +12,53 @@ from google.genai import types
 
 # --- HELPERS: SPOTIFY ---
 
-def get_genius_access_token():
-    client_id = os.environ.get('GENIUS_CLIENT_ID')
-    client_secret = os.environ.get('GENIUS_CLIENT_SECRET')
-    if not client_id or not client_secret: 
-        print("Genius credentials missing.")
-        return None
-    url = "https://api.genius.com/oauth/token"
-    data = {'client_id': client_id, 'client_secret': client_secret, 'grant_type': 'client_credentials'}
-    try:
-        res = requests.post(url, data=data, timeout=5)
-        print(f"Genius Token Response: {res.status_code}")
-        return res.json().get('access_token')
-    except Exception as e:
-        print(f"Genius Token Error: {str(e)}")
-        return None
-
 def get_lyrics(song_title, artist_name):
-    print(f"Searching lyrics for: {song_title} - {artist_name}")
-    token = get_genius_access_token()
-    if not token: return None
-
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
-
+    """Fetches lyrics via Lyrica API for high reliability."""
+    base_url = "https://test-0k.onrender.com/lyrics/"
+    params = {"artist": artist_name, "song": song_title}
+    headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
     try:
-        # 1. Search for the song
-        search_res = requests.get("https://api.genius.com/search", params={"q": f"{song_title} {artist_name}"}, headers=headers, timeout=5).json()
-        hits = search_res.get("response", {}).get("hits", [])
-        if not hits: 
-            print("No hits on Genius.")
-            return None
-
-        song_url = hits[0]["result"]["url"]
-        print(f"Found Genius URL: {song_url}")
-        page_res = requests.get(song_url, headers=headers, timeout=10)
-        page_res.raise_for_status()
-        
-        # Parse with BeautifulSoup
-        soup = BeautifulSoup(page_res.text, "html.parser")
-
-        # 2. Pre-clean: Remove script, style, and metadata elements
-        for element in soup(["script", "style", "header", "footer"]):
-            element.decompose()
-            
-        # Also remove the 'SongHeader' and 'Metadata' sections if they exist
-        for meta in soup.find_all(class_=re.compile(r'SongHeader|Metadata|Translations|LyricsHeader')):
-            meta.decompose()
-
-        # 3. Extract lyrics
-        # 'data-lyrics-container="true"' is the most reliable selector for modern Genius
-        containers = soup.find_all("div", {"data-lyrics-container": "true"})
-        
-        if containers:
-            # We use a newline separator to maintain line breaks
-            lyrics = "\n".join(c.get_text(separator="\n") for c in containers).strip()
-            print(f"Extracted lyrics via data-lyrics-container: {len(lyrics)} chars.")
-        else:
-            # Fallback for older layouts
-            legacy = soup.find("div", class_="lyrics")
-            lyrics = legacy.get_text().strip() if legacy else None
-            if lyrics:
-                print(f"Extracted lyrics via legacy class: {len(lyrics)} chars.")
-
-        if lyrics:
-            # Final cleanup: Remove unwanted artifacts like 'Read More' or 'Embed'
-            lyrics = re.sub(r'(\n){3,}', '\n\n', lyrics) # Normalize newlines
-            lyrics = re.sub(r'You might also like.*', '', lyrics, flags=re.DOTALL) # Remove "You might also like" section
-            lyrics = re.sub(r'\d+ Contributors.*', '', lyrics) # Remove contributor count
-            return lyrics.strip()
-        
-        print("All extraction methods failed.")
-        return None
-
+        print(f"Fetching Lyrica for: {song_title} - {artist_name}...")
+        res = requests.get(base_url, params=params, headers=headers, timeout=15)
+        if res.status_code == 200:
+            data = res.json()
+            if data.get("status") == "success":
+                lyrics = data["data"].get("lyrics")
+                if lyrics:
+                    # Basic cleanup of any remaining HTML artifacts or repeated newlines
+                    lyrics = re.sub(r'<[^>]*>', '', lyrics) 
+                    clean_lyrics = re.sub(r'(\n){3,}', '\n\n', lyrics).strip()
+                    print(f"Retrieved {len(clean_lyrics)} chars of lyrics.")
+                    return clean_lyrics
     except Exception as e:
-        print(f"Lyrics Error: {e}")
-        return None
+        print(f"Lyrica Error: {e}")
+    return None
 
-def generate_lyric_snippets(title, artist, lyrics=None):
+def generate_lyric_snippets(title, artist, lyrics):
+    """Curates 3 hard-hitting snippets from the provided lyrics using Gemini."""
     api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key: 
-        print("Missing Gemini API key.")
+    if not api_key or not lyrics: 
+        print("Missing API key or lyrics for curation.")
         return None
     try:
         client = genai.Client(api_key=api_key)
-        if lyrics:
-            print(f"Generating snippets for '{title}' using scraped lyrics...")
-            prompt = f"From song '{title}' by {artist}, return a JSON object with keys 'lyric1','lyric2','lyric3' and values of ONLY the most hard-hitting lyrics. Lyrics: {lyrics}"
-        else:
-            print(f"Scraping failed for '{title}'. Falling back to Gemini knowledge...")
-            prompt = f"Identify the most hard-hitting lyrics from the song '{title}' by {artist}. Return a JSON object with keys 'lyric1','lyric2','lyric3' containing ONLY the lyric strings themselves. Be extremely accurate."
-            
+        prompt = (
+            f"Based EXCLUSIVELY on the lyrics below for '{title}' by {artist}, "
+            "select the 3 most impactful, 'hard-hitting' short snippets (1-2 lines each).\n"
+            "Return a JSON object with keys 'lyric1', 'lyric2', 'lyric3'.\n"
+            "Do NOT invent lyrics. Use the exact text provided.\n\n"
+            f"Lyrics:\n{lyrics}"
+        )
+        
         response = client.models.generate_content(
             model="gemini-3.1-flash-lite-preview", 
             contents=prompt,
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
-        print(f"Gemini Response: {response.text}")
+        print(f"Gemini Curation Response: {response.text}")
         return json.loads(response.text)
     except Exception as e:
-        print(f"Gemini API Error: {str(e)}")
+        print(f"Curation Error: {e}")
         return None
 
 def fetch_spotify_data():
@@ -138,7 +83,6 @@ def fetch_spotify_data():
     gist_files = gist_resp.json().get("files", {})
     print(f"Files found in Gist: {list(gist_files.keys())}")
     
-    # Find the file that contains the refresh token (not data.json)
     token_file_key = next((k for k in gist_files.keys() if k != "data.json"), None)
     
     if not token_file_key:
@@ -210,6 +154,7 @@ def fetch_spotify_data():
     track_futures = {executor.submit(safe_search, t['name'], t['artist']['name'], "track"): t for t in raw_lfm_tracks}
     artist_futures = {executor.submit(safe_search, a['name'], None, "artist"): a for a in raw_lfm_artists}
     
+    # Start lyric fetching for #1 track early via Lyrica
     lyric_future = None
     if raw_lfm_tracks:
         top_t = raw_lfm_tracks[0]
@@ -242,20 +187,18 @@ def fetch_spotify_data():
         top_track = final_tracks[0]
         lyrics_text = None
         
-        # Try to get lyrics via scraping first
         if lyric_future:
             try:
                 lyrics_text = lyric_future.result(timeout=15)
             except Exception as e:
-                print(f"Lyric scraping timed out/failed: {str(e)}")
+                print(f"Lyric fetching timed out/failed: {str(e)}")
 
-        # Call generator (will use fallback if lyrics_text is None)
-        top_track['ai_lyrics'] = generate_lyric_snippets(top_track['title'], top_track['artist'], lyrics_text)
-        
-        if top_track.get('ai_lyrics'):
-            print("AI Lyrics generated successfully!")
+        if lyrics_text:
+            top_track['ai_lyrics'] = generate_lyric_snippets(top_track['title'], top_track['artist'], lyrics_text)
+            if top_track.get('ai_lyrics'):
+                print("AI Lyrics curated successfully!")
         else:
-            print("Failed to generate AI lyrics.")
+            print("Skipping curation: No real lyrics retrieved.")
 
     executor.shutdown(wait=True)
     return {"top_tracks_last_month": final_tracks, "top_artists_last_month": final_artists}

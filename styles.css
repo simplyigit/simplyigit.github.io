@@ -1350,6 +1350,39 @@ footer p {
     margin: 16px 0;
 }
 
+#github-content ul, #github-content ol {
+    margin-bottom: 20px;
+    padding-left: 24px;
+    color: var(--text-secondary);
+}
+
+#github-content li {
+    margin-bottom: 8px;
+}
+
+#github-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+#github-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+}
+
+#github-content th, #github-content td {
+    border: 1px solid var(--card-border);
+    padding: 12px;
+    text-align: left;
+}
+
+#github-content th {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-primary);
+}
+
 /* Hero Bento Box Layout */
 .hero-bento {
     display: grid;

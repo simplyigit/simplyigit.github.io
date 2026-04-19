@@ -329,8 +329,14 @@ def fetch_projects_data():
             try:
                 res = requests.get(url, headers=headers, timeout=10)
                 if res.status_code == 200:
-                    # Convert Markdown to HTML
-                    html = markdown.markdown(res.text, extensions=['fenced_code', 'tables'])
+                    # Convert Markdown to HTML with more robust extensions
+                    html = markdown.markdown(res.text, extensions=[
+                        'fenced_code', 
+                        'tables',
+                        'extra',
+                        'nl2br',
+                        'sane_lists'
+                    ])
                     projects_html[repo] = html
                     print(f"Successfully rendered {repo} from {branch}")
                     break

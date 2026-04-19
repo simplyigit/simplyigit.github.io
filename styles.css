@@ -1639,9 +1639,9 @@ footer p {
     font-family: 'Playfair Display', serif;
     font-style: italic;
     font-size: 1.15rem;
-    color: rgba(255, 255, 255, 0.7); /* Slightly brighter for readability */
-    margin-top: 24px;
-    padding-top: 24px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 12px; /* Reduced from 24px */
+    padding-top: 12px; /* Reduced from 24px */
     max-width: 90%;
     line-height: 1.5;
     position: relative;
@@ -1655,7 +1655,7 @@ footer p {
     position: absolute;
     top: 0;
     left: 0;
-    width: 60px; /* Short, elegant divider */
+    width: 120px; /* Made longer for better presence */
     height: 1px;
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent);
 }
@@ -1776,6 +1776,17 @@ footer p {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* Compact overrides for grid track cards (tracks #2-5) */
+.grid-track .track-stats-pill {
+    margin-top: 8px; /* Reduced from 18px */
+    padding: 1px; /* Tighter padding for small cards */
+}
+
+.grid-track .stats-plays {
+    padding: 2px 12px; /* Tighter padding */
+    font-size: 0.75rem; /* Slightly smaller for small cards */
 }
 
 /* Artist play count overlay */

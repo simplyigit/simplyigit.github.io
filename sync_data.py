@@ -32,49 +32,64 @@ def get_lyrics(song_title, artist_name):
     print(f"Searching lyrics for: {song_title} - {artist_name}")
     token = get_genius_access_token()
     if not token: return None
-    headers = {"Authorization": f"Bearer {token}", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+
     try:
+        # 1. Search for the song
         search_res = requests.get("https://api.genius.com/search", params={"q": f"{song_title} {artist_name}"}, headers=headers, timeout=5).json()
         hits = search_res.get("response", {}).get("hits", [])
         if not hits: 
             print("No hits on Genius.")
             return None
+
         song_url = hits[0]["result"]["url"]
         print(f"Found Genius URL: {song_url}")
         page_res = requests.get(song_url, headers=headers, timeout=10)
-        page = page_res.text
-        soup = BeautifulSoup(page, "html.parser")
+        page_res.raise_for_status()
         
-        # 1. Try modern Lyrics__Container
-        divs = soup.select('div[class^="Lyrics__Container"]')
-        if divs: 
-            lyrics = "\n".join(d.get_text(separator="\n") for d in divs).strip()
-            print(f"Extracted lyrics via Lyrics__Container: {len(lyrics)} chars.")
-            return lyrics
+        # Parse with BeautifulSoup
+        soup = BeautifulSoup(page_res.text, "html.parser")
+
+        # 2. Pre-clean: Remove script, style, and metadata elements
+        for element in soup(["script", "style", "header", "footer"]):
+            element.decompose()
             
-        # 2. Try legacy 'lyrics' class
-        legacy_div = soup.find("div", class_="lyrics")
-        if legacy_div:
-            lyrics = legacy_div.get_text().strip()
-            print(f"Extracted lyrics via legacy class: {len(lyrics)} chars.")
-            return lyrics
+        # Also remove the 'SongHeader' and 'Metadata' sections if they exist
+        for meta in soup.find_all(class_=re.compile(r'SongHeader|Metadata|Translations|LyricsHeader')):
+            meta.decompose()
 
-        # 3. Fallback: Try to find lyrics in JSON script tag (some Genius pages use this)
-        # Look for the script that contains the lyrics data
-        for script in soup.find_all("script"):
-            if script.string and 'window.__PRELOADED_STATE__' in script.string:
-                print("Found __PRELOADED_STATE__, attempting JSON extraction...")
-                # Extract the JSON using a more robust regex
-                json_match = re.search(r'window\.__PRELOADED_STATE__\s*=\s*(JSON\.parse\(\'.*?\'\)|{.*?});', script.string, re.DOTALL)
-                if json_match:
-                    # This is complex to parse manually, so we'll just log that we found it
-                    # But often the text is just in the HTML if you look hard enough
-                    pass
+        # 3. Extract lyrics
+        # 'data-lyrics-container="true"' is the most reliable selector for modern Genius
+        containers = soup.find_all("div", {"data-lyrics-container": "true"})
+        
+        if containers:
+            # We use a newline separator to maintain line breaks
+            lyrics = "\n".join(c.get_text(separator="\n") for c in containers).strip()
+            print(f"Extracted lyrics via data-lyrics-container: {len(lyrics)} chars.")
+        else:
+            # Fallback for older layouts
+            legacy = soup.find("div", class_="lyrics")
+            lyrics = legacy.get_text().strip() if legacy else None
+            if lyrics:
+                print(f"Extracted lyrics via legacy class: {len(lyrics)} chars.")
 
-        print("All extraction methods failed. Page length:", len(page))
-    except Exception as e: 
-        print(f"Lyrics Error: {str(e)}")
-    return None
+        if lyrics:
+            # Final cleanup: Remove unwanted artifacts like 'Read More' or 'Embed'
+            lyrics = re.sub(r'(\n){3,}', '\n\n', lyrics) # Normalize newlines
+            lyrics = re.sub(r'You might also like.*', '', lyrics, flags=re.DOTALL) # Remove "You might also like" section
+            lyrics = re.sub(r'\d+ Contributors.*', '', lyrics) # Remove contributor count
+            return lyrics.strip()
+        
+        print("All extraction methods failed.")
+        return None
+
+    except Exception as e:
+        print(f"Lyrics Error: {e}")
+        return None
 
 def generate_lyric_snippets(title, artist, lyrics=None):
     api_key = os.environ.get("GEMINI_API_KEY")
@@ -91,10 +106,11 @@ def generate_lyric_snippets(title, artist, lyrics=None):
             prompt = f"Identify the most hard-hitting lyrics from the song '{title}' by {artist}. Return a JSON object with keys 'lyric1','lyric2','lyric3' containing ONLY the lyric strings themselves. Be extremely accurate."
             
         response = client.models.generate_content(
-            model="gemini-2.0-flash-lite-preview-02-05", 
+            model="gemini-3.1-flash-lite-preview", 
             contents=prompt,
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
+        print(f"Gemini Response: {response.text}")
         return json.loads(response.text)
     except Exception as e:
         print(f"Gemini API Error: {str(e)}")
@@ -219,6 +235,7 @@ def fetch_spotify_data():
             "image_url": s_info['cover_url'] if s_info else a.get('image', [{}])[-1].get('#text'),
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
+    
     # 6. Process AI Lyrics
     if final_tracks:
         print("Processing AI Lyrics for #1 track...")
@@ -241,7 +258,6 @@ def fetch_spotify_data():
             print("Failed to generate AI lyrics.")
 
     executor.shutdown(wait=True)
-
     return {"top_tracks_last_month": final_tracks, "top_artists_last_month": final_artists}
 
 # --- HELPERS: MOVIES ---

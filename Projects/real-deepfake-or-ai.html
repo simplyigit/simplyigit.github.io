@@ -61,20 +61,30 @@
     <script src="../script.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const repo = "simplyigit/Real-Deepfake-or-AI";
+            const repoPath = "simplyigit/Real-Deepfake-or-AI";
+            const repoName = "Real-Deepfake-or-AI";
 
-            fetch("/api/projects?v=1.0")
+            fetch("/api/projects?v=1.1")
                 .then(res => res.json())
                 .then(json => {
-                    if (json.success && json.data[repo]) {
-                        document.getElementById("github-content").innerHTML = json.data[repo];
+                    if (json.success && json.data) {
+                        // Try matching both the full path and just the name
+                        const content = json.data[repoPath] || json.data[repoName];
+                        
+                        if (content) {
+                            document.getElementById("github-content").innerHTML = content;
+                        } else {
+                            console.error("Project keys found in DB:", Object.keys(json.data));
+                            throw new Error("Project not found in database");
+                        }
                     } else {
-                        throw new Error("Project not found in database");
+                        throw new Error(json.error || "Failed to load database");
                     }
                 })
                 .catch(err => {
+                    console.error("Loading error:", err);
                     document.getElementById("github-content").innerHTML =
-                        "<p style='color: #ff6b6b;'>Could not load project data from database. Please try again later.</p>";
+                        `<p style='color: #ff6b6b;'>Could not load project data: ${err.message}. Please verify the database sync.</p>`;
                 });
         });
     </script>

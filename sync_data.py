@@ -313,13 +313,16 @@ def fetch_books_data():
 
 # --- HELPERS: PROJECTS ---
 
-def fetch_projects_data():
-    """Fetches and pre-renders READMEs for featured projects."""
+def fetch_projects_data(github_token):
+    """Fetches and pre-renders READMEs for featured projects using GitHub API."""
     project_repos = [
         "simplyigit/Real-Deepfake-or-AI"
     ]
     projects_html = {}
-    headers = {'User-Agent': 'Mozilla/5.0: simplyigit sync'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0: simplyigit sync',
+        'Authorization': f'token {github_token}' if github_token else None
+    }
     
     for repo in project_repos:
         print(f"Fetching README for {repo}...")
@@ -329,18 +332,25 @@ def fetch_projects_data():
             try:
                 res = requests.get(url, headers=headers, timeout=10)
                 if res.status_code == 200:
-                    # Convert Markdown to HTML with standard extensions
-                    # 'nl2br' is removed as it often breaks block-level elements like lists
-                    html = markdown.markdown(res.text, extensions=[
-                        'fenced_code', 
-                        'tables',
-                        'extra',
-                        'sane_lists'
-                    ])
-                    projects_html[repo] = html
-                    print(f"Successfully rendered {repo} from {branch}")
-                    break
-            except: continue
+                    # Convert Markdown to HTML using GitHub's own rendering API
+                    # This ensures 100% compatibility with GitHub formatting
+                    print(f"Rendering {repo} via GitHub API...")
+                    api_url = "https://api.github.com/markdown"
+                    payload = {"text": res.text, "mode": "markdown"}
+                    api_res = requests.post(api_url, headers=headers, json=payload, timeout=10)
+                    
+                    if api_res.status_code == 200:
+                        projects_html[repo] = api_res.text
+                        print(f"Successfully rendered {repo} from {branch}")
+                        break
+                    else:
+                        print(f"GitHub API Error: {api_res.status_code}")
+                        # Fallback to local markdown if API fails
+                        projects_html[repo] = markdown.markdown(res.text, extensions=['extra', 'sane_lists'])
+                        break
+            except Exception as e: 
+                print(f"Error processing {repo}: {e}")
+                continue
             
     return projects_html
 
@@ -348,11 +358,13 @@ def fetch_projects_data():
 
 def main():
     print("Starting sync...")
+    github_token = os.environ.get('GITHUB_TOKEN')
+    
     data = {
         "spotify": fetch_spotify_data(),
         "movies": fetch_movies_data(),
         "books": fetch_books_data(),
-        "projects": fetch_projects_data(),
+        "projects": fetch_projects_data(github_token),
         "last_updated": time.time()
     }
     

@@ -76,15 +76,20 @@ def get_lyrics(song_title, artist_name):
         print(f"Lyrics Error: {str(e)}")
     return None
 
-def generate_lyric_snippets(title, artist, lyrics):
+def generate_lyric_snippets(title, artist, lyrics=None):
     api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key or not lyrics: 
-        print("Missing Gemini API key or lyrics.")
+    if not api_key: 
+        print("Missing Gemini API key.")
         return None
     try:
         client = genai.Client(api_key=api_key)
-        prompt = f"From song '{title}' by {artist}, return a JSON object with keys 'lyric1','lyric2','lyric3' and values of ONLY the most hard-hitting lyrics. Lyrics: {lyrics}"
-        # Using a more stable model ID
+        if lyrics:
+            print(f"Generating snippets for '{title}' using scraped lyrics...")
+            prompt = f"From song '{title}' by {artist}, return a JSON object with keys 'lyric1','lyric2','lyric3' and values of ONLY the most hard-hitting lyrics. Lyrics: {lyrics}"
+        else:
+            print(f"Scraping failed for '{title}'. Falling back to Gemini knowledge...")
+            prompt = f"Identify the most hard-hitting lyrics from the song '{title}' by {artist}. Return a JSON object with keys 'lyric1','lyric2','lyric3' containing ONLY the lyric strings themselves. Be extremely accurate."
+            
         response = client.models.generate_content(
             model="gemini-2.0-flash-lite-preview-02-05", 
             contents=prompt,
@@ -215,22 +220,25 @@ def fetch_spotify_data():
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
     # 6. Process AI Lyrics
-    if final_tracks and lyric_future:
+    if final_tracks:
         print("Processing AI Lyrics for #1 track...")
-        try:
-            lyrics_text = lyric_future.result(timeout=15)
-            if lyrics_text:
-                print(f"Lyrics found ({len(lyrics_text)} chars). Requesting Gemini snippets...")
-                top_track = final_tracks[0]
-                top_track['ai_lyrics'] = generate_lyric_snippets(top_track['title'], top_track['artist'], lyrics_text)
-                if top_track.get('ai_lyrics'):
-                    print("AI Lyrics generated successfully!")
-                else:
-                    print("Gemini returned no snippets.")
-            else:
-                print("No lyrics found on Genius.")
-        except Exception as e:
-            print(f"Error in lyric processing: {str(e)}")
+        top_track = final_tracks[0]
+        lyrics_text = None
+        
+        # Try to get lyrics via scraping first
+        if lyric_future:
+            try:
+                lyrics_text = lyric_future.result(timeout=15)
+            except Exception as e:
+                print(f"Lyric scraping timed out/failed: {str(e)}")
+
+        # Call generator (will use fallback if lyrics_text is None)
+        top_track['ai_lyrics'] = generate_lyric_snippets(top_track['title'], top_track['artist'], lyrics_text)
+        
+        if top_track.get('ai_lyrics'):
+            print("AI Lyrics generated successfully!")
+        else:
+            print("Failed to generate AI lyrics.")
 
     executor.shutdown(wait=True)
 

@@ -70,8 +70,11 @@ def fetch_spotify_data():
     if gist_resp.status_code != 200: return {"success": False, "error": "Failed to read Gist"}
     
     gist_files = gist_resp.json().get("files", {})
-    first_file_key = list(gist_files.keys())[0] if gist_files else None
-    refresh_token = gist_files[first_file_key].get("content", "").strip()
+    # Find the file that contains the refresh token (not data.json)
+    token_file_key = next((k for k in gist_files.keys() if k != "data.json"), None)
+    if not token_file_key: return {"success": False, "error": "No token file found in Gist"}
+    
+    refresh_token = gist_files[token_file_key].get("content", "").strip()
 
     auth_str = f"{client_id}:{client_secret}"
     b64_auth = b64encode(auth_str.encode()).decode()
@@ -85,7 +88,7 @@ def fetch_spotify_data():
     new_refresh = token_json.get('refresh_token')
 
     if new_refresh and new_refresh != refresh_token:
-        patch_data = {"files": {first_file_key: {"content": new_refresh}}}
+        patch_data = {"files": {token_file_key: {"content": new_refresh}}}
         requests.patch(gist_url, headers=gist_headers, json=patch_data)
 
     lfm_base = "https://ws.audioscrobbler.com/2.0/"

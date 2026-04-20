@@ -397,13 +397,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         const cardClass = isTop ? 'top-track-banner' : 'grid-track';
                         
                         const playsHtml = `${Number(track.playcount).toLocaleString()} plays`;
-                        const statsPill = isTop
-                            ? `<div class="track-stats-pill">
-                                    <span class="stats-badge">#1 THIS MONTH</span>
-                                    <div class="stats-pill-divider"></div>
-                                    <span class="stats-plays">${playsHtml}</span>
-                                </div>`
-                            : `<div class="track-stats-pill">
+                        
+                        // Tag logic: #1 is handled in CSS/Banner, #2-5 added here
+                        const rankTag = !isTop ? `<span class="stats-badge">#${index + 1}</span><div class="stats-pill-divider"></div>` : `<span class="stats-badge">#1 THIS MONTH</span><div class="stats-pill-divider"></div>`;
+
+                        const statsPill = `<div class="track-stats-pill">
+                                    ${rankTag}
                                     <span class="stats-plays">${playsHtml}</span>
                                 </div>`;
 
@@ -423,8 +422,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                     <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
                                 </div>
                                 <div class="case-info">
-                                    <span class="case-title">${track.title}</span>
-                                    <span class="case-artist">${track.artist}</span>
+                                    <div class="track-text-stack">
+                                        <span class="case-title">${track.title}</span>
+                                        <span class="case-artist">${track.artist}</span>
+                                    </div>
                                     ${lyricHtml}
                                     ${statsPill}
                                 </div>

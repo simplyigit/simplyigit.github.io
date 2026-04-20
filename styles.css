@@ -1798,31 +1798,32 @@ footer p {
 .spotify-track-card.grid-track {
     background: rgba(18, 18, 18, 0.7);
     border-radius: 20px;
-    padding: 15px 20px;
+    padding: 0 24px 0 0; /* Remove top/bottom padding, keep right padding */
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 24px;
+    gap: 20px; /* Reduced gap */
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
     height: 120px;
+    overflow: hidden;
 }
 
 .grid-track .case-art-wrapper {
-    width: 90px;
-    height: 90px;
+    width: 120px; /* Match height exactly */
+    height: 120px;
     flex-shrink: 0;
-    border-radius: 12px;
+    border-radius: 0; /* Let the card's overflow handle the corners */
     overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .grid-track .case-info {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centered vertically */
-    gap: 10px; /* Controlled spacing between text and stats */
+    justify-content: center;
+    gap: 6px; /* Significantly reduced gap */
     height: 100%;
     flex-grow: 1;
     overflow: hidden;
@@ -1831,7 +1832,7 @@ footer p {
 .track-text-stack {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
 .grid-track .case-title {
@@ -1854,8 +1855,7 @@ footer p {
 
 .grid-track .track-stats-pill {
     margin-top: 0;
-    transform: scale(0.9);
-    transform-origin: left bottom;
+    transform: none; /* Removed scale */
 }
 
 .spotify-track-card:hover {

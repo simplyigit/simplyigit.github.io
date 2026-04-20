@@ -432,31 +432,29 @@ document.addEventListener("DOMContentLoaded", () => {
                             </a>`;
                         tracksContainer.insertAdjacentHTML("beforeend", html);
                         
-                        if (track.cover_url) {
-                            const img = new Image();
-                            img.crossOrigin = "Anonymous";
-                            img.src = track.cover_url;
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                const ctx = canvas.getContext('2d');
-                                canvas.width = 1; canvas.height = 1;
-                                ctx.drawImage(img, 0, 0, 1, 1);
-                                const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-                                // Allow more vibrant colors by increasing perceptual luminance cap
-                                const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-                                const lumaScale = luma > 170 ? 170 / luma : 1;
-                                const [R, G, B] = [r, g, b].map(c => Math.round(c * lumaScale));
-                                const glowOpacity = isTop ? 0.45 : 0.35;
-                                const card = document.getElementById(cardId);
-                                if(card) {
-                                    card.style.setProperty('--track-color-rgb', `${R}, ${G}, ${B}`);
-                                    card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${glowOpacity})`);
-                                    if(isTop) {
-                                        card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;
+                                const img = new Image();
+                                img.crossOrigin = "Anonymous";
+                                img.src = track.cover_url;
+                                img.onload = () => {
+                                    const canvas = document.createElement('canvas');
+                                    const ctx = canvas.getContext('2d');
+                                    canvas.width = 10; canvas.height = 10;
+                                    // Sample from the center of the image for more accurate prominent color
+                                    ctx.drawImage(img, img.width / 2 - 5, img.height / 2 - 5, 10, 10, 0, 0, 10, 10);
+                                    const [r, g, b] = ctx.getImageData(5, 5, 1, 1).data;
+                                    
+                                    // Use the raw color but ensure it's at least somewhat visible on dark
+                                    const [R, G, B] = [r, g, b];
+                                    const glowOpacity = isTop ? 0.6 : 0.45;
+                                    const card = document.getElementById(cardId);
+                                    if(card) {
+                                        card.style.setProperty('--track-color-rgb', `${R}, ${G}, ${B}`);
+                                        card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${glowOpacity})`);
+                                        if(isTop) {
+                                            card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;
+                                        }
                                     }
-                                }
-                            };
-                        }
+                                };
                     });
                 }
                 document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));

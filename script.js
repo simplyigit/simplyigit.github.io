@@ -374,9 +374,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if(artistsContainer) {
                     artistsContainer.innerHTML = artists.length === 0 ? `<p style="color: var(--text-secondary);">No artists found.</p>` : "";
                     artists.forEach((artist, index) => {
-                        const artistId = `artist-item-${index}`;
                         const html = `
-                            <a id="${artistId}" href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item fade-in delay-${(index % 3) + 1}" style="text-decoration: none;">
+                            <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item fade-in delay-${(index % 3) + 1}" style="text-decoration: none;">
                                 <div class="artist-img-wrapper">
                                     <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img">
                                     <div class="artist-playcount-overlay">
@@ -387,17 +386,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <span class="spotify-artist-name">${artist.name}</span>
                             </a>`;
                         artistsContainer.insertAdjacentHTML("beforeend", html);
-
-                        // Apply prominent color from backend (ColorThief)
-                        if (artist.prominent_color) {
-                            const [R, G, B] = artist.prominent_color;
-                            const item = document.getElementById(artistId);
-                            if (item) {
-                                item.style.setProperty('--artist-color-rgb', `${R}, ${G}, ${B}`);
-                                // Re-enable the green circle/ring logic if desired using the dominant color
-                                item.querySelector('.spotify-artist-img').style.boxShadow = `0 0 0 4px rgba(255, 255, 255, 0.1), 0 0 0 6px rgb(${R}, ${G}, ${B})`;
-                            }
-                        }
                     });
                 }
 

@@ -10,8 +10,25 @@ from base64 import b64encode
 from google import genai
 from google.genai import types
 import markdown
+from colorthief import ColorThief
+import io
 
 # --- HELPERS: SPOTIFY ---
+
+def get_prominent_color(image_url):
+    """Fetches image and extracts the dominant color using ColorThief."""
+    if not image_url: return [29, 185, 84] # Spotify Green fallback
+    try:
+        res = requests.get(image_url, timeout=5)
+        if res.status_code == 200:
+            img_file = io.BytesIO(res.content)
+            color_thief = ColorThief(img_file)
+            # get_color is faster than get_palette
+            dominant_color = color_thief.get_color(quality=10)
+            return list(dominant_color)
+    except Exception as e:
+        print(f"Color extraction error: {e}")
+    return [29, 185, 84]
 
 def get_lyrics(song_title, artist_name):
     """Fetches lyrics via Lyrica API for high reliability."""
@@ -168,7 +185,7 @@ def fetch_spotify_data():
 
     final_tracks = []
     final_artists = []
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=11)
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=15)
     track_futures = {executor.submit(safe_search, t['name'], t['artist']['name'], "track"): t for t in raw_lfm_tracks}
     artist_futures = {executor.submit(safe_search, a['name'], None, "artist"): a for a in raw_lfm_artists}
     
@@ -178,26 +195,44 @@ def fetch_spotify_data():
         top_t = raw_lfm_tracks[0]
         lyric_future = executor.submit(get_lyrics, top_t['name'], top_t['artist']['name'])
 
+    # Pre-fetch colors in parallel after we get the URLs
+    color_futures = {}
+
     for fut, t in track_futures.items():
         s_info = fut.result()
+        cover_url = s_info['cover_url'] if s_info else t.get('image', [{}])[-1].get('#text')
         final_tracks.append({
             "title": t['name'],
             "artist": t['artist']['name'],
             "playcount": t['playcount'],
             "spotify_url": s_info['spotify_url'] if s_info else None,
-            "cover_url": s_info['cover_url'] if s_info else t.get('image', [{}])[-1].get('#text'),
+            "cover_url": cover_url,
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
+        if cover_url:
+            color_futures[cover_url] = executor.submit(get_prominent_color, cover_url)
 
     for fut, a in artist_futures.items():
         s_info = fut.result()
+        image_url = s_info['cover_url'] if s_info else a.get('image', [{}])[-1].get('#text')
         final_artists.append({
             "name": a['name'],
             "playcount": a['playcount'],
             "spotify_url": s_info['spotify_url'] if s_info else None,
-            "image_url": s_info['cover_url'] if s_info else a.get('image', [{}])[-1].get('#text'),
+            "image_url": image_url,
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
+        if image_url:
+            color_futures[image_url] = executor.submit(get_prominent_color, image_url)
+    
+    # Assign colors back to tracks and artists
+    for track in final_tracks:
+        if track['cover_url'] in color_futures:
+            track['prominent_color'] = color_futures[track['cover_url']].result()
+            
+    for artist in final_artists:
+        if artist['image_url'] in color_futures:
+            artist['prominent_color'] = color_futures[artist['image_url']].result()
     
     # 6. Process AI Lyrics
     if final_tracks:

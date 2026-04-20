@@ -1787,7 +1787,7 @@ footer p {
 
 .stats-plays {
     padding: 0 18px 0 10px;
-    font-size: 0.8rem;
+    font-size: 0.85rem; /* Increased from 0.8rem */
     font-family: 'Inter', sans-serif;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -1798,7 +1798,7 @@ footer p {
 .spotify-track-card.grid-track {
     background: rgba(18, 18, 18, 0.7);
     border-radius: 20px;
-    padding: 15px;
+    padding: 15px 20px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -1821,7 +1821,8 @@ footer p {
 .grid-track .case-info {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center; /* Centered vertically */
+    gap: 10px; /* Controlled spacing between text and stats */
     height: 100%;
     flex-grow: 1;
     overflow: hidden;

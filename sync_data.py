@@ -16,16 +16,32 @@ import io
 # --- HELPERS: SPOTIFY ---
 
 def get_prominent_color(image_url):
-    """Fetches image and extracts the dominant color using ColorThief."""
+    """Fetches image and extracts the dominant color using ColorThief with luminance boosting."""
     if not image_url: return [29, 185, 84] # Spotify Green fallback
     try:
         res = requests.get(image_url, timeout=5)
         if res.status_code == 200:
             img_file = io.BytesIO(res.content)
             color_thief = ColorThief(img_file)
-            # get_color is faster than get_palette
-            dominant_color = color_thief.get_color(quality=10)
-            return list(dominant_color)
+            dominant_color = list(color_thief.get_color(quality=10))
+            
+            # Boost luminance if the color is too dark for the UI
+            # Relative luminance formula: 0.299R + 0.587G + 0.114B
+            r, g, b = dominant_color
+            luminance = (0.299 * r + 0.587 * g + 0.114 * b)
+            
+            # Target a minimum luminance of ~70 for visibility on dark backgrounds
+            if luminance < 70:
+                factor = 70 / (luminance + 1) # Avoid div by zero
+                # Scale up while capping at 255
+                dominant_color = [
+                    min(255, int(r * factor)),
+                    min(255, int(g * factor)),
+                    min(255, int(b * factor))
+                ]
+                print(f"Boosted dark color {r,g,b} (lum {luminance:.1f}) -> {dominant_color}")
+                
+            return dominant_color
     except Exception as e:
         print(f"Color extraction error: {e}")
     return [29, 185, 84]
@@ -222,17 +238,11 @@ def fetch_spotify_data():
             "image_url": image_url,
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
-        if image_url:
-            color_futures[image_url] = executor.submit(get_prominent_color, image_url)
     
-    # Assign colors back to tracks and artists
+    # Assign colors back to tracks
     for track in final_tracks:
         if track['cover_url'] in color_futures:
             track['prominent_color'] = color_futures[track['cover_url']].result()
-            
-    for artist in final_artists:
-        if artist['image_url'] in color_futures:
-            artist['prominent_color'] = color_futures[artist['image_url']].result()
     
     # 6. Process AI Lyrics
     if final_tracks:

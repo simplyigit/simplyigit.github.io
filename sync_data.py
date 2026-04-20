@@ -57,7 +57,24 @@ def generate_lyric_snippets(title, artist, lyrics):
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
         print(f"Gemini Curation Response: {response.text}")
-        return json.loads(response.text)
+        data = json.loads(response.text)
+        
+        # Regex filter to clean snippets
+        def clean_lyric(text):
+            if not text: return text
+            # Remove [Chorus], (Verse 1), etc.
+            text = re.sub(r'[\[\(].*?[\]\)]', '', text)
+            # Replace slashes or multiple dashes with a comma
+            text = re.sub(r'\s*/\s*|\s*-{2,}\s*', ', ', text)
+            # Remove leading/trailing quotes and extra whitespace
+            text = text.strip().strip('"').strip("'")
+            return text
+
+        for key in ['lyric1', 'lyric2', 'lyric3']:
+            if key in data:
+                data[key] = clean_lyric(data[key])
+        
+        return data
     except Exception as e:
         print(f"Curation Error: {e}")
         return None

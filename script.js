@@ -442,11 +442,11 @@ document.addEventListener("DOMContentLoaded", () => {
                                 canvas.width = 1; canvas.height = 1;
                                 ctx.drawImage(img, 0, 0, 1, 1);
                                 const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-                                // Cap using perceptual luminance so warm/neutral album art never creates a white glow
+                                // Allow more vibrant colors by increasing perceptual luminance cap
                                 const luma = 0.299 * r + 0.587 * g + 0.114 * b;
-                                const lumaScale = luma > 110 ? 110 / luma : 1;
+                                const lumaScale = luma > 170 ? 170 / luma : 1;
                                 const [R, G, B] = [r, g, b].map(c => Math.round(c * lumaScale));
-                                const glowOpacity = isTop ? 0.5 : 0.35;
+                                const glowOpacity = isTop ? 0.45 : 0.35;
                                 const card = document.getElementById(cardId);
                                 if(card) {
                                     card.style.setProperty('--track-color-rgb', `${R}, ${G}, ${B}`);

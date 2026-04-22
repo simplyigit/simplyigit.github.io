@@ -112,7 +112,7 @@ def generate_lyric_snippets(title, artist, lyrics):
         print(f"Curation Error: {e}")
         return None
 
-def fetch_spotify_data(supabase_client=None):
+def fetch_spotify_data(url, key):
     client_id = os.environ.get('CLIENT_ID')
     client_secret = os.environ.get('CLIENT_SECRET')
     lfm_key = os.environ.get('LASTFM_API_KEY')
@@ -121,19 +121,25 @@ def fetch_spotify_data(supabase_client=None):
     if not all([client_id, client_secret, lfm_key, lfm_user]):
         return {"success": False, "error": "Missing Spotify credentials"}
 
-    # 1. Try to get refresh token from Supabase first
+    # 1. Get refresh token from Supabase using requests
     refresh_token = None
-    if supabase_client:
-        try:
-            res = supabase_client.table("portfolio_data").select("value").eq("key", "spotify_refresh_token").execute()
-            if res.data:
-                refresh_token = res.data[0]['value'].get('refresh_token')
-                print("Retrieved refresh token from Supabase.")
-        except Exception as e:
-            print(f"Supabase token read error: {e}")
+    try:
+        res = requests.get(
+            f"{url}/rest/v1/portfolio_data?key=eq.spotify_refresh_token&select=value",
+            headers={
+                "apikey": key,
+                "Authorization": f"Bearer {key}"
+            },
+            timeout=10
+        )
+        if res.status_code == 200 and res.json():
+            refresh_token = res.json()[0]['value'].get('refresh_token')
+            print("Retrieved refresh token from Supabase.")
+    except Exception as e:
+        print(f"Supabase token read error: {e}")
     
     if not refresh_token:
-        print("Error: No Spotify refresh token found.")
+        print("Error: No Spotify refresh token found in Supabase.")
         return {"success": False, "error": "No refresh token found"}
 
     auth_str = f"{client_id}:{client_secret}"
@@ -153,13 +159,23 @@ def fetch_spotify_data(supabase_client=None):
     access_token = token_json.get('access_token')
     new_refresh = token_json.get('refresh_token')
 
-    # 2. If Spotify provided a NEW refresh token, save it to Supabase immediately
-    if new_refresh and new_refresh != refresh_token and supabase_client:
+    # 2. If Spotify provided a NEW refresh token, save it to Supabase using requests
+    if new_refresh and new_refresh != refresh_token:
         try:
-            supabase_client.table("portfolio_data").upsert({
-                "key": "spotify_refresh_token",
-                "value": {"refresh_token": new_refresh}
-            }).execute()
+            requests.post(
+                f"{url}/rest/v1/portfolio_data?on_conflict=key",
+                headers={
+                    "apikey": key,
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                    "Prefer": "resolution=merge-duplicates"
+                },
+                json={
+                    "key": "spotify_refresh_token",
+                    "value": {"refresh_token": new_refresh}
+                },
+                timeout=10
+            )
             print("Successfully rotated and saved new refresh token to Supabase.")
         except Exception as e:
             print(f"Failed to save rotated token: {e}")
@@ -426,11 +442,8 @@ def main():
         print("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY. Outputting to console.")
         return
 
-    from supabase import create_client
-    supabase_client = create_client(url, key)
-
     data = {
-        "spotify": fetch_spotify_data(supabase_client),
+        "spotify": fetch_spotify_data(url, key),
         "movies": fetch_movies_data(),
         "books": fetch_books_data(),
         "projects": fetch_projects_data(github_token),

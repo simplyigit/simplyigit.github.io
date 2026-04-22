@@ -430,7 +430,7 @@ def main():
         "last_updated": time.time()
     }
     
-    url = os.environ.get("SUPABASE_URL")
+    url = os.environ.get("SUPABASE_URL", "").rstrip('/')
     key = os.environ.get("SUPABASE_SERVICE_KEY")
     
     if not url or not key:
@@ -442,9 +442,9 @@ def main():
     # Upsert each section into its own row for better organization
     for category in ["spotify", "movies", "books", "projects"]:
         try:
-            # Supabase REST API (PostgREST) allows upsert via POST with specific headers
+            # PostgREST allows upsert via POST with specific headers and on_conflict parameter
             res = requests.post(
-                f"{url}/rest/v1/portfolio_data",
+                f"{url}/rest/v1/portfolio_data?on_conflict=key",
                 headers={
                     "apikey": key,
                     "Authorization": f"Bearer {key}",
@@ -455,7 +455,7 @@ def main():
                     "key": category,
                     "value": data[category]
                 },
-                timeout=10
+                timeout=15
             )
             
             if res.status_code in [200, 201]:

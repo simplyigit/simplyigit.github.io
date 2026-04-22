@@ -10,7 +10,7 @@ class handler(BaseHTTPRequestHandler):
         cache_header = 's-maxage=3600, stale-while-revalidate'
         
         try:
-            supabase_url = os.environ.get('SUPABASE_URL')
+            supabase_url = os.environ.get('SUPABASE_URL', '').rstrip('/')
             supabase_key = os.environ.get('SUPABASE_ANON_KEY')
             
             if not supabase_url or not supabase_key:
@@ -27,13 +27,13 @@ class handler(BaseHTTPRequestHandler):
             )
             
             if res.status_code != 200:
-                raise Exception(f"Failed to fetch Supabase: {res.status_code}")
+                raise Exception(f"Supabase Error {res.status_code}: {res.text}")
                 
             rows = res.json()
             if not rows:
-                raise Exception("No data found in Supabase")
-                
-            movies_data = rows[0].get("value", {})
+                movies_data = {}
+            else:
+                movies_data = rows[0].get("value", {})
             
             response = {
                 "success": True,

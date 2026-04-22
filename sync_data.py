@@ -438,18 +438,30 @@ def main():
         print(json.dumps(data, indent=2))
         return
 
-    from supabase import create_client
-    supabase = create_client(url, key)
-
     print("Uploading to Supabase...")
     # Upsert each section into its own row for better organization
     for category in ["spotify", "movies", "books", "projects"]:
         try:
-            supabase.table("portfolio_data").upsert({
-                "key": category,
-                "value": data[category]
-            }).execute()
-            print(f"Successfully updated {category}")
+            # Supabase REST API (PostgREST) allows upsert via POST with specific headers
+            res = requests.post(
+                f"{url}/rest/v1/portfolio_data",
+                headers={
+                    "apikey": key,
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                    "Prefer": "resolution=merge-duplicates"
+                },
+                json={
+                    "key": category,
+                    "value": data[category]
+                },
+                timeout=10
+            )
+            
+            if res.status_code in [200, 201]:
+                print(f"Successfully updated {category}")
+            else:
+                print(f"Failed to update {category}: {res.status_code} - {res.text}")
         except Exception as e:
             print(f"Failed to update {category}: {str(e)}")
 

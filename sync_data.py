@@ -112,37 +112,34 @@ def generate_lyric_snippets(title, artist, lyrics):
         print(f"Curation Error: {e}")
         return None
 
-def fetch_spotify_data():
+def fetch_spotify_data(supabase_client=None):
     client_id = os.environ.get('CLIENT_ID')
     client_secret = os.environ.get('CLIENT_SECRET')
-    gist_id = os.environ.get('GIST_ID')
-    github_token = os.environ.get('GITHUB_TOKEN')
     lfm_key = os.environ.get('LASTFM_API_KEY')
     lfm_user = os.environ.get('LASTFM_USER')
 
-    if not all([client_id, client_secret, gist_id, github_token, lfm_key, lfm_user]):
+    if not all([client_id, client_secret, lfm_key, lfm_user]):
         return {"success": False, "error": "Missing Spotify credentials"}
 
-    gist_headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
-    gist_url = f"https://api.github.com/gists/{gist_id}"
-    print(f"Reading Gist: {gist_url}")
-    gist_resp = requests.get(gist_url, headers=gist_headers)
-    if gist_resp.status_code != 200: 
-        print(f"Gist Read Failed: {gist_resp.status_code}")
-        return {"success": False, "error": f"Failed to read Gist: {gist_resp.status_code}"}
+    # 1. Try to get refresh token from Supabase first
+    refresh_token = None
+    if supabase_client:
+        try:
+            res = supabase_client.table("portfolio_data").select("value").eq("key", "spotify_refresh_token").execute()
+            if res.data:
+                refresh_token = res.data[0]['value'].get('refresh_token')
+                print("Retrieved refresh token from Supabase.")
+        except Exception as e:
+            print(f"Supabase token read error: {e}")
+
+    # Fallback to environment variable if not in Supabase
+    if not refresh_token:
+        refresh_token = os.environ.get('SPOTIFY_REFRESH_TOKEN')
+        print("Using SPOTIFY_REFRESH_TOKEN from environment.")
     
-    gist_files = gist_resp.json().get("files", {})
-    print(f"Files found in Gist: {list(gist_files.keys())}")
-    
-    token_file_key = next((k for k in gist_files.keys() if k != "data.json"), None)
-    
-    if not token_file_key:
-        print("Error: No token file found in Gist (other than data.json).")
-        return {"success": False, "error": "No token file found in Gist"}
-    
-    print(f"Attempting refresh with file: {token_file_key}")
-    refresh_token = gist_files[token_file_key].get("content", "").strip()
-    print(f"Refresh token starts with: {refresh_token[:5]}...")
+    if not refresh_token:
+        print("Error: No Spotify refresh token found.")
+        return {"success": False, "error": "No refresh token found"}
 
     auth_str = f"{client_id}:{client_secret}"
     b64_auth = b64encode(auth_str.encode()).decode()
@@ -155,17 +152,22 @@ def fetch_spotify_data():
     
     if token_resp.status_code != 200:
         print(f"Spotify API Error: {token_resp.status_code}")
-        print(f"Spotify Response: {token_resp.text}")
         return {"success": False, "error": f"Spotify refresh failed: {token_resp.status_code}"}
     
-    print("Spotify token refreshed successfully!")
     token_json = token_resp.json()
     access_token = token_json.get('access_token')
     new_refresh = token_json.get('refresh_token')
 
-    if new_refresh and new_refresh != refresh_token:
-        patch_data = {"files": {token_file_key: {"content": new_refresh}}}
-        requests.patch(gist_url, headers=gist_headers, json=patch_data)
+    # 2. If Spotify provided a NEW refresh token, save it to Supabase immediately
+    if new_refresh and new_refresh != refresh_token and supabase_client:
+        try:
+            supabase_client.table("portfolio_data").upsert({
+                "key": "spotify_refresh_token",
+                "value": {"refresh_token": new_refresh}
+            }).execute()
+            print("Successfully rotated and saved new refresh token to Supabase.")
+        except Exception as e:
+            print(f"Failed to save rotated token: {e}")
 
     lfm_base = "https://ws.audioscrobbler.com/2.0/"
     lfm_headers = {"User-Agent": f"simplyigit-api/1.0 ({lfm_user})"}
@@ -422,27 +424,30 @@ def main():
     print("Starting sync...")
     github_token = os.environ.get('GITHUB_TOKEN')
     
+    url = os.environ.get("SUPABASE_URL", "").rstrip('/')
+    key = os.environ.get("SUPABASE_SERVICE_KEY")
+    
+    if not url or not key:
+        print("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY. Outputting to console.")
+        return
+
+    from supabase import create_client
+    supabase_client = create_client(url, key)
+
     data = {
-        "spotify": fetch_spotify_data(),
+        "spotify": fetch_spotify_data(supabase_client),
         "movies": fetch_movies_data(),
         "books": fetch_books_data(),
         "projects": fetch_projects_data(github_token),
         "last_updated": time.time()
     }
     
-    url = os.environ.get("SUPABASE_URL", "").rstrip('/')
-    key = os.environ.get("SUPABASE_SERVICE_KEY")
-    
-    if not url or not key:
-        print("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY. Outputting to console.")
-        print(json.dumps(data, indent=2))
-        return
-
     print("Uploading to Supabase...")
     # Upsert each section into its own row for better organization
     for category in ["spotify", "movies", "books", "projects"]:
         try:
-            # PostgREST allows upsert via POST with specific headers and on_conflict parameter
+            # We still use requests for the main data payload to avoid conflicts, 
+            # but we use the client for the refresh token rotation since it's cleaner.
             res = requests.post(
                 f"{url}/rest/v1/portfolio_data?on_conflict=key",
                 headers={

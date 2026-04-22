@@ -23,16 +23,16 @@ def get_prominent_color(image_url):
         if res.status_code == 200:
             img_file = io.BytesIO(res.content)
             color_thief = ColorThief(img_file)
-            dominant_color = list(color_thief.get_color(quality=10))
+            dominant_color = list(color_thief.get_color(quality=7))
             
             # Boost luminance if the color is too dark for the UI
             # Relative luminance formula: 0.299R + 0.587G + 0.114B
             r, g, b = dominant_color
             luminance = (0.299 * r + 0.587 * g + 0.114 * b)
             
-            # Target a minimum luminance of ~70 for visibility on dark backgrounds
-            if luminance < 70:
-                factor = 70 / (luminance + 1) # Avoid div by zero
+            # Target a minimum luminance of ~80 for visibility on dark backgrounds
+            if luminance < 80:
+                factor = 80 / (luminance + 1) # Avoid div by zero
                 # Scale up while capping at 255
                 dominant_color = [
                     min(255, int(r * factor)),
@@ -430,31 +430,30 @@ def main():
         "last_updated": time.time()
     }
     
-    github_token = os.environ.get('GITHUB_TOKEN')
-    gist_id = os.environ.get('GIST_ID')
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_SERVICE_KEY")
     
-    if not github_token or not gist_id:
-        print("Missing GITHUB_TOKEN or GIST_ID. Outputting to console.")
+    if not url or not key:
+        print("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY. Outputting to console.")
         print(json.dumps(data, indent=2))
         return
 
-    gist_url = f"https://api.github.com/gists/{gist_id}"
-    headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
-    
-    payload = {
-        "files": {
-            "data.json": {
-                "content": json.dumps(data)
-            }
-        }
-    }
-    
-    res = requests.patch(gist_url, headers=headers, json=payload)
-    if res.status_code == 200:
-        print("Gist updated successfully!")
-    else:
-        print(f"Failed to update Gist: {res.status_code}")
-        print(res.text)
+    from supabase import create_client
+    supabase = create_client(url, key)
+
+    print("Uploading to Supabase...")
+    # Upsert each section into its own row for better organization
+    for category in ["spotify", "movies", "books", "projects"]:
+        try:
+            supabase.table("portfolio_data").upsert({
+                "key": category,
+                "value": data[category]
+            }).execute()
+            print(f"Successfully updated {category}")
+        except Exception as e:
+            print(f"Failed to update {category}: {str(e)}")
+
+    print("Sync complete!")
 
 if __name__ == "__main__":
     main()

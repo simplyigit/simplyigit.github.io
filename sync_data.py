@@ -131,11 +131,6 @@ def fetch_spotify_data(supabase_client=None):
                 print("Retrieved refresh token from Supabase.")
         except Exception as e:
             print(f"Supabase token read error: {e}")
-
-    # Fallback to environment variable if not in Supabase
-    if not refresh_token:
-        refresh_token = os.environ.get('SPOTIFY_REFRESH_TOKEN')
-        print("Using SPOTIFY_REFRESH_TOKEN from environment.")
     
     if not refresh_token:
         print("Error: No Spotify refresh token found.")

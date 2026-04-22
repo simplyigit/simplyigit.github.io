@@ -1,4 +1,4 @@
-name: Update Gist Database
+name: Sync Supabase Database
 
 on:
   schedule:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11' # Fixed typo
+          python-version: '3.11'
           cache: 'pip'
           
       - name: Install Dependencies
@@ -27,7 +27,8 @@ jobs:
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          GIST_ID: ${{ secrets.GIST_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           GITHUB_TOKEN: ${{ secrets.SYNC_GITHUB_TOKEN }}
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_USER: ${{ secrets.LASTFM_USER }}

@@ -10,33 +10,35 @@ class handler(BaseHTTPRequestHandler):
         cache_header = 's-maxage=3600, stale-while-revalidate'
         
         try:
-            gist_id = os.environ.get('GIST_ID')
-            github_token = os.environ.get('GITHUB_TOKEN')
+            supabase_url = os.environ.get('SUPABASE_URL')
+            supabase_key = os.environ.get('SUPABASE_ANON_KEY')
             
-            if not gist_id or not github_token:
-                raise ValueError("Missing GIST_ID or GITHUB_TOKEN")
+            if not supabase_url or not supabase_key:
+                raise ValueError("Missing SUPABASE credentials")
 
-            # Fetch the specific data.json from the Gist
-            gist_url = f"https://api.github.com/gists/{gist_id}"
-            headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
-            gist_resp = requests.get(gist_url, headers=headers, timeout=5)
+            # Fetch from Supabase REST API
+            res = requests.get(
+                f"{supabase_url}/rest/v1/portfolio_data?key=eq.projects&select=value",
+                headers={
+                    "apikey": supabase_key,
+                    "Authorization": f"Bearer {supabase_key}"
+                },
+                timeout=5
+            )
             
-            if gist_resp.status_code != 200:
-                raise Exception(f"Failed to fetch Gist: {gist_resp.status_code}")
+            if res.status_code != 200:
+                raise Exception(f"Failed to fetch Supabase: {res.status_code}")
                 
-            gist_data = gist_resp.json()
-            db_content = gist_data.get("files", {}).get("data.json", {}).get("content")
-            
-            if not db_content:
-                raise Exception("data.json not found in Gist")
+            rows = res.json()
+            if not rows:
+                raise Exception("No data found in Supabase")
                 
-            db = json.loads(db_content)
-            projects_data = db.get("projects", {})
+            projects_data = rows[0].get("value", {})
             
             response = {
                 "success": True,
                 "data": projects_data,
-                "timestamp": db.get("last_updated", time.time())
+                "timestamp": time.time()
             }
 
         except Exception as e:

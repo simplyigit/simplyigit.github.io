@@ -1,5 +1,21 @@
 {
+  "cleanUrls": true,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/library/music",
+      "destination": "/library/spotify.html"
+    },
+    {
+      "source": "/library/cinema",
+      "destination": "/library/movies.html"
+    },
+    {
+      "source": "/projects/real-deepfake-or-ai",
+      "destination": "/projects/real-deepfake-or-ai.html"
+    }
   ]
 }

@@ -36,8 +36,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         let lyricHtml = '';
                         if (isTop && track.ai_lyrics) {
                             const lyrics = [track.ai_lyrics.lyric1, track.ai_lyrics.lyric2, track.ai_lyrics.lyric3].filter(Boolean);
-                            const randomLyric = lyrics[Math.floor(Math.random() * lyrics.length)];
-                            if (randomLyric) lyricHtml = `<div class="track-ai-lyric">"${randomLyric}"</div>`;
+                            console.log("Top track lyrics found:", lyrics);
+                            if (lyrics.length > 0) {
+                                const randomLyric = lyrics[Math.floor(Math.random() * lyrics.length)];
+                                lyricHtml = `<div class="track-ai-lyric">"${randomLyric}"</div>`;
+                            }
+                        } else if (isTop) {
+                            console.warn("Top track has no AI lyrics in data.");
                         }
 
                         return `

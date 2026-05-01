@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                         <span class="case-artist">${track.artist}</span>
                                     </div>
                                     ${lyricHtml}
-                                    <div class="track-stats-pill">${rankTag}<div class="stats-pill-divider"></div><span class="stats-plays">${Number(track.playcount).toLocaleString()} plays</span></div>
+                                    <div class="track-stats-pill">${rankTag}<span class="stats-plays">${Number(track.playcount).toLocaleString()} plays</span></div>
                                 </div>
                             </a>`;
                     }).join('');

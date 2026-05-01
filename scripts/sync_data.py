@@ -83,15 +83,35 @@ def generate_lyric_snippets(title, artist, lyrics):
             "Do NOT invent lyrics. Use the exact text provided.\n\n"
             f"Lyrics:\n{lyrics}"
         )
-        
-        response = client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview", 
-            contents=prompt,
-            config=types.GenerateContentConfig(response_mime_type="application/json")
-        )
+
+        fallback_models = [
+            "gemini-3.1-flash-lite-preview",
+            "gemini-3.0-flash-preview",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite"
+        ]
+
+        response = None
+        for model_name in fallback_models:
+            try:
+                print(f"Attempting to generate lyrics with {model_name}...")
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(response_mime_type="application/json")
+                )
+                print(f"Successfully generated lyrics with {model_name}.")
+                break # Exit loop if successful
+            except Exception as e:
+                print(f"Failed with {model_name}: {str(e)}")
+                continue # Try the next model
+
+        if not response:
+            print("All fallback models failed due to high demand or errors.")
+            return None
+
         print(f"Gemini Curation Response: {response.text}")
-        data = json.loads(response.text)
-        
+        data = json.loads(response.text)        
         # Regex filter to clean snippets
         def clean_lyric(text):
             if not text: return text

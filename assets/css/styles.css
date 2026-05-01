@@ -1522,7 +1522,7 @@ footer p {
     /* Maximum width utilization */
     gap: 8px;
     /* Minimal gap to allow largest possible circles */
-    margin-bottom: 60px;
+    margin-bottom: 20px;
     width: 100%;
     box-sizing: border-box;
     padding: 16px 12px 20px 12px;
@@ -1531,17 +1531,6 @@ footer p {
     border-radius: 20px;
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
     position: relative;
-}
-
-.spotify-artists-grid::after {
-    content: '';
-    position: absolute;
-    bottom: 8px;
-    left: 20px;
-    right: 20px;
-    height: 4px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    border-radius: 2px;
 }
 
 .spotify-artist-item {

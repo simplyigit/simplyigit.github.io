@@ -1743,7 +1743,7 @@ footer p {
 }
 
 .stats-plays {
-    padding: 0 14px 0 6px;
+    padding: 0 14px 0 12px;
     font-size: 0.85rem;
     font-family: 'Inter', sans-serif;
     color: var(--text-secondary);
@@ -1844,13 +1844,13 @@ footer p {
 }
 
 .grid-track .stats-badge {
-    padding: 4px 10px;
-    font-size: 0.6rem;
+    padding: 5px 12px;
+    font-size: 0.65rem;
 }
 
 .grid-track .stats-plays {
-    padding: 0 12px 0 8px;
-    font-size: 0.75rem;
+    padding: 0 14px 0 10px;
+    font-size: 0.8rem;
     /* Slightly smaller for small cards */
 }
 

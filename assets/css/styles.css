@@ -202,7 +202,7 @@ p {
 }
 
 .section {
-    margin-bottom: 80px;
+    margin-bottom: 30px;
 }
 
 /* Complex Grid Setup */
@@ -1730,7 +1730,7 @@ footer p {
     overflow: hidden;
     width: fit-content;
     flex-shrink: 0;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .stats-badge {
@@ -1762,11 +1762,13 @@ footer p {
 .spotify-track-card.grid-track {
     background: rgba(18, 18, 18, 0.7);
     border-radius: 20px;
-    padding: 0 24px 0 0; /* Remove top/bottom padding, keep right padding */
+    padding: 0 24px 0 0;
+    /* Remove top/bottom padding, keep right padding */
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 20px; /* Reduced gap */
+    gap: 20px;
+    /* Reduced gap */
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
@@ -1775,10 +1777,12 @@ footer p {
 }
 
 .grid-track .case-art-wrapper {
-    width: 120px; /* Match height exactly */
+    width: 120px;
+    /* Match height exactly */
     height: 120px;
     flex-shrink: 0;
-    border-radius: 0; /* Let the card's overflow handle the corners */
+    border-radius: 0;
+    /* Let the card's overflow handle the corners */
     overflow: hidden;
     box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
 }
@@ -1787,7 +1791,8 @@ footer p {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 6px; /* Significantly reduced gap */
+    gap: 6px;
+    /* Significantly reduced gap */
     height: 100%;
     flex-grow: 1;
     overflow: hidden;

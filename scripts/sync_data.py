@@ -78,7 +78,7 @@ def generate_lyric_snippets(title, artist, lyrics):
         client = genai.Client(api_key=api_key)
         prompt = (
             f"Based EXCLUSIVELY on the lyrics below for '{title}' by {artist}, "
-            "select the 3 most impactful, 'hard-hitting' short snippets (1-2 lines each).\n"
+            "select the 3 most impactful, 'hard-hitting' lines.\n"
             "Return a JSON object with keys 'lyric1', 'lyric2', 'lyric3'.\n"
             "Do NOT invent lyrics. Use the exact text provided.\n\n"
             f"Lyrics:\n{lyrics}"

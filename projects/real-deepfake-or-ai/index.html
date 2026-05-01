@@ -41,7 +41,7 @@
             <div class="list-grid">
                 <div class="glass-card list-card fade-in delay-1"
                     style="flex-direction: column; align-items: flex-start; gap: 20px;">
-                    <img src="real-deepfake-or-ai-thumb.png"
+                    <img src="real-deepfake-or-ai.png"
                         style="width: 100%; object-fit: cover; border-radius: 8px; margin-bottom: -15px; margin-top: 8px;"
                         alt="Real, Deepfake or AI">
                     <div id="github-content" style="width: 100%;">
@@ -68,10 +68,11 @@
                 .then(res => res.json())
                 .then(json => {
                     if (json.success && json.data) {
-                        // Try matching both the full path and just the name
-                        const content = json.data[repoPath] || json.data[repoName];
+                        let content = json.data[repoPath] || json.data[repoName];
                         
                         if (content) {
+                            // Fix relative image paths in GitHub content since we flattened the structure
+                            content = content.replace(/src="images\//g, 'src="');
                             document.getElementById("github-content").innerHTML = content;
                         } else {
                             console.error("Project keys found in DB:", Object.keys(json.data));

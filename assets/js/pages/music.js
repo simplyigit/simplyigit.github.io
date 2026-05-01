@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
 
                         return `
-                            <a href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTop ? 'top-track-banner' : 'grid-track'} fade-in delay-${(index % 4) + 1}" style="${isTop ? `--track-art: url('${track.cover_url}')` : ''}">
+                            <a id="track-card-${index}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTop ? 'top-track-banner' : 'grid-track'} fade-in delay-${(index % 4) + 1}" style="${isTop ? `--track-art: url('${track.cover_url}')` : ''}">
                                 ${isTop ? `<div class="banner-bg-blur"></div>` : ''}
                                 <div class="case-art-wrapper">
                                     <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
@@ -56,6 +56,20 @@ document.addEventListener("DOMContentLoaded", () => {
                                 </div>
                             </a>`;
                     }).join('');
+
+                    // Re-apply prominent colors from data
+                    tracks.forEach((track, index) => {
+                        if (track.prominent_color) {
+                            const [R, G, B] = track.prominent_color;
+                            const isTop = index === 0;
+                            const card = document.getElementById(`track-card-${index}`);
+                            if (card) {
+                                card.style.setProperty('--track-color-rgb', `${R}, ${G}, ${B}`);
+                                card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${isTop ? 0.6 : 0.45})`);
+                                if (isTop) card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;
+                            }
+                        }
+                    });
                 }
                 document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
             });

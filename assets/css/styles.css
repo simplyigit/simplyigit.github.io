@@ -1868,6 +1868,15 @@ footer p {
     border-color: rgba(var(--track-color-rgb, 255, 255, 255), 0.25);
 }
 
+.spotify-artist-item,
+.spotify-track-card,
+.classical-book-card,
+.movie-fav-card,
+.movie-watchlist-card {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
 .spotify-track-img {
     width: 100%;
     height: 100%;

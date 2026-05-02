@@ -49,28 +49,35 @@
             </p>
         </header>
 
-        <!-- Block 1: Favorite Films -->
-        <section class="section" style="margin-bottom: 80px;">
-            <h2 class="section-title" style="font-family: 'Playfair Display', serif;">All-Time Favorites</h2>
-            <div id="movies-favorites-container" class="movies-favorites-grid">
+        <!-- All-Time Favorites -->
+        <section class="section reveal">
+            <div class="section-eyebrow">Curated</div>
+            <div class="section-title">All-Time Favorites</div>
+            <div class="filmstrip">
+                <div class="reel-hole"></div><div class="reel-hole"></div><div class="reel-hole"></div><div class="reel-hole"></div><div class="reel-hole"></div><div class="reel-hole"></div>
+                <div class="reel-line"></div>
+                <div class="reel-hole"></div><div class="reel-hole"></div><div class="reel-hole"></div><div class="reel-hole"></div><div class="reel-hole"></div><div class="reel-hole"></div>
+            </div>
+            <div id="movies-favorites-container" class="favorites-grid">
                 <p id="movies-loading"
                     style="color: var(--text-secondary); font-family: 'Playfair Display', serif; font-style: italic;">
                     Connecting to projector <span class="loading-dots">...</span></p>
             </div>
         </section>
 
-        <!-- Block 2: Recent Activity -->
-        <section class="section" style="margin-bottom: 80px;">
-            <h2 class="section-title" style="font-family: 'Playfair Display', serif;">Recent Watches</h2>
-            <!-- Re-use the watchlist grid logic for beautifully dense walls of posters -->
-            <div id="movies-recent-container" class="movies-watchlist-grid">
+        <!-- Recent Watches -->
+        <section class="section reveal">
+            <div class="section-eyebrow">Diary</div>
+            <div class="section-title">Recent Watches</div>
+            <div id="movies-recent-container" class="scroll-strip">
             </div>
         </section>
 
-        <!-- Block 3: Watchlist -->
-        <section class="section">
-            <h2 class="section-title" style="font-family: 'Playfair Display', serif;">Watchlist</h2>
-            <div id="movies-watchlist-container" class="movies-watchlist-grid">
+        <!-- Watchlist -->
+        <section class="section reveal">
+            <div class="section-eyebrow">Up Next</div>
+            <div class="section-title">Watchlist</div>
+            <div id="movies-watchlist-container" class="scroll-strip">
             </div>
         </section>
 

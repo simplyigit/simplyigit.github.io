@@ -9,38 +9,75 @@ document.addEventListener("DOMContentLoaded", () => {
     const recentContainer = document.getElementById("movies-recent-container");
     const watchlistContainer = document.getElementById("movies-watchlist-container");
 
+    function renderStars(rating) {
+        if (!rating) return '';
+        // Letterboxd rating format is like "★★★★½" or "★★★"
+        // Let's assume the string might be "4.5" or "★★★★½"
+        // Based on sync_data.py, the rating is already the star string, e.g., "★★★★½"
+        let starsHtml = '';
+        const fullStars = (rating.match(/★/g) || []).length;
+        const hasHalf = rating.includes('½');
+        
+        for (let i = 0; i < fullStars; i++) {
+            starsHtml += '<span class="star">★</span>';
+        }
+        if (hasHalf) {
+            starsHtml += '<span class="star-half">★</span>';
+        }
+        return starsHtml;
+    }
+
     if (favContainer || recentContainer || watchlistContainer) {
         fetch("/api/movies?v=4.0").then(res => res.json()).then(json => {
             if (!json.success || !json.data) return;
             const { favorite_films: favorites, recent_activity: recent, watchlist } = json.data;
 
             if (favContainer) {
-                favContainer.innerHTML = favorites.map((film, index) => `
-                    <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-fav-card fade-in delay-${(index % 4) + 1}">
-                        <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-fav-poster">
-                        <div class="movie-fav-overlay"><span class="movie-fav-title">${film.title}</span></div>
-                    </a>`).join('');
+                let html = '';
+                favorites.forEach((film, index) => {
+                    let className = '';
+                    if (index === 0) className = 'fav-main';
+                    if (index === 3) className = 'fav-wide';
+                    
+                    html += `
+                        <div class="poster-card fade-in ${className}" onclick="window.open('${film.link || "#"}', '_blank')">
+                            ${film.cover_url ? `<img src="${film.cover_url}" alt="${film.title}">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #060d1a 0%, #1a2a3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${film.title}</div></div>`}
+                            <div class="poster-overlay">
+                                <div class="overlay-title">${film.title}</div>
+                                <div class="overlay-year"></div>
+                            </div>
+                        </div>`;
+                });
+                favContainer.innerHTML = html;
             }
             if (recentContainer) {
                 recentContainer.innerHTML = recent.slice(0, 7).map((film, index) => {
-                    let badges = "";
-                    if (film.is_favorite) badges += '<span class="movie-badge fav">♥</span>';
-                    if (film.is_rewatch) badges += '<span class="movie-badge rewatch">↺</span>';
+                    const stars = film.rating ? `<div class="overlay-rating">${renderStars(film.rating)}</div>` : '';
                     return `
-                        <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card movie-recent-item fade-in" style="transition-delay: ${index * 0.05}s">
-                            <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-watchlist-poster" title="${film.title}">
-                            <div class="movie-card-info-overlay">
-                                ${film.rating ? `<div class="movie-rating-stars">${film.rating}</div>` : ""}
-                                <div class="movie-badges">${badges}</div>
+                        <div class="strip-card fade-in" onclick="window.open('${film.link || "#"}', '_blank')" style="transition-delay: ${index * 0.05}s">
+                            ${film.cover_url ? `<img src="${film.cover_url}" alt="${film.title}">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #1a0606 0%, #2a0a0a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${film.title}</div></div>`}
+                            <div class="poster-overlay">
+                                <div class="overlay-title">${film.title}</div>
+                                <div class="overlay-year"></div>
+                                ${stars}
                             </div>
-                        </a>`;
+                        </div>`;
                 }).join('');
             }
             if (watchlistContainer) {
                 watchlistContainer.innerHTML = watchlist.slice(0, 7).map((film, index) => `
-                    <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="movie-watchlist-card fade-in" style="transition-delay: ${index * 0.05}s">
-                        <img src="${film.cover_url || ""}" alt="${film.title}" class="movie-watchlist-poster" title="${film.title}">
-                    </a>`).join('');
+                    <div class="watchlist-card fade-in" onclick="window.open('${film.link || "#"}', '_blank')" style="transition-delay: ${index * 0.05}s">
+                        ${film.cover_url ? `<img src="${film.cover_url}" alt="${film.title}">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #081428 0%, #0a1e3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${film.title}</div></div>`}
+                        <div class="poster-overlay">
+                            <div class="overlay-title">${film.title}</div>
+                            <div class="overlay-year"></div>
+                        </div>
+                        <div class="watchlist-badge">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+                            </svg>
+                        </div>
+                    </div>`).join('');
             }
             document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
         });

@@ -53,6 +53,40 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>`;
                 });
                 favContainer.innerHTML = html;
+
+                // JS Marquee for smooth pause/resume easing and to fix teleporting
+                let currentSpeed = 1;
+                const normalSpeed = 1;
+                let position = 0;
+                let isHovered = false;
+
+                const cards = favContainer.querySelectorAll('.filmstrip-card');
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', () => isHovered = true);
+                    card.addEventListener('mouseleave', () => isHovered = false);
+                });
+
+                function animateMarquee() {
+                    // Ease the speed towards 0 (if hovered) or normalSpeed (if not hovered)
+                    const targetSpeed = isHovered ? 0 : normalSpeed;
+                    currentSpeed += (targetSpeed - currentSpeed) * 0.05; // 0.05 is the easing factor
+                    
+                    position -= currentSpeed;
+
+                    // Dynamically get the scroll width. Since we duplicated the array exactly once, 
+                    // half of the total scroll width is the exact length of one set.
+                    const halfWidth = favContainer.scrollWidth / 2;
+
+                    if (Math.abs(position) >= halfWidth && halfWidth > 0) {
+                        position += halfWidth; // Seamless loop back
+                    }
+
+                    favContainer.style.transform = `translateX(${position}px)`;
+                    requestAnimationFrame(animateMarquee);
+                }
+                
+                // Start animation once elements are rendered
+                requestAnimationFrame(animateMarquee);
             }
             if (recentContainer) {
                 recentContainer.innerHTML = recent.slice(0, 7).map((film, index) => {

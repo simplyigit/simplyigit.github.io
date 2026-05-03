@@ -313,6 +313,23 @@ def get_hd_poster(film_link):
     except: pass
     return ""
 
+def get_both_images(film_link):
+    if not film_link: return ("", "")
+    base_url = "https://letterboxd.com"
+    headers = {'User-Agent': 'Mozilla/5.0: simplyigit sync'}
+    backdrop, poster = "", ""
+    try:
+        res = requests.get(base_url + film_link, headers=headers, timeout=5)
+        if res.status_code == 200:
+            m_back = re.search(r'data-backdrop="([^"]+)"', res.text)
+            if m_back: backdrop = m_back.group(1)
+            m_post = re.search(r'"image":"(https://a\.ltrbxd\.com[^"]+)"', res.text)
+            if m_post: poster = m_post.group(1)
+    except: pass
+    if not backdrop: backdrop = poster
+    if not poster: poster = backdrop
+    return backdrop, poster
+
 def fetch_movies_data():
     headers = {'User-Agent': 'Mozilla/5.0: simplyigit sync'}
     username = "oneyigit"
@@ -359,12 +376,13 @@ def fetch_movies_data():
                 film_link = div.get('data-item-link', '')
                 target_link = div.get('data-target-link', film_link)
                 fav_items.append((fav_title, film_link, target_link))
-            poster_futures = {executor.submit(get_hd_poster, item[1]): item for item in fav_items}
+            poster_futures = {executor.submit(get_both_images, item[1]): item for item in fav_items}
             concurrent.futures.wait(poster_futures)
             for itm in fav_items:
                 for fut, f_itm in poster_futures.items():
                     if f_itm == itm:
-                        favorite_films.append({"title": itm[0], "link": base_url + itm[2] if itm[2] else "", "cover_url": fut.result()})
+                        backdrop, poster = fut.result()
+                        favorite_films.append({"title": itm[0], "link": base_url + itm[2] if itm[2] else "", "cover_url": poster, "backdrop_url": backdrop})
                         break
 
     watchlist_films = []

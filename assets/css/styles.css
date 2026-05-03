@@ -2030,9 +2030,9 @@ footer p {
   .animated-filmstrip-track::after { bottom: 6px; }
 
   .filmstrip-card { position: relative; height: 220px; padding: 0 8px; flex-shrink: 0; cursor: pointer; transition: transform 0.4s ease; }
-  .filmstrip-card-inner { width: 100%; height: 100%; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: box-shadow 0.4s ease, border-color 0.4s ease; background: #111; }
+  .filmstrip-card-inner { width: 100%; height: 100%; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); transition: border-color 0.4s ease; background: #111; }
   .filmstrip-card:hover { transform: scale(1.05); z-index: 10; }
-  .filmstrip-card:hover .filmstrip-card-inner { box-shadow: 0 20px 60px -10px rgba(0,0,0,0.8), 0 0 15px rgba(230, 140, 50, 0.15); border-color: rgba(230, 140, 50, 0.3); }
+  .filmstrip-card:hover .filmstrip-card-inner { border-color: rgba(230, 140, 50, 0.8); }
   
   /* Adjusted widths so the sum of 1 set (396 * 4 = 1584) is perfectly divisible by the 16px sprocket pattern */
   .filmstrip-card.landscape { width: 396px; }
@@ -2048,7 +2048,7 @@ footer p {
   .poster-card:hover .poster-overlay, .strip-card:hover .poster-overlay, .watchlist-card:hover .poster-overlay, .filmstrip-card:hover .poster-overlay { opacity: 1; }
   .overlay-title { font-family: 'Inter', -apple-system, sans-serif; font-size: 0.9rem; font-weight: 600; color: #e6ebf1; line-height: 1.2; margin-bottom: 3px; }
   .filmstrip-card .poster-overlay { padding-bottom: 15px; align-items: center; background: none; }
-  .filmstrip-card .overlay-title { text-align: center; margin-bottom: 0; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 4px 15px rgba(0,0,0,0.6); font-weight: 600; letter-spacing: 0.5px; }
+  .filmstrip-card .overlay-title { text-align: center; margin-bottom: 0; color: #ffffff; mix-blend-mode: overlay; font-weight: 700; letter-spacing: 0.5px; text-shadow: none; opacity: 0.95; }
   .filmstrip-card .overlay-year { display: none; }
   .overlay-year { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.62rem; color: rgba(140,155,176,0.8); letter-spacing: 1px; margin-bottom: 6px; }
   .overlay-rating { display: flex; gap: 2px; }

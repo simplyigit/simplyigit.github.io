@@ -2022,14 +2022,14 @@ footer p {
   .section-title { font-family: 'Inter', -apple-system, sans-serif; font-size: 1.3rem; font-weight: 550; letter-spacing: -0.3px; color: #e6ebf1; margin-bottom: 24px; }
 
   /* Animated Film Strip for Favorites */
-  .animated-filmstrip-container { position: relative; width: 100%; background: #050505; overflow: hidden; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 72px; }
+  .animated-filmstrip-container { position: relative; width: 100%; background: #050505; overflow: hidden; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 72px; -webkit-mask-image: linear-gradient(to right, transparent 0%, black 30px, black calc(100% - 30px), transparent 100%); mask-image: linear-gradient(to right, transparent 0%, black 30px, black calc(100% - 30px), transparent 100%); }
   
   .animated-filmstrip-track { display: flex; width: max-content; animation: filmMarquee 20s linear infinite; padding: 24px 0; position: relative; }
   .animated-filmstrip-track::before, .animated-filmstrip-track::after { content: ''; position: absolute; left: 0; right: 0; height: 12px; background: repeating-linear-gradient(90deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 8px, transparent 8px, transparent 16px); z-index: 2; pointer-events: none; }
   .animated-filmstrip-track::before { top: 6px; }
   .animated-filmstrip-track::after { bottom: 6px; }
   
-  .animated-filmstrip-container:hover .animated-filmstrip-track { animation-play-state: paused; }
+  .animated-filmstrip-track:has(.filmstrip-card:hover) { animation-play-state: paused; }
   @keyframes filmMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
   .filmstrip-card { position: relative; height: 220px; padding: 0 8px; flex-shrink: 0; cursor: pointer; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
@@ -2041,7 +2041,8 @@ footer p {
   .filmstrip-card.landscape { width: 394px; }
   .filmstrip-card.portrait { width: 146px; }
   
-  .filmstrip-card img, .filmstrip-card .poster-bg { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px; }
+  .filmstrip-card img, .filmstrip-card .poster-bg { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px; filter: sepia(0.6) hue-rotate(345deg) saturate(1.5) contrast(1.1); transition: filter 0.5s ease; }
+  .filmstrip-card:hover img, .filmstrip-card:hover .poster-bg { filter: sepia(0) hue-rotate(0deg) saturate(1) contrast(1); }
   .filmstrip-card .poster-bg { display: flex; align-items: flex-end; padding: 12px; }
   .filmstrip-card-inner::after { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; mix-blend-mode: overlay; opacity: 0.6; border-radius: inherit; }
 

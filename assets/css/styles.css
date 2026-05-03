@@ -2047,8 +2047,8 @@ footer p {
   .poster-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(2,8,19,0.95) 0%, rgba(2,8,19,0.3) 50%, transparent 100%); opacity: 0; transition: opacity 0.4s ease; display: flex; flex-direction: column; justify-content: flex-end; padding: 16px; }
   .poster-card:hover .poster-overlay, .strip-card:hover .poster-overlay, .watchlist-card:hover .poster-overlay, .filmstrip-card:hover .poster-overlay { opacity: 1; }
   .overlay-title { font-family: 'Inter', -apple-system, sans-serif; font-size: 0.9rem; font-weight: 600; color: #e6ebf1; line-height: 1.2; margin-bottom: 3px; }
-  .filmstrip-card .poster-overlay { padding-bottom: 15px; align-items: center; background: linear-gradient(to top, rgba(2,8,19,0.7) 0%, transparent 40%); }
-  .filmstrip-card .overlay-title { text-align: center; margin-bottom: 0; }
+  .filmstrip-card .poster-overlay { padding-bottom: 15px; align-items: center; background: none; }
+  .filmstrip-card .overlay-title { text-align: center; margin-bottom: 0; color: #fff6e5; text-shadow: 0 0 8px rgba(255, 140, 0, 0.9), 0 0 16px rgba(255, 69, 0, 0.8), 0 0 24px rgba(255, 0, 0, 0.6), 0 2px 4px rgba(0,0,0,0.9); font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
   .filmstrip-card .overlay-year { display: none; }
   .overlay-year { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.62rem; color: rgba(140,155,176,0.8); letter-spacing: 1px; margin-bottom: 6px; }
   .overlay-rating { display: flex; gap: 2px; }

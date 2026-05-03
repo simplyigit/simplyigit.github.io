@@ -2048,7 +2048,7 @@ footer p {
   .poster-card:hover .poster-overlay, .strip-card:hover .poster-overlay, .watchlist-card:hover .poster-overlay, .filmstrip-card:hover .poster-overlay { opacity: 1; }
   .overlay-title { font-family: 'Inter', -apple-system, sans-serif; font-size: 0.9rem; font-weight: 600; color: #e6ebf1; line-height: 1.2; margin-bottom: 3px; }
   .filmstrip-card .poster-overlay { padding-bottom: 15px; align-items: center; background: none; }
-  .filmstrip-card .overlay-title { text-align: center; margin-bottom: 0; color: #ffffff; mix-blend-mode: overlay; font-weight: 700; letter-spacing: 0.5px; text-shadow: none; opacity: 0.95; }
+  .filmstrip-card .overlay-title { text-align: center; margin-bottom: 0; color: #ffffff; font-weight: 700; letter-spacing: 0.5px; opacity: 0.75; }
   .filmstrip-card .overlay-year { display: none; }
   .overlay-year { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.62rem; color: rgba(140,155,176,0.8); letter-spacing: 1px; margin-bottom: 6px; }
   .overlay-rating { display: flex; gap: 2px; }

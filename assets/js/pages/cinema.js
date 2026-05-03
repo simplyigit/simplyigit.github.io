@@ -36,18 +36,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 let html = '';
                 const duplicatedFavorites = [...favorites, ...favorites]; // Duplicate for infinite scroll
                 duplicatedFavorites.forEach((film, index) => {
-                    const originalIndex = index % favorites.length;
-                    const isLandscape = originalIndex === 0;
-                    const className = isLandscape ? 'landscape' : 'portrait';
-                    const imgUrl = isLandscape ? (film.backdrop_url || film.cover_url) : (film.cover_url || film.backdrop_url);
+                    const className = 'landscape';
+                    const imgUrl = film.backdrop_url || film.cover_url;
                     
                     html += `
                         <div class="filmstrip-card fade-in ${className}" onclick="window.open('${film.link || "#"}', '_blank')">
                             <div class="filmstrip-card-inner">
                                 ${imgUrl ? `<img src="${imgUrl}" alt="${film.title}">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #060d1a 0%, #1a2a3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${film.title}</div></div>`}
-                                <div class="poster-overlay">
+                                <div class="poster-overlay filmstrip-overlay">
                                     <div class="overlay-title">${film.title}</div>
-                                    <div class="overlay-year"></div>
                                 </div>
                             </div>
                         </div>`;

@@ -380,6 +380,7 @@ def fetch_movies_data():
                     if "rewatch" in title_text.lower() or " (rewatch)" in title_text.lower(): is_rewatch = True
                 if "♥" in title_text or "♥" in desc_html: is_favorite = True
             display_title = re.sub(r' - ★+½?|½$', '', title_text).replace(' (rewatch)', '').replace(' ♥', '')
+            display_title = re.sub(r', \d{4}$', '', display_title) # Strip year if it's at the end
             recent_activity.append({"title": display_title, "rating": rating, "is_rewatch": is_rewatch, "is_favorite": is_favorite, "link": link_text, "cover_url": cover_url})
 
     # Favorites & Watchlist (Parallel posters)
@@ -412,7 +413,7 @@ def fetch_movies_data():
         watch_soup = BeautifulSoup(watch_resp.text, 'html.parser')
         watch_items = []
         for div in watch_soup.find_all('div', attrs={'data-component-class': 'LazyPoster'})[:7]:
-            watch_title = div.get('data-item-full-display-name', '')
+            watch_title = re.sub(r'\s\(\d{4}\)$', '', div.get('data-item-full-display-name', ''))
             target_link = div.get('data-film-link', div.get('data-target-link', ''))
             watch_items.append((watch_title, target_link))
         poster_futures = {executor.submit(get_hd_poster, item[1]): item for item in watch_items}

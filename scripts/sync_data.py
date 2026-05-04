@@ -380,7 +380,7 @@ def fetch_movies_data():
                     if "rewatch" in title_text.lower() or " (rewatch)" in title_text.lower(): is_rewatch = True
                 if "♥" in title_text or "♥" in desc_html: is_favorite = True
             display_title = re.sub(r' - ★+½?|½$', '', title_text).replace(' (rewatch)', '').replace(' ♥', '')
-            display_title = re.sub(r', \d{4}$', '', display_title) # Strip year if it's at the end
+            display_title = re.sub(r'(, \d{4}|\(\d{4}\))$', '', display_title).strip() # Strip year like ", 2024" or "(2024)"
             recent_activity.append({"title": display_title, "rating": rating, "is_rewatch": is_rewatch, "is_favorite": is_favorite, "link": link_text, "cover_url": cover_url})
 
     # Favorites & Watchlist (Parallel posters)

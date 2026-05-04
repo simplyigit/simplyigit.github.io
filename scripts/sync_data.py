@@ -210,6 +210,24 @@ def fetch_spotify_data(url, key):
     raw_lfm_tracks = lfm_tracks_res.json().get("toptracks", {}).get("track", [])
     raw_lfm_artists = lfm_artists_res.json().get("topartists", {}).get("artist", [])
 
+    # Check existing DB for the top track's lyrics to avoid unnecessary API calls
+    existing_lyrics = None
+    existing_top_track_name = None
+    try:
+        res = requests.get(
+            f"{url}/rest/v1/portfolio_data?key=eq.spotify&select=value",
+            headers={"apikey": key, "Authorization": f"Bearer {key}"},
+            timeout=10
+        )
+        if res.status_code == 200 and res.json():
+            existing_spotify = res.json()[0].get("value", {})
+            existing_tracks = existing_spotify.get("top_tracks_last_month", [])
+            if existing_tracks:
+                existing_top_track_name = existing_tracks[0].get("title")
+                existing_lyrics = existing_tracks[0].get("lyrics")
+    except Exception as e:
+        print(f"Failed to check existing lyrics in DB: {e}")
+
     def safe_search(item_name, artist_name, search_type):
         query = f"{search_type}:\"{item_name}\""
         if artist_name: query += f" artist:\"{artist_name}\""
@@ -238,11 +256,14 @@ def fetch_spotify_data(url, key):
     track_futures = {executor.submit(safe_search, t['name'], t['artist']['name'], "track"): t for t in raw_lfm_tracks}
     artist_futures = {executor.submit(safe_search, a['name'], None, "artist"): a for a in raw_lfm_artists}
     
-    # Start lyric fetching for #1 track early via Lyrica
+    # Start lyric fetching for #1 track early via Lyrica (only if it changed or missing)
     lyric_future = None
     if raw_lfm_tracks:
         top_t = raw_lfm_tracks[0]
-        lyric_future = executor.submit(get_lyrics, top_t['name'], top_t['artist']['name'])
+        if existing_top_track_name == top_t['name'] and existing_lyrics:
+            print(f"Top track '{top_t['name']}' hasn't changed. Using cached lyrics.")
+        else:
+            lyric_future = executor.submit(get_lyrics, top_t['name'], top_t['artist']['name'])
 
     # Pre-fetch colors in parallel after we get the URLs
     color_futures = {}
@@ -281,7 +302,7 @@ def fetch_spotify_data(url, key):
     if final_tracks:
         print("Processing AI Lyrics for #1 track...")
         top_track = final_tracks[0]
-        lyrics_text = None
+        lyrics_text = existing_lyrics if (existing_top_track_name == top_track['title'] and existing_lyrics) else None
         
         if lyric_future:
             try:

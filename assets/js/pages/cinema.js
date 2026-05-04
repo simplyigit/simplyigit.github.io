@@ -64,8 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 function animateMarquee() {
-                    // Ease the speed towards 0 (if hovered) or normalSpeed (if not hovered)
-                    const targetSpeed = isHovered ? 0 : normalSpeed;
+                    // Ease the speed towards 0 (if hovered or out of focus) or normalSpeed (if not hovered and focused)
+                    const targetSpeed = (isHovered || !document.hasFocus()) ? 0 : normalSpeed;
                     currentSpeed += (targetSpeed - currentSpeed) * 0.05; // 0.05 is the easing factor
                     
                     position -= currentSpeed;
@@ -93,7 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
                             ${film.cover_url ? `<img src="${film.cover_url}" alt="${film.title}">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #1a0606 0%, #2a0a0a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${film.title}</div></div>`}
                             <div class="poster-overlay">
                                 <div class="overlay-title">${film.title}</div>
-                                <div class="overlay-year"></div>
                                 ${stars}
                             </div>
                         </div>`;
@@ -105,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         ${film.cover_url ? `<img src="${film.cover_url}" alt="${film.title}">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #081428 0%, #0a1e3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${film.title}</div></div>`}
                         <div class="poster-overlay">
                             <div class="overlay-title">${film.title}</div>
-                            <div class="overlay-year"></div>
                         </div>
                         <div class="watchlist-badge">
                             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

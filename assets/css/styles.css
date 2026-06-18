@@ -797,11 +797,15 @@ footer p {
     width: 8px;
     margin: 0 auto;
     animation: filmScroll 0.8s linear infinite;
-    animation-play-state: paused;
+    animation-play-state: var(--movie-play-state, paused);
 }
 
-.fun-movies:hover .film-strip::after {
-    animation-play-state: running;
+.fun-movies {
+    --movie-play-state: paused;
+}
+
+.fun-movies:hover {
+    --movie-play-state: running;
 }
 
 @keyframes filmScroll {
@@ -1053,9 +1057,17 @@ footer p {
     white-space: nowrap;
     width: fit-content;
     animation: tapeMarquee 6s linear infinite;
-    animation-play-state: paused;
+    animation-play-state: var(--tape-play-state, paused);
     will-change: transform;
     transform: translateZ(0);
+}
+
+.cassette-link {
+    --tape-play-state: paused;
+}
+
+.cassette-link:hover {
+    --tape-play-state: running;
 }
 
 .cassette-song-title-text {
@@ -1068,13 +1080,6 @@ footer p {
     display: inline-block;
     padding: 0 5px;
     /* Added slight padding between tracks */
-}
-
-/* Tape loop animation on hover: 
-   Moves by exactly 14.285% (one span's width out of 7) to loop seamlessly
-*/
-.cassette-link:hover .cassette-song-marquee {
-    animation-play-state: running;
 }
 
 @keyframes tapeMarquee {
@@ -1119,13 +1124,9 @@ footer p {
             #2a2a2a 1.5px, #2a2a2a 3px);
     z-index: 0;
     animation: spinSpool 3s linear infinite;
-    animation-play-state: paused;
+    animation-play-state: var(--tape-play-state, paused);
     will-change: transform;
     transform: translateZ(0);
-}
-
-.cassette-link:hover .spool::before {
-    animation-play-state: running;
 }
 
 .spool-inner {
@@ -1138,14 +1139,9 @@ footer p {
     position: relative;
     z-index: 1;
     animation: spinSpool 2s linear infinite;
-    animation-play-state: paused;
+    animation-play-state: var(--tape-play-state, paused);
     will-change: transform;
     transform: translateZ(0);
-}
-
-/* Spool spin on hover (spokes) */
-.cassette-link:hover .spool-inner {
-    animation-play-state: running;
 }
 
 @keyframes spinSpool {
@@ -1963,6 +1959,18 @@ footer p {
     right: 0;
     bottom: 0;
     background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+/* Fade out overflowing text at the bottom */
+.classical-book-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to top, #171513 10%, transparent);
     pointer-events: none;
 }
 

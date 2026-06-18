@@ -18,6 +18,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </a>`).join('');
             document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+            
+            // Sync all cards to the height of the shortest one
+            const cards = Array.from(booksContainer.querySelectorAll('.classical-book-card'));
+            const syncHeights = () => {
+                if (!cards.length) return;
+                // Reset to natural height
+                cards.forEach(c => c.style.height = 'auto');
+                // Find shortest
+                const minHeight = Math.min(...cards.map(c => c.offsetHeight));
+                // Apply to all
+                cards.forEach(c => c.style.height = `${minHeight}px`);
+            };
+            
+            // Wait for fonts/layout to settle then sync
+            setTimeout(syncHeights, 50);
+            window.addEventListener('resize', syncHeights);
         });
     }
 });

@@ -7,11 +7,11 @@
     },
     {
       "source": "/library/music",
-      "destination": "/library/spotify.html"
+      "destination": "/library/music.html"
     },
     {
       "source": "/library/cinema",
-      "destination": "/library/movies.html"
+      "destination": "/library/cinema.html"
     },
     {
       "source": "/projects/real-deepfake-or-ai",

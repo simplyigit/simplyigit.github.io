@@ -63,6 +63,12 @@
         document.addEventListener("DOMContentLoaded", () => {
             const repoPath = "simplyigit/Real-Deepfake-or-AI";
             const repoName = "Real-Deepfake-or-AI";
+            const CACHE_KEY = "simplyigit_project_" + repoName;
+
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            if (cachedData) {
+                document.getElementById("github-content").innerHTML = cachedData;
+            }
 
             fetch("/api/projects?v=1.1")
                 .then(res => res.json())
@@ -73,19 +79,24 @@
                         if (content) {
                             // Fix relative image paths in GitHub content since we flattened the structure
                             content = content.replace(/src="images\//g, 'src="');
-                            document.getElementById("github-content").innerHTML = content;
-                        } else {
+                            if (content !== cachedData) {
+                                document.getElementById("github-content").innerHTML = content;
+                                localStorage.setItem(CACHE_KEY, content);
+                            }
+                        } else if (!cachedData) {
                             console.error("Project keys found in DB:", Object.keys(json.data));
                             throw new Error("Project not found in database");
                         }
-                    } else {
+                    } else if (!cachedData) {
                         throw new Error(json.error || "Failed to load database");
                     }
                 })
                 .catch(err => {
-                    console.error("Loading error:", err);
-                    document.getElementById("github-content").innerHTML =
-                        `<p style='color: #ff6b6b;'>Could not load project data: ${err.message}. Please verify the database sync.</p>`;
+                    if (!cachedData) {
+                        console.error("Loading error:", err);
+                        document.getElementById("github-content").innerHTML =
+                            `<p style='color: #ff6b6b;'>Could not load project data: ${err.message}. Please verify the database sync.</p>`;
+                    }
                 });
         });
     </script>

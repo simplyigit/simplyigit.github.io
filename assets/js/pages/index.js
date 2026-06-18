@@ -128,13 +128,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const fetchMovies = fetch("/api/movies?v=4.0").then(res => res.json()).catch(() => ({ success: false }));
 
         Promise.all([fetchSpotify, fetchBooks, fetchMovies]).then(([spotify, books, movies]) => {
-            // 3. Update UI with fresh data
-            renderSpotify(spotify);
-            renderBooks(books);
-            renderMovies(movies);
+            // 3. Update UI with fresh data only if it changed
+            const newDataStr = JSON.stringify({ spotify, books, movies });
+            if (newDataStr !== cachedData) {
+                renderSpotify(spotify);
+                renderBooks(books);
+                renderMovies(movies);
 
-            // 4. Save fresh data to cache for next time
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ spotify, books, movies }));
+                // 4. Save fresh data to cache for next time
+                localStorage.setItem(CACHE_KEY, newDataStr);
+            }
         });
     }
 

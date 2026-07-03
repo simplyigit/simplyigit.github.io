@@ -2284,3 +2284,82 @@ footer p {
 .warning-btn:hover .arrow {
     transform: translateX(4px);
 }
+
+/* ======================== */
+/*   RESPONSIVE OVERRIDES   */
+/* ======================== */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 40px 20px 80px 20px;
+        border-left: none;
+        border-right: none;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero-bio {
+        font-size: 1rem;
+    }
+
+    .projects-grid-complex,
+    .library-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wide-card,
+    .full-wide-card {
+        grid-column: span 1;
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .card-visual {
+        width: 100%;
+    }
+
+    .card-content {
+        align-items: center;
+    }
+
+    .glass-card {
+        padding: 20px;
+    }
+
+    .social-tube,
+    .social-tube.unified-hero-tube {
+        flex-direction: column;
+        width: 100% !important;
+        box-sizing: border-box;
+        padding: 20px;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .social-tube > div {
+        flex-direction: row !important;
+        border-left: none !important;
+        border-top: 1px dashed rgba(255,255,255,0.15);
+        padding-left: 0 !important;
+        padding-top: 16px;
+        justify-content: center;
+        width: 100%;
+        height: auto !important;
+    }
+
+    .avatar-memoji {
+        transform: scale(1) !important;
+    }
+
+    .status-pill {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+    
+    .animated-filmstrip-container {
+        margin: 0 -20px;
+    }
+}

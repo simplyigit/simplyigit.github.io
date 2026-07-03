@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         const isMobile = window.innerWidth <= 768;
                         const isTopStyle = isTopCard && !isMobile;
                         
-                        const rankTag = !isTopCard ? `<span class="stats-badge">#${index + 1}</span>` : `<span class="stats-badge">#1 THIS MONTH</span>`;
+                        const rankTag = !isTopCard ? `<span class="stats-badge">#${index + 1}</span>` : `<span class="stats-badge">#1${isMobile ? '' : ' THIS MONTH'}</span>`;
                         let lyricHtml = '';
                         if (isTopStyle && track.ai_lyrics) {
                             const lyrics = [track.ai_lyrics.lyric1, track.ai_lyrics.lyric2, track.ai_lyrics.lyric3].filter(Boolean);

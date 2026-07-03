@@ -2131,9 +2131,17 @@ footer p {
     align-items: center;
     padding: 24px;
     box-sizing: border-box;
+    overscroll-behavior: contain;
+    touch-action: none;
 }
 
 @media screen and (max-width: 768px) {
+    body:has(#mobile-warning-overlay:not(.dismissed)) {
+        overflow: hidden !important;
+        height: 100vh !important;
+        touch-action: none !important;
+    }
+
     #mobile-warning-overlay:not(.dismissed) {
         display: flex !important;
     }

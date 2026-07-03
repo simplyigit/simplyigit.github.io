@@ -2113,3 +2113,56 @@ footer p {
         opacity: 0;
     }
 }
+
+/* Mobile Warning Overlay */
+#mobile-warning-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(2, 8, 19, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 999999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+@media screen and (max-width: 768px) {
+    #mobile-warning-overlay:not(.dismissed) {
+        display: flex !important;
+    }
+}
+
+#mobile-warning-overlay h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+#mobile-warning-overlay button {
+    background: rgba(0, 54, 143, 0.4);
+    border: 1px solid var(--card-border);
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+#mobile-warning-overlay button:hover {
+    background: rgba(0, 54, 143, 0.6);
+    border-color: var(--card-hover-border);
+    transform: translateY(-2px);
+}

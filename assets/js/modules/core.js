@@ -100,3 +100,30 @@ export function initGlassParallax() {
         });
     }
 }
+
+export function initMobileWarning() {
+    if (!document.getElementById('mobile-warning-overlay')) {
+        document.body.insertAdjacentHTML('beforeend', `
+            <div id="mobile-warning-overlay">
+                <div class="glass-card" style="flex-direction: column; align-items: center; text-align: center; max-width: 90%; padding: 40px 20px;">
+                    <h2>Use a larger screen for a complete experience</h2>
+                    <button id="continue-anyway-btn">Continue Anyway</button>
+                </div>
+            </div>
+        `);
+
+        document.getElementById('continue-anyway-btn').addEventListener('click', () => {
+            const overlay = document.getElementById('mobile-warning-overlay');
+            overlay.classList.add('dismissed');
+            overlay.style.display = 'none';
+        });
+    }
+}
+
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileWarning);
+    } else {
+        initMobileWarning();
+    }
+}

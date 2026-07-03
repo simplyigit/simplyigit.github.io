@@ -31,23 +31,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (tracksContainer) {
                     tracksContainer.innerHTML = tracks.map((track, index) => {
-                        const isTop = index === 0;
-                        const rankTag = !isTop ? `<span class="stats-badge">#${index + 1}</span>` : `<span class="stats-badge">#1 THIS MONTH</span>`;
+                        const isTopCard = index === 0;
+                        const isMobile = window.innerWidth <= 768;
+                        const isTopStyle = isTopCard && !isMobile;
+                        
+                        const rankTag = !isTopCard ? `<span class="stats-badge">#${index + 1}</span>` : `<span class="stats-badge">#1 THIS MONTH</span>`;
                         let lyricHtml = '';
-                        if (isTop && track.ai_lyrics) {
+                        if (isTopStyle && track.ai_lyrics) {
                             const lyrics = [track.ai_lyrics.lyric1, track.ai_lyrics.lyric2, track.ai_lyrics.lyric3].filter(Boolean);
                             console.log("Top track lyrics found:", lyrics);
                             if (lyrics.length > 0) {
                                 const randomLyric = lyrics[Math.floor(Math.random() * lyrics.length)];
                                 lyricHtml = `<div class="track-ai-lyric">"${randomLyric}"</div>`;
                             }
-                        } else if (isTop) {
+                        } else if (isTopStyle) {
                             console.warn("Top track has no AI lyrics in data.");
                         }
 
                         return `
-                            <a id="track-card-${index}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTop ? 'top-track-banner' : 'grid-track'} fade-in delay-${(index % 4) + 1}" style="${isTop ? `--track-art: url('${track.cover_url}')` : ''}">
-                                ${isTop ? `<div class="banner-bg-blur"></div>` : ''}
+                            <a id="track-card-${index}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTopStyle ? 'top-track-banner' : 'grid-track'} fade-in delay-${(index % 4) + 1}" style="${isTopStyle ? `--track-art: url('${track.cover_url}')` : ''}">
+                                ${isTopStyle ? `<div class="banner-bg-blur"></div>` : ''}
                                 <div class="case-art-wrapper">
                                     <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img">
                                 </div>
@@ -66,12 +69,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     tracks.forEach((track, index) => {
                         if (track.prominent_color) {
                             const [R, G, B] = track.prominent_color;
-                            const isTop = index === 0;
+                            const isTopStyle = index === 0 && window.innerWidth > 768;
                             const card = document.getElementById(`track-card-${index}`);
                             if (card) {
                                 card.style.setProperty('--track-color-rgb', `${R}, ${G}, ${B}`);
-                                card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${isTop ? 0.6 : 0.45})`);
-                                if (isTop) card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;
+                                card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${isTopStyle ? 0.6 : 0.45})`);
+                                if (isTopStyle) card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;
                             }
                         }
                     });

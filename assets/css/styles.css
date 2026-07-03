@@ -2371,17 +2371,25 @@ footer p {
         gap: 6px;
     }
     .hero h1 {
-        font-size: 1.25rem !important;
+        font-size: 1.6rem !important;
         white-space: nowrap;
     }
     .hero .back-btn, .hero .repo-btn {
-        padding: 6px 10px !important;
-        font-size: 0.75rem !important;
+        padding: 8px 12px !important;
+        font-size: 0 !important;
         white-space: nowrap;
     }
-    .hero .back-btn .arrow, .hero .repo-btn .arrow {
-        margin-right: 2px !important;
-        margin-left: 2px !important;
+    .hero .back-btn .arrow {
+        font-size: 1.2rem !important;
+        margin: 0 !important;
+    }
+    .hero .repo-btn .arrow {
+        display: none !important;
+    }
+    .hero .repo-btn svg {
+        margin: 0 !important;
+        width: 22px !important;
+        height: 22px !important;
     }
     .hero .subtitle {
         font-size: 0.8rem !important;
@@ -2406,35 +2414,5 @@ footer p {
     .artist-img-wrapper {
         width: 110px !important;
         height: 110px !important;
-    }
-
-    /* 3. #1 Track Card same as others */
-    .spotify-track-card.top-track-banner {
-        flex-direction: row !important;
-        text-align: left !important;
-        padding: 0 24px 0 0 !important;
-        height: 120px !important;
-        gap: 20px !important;
-    }
-    .top-track-banner .case-art-wrapper {
-        width: 120px !important;
-        height: 120px !important;
-        border-radius: 0 !important;
-    }
-    .top-track-banner .case-info {
-        gap: 6px !important;
-        justify-content: center !important;
-        align-items: flex-start !important;
-    }
-    .top-track-banner .case-title {
-        font-size: 1.15rem !important;
-        white-space: nowrap !important;
-    }
-    .top-track-banner .banner-bg-blur,
-    .top-track-banner .track-ai-lyric {
-        display: none !important;
-    }
-    .top-track-banner .track-stats-pill {
-        margin-top: 0 !important;
     }
 }

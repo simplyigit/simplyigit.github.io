@@ -2362,4 +2362,79 @@ footer p {
     .animated-filmstrip-container {
         margin: 0 -20px;
     }
+
+    /* --- Music Page Overrides --- */
+
+    /* 1. Heavy Rotation Hero (One row, smaller text) */
+    .hero > div {
+        flex-wrap: nowrap !important;
+        gap: 6px;
+    }
+    .hero h1 {
+        font-size: 1.25rem !important;
+        white-space: nowrap;
+    }
+    .hero .back-btn, .hero .repo-btn {
+        padding: 6px 10px !important;
+        font-size: 0.75rem !important;
+        white-space: nowrap;
+    }
+    .hero .back-btn .arrow, .hero .repo-btn .arrow {
+        margin-right: 2px !important;
+        margin-left: 2px !important;
+    }
+    .hero .subtitle {
+        font-size: 0.8rem !important;
+    }
+
+    /* 2. Horizontal Scroll for Artists */
+    .spotify-artists-grid {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 20px !important;
+        gap: 16px !important;
+    }
+    .spotify-artist-item {
+        scroll-snap-align: start;
+        flex: 0 0 120px !important;
+        width: 120px !important;
+    }
+    .artist-img-wrapper {
+        width: 110px !important;
+        height: 110px !important;
+    }
+
+    /* 3. #1 Track Card same as others */
+    .spotify-track-card.top-track-banner {
+        flex-direction: row !important;
+        text-align: left !important;
+        padding: 0 24px 0 0 !important;
+        height: 120px !important;
+        gap: 20px !important;
+    }
+    .top-track-banner .case-art-wrapper {
+        width: 120px !important;
+        height: 120px !important;
+        border-radius: 0 !important;
+    }
+    .top-track-banner .case-info {
+        gap: 6px !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
+    }
+    .top-track-banner .case-title {
+        font-size: 1.15rem !important;
+        white-space: nowrap !important;
+    }
+    .top-track-banner .banner-bg-blur,
+    .top-track-banner .track-ai-lyric {
+        display: none !important;
+    }
+    .top-track-banner .track-stats-pill {
+        margin-top: 0 !important;
+    }
 }

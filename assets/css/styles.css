@@ -2114,7 +2114,7 @@ footer p {
     }
 }
 
-/* Mobile Warning Overlay */
+/* Mobile Warning Overlay (Creative UI) */
 #mobile-warning-overlay {
     display: none;
     position: fixed;
@@ -2122,15 +2122,14 @@ footer p {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(2, 8, 19, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: radial-gradient(circle at center, rgba(2, 8, 19, 0.8) 0%, rgba(2, 8, 19, 0.98) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     z-index: 999999;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    text-align: center;
-    padding: 20px;
+    padding: 24px;
     box-sizing: border-box;
 }
 
@@ -2140,29 +2139,140 @@ footer p {
     }
 }
 
-#mobile-warning-overlay h2 {
-    font-size: 1.5rem;
-    color: var(--text-primary);
-    margin-bottom: 24px;
-    line-height: 1.4;
-    font-weight: 500;
+.warning-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 420px;
+    padding: 40px 32px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(0, 54, 143, 0.1);
+    animation: floatWarning 4s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
 }
 
-#mobile-warning-overlay button {
-    background: rgba(0, 54, 143, 0.4);
-    border: 1px solid var(--card-border);
-    padding: 12px 24px;
-    border-radius: 8px;
+.warning-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(0, 54, 143, 0.1) 0%, transparent 60%);
+    pointer-events: none;
+    animation: rotateGlow 15s linear infinite;
+}
+
+@keyframes floatWarning {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes rotateGlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.warning-icon-wrapper {
+    position: relative;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.warning-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--text-primary);
+    z-index: 2;
+    animation: shakeIcon 5s ease-in-out infinite;
+}
+
+@keyframes shakeIcon {
+    0%, 90%, 100% { transform: rotate(0); }
+    92% { transform: rotate(10deg); }
+    94% { transform: rotate(-10deg); }
+    96% { transform: rotate(5deg); }
+    98% { transform: rotate(-5deg); }
+}
+
+.warning-glow {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 210, 255, 0.2);
+    border-radius: 50%;
+    filter: blur(15px);
+    animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.5); opacity: 1; }
+}
+
+.warning-card h2 {
+    font-size: 1.75rem;
+    margin-bottom: 16px;
+    line-height: 1.2;
+    z-index: 2;
+}
+
+.warning-card p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    line-height: 1.6;
+    z-index: 2;
+}
+
+.warning-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 14px 28px;
+    border-radius: 30px;
     color: var(--text-primary);
     font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: inherit;
     font-weight: 500;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2;
+    position: relative;
+    overflow: hidden;
 }
 
-#mobile-warning-overlay button:hover {
+.warning-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.warning-btn:hover {
     background: rgba(0, 54, 143, 0.6);
-    border-color: var(--card-hover-border);
+    border-color: rgba(0, 210, 255, 0.4);
     transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 54, 143, 0.3);
+}
+
+.warning-btn:hover::before {
+    transform: translateX(100%);
+}
+
+.warning-btn .arrow {
+    transition: transform 0.3s ease;
+}
+
+.warning-btn:hover .arrow {
+    transform: translateX(4px);
 }

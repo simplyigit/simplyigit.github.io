@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (favContainer || recentContainer || watchlistContainer) {
-        fetch("/api/movies?v=4.0").then(res => res.json()).then(json => {
+        fetch("/api/movies?v=4.1").then(res => res.json()).then(json => {
             if (!json.success || !json.data) return;
             const { favorite_films: favorites, recent_activity: recent, watchlist } = json.data || {};
             const favList = Array.isArray(favorites) ? favorites : [];
@@ -89,6 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     // Start animation once elements are rendered
                     requestAnimationFrame(animateMarquee);
+                } else {
+                    favContainer.innerHTML = `<p style="color: var(--text-secondary); font-family: 'Playfair Display', serif; font-style: italic; padding: 20px 40px;">No favorite films available.</p>`;
                 }
             }
             if (recentContainer) {

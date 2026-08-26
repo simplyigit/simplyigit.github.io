@@ -12,7 +12,7 @@ const projects = [
     }
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
+function initIndex() {
     initAmbientMesh();
     initGlobalReveal();
     initGlassParallax();
@@ -21,8 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const heroTube = document.querySelector('.unified-hero-tube');
     const avatar = document.querySelector('.avatar-memoji');
     if (heroTube && avatar) {
+        let rect = null;
+        heroTube.addEventListener('mouseenter', () => {
+            rect = heroTube.getBoundingClientRect();
+        });
         heroTube.addEventListener('mousemove', (e) => {
-            const rect = heroTube.getBoundingClientRect();
+            if (!rect) rect = heroTube.getBoundingClientRect();
             const x = e.clientX - rect.left - (rect.width / 2);
             const y = e.clientY - rect.top - (rect.height / 2);
             const rotateX = (y / (rect.height / 2)) * -15;
@@ -31,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
             avatar.style.transition = 'none';
         });
         heroTube.addEventListener('mouseleave', () => {
+            rect = null;
             avatar.style.transform = `scale(1.15) perspective(500px) rotateX(0deg) rotateY(0deg)`;
             avatar.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
         });
@@ -116,16 +121,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 renderSpotify(spotify);
                 renderBooks(books);
                 renderMovies(movies);
-                console.log("Dashboard rendered from local cache.");
             } catch (e) {
                 console.error("Cache parse error", e);
             }
         }
 
         // 2. Fetch fresh data in the background
-        const fetchSpotify = fetch("/api/spotify?v=4.0").then(res => res.json()).catch(() => ({ success: false }));
-        const fetchBooks = fetch("/api/books?v=4.0").then(res => res.json()).catch(() => ({ success: false }));
-        const fetchMovies = fetch("/api/movies?v=4.0").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchSpotify = fetch("/api/spotify?v=4.1").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchBooks = fetch("/api/books?v=4.1").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchMovies = fetch("/api/movies?v=4.1").then(res => res.json()).catch(() => ({ success: false }));
 
         Promise.all([fetchSpotify, fetchBooks, fetchMovies]).then(([spotify, books, movies]) => {
             // 3. Update UI with fresh data only if it changed
@@ -142,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderSpotify(spotify) {
-        if (!spotify.success || !spotify.data) return;
+        if (!spotify || !spotify.success || !spotify.data) return;
         const topTrack = spotify.data.top_tracks_last_month?.[0];
         if (topTrack) {
             if (cassetteArtistName) cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
@@ -153,25 +157,34 @@ document.addEventListener("DOMContentLoaded", () => {
             const cassetteBody = document.getElementById("cassette-body");
             if (cassetteBody && topTrack.cover_url) {
                 cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
-                const img = new Image();
-                img.crossOrigin = "Anonymous";
-                img.src = topTrack.cover_url;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 1; canvas.height = 1;
-                    ctx.drawImage(img, 0, 0, 1, 1);
-                    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+                if (topTrack.prominent_color && Array.isArray(topTrack.prominent_color)) {
+                    const [r, g, b] = topTrack.prominent_color;
                     cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
                     cassetteBody.classList.add('has-art');
-                };
+                } else {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.src = topTrack.cover_url;
+                    img.onload = () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = 1; canvas.height = 1;
+                            ctx.drawImage(img, 0, 0, 1, 1);
+                            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+                            cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
+                        } catch {}
+                        cassetteBody.classList.add('has-art');
+                    };
+                }
             }
         }
     }
 
     function renderBooks(books) {
-        if (!books.success || !books.data) return;
-        indexBooksContainer.innerHTML = books.data.slice(0, 3).map((book, index) => {
+        if (!books || !books.success || !books.data) return;
+        const bookList = Array.isArray(books.data) ? books.data : [];
+        indexBooksContainer.innerHTML = bookList.slice(0, 3).map((book, index) => {
             const rotate = (index - 1) * 6;
             return `<img src="${book.cover_url || ""}" alt="${book.title}" class="index-book-cover fade-in" style="width: 40px; height: 60px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotate}deg);">`;
         }).join('');
@@ -179,11 +192,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderMovies(movies) {
-        if (!movies.success || !movies.data) return;
-        indexMoviesContainer.innerHTML = movies.data.recent_activity.slice(0, 3).map((film, index) => {
+        if (!movies || !movies.success || !movies.data) return;
+        const recent = Array.isArray(movies.data.recent_activity) ? movies.data.recent_activity : [];
+        indexMoviesContainer.innerHTML = recent.slice(0, 3).map((film, index) => {
             const rotate = (index - 1) * 6;
             return `<img src="${film.cover_url || ""}" alt="${film.title}" class="index-movie-cover fade-in" style="width: 40px; height: 60px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotate}deg);">`;
         }).join('');
         document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initIndex);
+} else {
+    initIndex();
+}

@@ -1,6 +1,6 @@
 import { initAmbientMesh, initGlobalReveal, initGlassParallax, observer } from '../modules/core.js';
 
-document.addEventListener("DOMContentLoaded", () => {
+function initCinema() {
     initAmbientMesh();
     initGlobalReveal();
     initGlassParallax();
@@ -11,9 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderStars(rating) {
         if (!rating) return '';
-        // Letterboxd rating format is like "★★★★½" or "★★★"
-        // Let's assume the string might be "4.5" or "★★★★½"
-        // Based on sync_data.py, the rating is already the star string, e.g., "★★★★½"
         let starsHtml = '';
         const fullStars = (rating.match(/★/g) || []).length;
         const hasHalf = rating.includes('½');
@@ -39,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (favList.length > 0) {
                     let html = '';
                     const duplicatedFavorites = [...favList, ...favList]; // Duplicate for infinite scroll
-                    duplicatedFavorites.forEach((film, index) => {
+                    duplicatedFavorites.forEach((film) => {
                         const className = 'landscape';
                         const imgUrl = film.backdrop_url || film.cover_url;
                         const cTitle = film.title ? film.title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
@@ -56,11 +53,27 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                     favContainer.innerHTML = html;
 
-                    // JS Marquee for smooth pause/resume easing and to fix teleporting
                     let currentSpeed = 1;
                     const normalSpeed = 1;
                     let position = 0;
                     let isHovered = false;
+                    let halfWidth = favContainer.scrollWidth / 2;
+
+                    const updateHalfWidth = () => {
+                        if (favContainer.scrollWidth > 0) {
+                            halfWidth = favContainer.scrollWidth / 2;
+                        }
+                    };
+
+                    // Re-calculate halfWidth once images finish rendering
+                    window.addEventListener('resize', updateHalfWidth, { passive: true });
+                    favContainer.querySelectorAll('img').forEach(img => {
+                        if (img.complete) {
+                            updateHalfWidth();
+                        } else {
+                            img.addEventListener('load', updateHalfWidth, { once: true });
+                        }
+                    });
 
                     const cards = favContainer.querySelectorAll('.filmstrip-card');
                     cards.forEach(card => {
@@ -69,17 +82,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
 
                     function animateMarquee() {
+                        if (document.hidden) {
+                            requestAnimationFrame(animateMarquee);
+                            return;
+                        }
+
                         // Ease the speed towards 0 (if hovered or out of focus) or normalSpeed (if not hovered and focused)
                         const targetSpeed = (isHovered || !document.hasFocus()) ? 0 : normalSpeed;
-                        currentSpeed += (targetSpeed - currentSpeed) * 0.05; // 0.05 is the easing factor
+                        currentSpeed += (targetSpeed - currentSpeed) * 0.05;
                         
                         position -= currentSpeed;
 
-                        // Dynamically get the scroll width. Since we duplicated the array exactly once, 
-                        // half of the total scroll width is the exact length of one set.
-                        const halfWidth = favContainer.scrollWidth / 2;
-
-                        if (Math.abs(position) >= halfWidth && halfWidth > 0) {
+                        if (halfWidth > 0 && Math.abs(position) >= halfWidth) {
                             position += halfWidth; // Seamless loop back
                         }
 
@@ -87,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         requestAnimationFrame(animateMarquee);
                     }
                     
-                    // Start animation once elements are rendered
                     requestAnimationFrame(animateMarquee);
                 } else {
                     favContainer.innerHTML = `<p style="color: var(--text-secondary); font-family: 'Playfair Display', serif; font-style: italic; padding: 20px 40px;">No favorite films available.</p>`;
@@ -99,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const cTitle = film.title ? film.title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
                     return `
                         <div class="strip-card fade-in" onclick="window.open('${film.link || "#"}', '_blank')" style="transition-delay: ${index * 0.05}s">
-                            ${film.cover_url ? `<img src="${film.cover_url}" alt="${cTitle}">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #1a0606 0%, #2a0a0a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
+                            ${film.cover_url ? `<img src="${film.cover_url}" alt="${cTitle}" loading="lazy">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #1a0606 0%, #2a0a0a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
                             <div class="poster-overlay">
                                 <div class="overlay-title">${cTitle}</div>
                                 ${stars}
@@ -112,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const cTitle = film.title ? film.title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
                     return `
                     <div class="watchlist-card fade-in" onclick="window.open('${film.link || "#"}', '_blank')" style="transition-delay: ${index * 0.05}s">
-                        ${film.cover_url ? `<img src="${film.cover_url}" alt="${cTitle}">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #081428 0%, #0a1e3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
+                        ${film.cover_url ? `<img src="${film.cover_url}" alt="${cTitle}" loading="lazy">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #081428 0%, #0a1e3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
                         <div class="poster-overlay">
                             <div class="overlay-title">${cTitle}</div>
                         </div>
@@ -127,4 +140,10 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
         });
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCinema);
+} else {
+    initCinema();
+}

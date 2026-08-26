@@ -1,7 +1,14 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax } from '../assets/js/modules/core.js';
+import { initAmbientMesh, initGlobalReveal, initGlassParallax } from '../modules/core.js';
 
-document.addEventListener("DOMContentLoaded", () => {
+function init() {
     initAmbientMesh();
     initGlobalReveal();
     initGlassParallax();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+

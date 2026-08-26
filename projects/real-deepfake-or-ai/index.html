@@ -58,9 +58,9 @@
         </footer>
     </div>
 
-    <script type="module" src="../../assets/js/pages/project-detail.js"></script>
+    <script type="module" src="../../assets/js/pages/project-detail.js?v=4.1"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        function loadProject() {
             const repoPath = "simplyigit/Real-Deepfake-or-AI";
             const repoName = "Real-Deepfake-or-AI";
             const CACHE_KEY = "simplyigit_project_" + repoName;
@@ -70,7 +70,7 @@
                 document.getElementById("github-content").innerHTML = cachedData;
             }
 
-            fetch("/api/projects?v=1.1")
+            fetch("/api/projects?v=4.1")
                 .then(res => res.json())
                 .then(json => {
                     if (json.success && json.data) {
@@ -98,7 +98,13 @@
                             `<p style='color: #ff6b6b;'>Could not load project data: ${err.message}. Please verify the database sync.</p>`;
                     }
                 });
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadProject);
+        } else {
+            loadProject();
+        }
     </script>
 </body>
 

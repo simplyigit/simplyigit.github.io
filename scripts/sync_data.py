@@ -12,6 +12,9 @@ from google.genai import types
 import markdown
 from colorthief import ColorThief
 import io
+import urllib.request
+import html
+
 
 # --- HELPERS: SPOTIFY ---
 
@@ -322,45 +325,83 @@ def fetch_spotify_data(url, key):
 
 # --- HELPERS: MOVIES ---
 
+BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1"
+}
+
+def fetch_letterboxd_html(url, timeout=10):
+    """Fetches Letterboxd HTML using urllib to bypass Cloudflare anti-bot challenges."""
+    req = urllib.request.Request(url, headers=BROWSER_HEADERS)
+    with urllib.request.urlopen(req, timeout=timeout) as res:
+        return res.read().decode('utf-8', errors='replace')
+
 def get_hd_poster(film_link):
     if not film_link: return ""
     base_url = "https://letterboxd.com"
-    headers = {'User-Agent': 'Mozilla/5.0: simplyigit sync'}
     try:
-        res = requests.get(base_url + film_link, headers=headers, timeout=5)
-        if res.status_code == 200:
-            m = re.search(r'"image":"(https://a\.ltrbxd\.com[^"]+)"', res.text)
-            if m: return m.group(1)
-    except: pass
+        content = fetch_letterboxd_html(base_url + film_link, timeout=8)
+        m = re.search(r'"image":"(https://a\.ltrbxd\.com[^"]+)"', content)
+        if not m:
+            m = re.search(r'<meta property="og:image" content="([^"]+)"', content)
+        if m: return m.group(1)
+    except Exception as e:
+        print(f"Poster fetch error for {film_link}: {e}")
     return ""
 
 def get_both_images(film_link):
     if not film_link: return ("", "")
     base_url = "https://letterboxd.com"
-    headers = {'User-Agent': 'Mozilla/5.0: simplyigit sync'}
     backdrop, poster = "", ""
     try:
-        res = requests.get(base_url + film_link, headers=headers, timeout=5)
-        if res.status_code == 200:
-            m_back = re.search(r'data-backdrop="([^"]+)"', res.text)
-            if m_back: backdrop = m_back.group(1)
-            m_post = re.search(r'"image":"(https://a\.ltrbxd\.com[^"]+)"', res.text)
-            if m_post: poster = m_post.group(1)
-    except: pass
+        content = fetch_letterboxd_html(base_url + film_link, timeout=8)
+        m_back = re.search(r'data-backdrop="([^"]+)"', content)
+        if not m_back:
+            m_back = re.search(r'data-backdrop2x="([^"]+)"', content)
+        if m_back: backdrop = m_back.group(1)
+        
+        m_post = re.search(r'"image":"(https://a\.ltrbxd\.com[^"]+)"', content)
+        if not m_post:
+            m_post = re.search(r'<meta property="og:image" content="([^"]+)"', content)
+        if not m_post:
+            m_post = re.search(r'<meta name="twitter:image" content="([^"]+)"', content)
+        if m_post: poster = m_post.group(1)
+    except Exception as e:
+        print(f"Backdrop/poster fetch error for {film_link}: {e}")
+        
     if not backdrop: backdrop = poster
     if not poster: poster = backdrop
     return backdrop, poster
 
-def fetch_movies_data():
-    headers = {'User-Agent': 'Mozilla/5.0: simplyigit sync'}
+def fetch_movies_data(url=None, key=None):
     username = "oneyigit"
     base_url = "https://letterboxd.com"
     
-    # Recent Activity
+    # Retrieve existing movies from Supabase as fallback to prevent wiping data on temporary network glitches
+    existing_movies = {}
+    if url and key:
+        try:
+            res = requests.get(
+                f"{url}/rest/v1/portfolio_data?key=eq.movies&select=value",
+                headers={"apikey": key, "Authorization": f"Bearer {key}"},
+                timeout=10
+            )
+            if res.status_code == 200 and res.json():
+                existing_movies = res.json()[0].get("value", {})
+        except Exception as e:
+            print(f"Failed to check existing movies in DB: {e}")
+
+    # 1. Recent Activity (from Letterboxd RSS)
     recent_activity = []
-    rss_resp = requests.get(f"{base_url}/{username}/rss/", headers=headers, timeout=10)
-    if rss_resp.status_code == 200:
-        root = ET.fromstring(rss_resp.content)
+    try:
+        rss_content = fetch_letterboxd_html(f"{base_url}/{username}/rss/", timeout=10)
+        root = ET.fromstring(rss_content)
         for item in root.findall('./channel/item')[:7]:
             title_text = item.find('title').text if item.find('title') is not None else ""
             link_text = item.find('link').text if item.find('link') is not None else ""
@@ -370,34 +411,51 @@ def fetch_movies_data():
             is_rewatch = False
             is_favorite = False
             if desc_html:
-                desc_soup = BeautifulSoup(desc_html, 'html.parser')
-                img = desc_soup.find('img')
-                if img: cover_url = img.get('src')
-                text_content = desc_soup.get_text()
+                img_m = re.search(r'<img[^>]+src="([^">]+)"', desc_html)
+                if img_m: cover_url = img_m.group(1)
                 rating_match = re.search(r' - (★+½?|½)$', title_text)
                 if rating_match: rating = rating_match.group(1)
-                if "This review may contain spoilers" in text_content or "Watched on" in text_content:
-                    if "rewatch" in title_text.lower() or " (rewatch)" in title_text.lower(): is_rewatch = True
-                if "♥" in title_text or "♥" in desc_html: is_favorite = True
+                if "rewatch" in title_text.lower() or " (rewatch)" in title_text.lower() or "rewatch" in desc_html.lower():
+                    is_rewatch = True
+                if "♥" in title_text or "♥" in desc_html:
+                    is_favorite = True
             display_title = re.sub(r' - ★+½?|½$', '', title_text).replace(' (rewatch)', '').replace(' ♥', '')
             display_title = re.sub(r'(, \d{4}|\(\d{4}\))$', '', display_title).strip() # Strip year like ", 2024" or "(2024)"
+            display_title = html.unescape(display_title)
             recent_activity.append({"title": display_title, "rating": rating, "is_rewatch": is_rewatch, "is_favorite": is_favorite, "link": link_text, "cover_url": cover_url})
+    except Exception as e:
+        print(f"Error fetching recent activity: {e}")
 
-    # Favorites & Watchlist (Parallel posters)
+    if not recent_activity and existing_movies.get("recent_activity"):
+        print("Using cached recent_activity from Supabase.")
+        recent_activity = existing_movies["recent_activity"]
+
+    # 2. Favorites & Watchlist (Parallel posters)
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
     
     favorite_films = []
-    prof_resp = requests.get(f"{base_url}/{username}/", headers=headers, timeout=10)
-    if prof_resp.status_code == 200:
-        prof_soup = BeautifulSoup(prof_resp.text, 'html.parser')
-        fav_section = prof_soup.find(id='favourites')
-        if fav_section:
+    try:
+        prof_html = fetch_letterboxd_html(f"{base_url}/{username}/", timeout=10)
+        fav_idx = prof_html.find('id="favourites"')
+        if fav_idx == -1:
+            fav_idx = prof_html.find('favourites')
+            
+        if fav_idx != -1:
+            fav_section_html = prof_html[fav_idx:prof_html.find('</section>', fav_idx)]
             fav_items = []
-            for div in fav_section.find_all('div', class_='react-component'):
-                fav_title = re.sub(r'\s\(\d{4}\)$', '', div.get('data-item-full-display-name', ''))
-                film_link = div.get('data-item-link', '')
-                target_link = div.get('data-target-link', film_link)
-                fav_items.append((fav_title, film_link, target_link))
+            for m in re.finditer(r'<div\s+class="react-component"[^>]+>', fav_section_html):
+                tag = m.group(0)
+                name_m = re.search(r'data-item-full-display-name="([^"]+)"', tag)
+                link_m = re.search(r'data-item-link="([^"]+)"', tag)
+                target_m = re.search(r'data-target-link="([^"]+)"', tag)
+                
+                fav_title = re.sub(r'\s\(\d{4}\)$', '', name_m.group(1)) if name_m else ""
+                fav_title = html.unescape(fav_title)
+                film_link = link_m.group(1) if link_m else ""
+                target_link = target_m.group(1) if target_m else film_link
+                if fav_title:
+                    fav_items.append((fav_title, film_link, target_link))
+                    
             poster_futures = {executor.submit(get_both_images, item[1]): item for item in fav_items}
             concurrent.futures.wait(poster_futures)
             for itm in fav_items:
@@ -406,16 +464,34 @@ def fetch_movies_data():
                         backdrop, poster = fut.result()
                         favorite_films.append({"title": itm[0], "link": base_url + itm[2] if itm[2] else "", "cover_url": poster, "backdrop_url": backdrop})
                         break
+        else:
+            print("Could not find 'favourites' section in Letterboxd profile.")
+    except Exception as e:
+        print(f"Error fetching favorite films: {e}")
 
+    if not favorite_films and existing_movies.get("favorite_films"):
+        print("Using cached favorite_films from Supabase.")
+        favorite_films = existing_movies["favorite_films"]
+
+    # 3. Watchlist
     watchlist_films = []
-    watch_resp = requests.get(f"{base_url}/{username}/watchlist/", headers=headers, timeout=10)
-    if watch_resp.status_code == 200:
-        watch_soup = BeautifulSoup(watch_resp.text, 'html.parser')
+    try:
+        watch_html = fetch_letterboxd_html(f"{base_url}/{username}/watchlist/", timeout=10)
         watch_items = []
-        for div in watch_soup.find_all('div', attrs={'data-component-class': 'LazyPoster'})[:7]:
-            watch_title = re.sub(r'\s\(\d{4}\)$', '', div.get('data-item-full-display-name', ''))
-            target_link = div.get('data-film-link', div.get('data-target-link', ''))
-            watch_items.append((watch_title, target_link))
+        for m in re.finditer(r'<div\s+[^>]*data-component-class="LazyPoster"[^>]*>', watch_html):
+            tag = m.group(0)
+            name_m = re.search(r'data-item-full-display-name="([^"]+)"', tag)
+            film_m = re.search(r'data-film-link="([^"]+)"', tag)
+            target_m = re.search(r'data-target-link="([^"]+)"', tag)
+            
+            watch_title = re.sub(r'\s\(\d{4}\)$', '', name_m.group(1)) if name_m else ""
+            watch_title = html.unescape(watch_title)
+            target_link = film_m.group(1) if film_m else (target_m.group(1) if target_m else "")
+            if watch_title and target_link:
+                watch_items.append((watch_title, target_link))
+            if len(watch_items) >= 7:
+                break
+                
         poster_futures = {executor.submit(get_hd_poster, item[1]): item for item in watch_items}
         concurrent.futures.wait(poster_futures)
         for itm in watch_items:
@@ -423,28 +499,57 @@ def fetch_movies_data():
                 if w_itm == itm:
                     watchlist_films.append({"title": itm[0], "link": base_url + itm[1] if itm[1] else "", "cover_url": fut.result()})
                     break
+    except Exception as e:
+        print(f"Error fetching watchlist: {e}")
+
+    if not watchlist_films and existing_movies.get("watchlist"):
+        print("Using cached watchlist from Supabase.")
+        watchlist_films = existing_movies["watchlist"]
 
     executor.shutdown(wait=False)
     return {"recent_activity": recent_activity, "favorite_films": favorite_films, "watchlist": watchlist_films}
 
 # --- HELPERS: BOOKS ---
 
-def fetch_books_data():
-    url = 'https://www.goodreads.com/review/list_rss/199124060?shelf=to-read'
-    headers = {'User-Agent': 'Mozilla/5.0: simplyigit sync'}
+def fetch_books_data(url=None, key=None):
+    goodreads_url = 'https://www.goodreads.com/review/list_rss/199124060?shelf=to-read'
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+    }
+    books_data = []
     try:
-        rss_response = requests.get(url, headers=headers, timeout=10)
-        root = ET.fromstring(rss_response.content)
-        items = root.findall('./channel/item')
-        books_data = []
-        for item in items:
-            title = item.find('title').text if item.find('title') is not None else "Unknown Title"
-            author = item.find('author_name').text if item.find('author_name') is not None else "Unknown Author"
-            cover_url = item.find('book_image_url').text if item.find('book_image_url') is not None else ""
-            if cover_url: cover_url = re.sub(r'\._[A-Za-z0-9]+_\.', '.', cover_url)
-            books_data.append({"title": title, "author": author, "cover_url": cover_url, "link": item.find('link').text if item.find('link') is not None else "#"})
-        return books_data
-    except: return []
+        req = urllib.request.Request(goodreads_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=10) as rss_response:
+            root = ET.fromstring(rss_response.read())
+            items = root.findall('./channel/item')
+            for item in items:
+                title = item.find('title').text if item.find('title') is not None else "Unknown Title"
+                title = html.unescape(title)
+                author = item.find('author_name').text if item.find('author_name') is not None else "Unknown Author"
+                author = html.unescape(author)
+                cover_url = item.find('book_image_url').text if item.find('book_image_url') is not None else ""
+                if cover_url: cover_url = re.sub(r'\._[A-Za-z0-9]+_\.', '.', cover_url)
+                books_data.append({"title": title, "author": author, "cover_url": cover_url, "link": item.find('link').text if item.find('link') is not None else "#"})
+    except Exception as e:
+        print(f"Error fetching Goodreads books: {e}")
+
+    if not books_data and url and key:
+        try:
+            res = requests.get(
+                f"{url}/rest/v1/portfolio_data?key=eq.books&select=value",
+                headers={"apikey": key, "Authorization": f"Bearer {key}"},
+                timeout=10
+            )
+            if res.status_code == 200 and res.json():
+                existing = res.json()[0].get("value", [])
+                if existing:
+                    print("Using cached books from Supabase.")
+                    books_data = existing
+        except Exception as e:
+            print(f"Failed to check existing books in DB: {e}")
+
+    return books_data
 
 # --- HELPERS: PROJECTS ---
 
@@ -504,8 +609,8 @@ def main():
 
     data = {
         "spotify": fetch_spotify_data(url, key),
-        "movies": fetch_movies_data(),
-        "books": fetch_books_data(),
+        "movies": fetch_movies_data(url, key),
+        "books": fetch_books_data(url, key),
         "projects": fetch_projects_data(github_token),
         "last_updated": time.time()
     }
@@ -542,3 +647,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

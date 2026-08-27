@@ -127,27 +127,35 @@ function initIndex() {
         }
 
         // 2. Fetch fresh data in the background
-        const fetchSpotify = fetch("/api/spotify?v=4.1").then(res => res.json()).catch(() => ({ success: false }));
-        const fetchBooks = fetch("/api/books?v=4.1").then(res => res.json()).catch(() => ({ success: false }));
-        const fetchMovies = fetch("/api/movies?v=4.1").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchSpotify = fetch("/api/spotify?v=4.2").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchBooks = fetch("/api/books?v=4.2").then(res => res.json()).catch(() => ({ success: false }));
+        const fetchMovies = fetch("/api/movies?v=4.2").then(res => res.json()).catch(() => ({ success: false }));
 
         Promise.all([fetchSpotify, fetchBooks, fetchMovies]).then(([spotify, books, movies]) => {
-            // 3. Update UI with fresh data only if it changed
-            const newDataStr = JSON.stringify({ spotify, books, movies });
-            if (newDataStr !== cachedData) {
-                renderSpotify(spotify);
-                renderBooks(books);
-                renderMovies(movies);
+            // 3. Update UI with fresh data
+            renderSpotify(spotify);
+            renderBooks(books);
+            renderMovies(movies);
 
-                // 4. Save fresh data to cache for next time
-                localStorage.setItem(CACHE_KEY, newDataStr);
-            }
+            // 4. Save fresh data to cache for next time
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify({ spotify, books, movies }));
+            } catch {}
         });
     }
 
+    function safeImg(url) {
+        if (!url) return '';
+        if (url.includes('a.ltrbxd.com') && !url.includes('wsrv.nl')) {
+            return `https://wsrv.nl/?url=${encodeURIComponent(url)}`;
+        }
+        return url;
+    }
+
     function renderSpotify(spotify) {
-        if (!spotify || !spotify.success || !spotify.data) return;
-        const topTrack = spotify.data.top_tracks_last_month?.[0];
+        if (!spotify) return;
+        const data = spotify.data || spotify;
+        const topTrack = data.top_tracks_last_month?.[0];
         if (topTrack) {
             if (cassetteArtistName) cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
             if (cassetteSongTitle) {
@@ -182,23 +190,26 @@ function initIndex() {
     }
 
     function renderBooks(books) {
-        if (!books || !books.success || !books.data) return;
-        const bookList = Array.isArray(books.data) ? books.data : [];
+        if (!books || !indexBooksContainer) return;
+        const data = books.data || books;
+        const bookList = Array.isArray(data) ? data : (Array.isArray(data.books) ? data.books : []);
+        if (bookList.length === 0) return;
         indexBooksContainer.innerHTML = bookList.slice(0, 3).map((book, index) => {
             const rotate = (index - 1) * 6;
-            return `<img src="${book.cover_url || ""}" alt="${book.title}" class="index-book-cover fade-in" style="width: 40px; height: 60px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotate}deg);">`;
+            return `<img src="${book.cover_url || ""}" alt="${book.title || ""}" class="index-book-cover" style="width: 40px; height: 60px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotate}deg); border-radius: 4px; object-fit: cover;">`;
         }).join('');
-        document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
     }
 
     function renderMovies(movies) {
-        if (!movies || !movies.success || !movies.data) return;
-        const recent = Array.isArray(movies.data.recent_activity) ? movies.data.recent_activity : [];
+        if (!movies || !indexMoviesContainer) return;
+        const data = movies.data || movies;
+        const recent = Array.isArray(data.recent_activity) ? data.recent_activity : (Array.isArray(data) ? data : []);
+        if (recent.length === 0) return;
         indexMoviesContainer.innerHTML = recent.slice(0, 3).map((film, index) => {
             const rotate = (index - 1) * 6;
-            return `<img src="${film.cover_url || ""}" alt="${film.title}" class="index-movie-cover fade-in" style="width: 40px; height: 60px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotate}deg);">`;
+            const imgUrl = safeImg(film.cover_url);
+            return `<img src="${imgUrl}" alt="${film.title || ""}" class="index-movie-cover" style="width: 40px; height: 60px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotate}deg); border-radius: 4px; object-fit: cover;">`;
         }).join('');
-        document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
     }
 }
 

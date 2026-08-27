@@ -35,11 +35,29 @@ class handler(BaseHTTPRequestHandler):
             else:
                 movies_data = rows[0].get("value", {})
             
+            # Proxy Letterboxd CDN images to avoid ISP/DNS blocks (e.g. in Turkey)
+            def proxy_img(u):
+                if u and isinstance(u, str) and "a.ltrbxd.com" in u and "wsrv.nl" not in u:
+                    return f"https://wsrv.nl/?url={u}"
+                return u
+
+            if isinstance(movies_data, dict):
+                for cat in ["favorite_films", "recent_activity", "watchlist"]:
+                    items = movies_data.get(cat, [])
+                    if isinstance(items, list):
+                        for item in items:
+                            if isinstance(item, dict):
+                                if "cover_url" in item:
+                                    item["cover_url"] = proxy_img(item["cover_url"])
+                                if "backdrop_url" in item:
+                                    item["backdrop_url"] = proxy_img(item["backdrop_url"])
+
             response = {
                 "success": True,
                 "data": movies_data,
                 "timestamp": time.time()
             }
+
 
         except Exception as e:
             response = {"success": False, "error": str(e)}

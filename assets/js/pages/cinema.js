@@ -24,8 +24,16 @@ function initCinema() {
         return starsHtml;
     }
 
+    function safeImg(url) {
+        if (!url) return '';
+        if (url.includes('a.ltrbxd.com') && !url.includes('wsrv.nl')) {
+            return `https://wsrv.nl/?url=${encodeURIComponent(url)}`;
+        }
+        return url;
+    }
+
     if (favContainer || recentContainer || watchlistContainer) {
-        fetch("/api/movies?v=4.1").then(res => res.json()).then(json => {
+        fetch("/api/movies?v=4.2").then(res => res.json()).then(json => {
             if (!json.success || !json.data) return;
             const { favorite_films: favorites, recent_activity: recent, watchlist } = json.data || {};
             const favList = Array.isArray(favorites) ? favorites : [];
@@ -38,7 +46,7 @@ function initCinema() {
                     const duplicatedFavorites = [...favList, ...favList]; // Duplicate for infinite scroll
                     duplicatedFavorites.forEach((film) => {
                         const className = 'landscape';
-                        const imgUrl = film.backdrop_url || film.cover_url;
+                        const imgUrl = safeImg(film.backdrop_url || film.cover_url);
                         const cTitle = film.title ? film.title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
                         
                         html += `
@@ -110,9 +118,10 @@ function initCinema() {
                 recentContainer.innerHTML = recList.slice(0, 7).map((film, index) => {
                     const stars = film.rating ? `<div class="overlay-rating">${renderStars(film.rating)}</div>` : '';
                     const cTitle = film.title ? film.title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
+                    const imgUrl = safeImg(film.cover_url);
                     return `
                         <div class="strip-card fade-in" onclick="window.open('${film.link || "#"}', '_blank')" style="transition-delay: ${index * 0.05}s">
-                            ${film.cover_url ? `<img src="${film.cover_url}" alt="${cTitle}" loading="lazy">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #1a0606 0%, #2a0a0a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
+                            ${imgUrl ? `<img src="${imgUrl}" alt="${cTitle}" loading="lazy">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #1a0606 0%, #2a0a0a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
                             <div class="poster-overlay">
                                 <div class="overlay-title">${cTitle}</div>
                                 ${stars}
@@ -123,9 +132,10 @@ function initCinema() {
             if (watchlistContainer) {
                 watchlistContainer.innerHTML = watchList.slice(0, 7).map((film, index) => {
                     const cTitle = film.title ? film.title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
+                    const imgUrl = safeImg(film.cover_url);
                     return `
                     <div class="watchlist-card fade-in" onclick="window.open('${film.link || "#"}', '_blank')" style="transition-delay: ${index * 0.05}s">
-                        ${film.cover_url ? `<img src="${film.cover_url}" alt="${cTitle}" loading="lazy">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #081428 0%, #0a1e3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
+                        ${imgUrl ? `<img src="${imgUrl}" alt="${cTitle}" loading="lazy">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #081428 0%, #0a1e3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
                         <div class="poster-overlay">
                             <div class="overlay-title">${cTitle}</div>
                         </div>

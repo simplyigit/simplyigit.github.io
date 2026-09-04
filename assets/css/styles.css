@@ -634,6 +634,7 @@ footer p {
     border-radius: 14px;
     transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
     min-width: 0;
+    min-height: 218px;
     will-change: transform;
     height: 100%;
 }
@@ -644,18 +645,18 @@ footer p {
 }
 
 .book-body {
-    background: linear-gradient(145deg, #27222e 0%, #1f1a25 45%, #16131b 100%);
-    border-radius: 14px;
-    padding: 12px 14px 12px 28px;
+    background: linear-gradient(155deg, #1e1c24 0%, #15141a 50%, #0d0c10 100%);
+    border-radius: 12px 14px 14px 12px;
+    padding: 10px 10px 12px 28px;
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-shadow:
-        inset 0 1px 0 rgba(255, 215, 120, 0.15),
-        inset -3px 0 8px rgba(0, 0, 0, 0.5),
-        0 8px 30px rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(212, 175, 55, 0.15);
+        inset 0 1px 1px rgba(255, 255, 255, 0.08),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.6),
+        0 8px 30px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
@@ -667,24 +668,9 @@ footer p {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.04) 0%, transparent 60%),
-        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.006) 0px, rgba(255, 255, 255, 0.006) 1px, transparent 1px, transparent 3px);
+        radial-gradient(circle at 60% 25%, rgba(255, 255, 255, 0.025) 0%, transparent 60%),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.004) 0px, rgba(255, 255, 255, 0.004) 1px, transparent 1px, transparent 3px);
     pointer-events: none;
-    z-index: 1;
-}
-
-/* Debossed inner gold frame */
-.book-body::after {
-    content: '';
-    position: absolute;
-    top: 6px;
-    bottom: 6px;
-    left: 24px;
-    right: 8px;
-    border: 1px solid rgba(212, 175, 55, 0.12);
-    border-radius: 8px;
-    pointer-events: none;
-    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4);
     z-index: 1;
 }
 
@@ -695,47 +681,24 @@ footer p {
     bottom: 0;
     left: 0;
     width: 20px;
-    background: linear-gradient(90deg, #131018 0%, #2a2433 35%, #1c1823 75%, #0e0c12 100%);
-    border-right: 1px solid rgba(212, 175, 55, 0.2);
+    background: linear-gradient(90deg, #0c0b10 0%, #201e26 35%, #16151e 75%, #09080d 100%);
+    border-right: 1px solid rgba(0, 0, 0, 0.9);
     box-shadow: 2px 0 6px rgba(0, 0, 0, 0.6);
     z-index: 3;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
-    padding: 10px 0;
+    padding: 18px 0;
 }
 
-/* Embossed Spine Ribs */
+/* 3D Embossed Spine Ribs (tactile leather ridges) */
 .spine-rib {
     width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, rgba(245, 225, 160, 0.7) 50%, rgba(180, 140, 40, 0.3) 100%);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 -1px 1px rgba(255, 255, 255, 0.1);
-}
-
-/* Antique Brass Corner Hardware */
-.book-corner {
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    background: linear-gradient(135deg, #ecd58b 0%, #b8933b 50%, #6e5117 100%);
-    z-index: 5;
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-}
-
-.book-corner.top-left {
-    top: 0;
-    left: 0;
-    clip-path: polygon(0 0, 100% 0, 0 100%);
-    border-top-left-radius: 14px;
-}
-
-.book-corner.bottom-left {
-    bottom: 0;
-    left: 0;
-    clip-path: polygon(0 0, 0 100%, 100% 100%);
-    border-bottom-left-radius: 14px;
+    height: 4px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(20, 18, 26, 0.8) 50%, rgba(0, 0, 0, 0.95) 100%);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 -1px 1px rgba(255, 255, 255, 0.08);
+    border-radius: 1px;
 }
 
 /* Silk Bookmark Ribbon */
@@ -743,9 +706,9 @@ footer p {
     position: absolute;
     top: 0;
     right: 14px;
-    width: 12px;
-    height: 48px;
-    background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 60%, #58111a 100%);
+    width: 11px;
+    height: 42px;
+    background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 60%, #4c0519 100%);
     box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.5);
     z-index: 4;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
@@ -754,7 +717,7 @@ footer p {
 }
 
 .book-link:hover .bookmark-ribbon {
-    transform: scaleY(1.18) rotate(-1.5deg);
+    transform: scaleY(1.15) rotate(-1.5deg);
 }
 
 /* Page edges on right */
@@ -764,77 +727,83 @@ footer p {
     bottom: 8px;
     right: 0;
     width: 5px;
-    background: repeating-linear-gradient(180deg, #d8cebe 0px, #d8cebe 1px, #1c1822 1px, #1c1822 2px);
-    opacity: 0.4;
+    background: repeating-linear-gradient(180deg, #c8beaf 0px, #c8beaf 1px, #18151f 1px, #18151f 2px);
+    opacity: 0.35;
     border-left: 1px solid rgba(0, 0, 0, 0.6);
     border-radius: 0 3px 3px 0;
     z-index: 2;
 }
 
-/* Gold Foil Embossed Title */
+/* Debossed Letterpress Cover Title */
 .book-cover-header {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    padding-top: 6px;
+    padding-top: 2px;
     z-index: 2;
 }
 
 .book-cover-title {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    font-size: 0.95rem;
     font-weight: 700;
-    letter-spacing: 1.8px;
-    background: linear-gradient(135deg, #fff7d6 0%, #e6c875 35%, #b3892b 70%, #f0d588 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9));
+    letter-spacing: 3px;
+    color: #e8e4dc;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9), 0 1px 1px rgba(255, 255, 255, 0.15), 0 0 8px rgba(255, 255, 255, 0.06);
     text-transform: uppercase;
-}
-
-.book-gold-ornament {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #d4af37;
-    font-size: 0.45rem;
-    opacity: 0.8;
-}
-
-.book-gold-line {
-    width: 32px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #d4af37, transparent);
 }
 
 .book-cover-subtitle {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.55rem;
-    color: rgba(212, 175, 55, 0.7);
-    letter-spacing: 2px;
+    font-size: 0.48rem;
+    color: rgba(255, 255, 255, 0.42);
+    letter-spacing: 1.6px;
     text-transform: uppercase;
-    font-weight: 600;
-    margin-top: 1px;
+    font-weight: 500;
 }
 
-.book-previews {
-    position: relative;
-    z-index: 3;
+/* Recessed Book Shelf Niche */
+.book-shelf-niche {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.38);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7);
+    padding: 7px 8px 7px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    z-index: 2;
+    flex: 1;
+    margin-top: 6px;
     margin-bottom: 2px;
 }
 
-/* Shelf line under books */
-.book-previews::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 5px;
-    right: 5px;
+.book-niche-header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0 2px;
+}
+
+.book-niche-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.48rem;
+    color: rgba(255, 255, 255, 0.38);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.book-shelf-ledge {
+    width: 90%;
     height: 3px;
-    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3) 20%, rgba(212, 175, 55, 0.3) 80%, transparent);
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 20%, rgba(255, 255, 255, 0.12) 80%, transparent 100%);
     border-radius: 2px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    margin-top: 2px;
 }
 
 
@@ -849,6 +818,7 @@ footer p {
     border-radius: 14px;
     transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
     min-width: 0;
+    min-height: 218px;
     will-change: transform;
     height: 100%;
 }
@@ -859,9 +829,9 @@ footer p {
 }
 
 .vhs-body {
-    background: linear-gradient(180deg, #28262e 0%, #1f1d24 40%, #17151b 100%);
+    background: linear-gradient(180deg, #24222a 0%, #1a1820 40%, #131217 100%);
     border-radius: 14px;
-    padding: 12px;
+    padding: 10px 10px 12px 10px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -870,7 +840,7 @@ footer p {
         inset 0 1px 0 rgba(255, 255, 255, 0.08),
         inset 0 -2px 0 rgba(0, 0, 0, 0.3),
         0 8px 30px rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
@@ -912,7 +882,7 @@ footer p {
     border-left: 4px solid #cc2929;
     position: relative;
     z-index: 2;
-    margin: 4px 12px 0 12px;
+    margin: 0 14px;
 }
 
 .vhs-label-header {
@@ -926,7 +896,7 @@ footer p {
 
 .vhs-label-brand {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     font-weight: 800;
     color: #1a1a1a;
     letter-spacing: 1px;
@@ -934,7 +904,7 @@ footer p {
 
 .vhs-label-badge {
     font-family: sans-serif;
-    font-size: 0.45rem;
+    font-size: 0.42rem;
     font-weight: 900;
     color: #cc2929;
     border: 1px solid #cc2929;
@@ -945,108 +915,49 @@ footer p {
 
 .vhs-label-title {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.52rem;
+    font-size: 0.48rem;
     color: #444;
     font-weight: 700;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
-/* Recessed Acrylic VHS Window */
-.vhs-window {
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 6px;
-    height: 36px;
+/* Recessed Acrylic VHS Tape Bay */
+.vhs-tape-bay {
+    background: rgba(0, 0, 0, 0.78);
+    border-radius: 8px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+    margin: 6px 0 2px 0;
+    z-index: 2;
+    flex: 1;
+    box-sizing: border-box;
+}
+
+.vhs-bay-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 10px;
-    position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
-    overflow: hidden;
-    margin: 6px 0;
-    z-index: 2;
-}
-
-.vhs-spool {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: radial-gradient(circle, #222 30%, #151518 100%);
-    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.vhs-spool-inner {
     width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: spinSpool 2.4s linear infinite;
-    animation-play-state: var(--movie-play-state, paused);
-}
-
-.vhs-link {
-    --movie-play-state: paused;
-}
-.vhs-link:hover {
-    --movie-play-state: running;
-}
-
-.vhs-hub {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    background: #0a0a0c;
-    position: relative;
-}
-
-.vhs-hub::after {
-    content: '';
-    position: absolute;
-    inset: 2px;
-    border-radius: 50%;
-    background: #000;
-}
-
-.vhs-spoke {
-    position: absolute;
-    width: 100%;
-    height: 1.5px;
-    background: rgba(255, 255, 255, 0.4);
-    top: 50%;
-    left: 0;
-    transform-origin: center center;
-}
-
-.vhs-spoke:nth-child(1) { transform: translateY(-50%) rotate(0deg); }
-.vhs-spoke:nth-child(2) { transform: translateY(-50%) rotate(60deg); }
-.vhs-spoke:nth-child(3) { transform: translateY(-50%) rotate(120deg); }
-
-.vhs-tape-bridge {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 0 2px;
 }
 
 /* Phosphor Green VCR On-Screen Display */
 .vhs-osd {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     color: #00ff88;
     font-weight: 700;
     letter-spacing: 1px;
     text-shadow: 0 0 5px rgba(0, 255, 136, 0.6);
-    opacity: 0.8;
+    opacity: 0.85;
     transition: opacity 0.3s ease;
 }
 
@@ -1061,14 +972,59 @@ footer p {
 }
 
 .vhs-osd-icon {
-    font-size: 0.55rem;
+    font-size: 0.52rem;
     margin-right: 2px;
 }
 
-.vhs-previews {
-    position: relative;
-    z-index: 3;
-    margin-bottom: 2px;
+.vhs-tape-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.5px;
+}
+
+.vhs-bay-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 4px;
+}
+
+.vhs-mini-spool {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: radial-gradient(circle, #222 30%, #111 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vhs-mini-spool-inner {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0.4;
+    animation: spinSpool 2.4s linear infinite;
+    animation-play-state: var(--movie-play-state, paused);
+}
+
+.vhs-link {
+    --movie-play-state: paused;
+}
+.vhs-link:hover {
+    --movie-play-state: running;
+}
+
+.vhs-tape-strip {
+    flex: 1;
+    height: 3px;
+    background: #111;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin: 0 8px;
 }
 
 /* VHS Tracking scanline glitch on hover */
@@ -1099,24 +1055,43 @@ footer p {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    gap: 0;
+    padding: 0;
     margin: 0;
-    padding: 8px 0 4px;
+    width: 100%;
     position: relative;
     z-index: 2;
 }
 
-.index-book-cover,
-.index-movie-cover {
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.5);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease !important;
+.book-item,
+.vhs-movie-item {
+    position: relative;
+    display: flex;
 }
 
-.book-link:hover .index-book-cover,
-.vhs-link:hover .index-movie-cover {
-    box-shadow: 5px 15px 25px rgba(0, 0, 0, 0.6);
+.book-item:not(:first-child),
+.vhs-movie-item:not(:first-child) {
+    margin-left: -8px;
 }
+
+.index-book-cover,
+.index-movie-cover {
+    width: 38px;
+    height: 56px;
+    border-radius: 3px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+    display: block;
+}
+
+.book-link:hover .book-item:nth-child(1) .index-book-cover { transform: translateY(-4px) rotate(-1deg); }
+.book-link:hover .book-item:nth-child(2) .index-book-cover { transform: translateY(-6px); }
+.book-link:hover .book-item:nth-child(3) .index-book-cover { transform: translateY(-4px) rotate(1deg); }
+
+.vhs-link:hover .vhs-movie-item:nth-child(1) .index-movie-cover { transform: translateY(-3px) scale(1.02); }
+.vhs-link:hover .vhs-movie-item:nth-child(2) .index-movie-cover { transform: translateY(-5px) scale(1.04); }
+.vhs-link:hover .vhs-movie-item:nth-child(3) .index-movie-cover { transform: translateY(-3px) scale(1.02); }
 
 /* ======================== */
 /*     CASSETTE TAPE        */
@@ -1512,13 +1487,13 @@ footer p {
     opacity: 0.5;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
     .library-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
     }
 
     .cassette-link {
-        grid-column: span 2;
+        grid-column: span 1;
         order: -1;
     }
 }
@@ -1530,14 +1505,6 @@ footer p {
 
     h1 {
         font-size: 2.5rem;
-    }
-
-    .library-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .cassette-link {
-        grid-column: span 1;
     }
 }
 

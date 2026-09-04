@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=2.5">
+    <link rel="stylesheet" href="assets/css/styles.css?v=2.6">
 </head>
 
 <body>
@@ -111,11 +111,7 @@
                 <!-- Books (left) - Vintage Hardcover Book -->
                 <a href="/library/reading" class="book-link fun-books" id="book-card">
                     <div class="book-body">
-                        <!-- Brass corner hardware -->
-                        <div class="book-corner top-left"></div>
-                        <div class="book-corner bottom-left"></div>
-
-                        <!-- Book spine with embossed ribs -->
+                        <!-- Book spine with embossed 3D ribs -->
                         <div class="book-spine">
                             <div class="spine-rib"></div>
                             <div class="spine-rib"></div>
@@ -125,22 +121,23 @@
                         <!-- Silk bookmark ribbon -->
                         <div class="bookmark-ribbon"></div>
 
-                        <!-- Gold-foil stamped cover title -->
+                        <!-- Refined debossed cover title -->
                         <div class="book-cover-header">
                             <span class="book-cover-title">LIBRARY</span>
-                            <div class="book-gold-ornament">
-                                <span>✦</span>
-                                <div class="book-gold-line"></div>
-                                <span>✦</span>
-                            </div>
                             <span class="book-cover-subtitle">READING LOG</span>
                         </div>
 
-                        <!-- Book preview covers on shelf -->
-                        <div class="fun-side-previews book-previews" id="index-books-container">
-                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
-                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
-                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
+                        <!-- Recessed book showcase niche -->
+                        <div class="book-shelf-niche">
+                            <div class="book-niche-header">
+                                <span class="book-niche-tag">RECENT READS</span>
+                            </div>
+                            <div class="fun-side-previews book-previews" id="index-books-container">
+                                <div class="book-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
+                                <div class="book-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
+                                <div class="book-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
+                            </div>
+                            <div class="book-shelf-ledge"></div>
                         </div>
 
                         <!-- Deckle paper page edges along the right -->
@@ -221,8 +218,10 @@
                 <a href="/library/cinema" class="vhs-link fun-movies" id="vhs-card">
                     <div class="vhs-body">
                         <!-- Corner screws -->
-                        <div class="vhs-screw" style="top: 10px; left: 14px;"></div>
-                        <div class="vhs-screw" style="top: 10px; right: 14px;"></div>
+                        <div class="vhs-screw" style="top: 10px; left: 10px;"></div>
+                        <div class="vhs-screw" style="top: 10px; right: 10px;"></div>
+                        <div class="vhs-screw" style="bottom: 10px; left: 10px;"></div>
+                        <div class="vhs-screw" style="bottom: 10px; right: 10px;"></div>
 
                         <!-- Top paper sticker label -->
                         <div class="vhs-label-top">
@@ -233,41 +232,27 @@
                             <div class="vhs-label-title">RECENTS • VOL. 01</div>
                         </div>
 
-                        <!-- Clear window with rotating spools & VCR OSD -->
-                        <div class="vhs-window">
-                            <div class="vhs-spool left">
-                                <div class="vhs-spool-inner">
-                                    <div class="vhs-hub">
-                                        <div class="vhs-spoke"></div>
-                                        <div class="vhs-spoke"></div>
-                                        <div class="vhs-spoke"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="vhs-tape-bridge">
+                        <!-- Recessed Acrylic Tape Bay with OSD, Framed Covers, and Spools -->
+                        <div class="vhs-tape-bay">
+                            <div class="vhs-bay-header">
                                 <div class="vhs-osd"><span class="vhs-osd-icon">▶</span> PLAY</div>
+                                <div class="vhs-tape-counter">SP 0:00:24</div>
                             </div>
-                            <div class="vhs-spool right">
-                                <div class="vhs-spool-inner">
-                                    <div class="vhs-hub">
-                                        <div class="vhs-spoke"></div>
-                                        <div class="vhs-spoke"></div>
-                                        <div class="vhs-spoke"></div>
-                                    </div>
-                                </div>
+
+                            <!-- Movie posters preview inside viewport -->
+                            <div class="fun-side-previews vhs-previews" id="index-movies-container">
+                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
+                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
+                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
+                            </div>
+
+                            <!-- Mini tape spools and magnetic tape strip -->
+                            <div class="vhs-bay-bottom">
+                                <div class="vhs-mini-spool left"><div class="vhs-mini-spool-inner"></div></div>
+                                <div class="vhs-tape-strip"></div>
+                                <div class="vhs-mini-spool right"><div class="vhs-mini-spool-inner"></div></div>
                             </div>
                         </div>
-
-                        <!-- Movie posters preview -->
-                        <div class="fun-side-previews vhs-previews" id="index-movies-container">
-                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
-                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
-                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
-                        </div>
-
-                        <!-- Corner screws -->
-                        <div class="vhs-screw" style="bottom: 10px; left: 14px;"></div>
-                        <div class="vhs-screw" style="bottom: 10px; right: 14px;"></div>
 
                         <!-- Tracking scanline glitch overlay -->
                         <div class="vhs-tracking-glitch"></div>
@@ -281,7 +266,7 @@
         </footer>
     </div>
 
-    <script type="module" src="assets/js/pages/index.js?v=4.2"></script>
+    <script type="module" src="assets/js/pages/index.js?v=4.3"></script>
 </body>
 
 

@@ -199,9 +199,8 @@ function initIndex() {
         const data = books.data || books;
         const bookList = Array.isArray(data) ? data : (Array.isArray(data.books) ? data.books : []);
         if (bookList.length === 0) return;
-        indexBooksContainer.innerHTML = bookList.slice(0, 3).map((book, index) => {
-            const rotate = (index - 1) * 6;
-            return `<img src="${book.cover_url || ""}" alt="${book.title || ""}" class="index-book-cover" style="width: 40px; height: 60px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotate}deg); border-radius: 4px; object-fit: cover;">`;
+        indexBooksContainer.innerHTML = bookList.slice(0, 3).map((book) => {
+            return `<div class="book-item"><img src="${book.cover_url || ""}" alt="${book.title || ""}" class="index-book-cover"></div>`;
         }).join('');
     }
 
@@ -210,10 +209,9 @@ function initIndex() {
         const data = movies.data || movies;
         const recent = Array.isArray(data.recent_activity) ? data.recent_activity : (Array.isArray(data) ? data : []);
         if (recent.length === 0) return;
-        indexMoviesContainer.innerHTML = recent.slice(0, 3).map((film, index) => {
-            const rotate = (index - 1) * 6;
+        indexMoviesContainer.innerHTML = recent.slice(0, 3).map((film) => {
             const imgUrl = safeImg(film.cover_url);
-            return `<img src="${imgUrl}" alt="${film.title || ""}" class="index-movie-cover" style="width: 40px; height: 60px; margin-left: ${index === 0 ? '0' : '-14px'}; transform: rotate(${rotate}deg); border-radius: 4px; object-fit: cover;">`;
+            return `<div class="vhs-movie-item"><img src="${imgUrl}" alt="${film.title || ""}" class="index-movie-cover"></div>`;
         }).join('');
     }
 }

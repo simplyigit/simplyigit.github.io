@@ -852,32 +852,7 @@ footer p {
     box-sizing: border-box;
 }
 
-/* Screws matching cassette */
-.vhs-screw {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #444, #111);
-    border: 1px solid rgba(0, 0, 0, 0.8);
-    box-shadow:
-        inset 0 1px 2px rgba(255, 255, 255, 0.2),
-        0 1px 1px rgba(255, 255, 255, 0.05);
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
-.vhs-screw::after {
-    content: '+';
-    color: rgba(0, 0, 0, 0.8);
-    font-size: 10px;
-    font-weight: 900;
-    font-family: sans-serif;
-    transform: rotate(45deg);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
-}
 
 /* Molded Dark Chassis Header */
 .vhs-header-dark {
@@ -924,31 +899,67 @@ footer p {
     padding: 0 2px;
 }
 
-/* Phosphor Green VCR On-Screen Display */
+/* Phosphor VCR On-Screen Display with Smooth Play/Pause Transition */
 .vhs-osd {
+    position: relative;
+    height: 14px;
+    min-width: 52px;
+    display: flex;
+    align-items: center;
+}
+
+.vhs-osd-state {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.58rem;
-    color: #00ff88;
+    font-size: 0.56rem;
     font-weight: 700;
     letter-spacing: 1px;
-    text-shadow: 0 0 5px rgba(0, 255, 136, 0.6);
-    opacity: 0.85;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
 }
 
-.vhs-link:hover .vhs-osd {
+.state-play {
+    color: #00ff88;
+    text-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
     opacity: 1;
-    animation: vhsOsdPulse 1s infinite alternate;
+    transform: translateY(0);
 }
 
-@keyframes vhsOsdPulse {
-    from { text-shadow: 0 0 4px rgba(0, 255, 136, 0.5); }
-    to { text-shadow: 0 0 10px rgba(0, 255, 136, 0.9); }
+.state-pause {
+    color: #fbbf24;
+    text-shadow: 0 0 6px rgba(251, 191, 36, 0.7);
+    opacity: 0;
+    transform: translateY(3px);
+}
+
+.vhs-link:hover .state-play,
+.vhs-link.is-paused .state-play {
+    opacity: 0;
+    transform: translateY(-3px);
+}
+
+.vhs-link:hover .state-pause,
+.vhs-link.is-paused .state-pause {
+    opacity: 1;
+    transform: translateY(0);
+    animation: vhsPausePulse 1.2s infinite alternate;
+}
+
+@keyframes vhsPausePulse {
+    from { text-shadow: 0 0 4px rgba(251, 191, 36, 0.5); }
+    to { text-shadow: 0 0 10px rgba(251, 191, 36, 0.9); }
 }
 
 .vhs-osd-icon {
     font-size: 0.52rem;
-    margin-right: 2px;
+    margin-right: 3px;
+    display: inline-block;
 }
 
 .vhs-tape-counter {
@@ -956,6 +967,12 @@ footer p {
     font-size: 0.5rem;
     color: rgba(255, 255, 255, 0.35);
     letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+}
+
+.vhs-link:hover .vhs-tape-counter,
+.vhs-link.is-paused .vhs-tape-counter {
+    color: rgba(255, 255, 255, 0.65);
 }
 
 .vhs-bay-bottom {

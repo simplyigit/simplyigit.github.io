@@ -256,10 +256,9 @@ function initIndex() {
         }).join('');
     }
 
-    // VHS Cassette Hover Interaction: Play/Pause swap and live SP timer
+    // VHS Cassette Hover Interaction: Live SP timer and state toggle
     const vhsCard = document.getElementById('vhs-card');
     if (vhsCard) {
-        const vhsOsd = vhsCard.querySelector('.vhs-osd');
         const vhsTimer = vhsCard.querySelector('.vhs-tape-counter');
         let hoverStartTime = null;
         let vhsInterval = null;
@@ -276,7 +275,7 @@ function initIndex() {
 
         vhsCard.addEventListener('mouseenter', () => {
             hoverStartTime = Date.now();
-            if (vhsOsd) vhsOsd.innerHTML = '<span class="vhs-osd-icon">❚❚</span> PAUSE';
+            vhsCard.classList.add('is-paused');
             if (vhsTimer) vhsTimer.textContent = 'SP 0:00:00';
             clearInterval(vhsInterval);
             vhsInterval = setInterval(updateTimer, 200);
@@ -286,7 +285,7 @@ function initIndex() {
             clearInterval(vhsInterval);
             vhsInterval = null;
             hoverStartTime = null;
-            if (vhsOsd) vhsOsd.innerHTML = '<span class="vhs-osd-icon">▶</span> PLAY';
+            vhsCard.classList.remove('is-paused');
             if (vhsTimer) vhsTimer.textContent = 'SP 0:00:00';
         });
     }

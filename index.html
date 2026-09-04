@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=2.8">
+    <link rel="stylesheet" href="assets/css/styles.css?v=2.9">
 </head>
 
 <body>
@@ -215,12 +215,6 @@
                 <!-- Movies (right) - Retro VHS Cassette -->
                 <a href="/library/cinema" class="vhs-link fun-movies" id="vhs-card">
                     <div class="vhs-body">
-                        <!-- Corner screws -->
-                        <div class="vhs-screw" style="top: 10px; left: 10px;"></div>
-                        <div class="vhs-screw" style="top: 10px; right: 10px;"></div>
-                        <div class="vhs-screw" style="bottom: 10px; left: 10px;"></div>
-                        <div class="vhs-screw" style="bottom: 10px; right: 10px;"></div>
-
                         <!-- Molded Dark Chassis Header -->
                         <div class="vhs-header-dark">
                             <span class="vhs-brand-text">CINEMA</span>
@@ -229,7 +223,14 @@
                         <!-- Recessed Acrylic Tape Bay with OSD, Framed Covers, and Spools -->
                         <div class="vhs-tape-bay">
                             <div class="vhs-bay-header">
-                                <div class="vhs-osd"><span class="vhs-osd-icon">▶</span> PLAY</div>
+                                <div class="vhs-osd">
+                                    <span class="vhs-osd-state state-play">
+                                        <span class="vhs-osd-icon">▶</span> PLAY
+                                    </span>
+                                    <span class="vhs-osd-state state-pause">
+                                        <span class="vhs-osd-icon">❚❚</span> PAUSE
+                                    </span>
+                                </div>
                                 <div class="vhs-tape-counter">SP 0:00:00</div>
                             </div>
 
@@ -261,7 +262,7 @@
         </footer>
     </div>
 
-    <script type="module" src="assets/js/pages/index.js?v=4.5"></script>
+    <script type="module" src="assets/js/pages/index.js?v=4.6"></script>
 </body>
 
 

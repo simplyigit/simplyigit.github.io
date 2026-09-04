@@ -199,9 +199,50 @@ function initIndex() {
         const data = books.data || books;
         const bookList = Array.isArray(data) ? data : (Array.isArray(data.books) ? data.books : []);
         if (bookList.length === 0) return;
-        indexBooksContainer.innerHTML = bookList.slice(0, 3).map((book) => {
-            return `<div class="book-item"><img src="${book.cover_url || ""}" alt="${book.title || ""}" class="index-book-cover"></div>`;
-        }).join('');
+        const top3 = bookList.slice(0, 3);
+        if (top3.length === 1) {
+            indexBooksContainer.innerHTML = `
+                <div class="hero-stack-vol vol-1">
+                    <div class="hero-spine-ribbon"></div>
+                    <img src="${safeImg(top3[0].cover_url)}" alt="${top3[0].title || ''}" class="hero-vol-img">
+                    <div class="hero-vol-spine-edge"></div>
+                    <div class="hero-vol-pages-right"></div>
+                    <div class="hero-vol-pages-top"></div>
+                </div>
+            `;
+        } else if (top3.length === 2) {
+            indexBooksContainer.innerHTML = `
+                <div class="hero-stack-vol vol-2">
+                    <img src="${safeImg(top3[1].cover_url)}" alt="${top3[1].title || ''}" class="hero-vol-img">
+                    <div class="hero-vol-pages-right"></div>
+                </div>
+                <div class="hero-stack-vol vol-1">
+                    <div class="hero-spine-ribbon"></div>
+                    <img src="${safeImg(top3[0].cover_url)}" alt="${top3[0].title || ''}" class="hero-vol-img">
+                    <div class="hero-vol-spine-edge"></div>
+                    <div class="hero-vol-pages-right"></div>
+                    <div class="hero-vol-pages-top"></div>
+                </div>
+            `;
+        } else {
+            indexBooksContainer.innerHTML = `
+                <div class="hero-stack-vol vol-3">
+                    <img src="${safeImg(top3[2].cover_url)}" alt="${top3[2].title || ''}" class="hero-vol-img">
+                    <div class="hero-vol-pages-right"></div>
+                </div>
+                <div class="hero-stack-vol vol-2">
+                    <img src="${safeImg(top3[1].cover_url)}" alt="${top3[1].title || ''}" class="hero-vol-img">
+                    <div class="hero-vol-pages-right"></div>
+                </div>
+                <div class="hero-stack-vol vol-1">
+                    <div class="hero-spine-ribbon"></div>
+                    <img src="${safeImg(top3[0].cover_url)}" alt="${top3[0].title || ''}" class="hero-vol-img">
+                    <div class="hero-vol-spine-edge"></div>
+                    <div class="hero-vol-pages-right"></div>
+                    <div class="hero-vol-pages-top"></div>
+                </div>
+            `;
+        }
     }
 
     function renderMovies(movies) {

@@ -644,98 +644,25 @@ footer p {
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
 
-.book-body {
-    background: linear-gradient(155deg, #1e1c24 0%, #15141a 50%, #0d0c10 100%);
-    border-radius: 12px 14px 14px 12px;
-    padding: 10px 10px 12px 28px;
+.hero-book-body {
+    background: linear-gradient(155deg, #222027 0%, #19171f 45%, #121116 100%);
+    border-radius: 14px;
+    padding: 10px 12px 10px;
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-shadow:
         inset 0 1px 1px rgba(255, 255, 255, 0.08),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.6),
-        0 8px 30px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+        inset 0 -2px 4px rgba(0, 0, 0, 0.5),
+        0 8px 30px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
 }
 
-/* Leather/cloth texture overlay */
-.book-body::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(circle at 60% 25%, rgba(255, 255, 255, 0.025) 0%, transparent 60%),
-        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.004) 0px, rgba(255, 255, 255, 0.004) 1px, transparent 1px, transparent 3px);
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* Rounded Book Spine on the left */
-.book-spine {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 20px;
-    background: linear-gradient(90deg, #0c0b10 0%, #201e26 35%, #16151e 75%, #09080d 100%);
-    border-right: 1px solid rgba(0, 0, 0, 0.9);
-    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.6);
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-    padding: 18px 0;
-}
-
-/* 3D Embossed Spine Ribs (tactile leather ridges) */
-.spine-rib {
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(20, 18, 26, 0.8) 50%, rgba(0, 0, 0, 0.95) 100%);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 -1px 1px rgba(255, 255, 255, 0.08);
-    border-radius: 1px;
-}
-
-/* Silk Bookmark Ribbon */
-.bookmark-ribbon {
-    position: absolute;
-    top: 0;
-    right: 14px;
-    width: 11px;
-    height: 42px;
-    background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 60%, #4c0519 100%);
-    box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.5);
-    z-index: 4;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
-    transform-origin: top center;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.book-link:hover .bookmark-ribbon {
-    transform: scaleY(1.15) rotate(-1.5deg);
-}
-
-/* Page edges on right */
-.book-page-edges {
-    position: absolute;
-    top: 8px;
-    bottom: 8px;
-    right: 0;
-    width: 5px;
-    background: repeating-linear-gradient(180deg, #c8beaf 0px, #c8beaf 1px, #18151f 1px, #18151f 2px);
-    opacity: 0.35;
-    border-left: 1px solid rgba(0, 0, 0, 0.6);
-    border-radius: 0 3px 3px 0;
-    z-index: 2;
-}
-
-/* Debossed Letterpress Cover Title */
-.book-cover-header {
+.hero-book-header {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -744,8 +671,8 @@ footer p {
     z-index: 2;
 }
 
-.book-cover-title {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+.hero-book-title {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
     font-size: 0.95rem;
     font-weight: 700;
     letter-spacing: 3px;
@@ -754,7 +681,7 @@ footer p {
     text-transform: uppercase;
 }
 
-.book-cover-subtitle {
+.hero-book-sub {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.48rem;
     color: rgba(255, 255, 255, 0.42);
@@ -763,47 +690,126 @@ footer p {
     font-weight: 500;
 }
 
-/* Recessed Book Shelf Niche */
-.book-shelf-niche {
-    width: 100%;
-    background: rgba(0, 0, 0, 0.38);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7);
-    padding: 7px 8px 7px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-    z-index: 2;
+.hero-stack-stage {
+    position: relative;
     flex: 1;
-    margin-top: 6px;
-    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 4px 0;
+    perspective: 600px;
 }
 
-.book-niche-header {
-    width: 100%;
+.hero-stack-vol {
+    position: absolute;
+    border-radius: 3px 4px 4px 3px;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease;
+}
+
+.hero-vol-img {
+    width: 72px;
+    height: 106px;
+    border-radius: 3px 4px 4px 3px;
+    object-fit: cover;
+    display: block;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* 3D Page edges */
+.hero-vol-pages-right {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    right: -5px;
+    width: 5px;
+    background: repeating-linear-gradient(180deg, #eae2d5 0px, #eae2d5 1px, #1c1a22 1px, #1c1a22 2px);
+    border-radius: 0 2px 2px 0;
+    box-shadow: 1px 0 3px rgba(0, 0, 0, 0.7);
+}
+
+.hero-vol-pages-top {
+    position: absolute;
+    top: -4px;
+    left: 4px;
+    right: 3px;
+    height: 4px;
+    background: linear-gradient(0deg, #c4baa9 0%, #ece5d8 100%);
+    border-radius: 2px 2px 0 0;
+    transform: skewX(-40deg);
+}
+
+.hero-vol-spine-edge {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border-radius: 3px 0 0 3px;
+}
+
+.hero-spine-ribbon {
+    position: absolute;
+    top: -2px;
+    right: 12px;
+    width: 8px;
+    height: 24px;
+    background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
+    z-index: 5;
+}
+
+/* Layering */
+.vol-3 {
+    transform: translateX(-16px) translateY(-8px) rotate(-6deg) scale(0.88);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+    opacity: 0.75;
+    z-index: 1;
+}
+
+.vol-2 {
+    transform: translateX(14px) translateY(-4px) rotate(5deg) scale(0.93);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7);
+    opacity: 0.9;
+    z-index: 2;
+}
+
+.vol-1 {
+    transform: translateX(0) translateY(4px) rotate(0deg);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.85);
+    z-index: 3;
+}
+
+/* Hover animation: Fan the books out gracefully */
+.book-link:hover .vol-3 {
+    transform: translateX(-34px) translateY(-14px) rotate(-12deg) scale(0.92);
+    opacity: 0.95;
+}
+
+.book-link:hover .vol-2 {
+    transform: translateX(28px) translateY(-8px) rotate(10deg) scale(0.96);
+    opacity: 1;
+}
+
+.book-link:hover .vol-1 {
+    transform: translateX(0) translateY(-2px) scale(1.04);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.95);
+}
+
+.hero-stack-footer {
     display: flex;
     justify-content: center;
-    padding: 0 2px;
+    align-items: center;
+    padding: 2px 0 0;
 }
 
-.book-niche-tag {
+.hero-stack-hint {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.48rem;
-    color: rgba(255, 255, 255, 0.38);
-    letter-spacing: 1.2px;
+    font-size: 0.44rem;
+    color: rgba(255, 255, 255, 0.32);
+    letter-spacing: 1px;
     text-transform: uppercase;
-}
-
-.book-shelf-ledge {
-    width: 90%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 20%, rgba(255, 255, 255, 0.12) 80%, transparent 100%);
-    border-radius: 2px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-    margin-top: 2px;
 }
 
 
@@ -873,54 +879,51 @@ footer p {
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Vintage VHS Adhesive Paper Sticker */
-.vhs-label-top {
-    background: #eae6dd;
-    border-radius: 3px;
-    padding: 3px 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), inset 0 0 1px rgba(0, 0, 0, 0.2);
-    border-left: 4px solid #cc2929;
-    position: relative;
+/* Molded Dark Chassis Header */
+.vhs-header-dark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 0 0;
     z-index: 2;
-    margin: 0 14px;
 }
 
-.vhs-label-header {
+.vhs-brand-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-    padding-bottom: 1px;
-    margin-bottom: 2px;
+    gap: 6px;
 }
 
-.vhs-label-brand {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    font-weight: 800;
-    color: #1a1a1a;
-    letter-spacing: 1px;
+.vhs-brand-text {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #e8e4dc;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9), 0 1px 1px rgba(255, 255, 255, 0.12), 0 0 8px rgba(255, 255, 255, 0.06);
+    text-transform: uppercase;
 }
 
-.vhs-label-badge {
+.vhs-vhs-badge {
     font-family: sans-serif;
     font-size: 0.42rem;
     font-weight: 900;
-    color: #cc2929;
-    border: 1px solid #cc2929;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.6);
     border-radius: 2px;
-    padding: 0 2px;
+    padding: 0 3px;
     letter-spacing: 0.5px;
+    background: rgba(239, 68, 68, 0.1);
 }
 
-.vhs-label-title {
+.vhs-brand-sub {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.48rem;
-    color: #444;
-    font-weight: 700;
-    letter-spacing: 0.6px;
+    color: rgba(255, 255, 255, 0.42);
+    letter-spacing: 1.4px;
     text-transform: uppercase;
-    white-space: nowrap;
+    font-weight: 500;
 }
 
 /* Recessed Acrylic VHS Tape Bay */
@@ -1062,22 +1065,19 @@ footer p {
     z-index: 2;
 }
 
-.book-item,
 .vhs-movie-item {
     position: relative;
     display: flex;
 }
 
-.book-item:not(:first-child),
 .vhs-movie-item:not(:first-child) {
-    margin-left: -8px;
+    margin-left: -10px;
 }
 
-.index-book-cover,
 .index-movie-cover {
-    width: 38px;
-    height: 56px;
-    border-radius: 3px;
+    width: 44px;
+    height: 66px;
+    border-radius: 4px;
     object-fit: cover;
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
@@ -1085,13 +1085,9 @@ footer p {
     display: block;
 }
 
-.book-link:hover .book-item:nth-child(1) .index-book-cover { transform: translateY(-4px) rotate(-1deg); }
-.book-link:hover .book-item:nth-child(2) .index-book-cover { transform: translateY(-6px); }
-.book-link:hover .book-item:nth-child(3) .index-book-cover { transform: translateY(-4px) rotate(1deg); }
-
-.vhs-link:hover .vhs-movie-item:nth-child(1) .index-movie-cover { transform: translateY(-3px) scale(1.02); }
-.vhs-link:hover .vhs-movie-item:nth-child(2) .index-movie-cover { transform: translateY(-5px) scale(1.04); }
-.vhs-link:hover .vhs-movie-item:nth-child(3) .index-movie-cover { transform: translateY(-3px) scale(1.02); }
+.vhs-link:hover .vhs-movie-item:nth-child(1) .index-movie-cover { transform: translateY(-4px) scale(1.02); }
+.vhs-link:hover .vhs-movie-item:nth-child(2) .index-movie-cover { transform: translateY(-7px) scale(1.04); }
+.vhs-link:hover .vhs-movie-item:nth-child(3) .index-movie-cover { transform: translateY(-4px) scale(1.02); }
 
 /* ======================== */
 /*     CASSETTE TAPE        */

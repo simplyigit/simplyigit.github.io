@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=2.6">
+    <link rel="stylesheet" href="assets/css/styles.css?v=2.7">
 </head>
 
 <body>
@@ -108,40 +108,38 @@
             </div>
             <div class="library-grid">
 
-                <!-- Books (left) - Vintage Hardcover Book -->
+                <!-- Books (left) - 3D Book Showcase -->
                 <a href="/library/reading" class="book-link fun-books" id="book-card">
-                    <div class="book-body">
-                        <!-- Book spine with embossed 3D ribs -->
-                        <div class="book-spine">
-                            <div class="spine-rib"></div>
-                            <div class="spine-rib"></div>
-                            <div class="spine-rib"></div>
+                    <div class="hero-book-body">
+                        <!-- Header -->
+                        <div class="hero-book-header">
+                            <span class="hero-book-title">LIBRARY</span>
+                            <span class="hero-book-sub">READING LOG</span>
                         </div>
 
-                        <!-- Silk bookmark ribbon -->
-                        <div class="bookmark-ribbon"></div>
-
-                        <!-- Refined debossed cover title -->
-                        <div class="book-cover-header">
-                            <span class="book-cover-title">LIBRARY</span>
-                            <span class="book-cover-subtitle">READING LOG</span>
-                        </div>
-
-                        <!-- Recessed book showcase niche -->
-                        <div class="book-shelf-niche">
-                            <div class="book-niche-header">
-                                <span class="book-niche-tag">RECENT READS</span>
+                        <!-- Central 3D Book Stack -->
+                        <div class="hero-stack-stage" id="index-books-container">
+                            <div class="hero-stack-vol vol-3">
+                                <div class="spine-bounce" style="width: 72px; height: 106px; border-radius: 3px;"></div>
+                                <div class="hero-vol-pages-right"></div>
                             </div>
-                            <div class="fun-side-previews book-previews" id="index-books-container">
-                                <div class="book-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
-                                <div class="book-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
-                                <div class="book-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
+                            <div class="hero-stack-vol vol-2">
+                                <div class="spine-bounce" style="width: 72px; height: 106px; border-radius: 3px;"></div>
+                                <div class="hero-vol-pages-right"></div>
                             </div>
-                            <div class="book-shelf-ledge"></div>
+                            <div class="hero-stack-vol vol-1">
+                                <div class="hero-spine-ribbon"></div>
+                                <div class="spine-bounce" style="width: 72px; height: 106px; border-radius: 3px;"></div>
+                                <div class="hero-vol-spine-edge"></div>
+                                <div class="hero-vol-pages-right"></div>
+                                <div class="hero-vol-pages-top"></div>
+                            </div>
                         </div>
 
-                        <!-- Deckle paper page edges along the right -->
-                        <div class="book-page-edges"></div>
+                        <!-- Footer -->
+                        <div class="hero-stack-footer">
+                            <span class="hero-stack-hint">3 RECENT BOOKS</span>
+                        </div>
                     </div>
                 </a>
 
@@ -155,7 +153,7 @@
                         <div class="cassette-label-top">
                             <div class="cassette-label-brand">
                                 <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"
-                                    style="opacity: 0.6;">
+                                     style="opacity: 0.6;">
                                     <path
                                         d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.54.659.3 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.24 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.239.54-.959.72-1.56.3z" />
                                 </svg>
@@ -223,13 +221,13 @@
                         <div class="vhs-screw" style="bottom: 10px; left: 10px;"></div>
                         <div class="vhs-screw" style="bottom: 10px; right: 10px;"></div>
 
-                        <!-- Top paper sticker label -->
-                        <div class="vhs-label-top">
-                            <div class="vhs-label-header">
-                                <span class="vhs-label-brand">CINEMA</span>
-                                <span class="vhs-label-badge">VHS</span>
+                        <!-- Molded Dark Chassis Header -->
+                        <div class="vhs-header-dark">
+                            <div class="vhs-brand-row">
+                                <span class="vhs-brand-text">CINEMA</span>
+                                <span class="vhs-vhs-badge">VHS</span>
                             </div>
-                            <div class="vhs-label-title">RECENTS • VOL. 01</div>
+                            <span class="vhs-brand-sub">RECENTS • VOL. 01</span>
                         </div>
 
                         <!-- Recessed Acrylic Tape Bay with OSD, Framed Covers, and Spools -->
@@ -241,9 +239,9 @@
 
                             <!-- Movie posters preview inside viewport -->
                             <div class="fun-side-previews vhs-previews" id="index-movies-container">
-                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
-                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
-                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 38px; height: 56px; border-radius: 3px;"></div></div>
+                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 44px; height: 66px; border-radius: 4px;"></div></div>
+                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 44px; height: 66px; border-radius: 4px;"></div></div>
+                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 44px; height: 66px; border-radius: 4px;"></div></div>
                             </div>
 
                             <!-- Mini tape spools and magnetic tape strip -->
@@ -266,7 +264,7 @@
         </footer>
     </div>
 
-    <script type="module" src="assets/js/pages/index.js?v=4.3"></script>
+    <script type="module" src="assets/js/pages/index.js?v=4.4"></script>
 </body>
 
 

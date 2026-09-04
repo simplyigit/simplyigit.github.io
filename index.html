@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=2.4">
+    <link rel="stylesheet" href="assets/css/styles.css?v=2.5">
 </head>
 
 <body>
@@ -108,21 +108,43 @@
             </div>
             <div class="library-grid">
 
-                <!-- Books (left) -->
-                <a href="/library/reading" class="glass-card fun-side-card fun-books">
-                    <div class="book-texture"></div>
-                    <div class="book-ribs"></div>
-                    <div class="bookmark-ribbon"></div>
+                <!-- Books (left) - Vintage Hardcover Book -->
+                <a href="/library/reading" class="book-link fun-books" id="book-card">
+                    <div class="book-body">
+                        <!-- Brass corner hardware -->
+                        <div class="book-corner top-left"></div>
+                        <div class="book-corner bottom-left"></div>
 
-                    <div class="side-card-header book-header">
-                        <span class="side-card-title">LIBRARY</span>
-                        <span class="side-card-subtitle">RECENTS</span>
-                    </div>
+                        <!-- Book spine with embossed ribs -->
+                        <div class="book-spine">
+                            <div class="spine-rib"></div>
+                            <div class="spine-rib"></div>
+                            <div class="spine-rib"></div>
+                        </div>
 
-                    <div class="fun-side-previews" id="index-books-container">
-                        <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
-                        <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
-                        <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
+                        <!-- Silk bookmark ribbon -->
+                        <div class="bookmark-ribbon"></div>
+
+                        <!-- Gold-foil stamped cover title -->
+                        <div class="book-cover-header">
+                            <span class="book-cover-title">LIBRARY</span>
+                            <div class="book-gold-ornament">
+                                <span>✦</span>
+                                <div class="book-gold-line"></div>
+                                <span>✦</span>
+                            </div>
+                            <span class="book-cover-subtitle">READING LOG</span>
+                        </div>
+
+                        <!-- Book preview covers on shelf -->
+                        <div class="fun-side-previews book-previews" id="index-books-container">
+                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
+                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
+                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
+                        </div>
+
+                        <!-- Deckle paper page edges along the right -->
+                        <div class="book-page-edges"></div>
                     </div>
                 </a>
 
@@ -195,21 +217,60 @@
                     </div>
                 </a>
 
-                <!-- Movies (right) -->
-                <a href="/library/cinema" class="glass-card fun-side-card fun-movies">
-                    <div class="film-strip left"></div>
-                    <div class="film-strip right"></div>
-                    <div class="projector-beam"></div>
+                <!-- Movies (right) - Retro VHS Cassette -->
+                <a href="/library/cinema" class="vhs-link fun-movies" id="vhs-card">
+                    <div class="vhs-body">
+                        <!-- Corner screws -->
+                        <div class="vhs-screw" style="top: 10px; left: 14px;"></div>
+                        <div class="vhs-screw" style="top: 10px; right: 14px;"></div>
 
-                    <div class="side-card-header movie-header">
-                        <span class="side-card-title">CINEMA</span>
-                        <span class="side-card-subtitle">RECENTS</span>
-                    </div>
+                        <!-- Top paper sticker label -->
+                        <div class="vhs-label-top">
+                            <div class="vhs-label-header">
+                                <span class="vhs-label-brand">CINEMA</span>
+                                <span class="vhs-label-badge">VHS</span>
+                            </div>
+                            <div class="vhs-label-title">RECENTS • VOL. 01</div>
+                        </div>
 
-                    <div class="fun-side-previews" id="index-movies-container">
-                        <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
-                        <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
-                        <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
+                        <!-- Clear window with rotating spools & VCR OSD -->
+                        <div class="vhs-window">
+                            <div class="vhs-spool left">
+                                <div class="vhs-spool-inner">
+                                    <div class="vhs-hub">
+                                        <div class="vhs-spoke"></div>
+                                        <div class="vhs-spoke"></div>
+                                        <div class="vhs-spoke"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vhs-tape-bridge">
+                                <div class="vhs-osd"><span class="vhs-osd-icon">▶</span> PLAY</div>
+                            </div>
+                            <div class="vhs-spool right">
+                                <div class="vhs-spool-inner">
+                                    <div class="vhs-hub">
+                                        <div class="vhs-spoke"></div>
+                                        <div class="vhs-spoke"></div>
+                                        <div class="vhs-spoke"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Movie posters preview -->
+                        <div class="fun-side-previews vhs-previews" id="index-movies-container">
+                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
+                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
+                            <div class="spine-bounce" style="width: 36px; height: 54px; border-radius: 3px;"></div>
+                        </div>
+
+                        <!-- Corner screws -->
+                        <div class="vhs-screw" style="bottom: 10px; left: 14px;"></div>
+                        <div class="vhs-screw" style="bottom: 10px; right: 14px;"></div>
+
+                        <!-- Tracking scanline glitch overlay -->
+                        <div class="vhs-tracking-glitch"></div>
                     </div>
                 </a>
             </div>

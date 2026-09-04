@@ -622,264 +622,500 @@ footer p {
     animation-delay: 0.2s;
 }
 
+
 /* ======================== */
-/*   SIDE CARDS (Premium Glass) */
+/*   VINTAGE BOOK CARD      */
 /* ======================== */
 
-.fun-side-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    padding: 24px;
-    background: rgba(255, 255, 255, 0.015);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-    overflow: hidden;
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
-    mask-image: radial-gradient(white, black);
+.book-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+    min-width: 0;
+    will-change: transform;
+    height: 100%;
 }
 
-.fun-side-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 70%);
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    pointer-events: none;
-}
-
-.fun-side-card:hover::before {
-    opacity: 1;
-}
-
-.fun-books:hover {
-    background: rgba(212, 175, 120, 0.04);
-    border-color: rgba(212, 175, 120, 0.2);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 0 25px rgba(212, 175, 120, 0.08);
-}
-
-.fun-movies:hover {
-    background: rgba(255, 128, 0, 0.03);
-    border-color: rgba(255, 128, 0, 0.15);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 128, 0, 0.05);
-}
-
-.side-card-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    z-index: 2;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.side-card-title {
-    font-family: "Playfair Display", Georgia, serif;
-    font-size: 1.35rem;
-    /* Adjusted for better balance */
-    font-weight: 700;
-    letter-spacing: 2.5px;
-    color: rgba(255, 255, 255, 0.9);
-    text-transform: uppercase;
-}
-
-.side-card-subtitle {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    /* Slightly smaller for refinement */
-    color: var(--text-secondary);
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-}
-
-.fun-side-card:hover .side-card-header {
+.book-link:hover {
     transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
 
-/* --- BOOK CARD ELEMENTS --- */
-.book-texture {
+.book-body {
+    background: linear-gradient(145deg, #27222e 0%, #1f1a25 45%, #16131b 100%);
+    border-radius: 14px;
+    padding: 12px 14px 12px 28px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 215, 120, 0.15),
+        inset -3px 0 8px rgba(0, 0, 0, 0.5),
+        0 8px 30px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    overflow: hidden;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Leather/cloth texture overlay */
+.book-body::before {
+    content: '';
     position: absolute;
     inset: 0;
     background:
-        linear-gradient(to right, rgba(0, 0, 0, 0.4) 0%, transparent 15%, transparent 85%, rgba(0, 0, 0, 0.4) 100%);
-    opacity: 0.3;
+        radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.04) 0%, transparent 60%),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.006) 0px, rgba(255, 255, 255, 0.006) 1px, transparent 1px, transparent 3px);
     pointer-events: none;
-    z-index: 0;
-    transition: opacity 0.5s ease;
+    z-index: 1;
 }
 
-/* Book Spine Ribs */
-.fun-books::after {
+/* Debossed inner gold frame */
+.book-body::after {
     content: '';
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 24px;
-    background: linear-gradient(90deg,
-            rgba(0, 0, 0, 0.4) 0%,
-            rgba(255, 255, 255, 0.02) 20%,
-            rgba(0, 0, 0, 0.2) 40%,
-            rgba(255, 255, 255, 0.01) 60%,
-            rgba(0, 0, 0, 0.3) 100%);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    top: 6px;
+    bottom: 6px;
+    left: 24px;
+    right: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.12);
+    border-radius: 8px;
+    pointer-events: none;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4);
     z-index: 1;
 }
 
-/* Ribbed Texture for the spine */
-.fun-books .book-ribs {
+/* Rounded Book Spine on the left */
+.book-spine {
     position: absolute;
+    top: 0;
+    bottom: 0;
     left: 0;
-    top: 0;
-    bottom: 0;
-    width: 24px;
-    background: repeating-linear-gradient(180deg,
-            transparent 0px,
-            transparent 30px,
-            rgba(0, 0, 0, 0.3) 30px,
-            rgba(0, 0, 0, 0.3) 32px,
-            rgba(255, 255, 255, 0.03) 32px,
-            rgba(255, 255, 255, 0.03) 33px);
-    z-index: 2;
-    opacity: 0.6;
-}
-
-.fun-books:hover .book-texture {
-    opacity: 0.6;
-}
-
-.bookmark-ribbon {
-    position: absolute;
-    top: 0;
-    right: 20px;
-    width: 24px;
-    height: 60px;
-    background: linear-gradient(180deg, #8B0000 0%, #600000 100%);
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-    z-index: 1;
-    transform-origin: top;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
-}
-
-.fun-books:hover .bookmark-ribbon {
-    transform: scaleY(1.2);
-}
-
-/* --- MOVIE CARD ELEMENTS --- */
-.film-strip {
-    position: absolute;
-    top: 0;
-    bottom: 0;
     width: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 0;
+    background: linear-gradient(90deg, #131018 0%, #2a2433 35%, #1c1823 75%, #0e0c12 100%);
+    border-right: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.6);
+    z-index: 3;
     display: flex;
     flex-direction: column;
+    justify-content: space-evenly;
     align-items: center;
     padding: 10px 0;
 }
 
-.film-strip::after {
+/* Embossed Spine Ribs */
+.spine-rib {
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.2) 0%, rgba(245, 225, 160, 0.7) 50%, rgba(180, 140, 40, 0.3) 100%);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 -1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Antique Brass Corner Hardware */
+.book-corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, #ecd58b 0%, #b8933b 50%, #6e5117 100%);
+    z-index: 5;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.book-corner.top-left {
+    top: 0;
+    left: 0;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    border-top-left-radius: 14px;
+}
+
+.book-corner.bottom-left {
+    bottom: 0;
+    left: 0;
+    clip-path: polygon(0 0, 0 100%, 100% 100%);
+    border-bottom-left-radius: 14px;
+}
+
+/* Silk Bookmark Ribbon */
+.bookmark-ribbon {
+    position: absolute;
+    top: 0;
+    right: 14px;
+    width: 12px;
+    height: 48px;
+    background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 60%, #58111a 100%);
+    box-shadow: 2px 3px 6px rgba(0, 0, 0, 0.5);
+    z-index: 4;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
+    transform-origin: top center;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-link:hover .bookmark-ribbon {
+    transform: scaleY(1.18) rotate(-1.5deg);
+}
+
+/* Page edges on right */
+.book-page-edges {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    right: 0;
+    width: 5px;
+    background: repeating-linear-gradient(180deg, #d8cebe 0px, #d8cebe 1px, #1c1822 1px, #1c1822 2px);
+    opacity: 0.4;
+    border-left: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: 0 3px 3px 0;
+    z-index: 2;
+}
+
+/* Gold Foil Embossed Title */
+.book-cover-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding-top: 6px;
+    z-index: 2;
+}
+
+.book-cover-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    background: linear-gradient(135deg, #fff7d6 0%, #e6c875 35%, #b3892b 70%, #f0d588 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9));
+    text-transform: uppercase;
+}
+
+.book-gold-ornament {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #d4af37;
+    font-size: 0.45rem;
+    opacity: 0.8;
+}
+
+.book-gold-line {
+    width: 32px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+}
+
+.book-cover-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: rgba(212, 175, 55, 0.7);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-top: 1px;
+}
+
+.book-previews {
+    position: relative;
+    z-index: 3;
+    margin-bottom: 2px;
+}
+
+/* Shelf line under books */
+.book-previews::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(180deg,
-            rgba(255, 255, 255, 0.1) 0px,
-            rgba(255, 255, 255, 0.1) 6px,
-            transparent 6px,
-            transparent 14px);
-    width: 8px;
-    margin: 0 auto;
-    animation: filmScroll 0.8s linear infinite;
+    bottom: -2px;
+    left: 5px;
+    right: 5px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3) 20%, rgba(212, 175, 55, 0.3) 80%, transparent);
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+
+/* ======================== */
+/*   RETRO VHS CARD         */
+/* ======================== */
+
+.vhs-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+    min-width: 0;
+    will-change: transform;
+    height: 100%;
+}
+
+.vhs-link:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.vhs-body {
+    background: linear-gradient(180deg, #28262e 0%, #1f1d24 40%, #17151b 100%);
+    border-radius: 14px;
+    padding: 12px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.3),
+        0 8px 30px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Screws matching cassette */
+.vhs-screw {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #444, #111);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        0 1px 1px rgba(255, 255, 255, 0.05);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vhs-screw::after {
+    content: '+';
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 10px;
+    font-weight: 900;
+    font-family: sans-serif;
+    transform: rotate(45deg);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Vintage VHS Adhesive Paper Sticker */
+.vhs-label-top {
+    background: #eae6dd;
+    border-radius: 3px;
+    padding: 3px 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), inset 0 0 1px rgba(0, 0, 0, 0.2);
+    border-left: 4px solid #cc2929;
+    position: relative;
+    z-index: 2;
+    margin: 4px 12px 0 12px;
+}
+
+.vhs-label-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+    padding-bottom: 1px;
+    margin-bottom: 2px;
+}
+
+.vhs-label-brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    letter-spacing: 1px;
+}
+
+.vhs-label-badge {
+    font-family: sans-serif;
+    font-size: 0.45rem;
+    font-weight: 900;
+    color: #cc2929;
+    border: 1px solid #cc2929;
+    border-radius: 2px;
+    padding: 0 2px;
+    letter-spacing: 0.5px;
+}
+
+.vhs-label-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    color: #444;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+/* Recessed Acrylic VHS Window */
+.vhs-window {
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 6px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    margin: 6px 0;
+    z-index: 2;
+}
+
+.vhs-spool {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: radial-gradient(circle, #222 30%, #151518 100%);
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vhs-spool-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: spinSpool 2.4s linear infinite;
     animation-play-state: var(--movie-play-state, paused);
 }
 
-.fun-movies {
+.vhs-link {
     --movie-play-state: paused;
 }
-
-.fun-movies:hover {
+.vhs-link:hover {
     --movie-play-state: running;
 }
 
-@keyframes filmScroll {
-    from {
-        background-position: 0 0;
-    }
-
-    to {
-        background-position: 0 -14px;
-    }
+.vhs-hub {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: #0a0a0c;
+    position: relative;
 }
 
-.film-strip.left {
-    left: 0;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.film-strip.right {
-    right: 0;
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.projector-beam {
+.vhs-hub::after {
+    content: '';
     position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px;
-    height: 100%;
-    background: conic-gradient(from 180deg at 50% 0%, transparent 150deg, rgba(255, 255, 255, 0.05) 180deg, transparent 210deg);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 1;
-    transition: opacity 0.5s ease;
-    mix-blend-mode: screen;
+    inset: 2px;
+    border-radius: 50%;
+    background: #000;
 }
 
-.fun-movies:hover .projector-beam {
+.vhs-spoke {
+    position: absolute;
+    width: 100%;
+    height: 1.5px;
+    background: rgba(255, 255, 255, 0.4);
+    top: 50%;
+    left: 0;
+    transform-origin: center center;
+}
+
+.vhs-spoke:nth-child(1) { transform: translateY(-50%) rotate(0deg); }
+.vhs-spoke:nth-child(2) { transform: translateY(-50%) rotate(60deg); }
+.vhs-spoke:nth-child(3) { transform: translateY(-50%) rotate(120deg); }
+
+.vhs-tape-bridge {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Phosphor Green VCR On-Screen Display */
+.vhs-osd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: #00ff88;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(0, 255, 136, 0.6);
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.vhs-link:hover .vhs-osd {
     opacity: 1;
+    animation: vhsOsdPulse 1s infinite alternate;
 }
 
+@keyframes vhsOsdPulse {
+    from { text-shadow: 0 0 4px rgba(0, 255, 136, 0.5); }
+    to { text-shadow: 0 0 10px rgba(0, 255, 136, 0.9); }
+}
+
+.vhs-osd-icon {
+    font-size: 0.55rem;
+    margin-right: 2px;
+}
+
+.vhs-previews {
+    position: relative;
+    z-index: 3;
+    margin-bottom: 2px;
+}
+
+/* VHS Tracking scanline glitch on hover */
+.vhs-tracking-glitch {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.vhs-link:hover .vhs-tracking-glitch {
+    opacity: 1;
+    animation: vhsTracking 3s linear infinite;
+}
+
+@keyframes vhsTracking {
+    0% { top: -20px; }
+    100% { top: 100%; }
+}
+
+/* Previews shared styling */
 .fun-side-previews {
     display: flex;
     justify-content: center;
     align-items: flex-end;
     gap: 0;
     margin: 0;
-    padding: 10px 0;
+    padding: 8px 0 4px;
     position: relative;
     z-index: 2;
 }
 
-/* Subtle shelf line */
-.fun-side-previews::after {
-    content: '';
-    position: absolute;
-    bottom: 5px;
-    left: -10px;
-    right: -10px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-    border-radius: 2px;
-}
-
 .index-book-cover,
 .index-movie-cover {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.4);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease !important;
 }
 
-.fun-side-card:hover .index-book-cover,
-.fun-side-card:hover .index-movie-cover {
-    box-shadow: 5px 15px 25px rgba(0, 0, 0, 0.5);
+.book-link:hover .index-book-cover,
+.vhs-link:hover .index-movie-cover {
+    box-shadow: 5px 15px 25px rgba(0, 0, 0, 0.6);
 }
 
 /* ======================== */

@@ -1057,10 +1057,15 @@ footer p {
     display: flex;
     white-space: nowrap;
     width: fit-content;
-    animation: tapeMarquee 6s linear infinite;
+    animation: tapeMarquee var(--marquee-duration, 6s) linear infinite;
     animation-play-state: var(--tape-play-state, paused);
     will-change: transform;
     transform: translateZ(0);
+}
+
+/* Don't animate marquee while loading skeleton is displayed */
+.cassette-song-marquee:has(.spine-bounce) {
+    animation: none;
 }
 
 .cassette-link {
@@ -1074,13 +1079,12 @@ footer p {
 .cassette-song-title-text {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.45);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     display: inline-block;
     padding: 0 5px;
-    /* Added slight padding between tracks */
 }
 
 @keyframes tapeMarquee {
@@ -1089,7 +1093,7 @@ footer p {
     }
 
     100% {
-        transform: translateX(-14.285%);
+        transform: translateX(calc(-100% / 7));
     }
 }
 
@@ -1103,7 +1107,8 @@ footer p {
     position: relative;
     z-index: 1;
     overflow: hidden;
-    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    box-sizing: border-box;
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
     box-shadow:
         0 4px 10px rgba(0, 0, 0, 0.6),
         inset 0 0 8px rgba(0, 0, 0, 0.5);
@@ -1111,23 +1116,20 @@ footer p {
     mask-image: radial-gradient(white, black);
 }
 
-/* Rotating metallic background */
+/* Stationary metallic background and tape pack texture */
 .spool::before {
     content: '';
     position: absolute;
-    inset: -2px;
+    inset: 0;
     border-radius: 50%;
     background:
         radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 45%),
-        radial-gradient(circle, rgba(255, 255, 255, 0) 7px, rgba(255, 255, 255, 0.1) 7px, rgba(255, 255, 255, 0.1) 8px, rgba(255, 255, 255, 0) 8px),
+        radial-gradient(circle, transparent 8px, rgba(255, 255, 255, 0.08) 8px, rgba(255, 255, 255, 0.08) 9px, transparent 9px),
         repeating-radial-gradient(circle at center,
-            #222 0px, #222 1.5px,
-            #2a2a2a 1.5px, #2a2a2a 3px);
+            #1e1c22 0px, #1e1c22 1.5px,
+            #26242c 1.5px, #26242c 3px);
     z-index: 0;
-    animation: spinSpool 3s linear infinite;
-    animation-play-state: var(--tape-play-state, paused);
-    will-change: transform;
-    transform: translateZ(0);
+    pointer-events: none;
 }
 
 .spool-inner {
@@ -1139,11 +1141,55 @@ footer p {
     justify-content: center;
     position: relative;
     z-index: 1;
-    animation: spinSpool 2s linear infinite;
+    animation: spinSpool 2.4s linear infinite;
     animation-play-state: var(--tape-play-state, paused);
     will-change: transform;
     transform: translateZ(0);
 }
+
+/* Cassette spool hub (center spindle opening) */
+.spool-hub {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    background: radial-gradient(circle, #0e0d11 35%, rgba(255, 255, 255, 0.06) 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.8), inset 0 0 2px rgba(0, 0, 0, 0.8);
+    box-sizing: border-box;
+}
+
+/* Center spindle hole */
+.spool-hub::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 2;
+}
+
+/* Cassette spindle teeth / spokes */
+.spool-spoke {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.35);
+    top: 50%;
+    left: 0;
+    transform-origin: center center;
+    border-radius: 1px;
+    z-index: 1;
+}
+
+.spool-spoke:nth-child(1) { transform: translateY(-50%) rotate(0deg); }
+.spool-spoke:nth-child(2) { transform: translateY(-50%) rotate(60deg); }
+.spool-spoke:nth-child(3) { transform: translateY(-50%) rotate(120deg); }
 
 @keyframes spinSpool {
     from {

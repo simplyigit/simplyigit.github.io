@@ -160,7 +160,12 @@ function initIndex() {
             if (cassetteArtistName) cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
             if (cassetteSongTitle) {
                 const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
-                if (marquee) marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text fade-in">${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
+                if (marquee) {
+                    marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text">${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
+                    const titleLen = (topTrack.title || "").length;
+                    const duration = Math.max(5, Math.min(12, 4 + titleLen * 0.12));
+                    marquee.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
+                }
             }
             const cassetteBody = document.getElementById("cassette-body");
             if (cassetteBody && topTrack.cover_url) {

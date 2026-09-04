@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=2.7">
+    <link rel="stylesheet" href="assets/css/styles.css?v=2.8">
 </head>
 
 <body>
@@ -223,18 +223,14 @@
 
                         <!-- Molded Dark Chassis Header -->
                         <div class="vhs-header-dark">
-                            <div class="vhs-brand-row">
-                                <span class="vhs-brand-text">CINEMA</span>
-                                <span class="vhs-vhs-badge">VHS</span>
-                            </div>
-                            <span class="vhs-brand-sub">RECENTS • VOL. 01</span>
+                            <span class="vhs-brand-text">CINEMA</span>
                         </div>
 
                         <!-- Recessed Acrylic Tape Bay with OSD, Framed Covers, and Spools -->
                         <div class="vhs-tape-bay">
                             <div class="vhs-bay-header">
                                 <div class="vhs-osd"><span class="vhs-osd-icon">▶</span> PLAY</div>
-                                <div class="vhs-tape-counter">SP 0:00:24</div>
+                                <div class="vhs-tape-counter">SP 0:00:00</div>
                             </div>
 
                             <!-- Movie posters preview inside viewport -->
@@ -244,16 +240,17 @@
                                 <div class="vhs-movie-item"><div class="spine-bounce" style="width: 44px; height: 66px; border-radius: 4px;"></div></div>
                             </div>
 
-                            <!-- Mini tape spools and magnetic tape strip -->
+                            <!-- Mini tape spools, magnetic tape strip, and VHS badge -->
                             <div class="vhs-bay-bottom">
                                 <div class="vhs-mini-spool left"><div class="vhs-mini-spool-inner"></div></div>
-                                <div class="vhs-tape-strip"></div>
+                                <div class="vhs-spool-badge-row">
+                                    <div class="vhs-tape-strip"></div>
+                                    <span class="vhs-tag-red">VHS</span>
+                                    <div class="vhs-tape-strip"></div>
+                                </div>
                                 <div class="vhs-mini-spool right"><div class="vhs-mini-spool-inner"></div></div>
                             </div>
                         </div>
-
-                        <!-- Tracking scanline glitch overlay -->
-                        <div class="vhs-tracking-glitch"></div>
                     </div>
                 </a>
             </div>
@@ -264,7 +261,7 @@
         </footer>
     </div>
 
-    <script type="module" src="assets/js/pages/index.js?v=4.4"></script>
+    <script type="module" src="assets/js/pages/index.js?v=4.5"></script>
 </body>
 
 

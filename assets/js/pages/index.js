@@ -255,6 +255,41 @@ function initIndex() {
             return `<div class="vhs-movie-item"><img src="${imgUrl}" alt="${film.title || ""}" class="index-movie-cover"></div>`;
         }).join('');
     }
+
+    // VHS Cassette Hover Interaction: Play/Pause swap and live SP timer
+    const vhsCard = document.getElementById('vhs-card');
+    if (vhsCard) {
+        const vhsOsd = vhsCard.querySelector('.vhs-osd');
+        const vhsTimer = vhsCard.querySelector('.vhs-tape-counter');
+        let hoverStartTime = null;
+        let vhsInterval = null;
+
+        const updateTimer = () => {
+            if (!hoverStartTime || !vhsTimer) return;
+            const elapsed = Math.floor((Date.now() - hoverStartTime) / 1000);
+            const h = Math.floor(elapsed / 3600);
+            const m = Math.floor((elapsed % 3600) / 60);
+            const s = elapsed % 60;
+            const pad = (n) => n < 10 ? '0' + n : `${n}`;
+            vhsTimer.textContent = `SP ${h}:${pad(m)}:${pad(s)}`;
+        };
+
+        vhsCard.addEventListener('mouseenter', () => {
+            hoverStartTime = Date.now();
+            if (vhsOsd) vhsOsd.innerHTML = '<span class="vhs-osd-icon">❚❚</span> PAUSE';
+            if (vhsTimer) vhsTimer.textContent = 'SP 0:00:00';
+            clearInterval(vhsInterval);
+            vhsInterval = setInterval(updateTimer, 200);
+        });
+
+        vhsCard.addEventListener('mouseleave', () => {
+            clearInterval(vhsInterval);
+            vhsInterval = null;
+            hoverStartTime = null;
+            if (vhsOsd) vhsOsd.innerHTML = '<span class="vhs-osd-icon">▶</span> PLAY';
+            if (vhsTimer) vhsTimer.textContent = 'SP 0:00:00';
+        });
+    }
 }
 
 if (document.readyState === 'loading') {

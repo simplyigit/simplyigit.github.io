@@ -882,17 +882,10 @@ footer p {
 /* Molded Dark Chassis Header */
 .vhs-header-dark {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 2px;
-    padding: 2px 0 0;
+    padding: 4px 0 2px;
     z-index: 2;
-}
-
-.vhs-brand-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
 .vhs-brand-text {
@@ -903,27 +896,6 @@ footer p {
     color: #e8e4dc;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9), 0 1px 1px rgba(255, 255, 255, 0.12), 0 0 8px rgba(255, 255, 255, 0.06);
     text-transform: uppercase;
-}
-
-.vhs-vhs-badge {
-    font-family: sans-serif;
-    font-size: 0.42rem;
-    font-weight: 900;
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.6);
-    border-radius: 2px;
-    padding: 0 3px;
-    letter-spacing: 0.5px;
-    background: rgba(239, 68, 68, 0.1);
-}
-
-.vhs-brand-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.48rem;
-    color: rgba(255, 255, 255, 0.42);
-    letter-spacing: 1.4px;
-    text-transform: uppercase;
-    font-weight: 500;
 }
 
 /* Recessed Acrylic VHS Tape Bay */
@@ -1022,35 +994,35 @@ footer p {
     --movie-play-state: running;
 }
 
+.vhs-spool-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+    margin: 0 6px;
+}
+
+.vhs-tag-red {
+    font-family: sans-serif;
+    font-size: 0.44rem;
+    font-weight: 900;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.6);
+    border-radius: 2px;
+    padding: 0 4px;
+    letter-spacing: 0.8px;
+    background: rgba(239, 68, 68, 0.1);
+    display: inline-block;
+    line-height: 1.2;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
 .vhs-tape-strip {
     flex: 1;
     height: 3px;
     background: #111;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
-    margin: 0 8px;
-}
-
-/* VHS Tracking scanline glitch on hover */
-.vhs-tracking-glitch {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 20px;
-    background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
-    pointer-events: none;
-    z-index: 10;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.vhs-link:hover .vhs-tracking-glitch {
-    opacity: 1;
-    animation: vhsTracking 3s linear infinite;
-}
-
-@keyframes vhsTracking {
-    0% { top: -20px; }
-    100% { top: 100%; }
 }
 
 /* Previews shared styling */

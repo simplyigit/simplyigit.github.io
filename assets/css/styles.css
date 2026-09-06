@@ -681,7 +681,7 @@ footer p {
     width: 100%;
     flex: 1;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible; /* Allows books to pop forward and extend OVER the dark background */
 }
 
 /* Bay Top: Minimal tactile indicator row */
@@ -696,27 +696,28 @@ footer p {
 .book-bay-indicator {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.52rem;
-    font-weight: 700;
-    color: #d97706;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.45);
     letter-spacing: 0.8px;
 }
 
 .book-bay-dot {
-    width: 5px;
-    height: 5px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
-    background: #f59e0b;
-    box-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: none; /* Zero neon glow */
 }
 
 .book-bay-counter {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.5rem;
-    color: rgba(255, 255, 255, 0.35);
-    letter-spacing: 0.5px;
+    font-size: 0.52rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 1px;
 }
 
 /* Central Bookshelf Stage */
@@ -727,23 +728,26 @@ footer p {
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 1000px;
+    perspective: 1100px;
+    transform-style: preserve-3d;
+    z-index: 10;
 }
 
 /* The 3 Books Layout */
 .book-shelf-item {
     position: absolute;
     border-radius: 3px 4px 4px 3px;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
 }
 
 /* Left Book (Book 3) */
 .book-shelf-left {
     width: 72px;
     height: 106px;
-    transform: translateX(-65px) translateY(3px) rotate(-7deg);
+    transform: translateX(-56px) translateY(2px) rotate(-6deg) translateZ(4px);
     z-index: 1;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, filter 0.5s ease;
 }
 
 .book-shelf-left img {
@@ -758,9 +762,10 @@ footer p {
 .book-shelf-right {
     width: 72px;
     height: 106px;
-    transform: translateX(65px) translateY(3px) rotate(7deg);
+    transform: translateX(56px) translateY(2px) rotate(6deg) translateZ(4px);
     z-index: 2;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, filter 0.5s ease;
 }
 
 .book-shelf-right img {
@@ -771,27 +776,29 @@ footer p {
     display: block;
 }
 
-/* Hover: Side books tuck outward into shadows */
+/* Hover: Side books tuck outward into deep background shadows */
 .book-link:hover .book-shelf-left {
-    transform: translateX(-92px) translateY(5px) rotate(-12deg) scale(0.85);
-    opacity: 0.35;
+    transform: translateX(-92px) translateY(10px) translateZ(-40px) rotate(-14deg) scale(0.8);
+    opacity: 0.2;
+    filter: blur(0.5px);
 }
 
 .book-link:hover .book-shelf-right {
-    transform: translateX(92px) translateY(5px) rotate(12deg) scale(0.85);
-    opacity: 0.35;
+    transform: translateX(92px) translateY(10px) translateZ(-40px) rotate(14deg) scale(0.8);
+    opacity: 0.2;
+    filter: blur(0.5px);
 }
 
 /* Center Hero Book Assembly */
 .book-shelf-center,
 .book-3d-wrapper {
     position: relative;
-    width: 82px;
-    height: 122px;
-    z-index: 5;
+    width: 84px;
+    height: 124px;
+    z-index: 20;
     transform-style: preserve-3d;
-    transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
-    transform: translateX(0) translateY(0);
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateX(0) translateY(0) translateZ(8px);
 }
 
 .book-3d-obj {
@@ -801,10 +808,14 @@ footer p {
     transform-style: preserve-3d;
 }
 
-/* On hover: book shifts right by 38px and tilts in 3D perspective to center open spread */
+/* On hover: book shifts forward in 3D, rises and scales over the dark black background */
 .book-link:hover .book-shelf-center,
 .book-link:hover .book-3d-wrapper {
-    transform: translateX(38px) rotateY(-5deg) rotateX(4deg);
+    transform: translateX(36px) translateY(-10px) translateZ(60px) scale(1.15) rotateY(-5deg) rotateX(3deg);
+}
+
+.book-link:hover .book-obj-base {
+    box-shadow: -15px 25px 35px rgba(0, 0, 0, 0.9), 0 10px 20px rgba(0, 0, 0, 0.7);
 }
 
 /* Spine */
@@ -963,13 +974,13 @@ footer p {
     transform-origin: left center;
     transform-style: preserve-3d;
     transform: rotateY(0deg);
-    transition: transform 0.75s cubic-bezier(0.2, 0.9, 0.3, 1);
-    z-index: 6;
+    transition: transform 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 25;
     cursor: pointer;
 }
 
 .book-link:hover .book-front-cover-assembly {
-    transform: rotateY(-152deg);
+    transform: rotateY(-154deg);
 }
 
 .book-cover-outside,
@@ -1030,7 +1041,7 @@ footer p {
     background: #25222b;
     border-radius: 4px 3px 3px 4px;
     border-left: 2px solid #17151c;
-    box-shadow: inset 12px 0 16px rgba(0, 0, 0, 0.6);
+    box-shadow: inset 12px 0 16px rgba(0, 0, 0, 0.6), -8px 12px 24px rgba(0, 0, 0, 0.7);
     overflow: hidden;
     padding: 6px;
     box-sizing: border-box;

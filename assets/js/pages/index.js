@@ -194,6 +194,20 @@ function initIndex() {
         }
     }
 
+    function getBookAcronym(title) {
+        if (!title) return '';
+        const words = title.trim().split(/[\s-]+/);
+        if (words.length === 1) {
+            return words[0].slice(0, 3).toUpperCase();
+        }
+        return words.map(w => {
+            const clean = w.replace(/[^a-zA-Z0-9&]/g, '');
+            if (!clean) return '';
+            if (clean.toLowerCase() === 'and' || clean === '&') return '&';
+            return clean[0].toUpperCase();
+        }).join('').slice(0, 5);
+    }
+
     function renderBooks(books) {
         if (!books || !indexBooksContainer) return;
         const data = books.data || books;
@@ -204,6 +218,12 @@ function initIndex() {
         const safeTitle = (heroBook.title || '').replace(/"/g, '&quot;');
         const safeAuthor = (heroBook.author || '').replace(/"/g, '&quot;');
         const heroCover = safeImg(heroBook.cover_url);
+
+        const initials = getBookAcronym(heroBook.title);
+        const initialsEl = document.getElementById('book-bay-initials') || document.querySelector('.book-bay-counter');
+        if (initialsEl && initials) {
+            initialsEl.textContent = initials;
+        }
 
         const book3 = top3[2] || top3[0];
         const book2 = top3[1] || top3[0];

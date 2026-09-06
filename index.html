@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=3.0">
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.1">
 </head>
 
 <body>
@@ -112,21 +112,31 @@
                 <a href="/library/reading" class="book-link fun-books" id="book-card">
                     <div class="hero-book-body">
                         <!-- Central 3D Book Stack -->
-                        <div class="hero-stack-stage" id="index-books-container">
-                            <div class="hero-stack-vol vol-3">
-                                <div class="spine-bounce" style="width: 82px; height: 122px; border-radius: 3px;"></div>
-                                <div class="hero-vol-pages-right"></div>
+                        <div class="book-3d-stage" id="index-books-container">
+                            <div class="book-under-stack">
+                                <div class="book-under-vol under-vol-3">
+                                    <div class="spine-bounce" style="width: 78px; height: 116px; border-radius: 3px;"></div>
+                                    <div class="under-vol-pages"></div>
+                                </div>
+                                <div class="book-under-vol under-vol-2">
+                                    <div class="spine-bounce" style="width: 78px; height: 116px; border-radius: 3px;"></div>
+                                    <div class="under-vol-pages"></div>
+                                </div>
                             </div>
-                            <div class="hero-stack-vol vol-2">
-                                <div class="spine-bounce" style="width: 82px; height: 122px; border-radius: 3px;"></div>
-                                <div class="hero-vol-pages-right"></div>
-                            </div>
-                            <div class="hero-stack-vol vol-1">
-                                <div class="hero-spine-ribbon"></div>
-                                <div class="spine-bounce" style="width: 82px; height: 122px; border-radius: 3px;"></div>
-                                <div class="hero-vol-spine-edge"></div>
-                                <div class="hero-vol-pages-right"></div>
-                                <div class="hero-vol-pages-top"></div>
+                            <div class="book-3d-wrapper">
+                                <div class="book-3d-obj">
+                                    <div class="book-obj-spine"></div>
+                                    <div class="book-obj-base">
+                                        <div class="book-pages-edge-right"></div>
+                                        <div class="book-pages-edge-top"></div>
+                                        <div class="book-pages-edge-bottom"></div>
+                                    </div>
+                                    <div class="book-front-cover-assembly">
+                                        <div class="book-cover-outside">
+                                            <div class="spine-bounce" style="width: 82px; height: 122px; border-radius: 3px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -218,11 +228,14 @@
                                 <div class="vhs-tape-counter">SP 0:00:00</div>
                             </div>
 
-                            <!-- Movie posters preview inside viewport -->
-                            <div class="fun-side-previews vhs-previews" id="index-movies-container">
-                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
-                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
-                                <div class="vhs-movie-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
+                            <!-- Horizontal Filmstrip Viewport -->
+                            <div class="vhs-filmstrip-viewport" id="index-movies-container">
+                                <div class="vhs-filmstrip-track">
+                                    <div class="vhs-filmstrip-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
+                                    <div class="vhs-filmstrip-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
+                                    <div class="vhs-filmstrip-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
+                                    <div class="vhs-filmstrip-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
+                                </div>
                             </div>
 
                             <!-- Mini tape spools, magnetic tape strip, and VHS badge -->
@@ -246,7 +259,7 @@
         </footer>
     </div>
 
-    <script type="module" src="assets/js/pages/index.js?v=4.7"></script>
+    <script type="module" src="assets/js/pages/index.js?v=4.8"></script>
 </body>
 
 

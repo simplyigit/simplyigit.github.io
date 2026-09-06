@@ -194,55 +194,168 @@ function initIndex() {
         }
     }
 
+    // SFX: Page-turn sound on book hover
+    let bookAudio = null;
+    let audioCtx = null;
+
+    function initBookSfx() {
+        try {
+            bookAudio = new Audio('assets/audio/page-flip.wav');
+            bookAudio.volume = 0.45;
+            bookAudio.preload = 'auto';
+        } catch (e) {}
+    }
+
+    function playBookPageTurnSfx() {
+        try {
+            if (!bookAudio) {
+                initBookSfx();
+            }
+            if (bookAudio) {
+                bookAudio.currentTime = 0;
+                const playPromise = bookAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        synthesizePageTurn();
+                    });
+                }
+            } else {
+                synthesizePageTurn();
+            }
+        } catch (e) {
+            synthesizePageTurn();
+        }
+    }
+
+    function synthesizePageTurn() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+
+            const now = audioCtx.currentTime;
+            const sampleRate = audioCtx.sampleRate;
+            const bufferSize = Math.floor(sampleRate * 0.35);
+            const buffer = audioCtx.createBuffer(1, bufferSize, sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < bufferSize; i++) {
+                const t = i / sampleRate;
+                let spine = 0;
+                if (t < 0.08) {
+                    spine = Math.sin(2 * Math.PI * 80 * t) * Math.sin((t / 0.08) * Math.PI) * 0.3;
+                }
+                let env = t < 0.02 ? (t / 0.02) * 0.7 : Math.max(0, 0.7 * Math.exp(-(t - 0.02) * 12));
+                data[i] = spine + (Math.random() * 2 - 1) * env * 0.5;
+            }
+
+            const src = audioCtx.createBufferSource();
+            src.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1400, now);
+            filter.frequency.exponentialRampToValueAtTime(700, now + 0.32);
+            filter.Q.setValueAtTime(2.2, now);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+            src.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            src.start(now);
+        } catch (err) {}
+    }
+
     function renderBooks(books) {
         if (!books || !indexBooksContainer) return;
         const data = books.data || books;
         const bookList = Array.isArray(data) ? data : (Array.isArray(data.books) ? data.books : []);
         if (bookList.length === 0) return;
         const top3 = bookList.slice(0, 3);
-        if (top3.length === 1) {
-            indexBooksContainer.innerHTML = `
-                <div class="hero-stack-vol vol-1">
-                    <div class="hero-spine-ribbon"></div>
-                    <img src="${safeImg(top3[0].cover_url)}" alt="${top3[0].title || ''}" class="hero-vol-img">
-                    <div class="hero-vol-spine-edge"></div>
-                    <div class="hero-vol-pages-right"></div>
-                    <div class="hero-vol-pages-top"></div>
-                </div>
-            `;
-        } else if (top3.length === 2) {
-            indexBooksContainer.innerHTML = `
-                <div class="hero-stack-vol vol-2">
-                    <img src="${safeImg(top3[1].cover_url)}" alt="${top3[1].title || ''}" class="hero-vol-img">
-                    <div class="hero-vol-pages-right"></div>
-                </div>
-                <div class="hero-stack-vol vol-1">
-                    <div class="hero-spine-ribbon"></div>
-                    <img src="${safeImg(top3[0].cover_url)}" alt="${top3[0].title || ''}" class="hero-vol-img">
-                    <div class="hero-vol-spine-edge"></div>
-                    <div class="hero-vol-pages-right"></div>
-                    <div class="hero-vol-pages-top"></div>
-                </div>
-            `;
-        } else {
-            indexBooksContainer.innerHTML = `
-                <div class="hero-stack-vol vol-3">
-                    <img src="${safeImg(top3[2].cover_url)}" alt="${top3[2].title || ''}" class="hero-vol-img">
-                    <div class="hero-vol-pages-right"></div>
-                </div>
-                <div class="hero-stack-vol vol-2">
-                    <img src="${safeImg(top3[1].cover_url)}" alt="${top3[1].title || ''}" class="hero-vol-img">
-                    <div class="hero-vol-pages-right"></div>
-                </div>
-                <div class="hero-stack-vol vol-1">
-                    <div class="hero-spine-ribbon"></div>
-                    <img src="${safeImg(top3[0].cover_url)}" alt="${top3[0].title || ''}" class="hero-vol-img">
-                    <div class="hero-vol-spine-edge"></div>
-                    <div class="hero-vol-pages-right"></div>
-                    <div class="hero-vol-pages-top"></div>
+        const heroBook = top3[0];
+        const safeTitle = (heroBook.title || '').replace(/"/g, '&quot;');
+        const safeAuthor = (heroBook.author || '').replace(/"/g, '&quot;');
+        const heroCover = safeImg(heroBook.cover_url);
+
+        let underlayHtml = '';
+        if (top3[2]) {
+            underlayHtml += `
+                <div class="book-under-vol under-vol-3">
+                    <img src="${safeImg(top3[2].cover_url)}" alt="" class="under-vol-img" loading="lazy">
+                    <div class="under-vol-pages"></div>
                 </div>
             `;
         }
+        if (top3[1]) {
+            underlayHtml += `
+                <div class="book-under-vol under-vol-2">
+                    <img src="${safeImg(top3[1].cover_url)}" alt="" class="under-vol-img" loading="lazy">
+                    <div class="under-vol-pages"></div>
+                </div>
+            `;
+        }
+
+        indexBooksContainer.innerHTML = `
+            <div class="book-under-stack">
+                ${underlayHtml}
+            </div>
+
+            <div class="book-3d-wrapper" id="hero-book-wrapper">
+                <div class="book-3d-obj" id="hero-book-obj">
+                    <div class="book-obj-spine"></div>
+                    <div class="book-obj-base">
+                        <div class="book-pages-edge-right"></div>
+                        <div class="book-pages-edge-top"></div>
+                        <div class="book-pages-edge-bottom"></div>
+                    </div>
+
+                    <div class="book-page-spread-right">
+                        <div class="book-ribbon-drape"></div>
+                        <div class="book-page-paper">
+                            <div class="book-page-header">
+                                <span class="book-page-crest">❦</span>
+                            </div>
+                            <div class="book-page-body">
+                                <div class="book-page-heading">${safeTitle}</div>
+                                <div class="book-page-byline">${safeAuthor ? `by ${safeAuthor}` : ''}</div>
+                                <div class="book-page-rule"></div>
+                                <div class="book-page-text-lines">
+                                    <div class="page-line line-1"></div>
+                                    <div class="page-line line-2"></div>
+                                    <div class="page-line line-3"></div>
+                                </div>
+                            </div>
+                            <div class="book-page-footer">
+                                <span>READING</span>
+                                <span class="book-page-num">p. 142</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-front-cover-assembly">
+                        <div class="book-cover-outside">
+                            <div class="book-ribbon-tag"></div>
+                            <img src="${heroCover}" class="book-cover-art" alt="${safeTitle}">
+                            <div class="book-cover-emboss-spine"></div>
+                            <div class="book-cover-glare"></div>
+                        </div>
+                        <div class="book-cover-inside">
+                            <div class="book-endpaper-vintage">
+                                <div class="bookplate-seal">
+                                    <div class="bookplate-tag">EX LIBRIS</div>
+                                    <div class="bookplate-monogram">Y</div>
+                                    <div class="bookplate-sub">COLLECTION</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     function renderMovies(movies) {
@@ -250,10 +363,32 @@ function initIndex() {
         const data = movies.data || movies;
         const recent = Array.isArray(data.recent_activity) ? data.recent_activity : (Array.isArray(data) ? data : []);
         if (recent.length === 0) return;
-        indexMoviesContainer.innerHTML = recent.slice(0, 3).map((film) => {
-            const imgUrl = safeImg(film.cover_url);
-            return `<div class="vhs-movie-item"><img src="${imgUrl}" alt="${film.title || ""}" class="index-movie-cover"></div>`;
-        }).join('');
+
+        const list = recent.slice(0, 10);
+        const duplicated = list.length >= 4 ? [...list, ...list] : [...list, ...list, ...list, ...list];
+
+        indexMoviesContainer.innerHTML = `
+            <div class="vhs-filmstrip-track">
+                ${duplicated.map((film) => {
+                    const imgUrl = safeImg(film.cover_url);
+                    const cleanTitle = (film.title || "").replace(/"/g, '&quot;');
+                    return `
+                        <div class="vhs-filmstrip-item" title="${cleanTitle}">
+                            <img src="${imgUrl}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy">
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    // Book Card Hover SFX interaction
+    const bookCard = document.getElementById('book-card');
+    if (bookCard) {
+        initBookSfx();
+        bookCard.addEventListener('mouseenter', () => {
+            playBookPageTurnSfx();
+        });
     }
 
     // VHS Cassette Hover Interaction: Live SP timer and state toggle

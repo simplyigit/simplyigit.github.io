@@ -647,11 +647,12 @@ footer p {
 .hero-book-body {
     background: linear-gradient(155deg, #222027 0%, #19171f 45%, #121116 100%);
     border-radius: 14px;
-    padding: 10px 12px 10px;
+    padding: 18px 14px 14px;
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
     box-shadow:
         inset 0 1px 1px rgba(255, 255, 255, 0.08),
         inset 0 -2px 4px rgba(0, 0, 0, 0.5),
@@ -662,41 +663,15 @@ footer p {
     box-sizing: border-box;
 }
 
-.hero-book-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding-top: 2px;
-    z-index: 2;
-}
-
-.hero-book-title {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #e8e4dc;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9), 0 1px 1px rgba(255, 255, 255, 0.15), 0 0 8px rgba(255, 255, 255, 0.06);
-    text-transform: uppercase;
-}
-
-.hero-book-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.48rem;
-    color: rgba(255, 255, 255, 0.42);
-    letter-spacing: 1.6px;
-    text-transform: uppercase;
-    font-weight: 500;
-}
-
 .hero-stack-stage {
     position: relative;
+    width: 100%;
+    height: 100%;
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 4px 0;
+    margin: 0;
     perspective: 600px;
 }
 
@@ -707,8 +682,8 @@ footer p {
 }
 
 .hero-vol-img {
-    width: 72px;
-    height: 106px;
+    width: 82px;
+    height: 122px;
     border-radius: 3px 4px 4px 3px;
     object-fit: cover;
     display: block;
@@ -762,14 +737,14 @@ footer p {
 
 /* Layering */
 .vol-3 {
-    transform: translateX(-16px) translateY(-8px) rotate(-6deg) scale(0.88);
+    transform: translateX(-22px) translateY(-8px) rotate(-7deg) scale(0.88);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
     opacity: 0.75;
     z-index: 1;
 }
 
 .vol-2 {
-    transform: translateX(14px) translateY(-4px) rotate(5deg) scale(0.93);
+    transform: translateX(18px) translateY(-4px) rotate(6deg) scale(0.93);
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7);
     opacity: 0.9;
     z-index: 2;
@@ -783,33 +758,18 @@ footer p {
 
 /* Hover animation: Fan the books out gracefully */
 .book-link:hover .vol-3 {
-    transform: translateX(-34px) translateY(-14px) rotate(-12deg) scale(0.92);
+    transform: translateX(-40px) translateY(-14px) rotate(-14deg) scale(0.92);
     opacity: 0.95;
 }
 
 .book-link:hover .vol-2 {
-    transform: translateX(28px) translateY(-8px) rotate(10deg) scale(0.96);
+    transform: translateX(34px) translateY(-8px) rotate(12deg) scale(0.96);
     opacity: 1;
 }
 
 .book-link:hover .vol-1 {
-    transform: translateX(0) translateY(-2px) scale(1.04);
+    transform: translateX(0) translateY(-2px) scale(1.05);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.95);
-}
-
-.hero-stack-footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2px 0 0;
-}
-
-.hero-stack-hint {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.44rem;
-    color: rgba(255, 255, 255, 0.32);
-    letter-spacing: 1px;
-    text-transform: uppercase;
 }
 
 
@@ -837,11 +797,11 @@ footer p {
 .vhs-body {
     background: linear-gradient(180deg, #24222a 0%, #1a1820 40%, #131217 100%);
     border-radius: 14px;
-    padding: 10px 10px 12px 10px;
+    padding: 12px 10px 12px;
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.08),
         inset 0 -2px 0 rgba(0, 0, 0, 0.3),
@@ -852,32 +812,11 @@ footer p {
     box-sizing: border-box;
 }
 
-
-
-/* Molded Dark Chassis Header */
-.vhs-header-dark {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 4px 0 2px;
-    z-index: 2;
-}
-
-.vhs-brand-text {
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #e8e4dc;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.9), 0 1px 1px rgba(255, 255, 255, 0.12), 0 0 8px rgba(255, 255, 255, 0.06);
-    text-transform: uppercase;
-}
-
 /* Recessed Acrylic VHS Tape Bay */
 .vhs-tape-bay {
     background: rgba(0, 0, 0, 0.78);
     border-radius: 8px;
-    padding: 6px 8px;
+    padding: 10px 10px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -885,8 +824,9 @@ footer p {
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
-    margin: 6px 0 2px 0;
+    margin: 0;
     z-index: 2;
+    height: 100%;
     flex: 1;
     box-sizing: border-box;
 }
@@ -1060,12 +1000,12 @@ footer p {
 }
 
 .vhs-movie-item:not(:first-child) {
-    margin-left: -10px;
+    margin-left: -12px;
 }
 
 .index-movie-cover {
-    width: 44px;
-    height: 66px;
+    width: 48px;
+    height: 72px;
     border-radius: 4px;
     object-fit: cover;
     border: 1px solid rgba(255, 255, 255, 0.14);

@@ -194,82 +194,6 @@ function initIndex() {
         }
     }
 
-    // SFX: Page-turn sound on book hover
-    let bookAudio = null;
-    let audioCtx = null;
-
-    function initBookSfx() {
-        try {
-            bookAudio = new Audio('assets/audio/page-flip.wav');
-            bookAudio.volume = 0.45;
-            bookAudio.preload = 'auto';
-        } catch (e) {}
-    }
-
-    function playBookPageTurnSfx() {
-        try {
-            if (!bookAudio) {
-                initBookSfx();
-            }
-            if (bookAudio) {
-                bookAudio.currentTime = 0;
-                const playPromise = bookAudio.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => {
-                        synthesizePageTurn();
-                    });
-                }
-            } else {
-                synthesizePageTurn();
-            }
-        } catch (e) {
-            synthesizePageTurn();
-        }
-    }
-
-    function synthesizePageTurn() {
-        try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContext) return;
-            if (!audioCtx) audioCtx = new AudioContext();
-            if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
-
-            const now = audioCtx.currentTime;
-            const sampleRate = audioCtx.sampleRate;
-            const bufferSize = Math.floor(sampleRate * 0.35);
-            const buffer = audioCtx.createBuffer(1, bufferSize, sampleRate);
-            const data = buffer.getChannelData(0);
-
-            for (let i = 0; i < bufferSize; i++) {
-                const t = i / sampleRate;
-                let spine = 0;
-                if (t < 0.08) {
-                    spine = Math.sin(2 * Math.PI * 80 * t) * Math.sin((t / 0.08) * Math.PI) * 0.3;
-                }
-                let env = t < 0.02 ? (t / 0.02) * 0.7 : Math.max(0, 0.7 * Math.exp(-(t - 0.02) * 12));
-                data[i] = spine + (Math.random() * 2 - 1) * env * 0.5;
-            }
-
-            const src = audioCtx.createBufferSource();
-            src.buffer = buffer;
-
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(1400, now);
-            filter.frequency.exponentialRampToValueAtTime(700, now + 0.32);
-            filter.Q.setValueAtTime(2.2, now);
-
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-
-            src.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-            src.start(now);
-        } catch (err) {}
-    }
-
     function renderBooks(books) {
         if (!books || !indexBooksContainer) return;
         const data = books.data || books;
@@ -281,30 +205,18 @@ function initIndex() {
         const safeAuthor = (heroBook.author || '').replace(/"/g, '&quot;');
         const heroCover = safeImg(heroBook.cover_url);
 
-        let underlayHtml = '';
-        if (top3[2]) {
-            underlayHtml += `
-                <div class="book-under-vol under-vol-3">
-                    <img src="${safeImg(top3[2].cover_url)}" alt="" class="under-vol-img" loading="lazy">
-                    <div class="under-vol-pages"></div>
-                </div>
-            `;
-        }
-        if (top3[1]) {
-            underlayHtml += `
-                <div class="book-under-vol under-vol-2">
-                    <img src="${safeImg(top3[1].cover_url)}" alt="" class="under-vol-img" loading="lazy">
-                    <div class="under-vol-pages"></div>
-                </div>
-            `;
-        }
+        const book3 = top3[2] || top3[0];
+        const book2 = top3[1] || top3[0];
 
         indexBooksContainer.innerHTML = `
-            <div class="book-under-stack">
-                ${underlayHtml}
+            <div class="book-shelf-item book-shelf-left">
+                <img src="${safeImg(book3.cover_url)}" alt="${(book3.title || '').replace(/"/g, '&quot;')}" loading="lazy">
+            </div>
+            <div class="book-shelf-item book-shelf-right">
+                <img src="${safeImg(book2.cover_url)}" alt="${(book2.title || '').replace(/"/g, '&quot;')}" loading="lazy">
             </div>
 
-            <div class="book-3d-wrapper" id="hero-book-wrapper">
+            <div class="book-shelf-item book-shelf-center" id="hero-book-wrapper">
                 <div class="book-3d-obj" id="hero-book-obj">
                     <div class="book-obj-spine"></div>
                     <div class="book-obj-base">
@@ -380,15 +292,6 @@ function initIndex() {
                 }).join('')}
             </div>
         `;
-    }
-
-    // Book Card Hover SFX interaction
-    const bookCard = document.getElementById('book-card');
-    if (bookCard) {
-        initBookSfx();
-        bookCard.addEventListener('mouseenter', () => {
-            playBookPageTurnSfx();
-        });
     }
 
     // VHS Cassette Hover Interaction: Live SP timer and state toggle

@@ -645,96 +645,153 @@ footer p {
 }
 
 .hero-book-body {
-    background: linear-gradient(155deg, #222027 0%, #19171f 45%, #121116 100%);
+    background: linear-gradient(180deg, #24222a 0%, #1a1820 40%, #131217 100%);
     border-radius: 14px;
-    padding: 16px 12px 14px;
+    padding: 12px 10px 12px;
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
     box-shadow:
-        inset 0 1px 1px rgba(255, 255, 255, 0.08),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.3),
         0 8px 30px rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.06);
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
-    perspective: 1200px;
 }
 
-.book-3d-stage {
+/* Recessed Deep Black Book Bay - EXACT match with .vhs-tape-bay */
+.book-bay {
+    background: rgba(0, 0, 0, 0.78);
+    border-radius: 8px;
+    padding: 10px 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    z-index: 2;
+    height: 100%;
+    width: 100%;
+    flex: 1;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Bay Top: Minimal tactile indicator row */
+.book-bay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 2px;
+}
+
+.book-bay-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    font-weight: 700;
+    color: #d97706;
+    letter-spacing: 0.8px;
+}
+
+.book-bay-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #f59e0b;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
+}
+
+.book-bay-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.5px;
+}
+
+/* Central Bookshelf Stage */
+.book-shelf-stage {
     position: relative;
     width: 100%;
-    height: 140px;
+    height: 126px;
     display: flex;
     align-items: center;
     justify-content: center;
     perspective: 1000px;
 }
 
-.book-under-stack {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.book-under-vol {
+/* The 3 Books Layout */
+.book-shelf-item {
     position: absolute;
     border-radius: 3px 4px 4px 3px;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
 }
 
-.under-vol-img {
-    width: 78px !important;
-    height: 116px !important;
-    border-radius: 3px 4px 4px 3px;
+/* Left Book (Book 3) */
+.book-shelf-left {
+    width: 72px;
+    height: 106px;
+    transform: translateX(-65px) translateY(3px) rotate(-7deg);
+    z-index: 1;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+.book-shelf-left img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    border-radius: 3px 4px 4px 3px;
     display: block;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-.under-vol-pages {
-    position: absolute;
-    top: 3px;
-    bottom: 3px;
-    right: -4px;
-    width: 4px;
-    background: repeating-linear-gradient(180deg, #eae2d5 0px, #eae2d5 1px, #1c1a22 1px, #1c1a22 2px);
-    border-radius: 0 2px 2px 0;
+/* Right Book (Book 2) */
+.book-shelf-right {
+    width: 72px;
+    height: 106px;
+    transform: translateX(65px) translateY(3px) rotate(7deg);
+    z-index: 2;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
 }
 
-.under-vol-3 {
-    transform: translateX(-18px) translateY(-6px) rotate(-6deg) scale(0.9);
-    opacity: 0.75;
-}
-.under-vol-2 {
-    transform: translateX(16px) translateY(-3px) rotate(5deg) scale(0.94);
-    opacity: 0.88;
-}
-
-.book-link:hover .under-vol-3 {
-    transform: translateX(-42px) translateY(-4px) rotate(-12deg) scale(0.86);
-    opacity: 0.45;
-}
-.book-link:hover .under-vol-2 {
-    transform: translateX(38px) translateY(-2px) rotate(10deg) scale(0.9);
-    opacity: 0.55;
+.book-shelf-right img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 3px 4px 4px 3px;
+    display: block;
 }
 
-/* Hero 3D Book Assembly */
+/* Hover: Side books tuck outward into shadows */
+.book-link:hover .book-shelf-left {
+    transform: translateX(-92px) translateY(5px) rotate(-12deg) scale(0.85);
+    opacity: 0.35;
+}
+
+.book-link:hover .book-shelf-right {
+    transform: translateX(92px) translateY(5px) rotate(12deg) scale(0.85);
+    opacity: 0.35;
+}
+
+/* Center Hero Book Assembly */
+.book-shelf-center,
 .book-3d-wrapper {
     position: relative;
     width: 82px;
     height: 122px;
-    z-index: 4;
+    z-index: 5;
     transform-style: preserve-3d;
     transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
+    transform: translateX(0) translateY(0);
 }
 
 .book-3d-obj {
@@ -744,9 +801,10 @@ footer p {
     transform-style: preserve-3d;
 }
 
-/* On hover: book shifts right by 34px and tilts in 3D perspective to center open spread */
+/* On hover: book shifts right by 38px and tilts in 3D perspective to center open spread */
+.book-link:hover .book-shelf-center,
 .book-link:hover .book-3d-wrapper {
-    transform: translateX(34px) rotateY(-5deg) rotateX(4deg);
+    transform: translateX(38px) rotateY(-5deg) rotateX(4deg);
 }
 
 /* Spine */
@@ -1020,6 +1078,31 @@ footer p {
     font-size: 0.32rem;
     letter-spacing: 1px;
     color: rgba(255, 255, 255, 0.4);
+}
+
+/* Shelf Ledge at Bottom (matching VHS bay bottom row) */
+.book-shelf-ledge {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+}
+
+.shelf-plank {
+    flex: 1;
+    height: 3px;
+    background: #111;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.shelf-rivet {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #444;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 
@@ -1476,6 +1559,18 @@ footer p {
 .cassette-song-marquee:has(.spine-bounce) {
     animation: none;
 }
+
+/* Skeleton Loading Bounce */
+@keyframes loadingSpine {
+    0%, 100% { background: rgba(255, 255, 255, 0.05); }
+    50% { background: rgba(255, 255, 255, 0.12); }
+}
+
+.spine-bounce {
+    animation: loadingSpine 1.4s infinite ease-in-out;
+    background: rgba(255, 255, 255, 0.07);
+}
+
 
 .cassette-link {
     --tape-play-state: paused;

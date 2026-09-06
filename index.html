@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=3.1">
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.2">
 </head>
 
 <body>
@@ -111,32 +111,43 @@
                 <!-- Books (left) - 3D Book Showcase -->
                 <a href="/library/reading" class="book-link fun-books" id="book-card">
                     <div class="hero-book-body">
-                        <!-- Central 3D Book Stack -->
-                        <div class="book-3d-stage" id="index-books-container">
-                            <div class="book-under-stack">
-                                <div class="book-under-vol under-vol-3">
-                                    <div class="spine-bounce" style="width: 78px; height: 116px; border-radius: 3px;"></div>
-                                    <div class="under-vol-pages"></div>
+                        <div class="book-bay">
+                            <div class="book-bay-header">
+                                <div class="book-bay-indicator">
+                                    <span class="book-bay-dot"></span>
+                                    <span>READING</span>
                                 </div>
-                                <div class="book-under-vol under-vol-2">
-                                    <div class="spine-bounce" style="width: 78px; height: 116px; border-radius: 3px;"></div>
-                                    <div class="under-vol-pages"></div>
-                                </div>
+                                <div class="book-bay-counter">3 VOLS</div>
                             </div>
-                            <div class="book-3d-wrapper">
-                                <div class="book-3d-obj">
-                                    <div class="book-obj-spine"></div>
-                                    <div class="book-obj-base">
-                                        <div class="book-pages-edge-right"></div>
-                                        <div class="book-pages-edge-top"></div>
-                                        <div class="book-pages-edge-bottom"></div>
-                                    </div>
-                                    <div class="book-front-cover-assembly">
-                                        <div class="book-cover-outside">
-                                            <div class="spine-bounce" style="width: 82px; height: 122px; border-radius: 3px;"></div>
+
+                            <div class="book-shelf-stage" id="index-books-container">
+                                <div class="book-shelf-item book-shelf-left">
+                                    <div class="spine-bounce" style="width: 72px; height: 106px; border-radius: 3px;"></div>
+                                </div>
+                                <div class="book-shelf-item book-shelf-right">
+                                    <div class="spine-bounce" style="width: 72px; height: 106px; border-radius: 3px;"></div>
+                                </div>
+                                <div class="book-shelf-item book-shelf-center" id="hero-book-wrapper">
+                                    <div class="book-3d-obj" id="hero-book-obj">
+                                        <div class="book-obj-spine"></div>
+                                        <div class="book-obj-base">
+                                            <div class="book-pages-edge-right"></div>
+                                            <div class="book-pages-edge-top"></div>
+                                            <div class="book-pages-edge-bottom"></div>
+                                        </div>
+                                        <div class="book-front-cover-assembly">
+                                            <div class="book-cover-outside">
+                                                <div class="spine-bounce" style="width: 82px; height: 122px; border-radius: 3px;"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="book-shelf-ledge">
+                                <div class="shelf-rivet"></div>
+                                <div class="shelf-plank"></div>
+                                <div class="shelf-rivet"></div>
                             </div>
                         </div>
                     </div>
@@ -259,7 +270,7 @@
         </footer>
     </div>
 
-    <script type="module" src="assets/js/pages/index.js?v=4.8"></script>
+    <script type="module" src="assets/js/pages/index.js?v=4.9"></script>
 </body>
 
 

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css?v=2.7">
+    <link rel="stylesheet" href="../assets/css/styles.css?v=2.8">
 </head>
 
 <body>
@@ -40,8 +40,7 @@
                         style="color: #96aa9f;">Spotify</strong></a> & <a href="https://www.last.fm/user/simplyigit"
                     target="_blank" rel="noopener noreferrer"
                     style="color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--accent-color);"><strong
-                        style="color: #a49292;">Last.fm</strong></a>.<br>My most played this
-                month.
+                        style="color: #a49292;">Last.fm</strong></a>.<br><span id="music-period-label">My most played this month.</span>
             </p>
         </header>
 
@@ -51,11 +50,16 @@
                 <div class="music-nav-pill" role="tablist" aria-label="Music View Selector">
                     <button class="music-tab-btn active" role="tab" id="tab-tracks" aria-selected="true"
                         aria-controls="music-pane-tracks" data-tab="tracks">
-                        Tracks
+                        <span>Tracks</span><span class="tab-period-badge">1M</span>
                     </button>
                     <button class="music-tab-btn" role="tab" id="tab-artists" aria-selected="false"
                         aria-controls="music-pane-artists" data-tab="artists">
-                        Artists
+                        <span>Artists</span><span class="tab-period-badge">1M</span>
+                    </button>
+                    <div class="music-pill-divider" aria-hidden="true"></div>
+                    <button class="music-tab-btn" role="tab" id="tab-albums" aria-selected="false"
+                        aria-controls="music-pane-albums" data-tab="albums">
+                        <span>Albums</span><span class="tab-period-badge all-time">All-Time</span>
                     </button>
                 </div>
             </div>
@@ -75,6 +79,13 @@
                     <div id="spotify-artists-container" class="spotify-artists-grid">
                     </div>
                 </div>
+
+                <!-- Albums Pane (All-Time Favorites) -->
+                <div id="music-pane-albums" class="music-tab-pane" role="tabpanel" aria-labelledby="tab-albums"
+                    style="display: none;">
+                    <div id="spotify-albums-container" class="spotify-albums-grid">
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -92,7 +103,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/music.js?v=4.4"></script>
+    <script type="module" src="../assets/js/pages/music.js?v=4.5"></script>
 </body>
 
 

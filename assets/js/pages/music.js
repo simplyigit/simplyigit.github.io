@@ -1,5 +1,67 @@
 import { initAmbientMesh, initGlobalReveal, initGlassParallax, observer } from '../modules/core.js';
 
+const FALLBACK_FAVORITE_ALBUMS = [
+    {
+        title: "Purple Rain",
+        artist: "Prince and The Revolution",
+        cover_url: "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
+        optimized_cover_url: "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp",
+        spotify_url: "https://open.spotify.com/album/7nXJ5k4XgRj5OLZv9EK8j0",
+        prominent_color: [120, 95, 106]
+    },
+    {
+        title: "Angel Face (Club Deluxe)",
+        artist: "Stephen Sanchez",
+        cover_url: "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg",
+        optimized_cover_url: "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp",
+        spotify_url: "https://open.spotify.com/album/3fD6ZQKymy2oP1t6c8NEOc",
+        prominent_color: [213, 86, 69]
+    },
+    {
+        title: "5SOS5 (Deluxe)",
+        artist: "5 Seconds of Summer",
+        cover_url: "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
+        optimized_cover_url: "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp",
+        spotify_url: "https://open.spotify.com/album/4eLuy62wLqY14LqX8o6rM2",
+        prominent_color: [247, 221, 207]
+    },
+    {
+        title: "Fine Line",
+        artist: "Harry Styles",
+        cover_url: "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500",
+        optimized_cover_url: "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp",
+        spotify_url: "https://open.spotify.com/album/7xV2TzoaVc0ycW7fwBwAml",
+        prominent_color: [115, 194, 214]
+    },
+    {
+        title: "4TH WALL",
+        artist: "Ruel",
+        cover_url: "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
+        optimized_cover_url: "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
+        spotify_url: "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
+        prominent_color: [74, 78, 88]
+    }
+];
+
+function renderAlbums(container, albumList) {
+    if (!container) return;
+    const list = Array.isArray(albumList) && albumList.length > 0 ? albumList : FALLBACK_FAVORITE_ALBUMS;
+    container.innerHTML = list.map((album) => {
+        const coverSrc = album.optimized_cover_url || album.cover_url || "";
+        const [r, g, b] = album.prominent_color || [255, 255, 255];
+        return `
+            <a href="${album.spotify_url || '#'}" target="_blank" rel="noopener noreferrer" class="spotify-album-item" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.35);">
+                <div class="album-art-wrapper">
+                    <img src="${coverSrc}" alt="${album.title}" class="spotify-album-img" loading="lazy" decoding="async">
+                </div>
+                <div class="spotify-album-meta">
+                    <span class="spotify-album-title" title="${album.title}">${album.title}</span>
+                    <span class="spotify-album-artist" title="${album.artist}">${album.artist}</span>
+                </div>
+            </a>`;
+    }).join('');
+}
+
 function initMusic() {
     initAmbientMesh();
     initGlobalReveal();
@@ -8,8 +70,12 @@ function initMusic() {
 
     const artistsContainer = document.getElementById("spotify-artists-container");
     const tracksContainer = document.getElementById("spotify-tracks-container");
+    const albumsContainer = document.getElementById("spotify-albums-container");
 
-    if (artistsContainer || tracksContainer) {
+    // Always render fallback albums initially so content is instant
+    renderAlbums(albumsContainer, FALLBACK_FAVORITE_ALBUMS);
+
+    if (artistsContainer || tracksContainer || albumsContainer) {
         fetch("/api/spotify?v=4.2")
             .then(res => res.json())
             .then(json => {
@@ -17,9 +83,13 @@ function initMusic() {
                     if (artistsContainer) artistsContainer.innerHTML = `<p style="color: var(--text-secondary);">No Spotify data available.</p>`;
                     return;
                 }
-                const { top_artists_last_month: artists, top_tracks_last_month: tracks } = json.data;
+                const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = json.data;
                 const artistList = Array.isArray(artists) ? artists : [];
                 const trackList = Array.isArray(tracks) ? tracks : [];
+
+                if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
+                    renderAlbums(albumsContainer, albums);
+                }
 
                 if (artistsContainer) {
                     if (artistList.length > 0) {
@@ -93,6 +163,7 @@ function initMusic() {
             })
             .catch(() => {
                 if (artistsContainer) artistsContainer.innerHTML = `<p style="color: var(--text-secondary);">Failed to load Spotify data.</p>`;
+                if (albumsContainer) renderAlbums(albumsContainer, FALLBACK_FAVORITE_ALBUMS);
             });
     }
 }
@@ -102,15 +173,18 @@ function initMusicTabs() {
     const container = document.getElementById("music-panes-container");
     const tracksPane = document.getElementById("music-pane-tracks");
     const artistsPane = document.getElementById("music-pane-artists");
+    const albumsPane = document.getElementById("music-pane-albums");
+    const periodLabel = document.getElementById("music-period-label");
 
-    if (!tabButtons.length || !container || !tracksPane || !artistsPane) return;
+    if (!tabButtons.length || !container || !tracksPane || !artistsPane || !albumsPane) return;
 
     const panes = {
         tracks: tracksPane,
-        artists: artistsPane
+        artists: artistsPane,
+        albums: albumsPane
     };
 
-    const tabOrder = ["tracks", "artists"];
+    const tabOrder = ["tracks", "artists", "albums"];
     let currentTab = "tracks";
     let isTransitioning = false;
 
@@ -160,6 +234,14 @@ function initMusicTabs() {
             b.classList.toggle("active", isSelected);
             b.setAttribute("aria-selected", isSelected ? "true" : "false");
         });
+
+        if (periodLabel) {
+            if (newTab === "albums") {
+                periodLabel.textContent = "All-time favorite albums.";
+            } else {
+                periodLabel.textContent = "My most played this month.";
+            }
+        }
 
         currentTab = newTab;
 

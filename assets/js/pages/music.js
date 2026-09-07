@@ -4,12 +4,13 @@ function initMusic() {
     initAmbientMesh();
     initGlobalReveal();
     initGlassParallax();
+    initMusicTabs();
 
     const artistsContainer = document.getElementById("spotify-artists-container");
     const tracksContainer = document.getElementById("spotify-tracks-container");
 
     if (artistsContainer || tracksContainer) {
-        fetch("/api/spotify?v=4.1")
+        fetch("/api/spotify?v=4.2")
             .then(res => res.json())
             .then(json => {
                 if (!json.success || !json.data) {
@@ -94,6 +95,202 @@ function initMusic() {
             .catch(() => {
                 if (artistsContainer) artistsContainer.innerHTML = `<p style="color: var(--text-secondary);">Failed to load Spotify data.</p>`;
             });
+    }
+}
+
+function initMusicTabs() {
+    const tabButtons = document.querySelectorAll(".music-tab-btn");
+    const container = document.getElementById("music-panes-container");
+    const tracksPane = document.getElementById("music-pane-tracks");
+    const artistsPane = document.getElementById("music-pane-artists");
+
+    if (!tabButtons.length || !container || !tracksPane || !artistsPane) return;
+
+    const panes = {
+        tracks: tracksPane,
+        artists: artistsPane
+    };
+
+    const tabOrder = ["tracks", "artists"];
+    let currentTab = "tracks";
+    let isTransitioning = false;
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const targetTab = btn.getAttribute("data-tab");
+            if (targetTab === currentTab || isTransitioning) return;
+            switchTab(targetTab);
+        });
+
+        // Keyboard navigation: Left / Right arrows
+        btn.addEventListener("keydown", e => {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                e.preventDefault();
+                const currentIndex = tabOrder.indexOf(currentTab);
+                const nextIndex = e.key === "ArrowRight"
+                    ? (currentIndex + 1) % tabOrder.length
+                    : (currentIndex - 1 + tabOrder.length) % tabOrder.length;
+                const nextTab = tabOrder[nextIndex];
+                const nextBtn = document.querySelector(`.music-tab-btn[data-tab="${nextTab}"]`);
+                if (nextBtn) {
+                    nextBtn.focus();
+                    switchTab(nextTab);
+                }
+            }
+        });
+    });
+
+    function switchTab(newTab) {
+        if (newTab === currentTab || isTransitioning) return;
+        isTransitioning = true;
+
+        const outgoingPane = panes[currentTab];
+        const incomingPane = panes[newTab];
+        if (!outgoingPane || !incomingPane) {
+            isTransitioning = false;
+            return;
+        }
+
+        const currentIndex = tabOrder.indexOf(currentTab);
+        const targetIndex = tabOrder.indexOf(newTab);
+        const direction = targetIndex > currentIndex ? "forward" : "backward";
+
+        // Update tab button states
+        tabButtons.forEach(b => {
+            const isSelected = b.getAttribute("data-tab") === newTab;
+            b.classList.toggle("active", isSelected);
+            b.setAttribute("aria-selected", isSelected ? "true" : "false");
+        });
+
+        currentTab = newTab;
+
+        // Check prefers-reduced-motion
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (prefersReducedMotion) {
+            outgoingPane.style.display = "none";
+            outgoingPane.classList.remove("active");
+            incomingPane.style.display = "block";
+            incomingPane.classList.add("active");
+            isTransitioning = false;
+            return;
+        }
+
+        // Step 1: Measure current container height
+        const startHeight = container.offsetHeight;
+
+        // Step 2: Prepare outgoing pane (position absolutely over container)
+        outgoingPane.classList.add("is-animating");
+        outgoingPane.style.position = "absolute";
+        outgoingPane.style.top = "0";
+        outgoingPane.style.left = "0";
+        outgoingPane.style.width = "100%";
+        outgoingPane.style.pointerEvents = "none";
+        outgoingPane.style.zIndex = "1";
+
+        // Step 3: Prepare incoming pane (in normal flow to measure height)
+        incomingPane.classList.add("is-animating");
+        incomingPane.style.display = "block";
+        incomingPane.style.position = "relative";
+        incomingPane.style.pointerEvents = "auto";
+        incomingPane.style.zIndex = "2";
+
+        const targetHeight = incomingPane.offsetHeight;
+
+        // Step 4: Morph container height smoothly
+        container.style.height = `${startHeight}px`;
+        container.style.transition = "height 0.4s cubic-bezier(0.16, 1, 0.3, 1)";
+        requestAnimationFrame(() => {
+            container.style.height = `${targetHeight}px`;
+        });
+
+        // Step 5: High-end directional spatial transition with depth, scale & optics blur
+        const xDist = 45;
+        const outX = direction === "forward" ? -xDist : xDist;
+        const inX = direction === "forward" ? xDist : -xDist;
+
+        // Outgoing animation: slides out with subtle shrinking scale and camera blur
+        const outgoingAnim = outgoingPane.animate([
+            {
+                opacity: 1,
+                transform: "translateX(0px) scale(1) translateY(0px)",
+                filter: "blur(0px)"
+            },
+            {
+                opacity: 0,
+                transform: `translateX(${outX}px) scale(0.95) translateY(-6px)`,
+                filter: "blur(6px)"
+            }
+        ], {
+            duration: 320,
+            easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+            fill: "forwards"
+        });
+
+        // Incoming animation: sweeps in from opposite direction, expands into crisp focus
+        const incomingAnim = incomingPane.animate([
+            {
+                opacity: 0,
+                transform: `translateX(${inX}px) scale(0.95) translateY(6px)`,
+                filter: "blur(6px)"
+            },
+            {
+                opacity: 1,
+                transform: "translateX(0px) scale(1) translateY(0px)",
+                filter: "blur(0px)"
+            }
+        ], {
+            duration: 380,
+            easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+            fill: "forwards"
+        });
+
+        // Micro-stagger incoming items for an organic fluid ripple feel
+        const childItems = incomingPane.querySelectorAll(".spotify-track-card, .spotify-artist-item");
+        childItems.forEach((item, idx) => {
+            item.animate([
+                {
+                    opacity: 0,
+                    transform: `translateX(${direction === "forward" ? "20px" : "-20px"}) scale(0.97)`
+                },
+                {
+                    opacity: 1,
+                    transform: "translateX(0px) scale(1)"
+                }
+            ], {
+                duration: 340,
+                delay: Math.min(idx * 35, 140),
+                easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+                fill: "both"
+            });
+        });
+
+        incomingAnim.onfinish = () => {
+            // Clean up outgoing
+            outgoingPane.style.display = "none";
+            outgoingPane.style.position = "";
+            outgoingPane.style.top = "";
+            outgoingPane.style.left = "";
+            outgoingPane.style.width = "";
+            outgoingPane.style.pointerEvents = "";
+            outgoingPane.style.zIndex = "";
+            outgoingPane.classList.remove("active", "is-animating");
+            try { outgoingAnim.cancel(); } catch (e) {}
+
+            // Clean up incoming
+            incomingPane.style.display = "block";
+            incomingPane.style.position = "";
+            incomingPane.style.pointerEvents = "";
+            incomingPane.style.zIndex = "";
+            incomingPane.classList.add("active");
+            incomingPane.classList.remove("is-animating");
+            try { incomingAnim.cancel(); } catch (e) {}
+
+            // Release container height
+            container.style.height = "auto";
+            container.style.transition = "";
+
+            isTransitioning = false;
+        };
     }
 }
 

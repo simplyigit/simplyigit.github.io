@@ -2058,6 +2058,77 @@ footer p {
     }
 }
 
+/* ======================================================== */
+/*   MUSIC SECTION: TABBED SELECTOR & PANES                */
+/* ======================================================== */
+.music-selector-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 0 32px 0;
+    position: relative;
+    z-index: 10;
+}
+
+.music-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.music-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 24px;
+    border-radius: 30px;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    font-weight: 500;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    outline: none;
+    user-select: none;
+}
+
+.music-tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.music-tab-btn.active {
+    color: #ffffff;
+    background: rgba(29, 185, 84, 0.22);
+    border: 1px solid rgba(29, 185, 84, 0.45);
+    box-shadow: 0 0 18px rgba(29, 185, 84, 0.25);
+}
+
+.music-panes-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    will-change: height;
+}
+
+.music-tab-pane {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.music-tab-pane:not(.active):not(.is-animating) {
+    display: none;
+}
+
 /* Spotify Grids */
 .spotify-artists-grid {
     display: flex;
@@ -2727,6 +2798,7 @@ footer p {
 .watchlist-card:focus-visible,
 .spotify-track-card:focus-visible,
 .lib-nav-item:focus-visible,
+.music-tab-btn:focus-visible,
 .social-icon:focus-visible {
     outline: 2px solid rgba(0, 210, 255, 0.8);
     outline-offset: 4px;
@@ -2854,6 +2926,22 @@ footer p {
         font-size: 0.8rem;
         flex: 1;
         justify-content: center;
+    }
+
+    /* Music Tab Selector on Mobile */
+    .music-selector-wrapper {
+        margin: 4px 0 20px 0;
+    }
+    .music-nav-pill {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+        gap: 4px;
+    }
+    .music-tab-btn {
+        flex: 1;
+        padding: 8px 16px;
+        font-size: 0.82rem;
     }
 
     /* Horizontal Scroll for Artists */

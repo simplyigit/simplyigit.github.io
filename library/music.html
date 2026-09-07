@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css?v=2.3">
+    <link rel="stylesheet" href="../assets/css/styles.css?v=2.4">
 </head>
 
 <body>
@@ -45,19 +45,36 @@
             </p>
         </header>
 
-        <!-- Artists Section -->
-        <section class="section">
-            <h2 class="section-title">Top Artists</h2>
-            <div id="spotify-artists-container" class="spotify-artists-grid">
-                <p id="spotify-loading" style="color: var(--text-secondary);">Connecting to Spotify <span
-                        class="loading-dots">...</span></p>
+        <!-- Music Section with Tabbed Selector -->
+        <section class="section music-section">
+            <div class="music-selector-wrapper">
+                <div class="music-nav-pill" role="tablist" aria-label="Music View Selector">
+                    <button class="music-tab-btn active" role="tab" id="tab-tracks" aria-selected="true"
+                        aria-controls="music-pane-tracks" data-tab="tracks">
+                        Tracks
+                    </button>
+                    <button class="music-tab-btn" role="tab" id="tab-artists" aria-selected="false"
+                        aria-controls="music-pane-artists" data-tab="artists">
+                        Artists
+                    </button>
+                </div>
             </div>
-        </section>
 
-        <!-- Tracks Section -->
-        <section class="section">
-            <h2 class="section-title">Top Tracks</h2>
-            <div id="spotify-tracks-container" class="spotify-tracks-grid">
+            <div class="music-panes-container" id="music-panes-container">
+                <!-- Tracks Pane (Active by default) -->
+                <div id="music-pane-tracks" class="music-tab-pane active" role="tabpanel" aria-labelledby="tab-tracks">
+                    <div id="spotify-tracks-container" class="spotify-tracks-grid">
+                        <p id="spotify-loading" style="color: var(--text-secondary);">Connecting to Spotify <span
+                                class="loading-dots">...</span></p>
+                    </div>
+                </div>
+
+                <!-- Artists Pane -->
+                <div id="music-pane-artists" class="music-tab-pane" role="tabpanel" aria-labelledby="tab-artists"
+                    style="display: none;">
+                    <div id="spotify-artists-container" class="spotify-artists-grid">
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -75,7 +92,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/music.js?v=4.1"></script>
+    <script type="module" src="../assets/js/pages/music.js?v=4.2"></script>
 </body>
 
 

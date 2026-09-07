@@ -241,8 +241,6 @@ function initIndex() {
                     <div class="book-obj-spine"></div>
                     <div class="book-obj-base">
                         <div class="book-pages-edge-right"></div>
-                        <div class="book-pages-edge-top"></div>
-                        <div class="book-pages-edge-bottom"></div>
                     </div>
 
                     <div class="book-page-spread-right">

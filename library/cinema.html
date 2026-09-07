@@ -8,26 +8,28 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://wsrv.nl" crossorigin>
+    <link rel="dns-prefetch" href="https://wsrv.nl">
+    <link rel="preconnect" href="https://a.ltrbxd.com">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css?v=2.8">
+    <link rel="stylesheet" href="../assets/css/styles.css?v=2.9">
 </head>
 
 <body>
     <!-- Cinematic Dark Gradient Background for this page only -->
-    <div
-        style="position: fixed; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(20, 30, 48, 0.4) 0%, rgba(36, 59, 85, 0.1) 100%); z-index: -2; pointer-events: none;">
-    </div>
+    <div class="cinema-bg-glow"></div>
 
     <div class="container fade-in">
-        <header class="hero" style="align-items: center; text-align: center;">
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <header class="hero" style="font-family: 'Playfair Display', serif; align-items: center; text-align: center;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; width: 100%; font-family: 'Inter', sans-serif;">
                 <a href="/" class="glass-card back-btn">
                     <span class="arrow" style="transform: rotate(180deg); margin-right: 8px;">→</span> Portfolio
                 </a>
 
-                <h1 style="font-family: 'Playfair Display', serif; font-size: 4rem; margin: 0;">Cinema.</h1>
+                <h1 style="font-family: 'Playfair Display', serif; margin: 0;">Cinema.</h1>
 
                 <a href="https://letterboxd.com/oneyigit/" target="_blank" rel="noopener noreferrer"
                     class="glass-card repo-btn">
@@ -55,9 +57,6 @@
             <div class="section-title">All-Time Favorites</div>
             <div class="animated-filmstrip-container">
                 <div id="movies-favorites-container" class="animated-filmstrip-track">
-                    <p id="movies-loading"
-                        style="color: var(--text-secondary); font-family: 'Playfair Display', serif; font-style: italic; padding: 20px 40px;">
-                        Connecting to projector <span class="loading-dots">...</span></p>
                 </div>
             </div>
         </section>
@@ -92,7 +91,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/cinema.js?v=4.2"></script>
+    <script type="module" src="../assets/js/pages/cinema.js?v=4.3"></script>
 </body>
 
 </html>

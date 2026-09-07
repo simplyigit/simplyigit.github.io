@@ -8,8 +8,12 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://i.scdn.co" crossorigin>
+    <link rel="preconnect" href="https://wsrv.nl" crossorigin>
+    <link rel="dns-prefetch" href="https://wsrv.nl">
+    <link rel="preconnect" href="https://coverartarchive.org">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css?v=2.8">
+    <link rel="stylesheet" href="../assets/css/styles.css?v=2.9">
 </head>
 
 <body>
@@ -48,19 +52,19 @@
         <section class="section music-section">
             <div class="music-selector-wrapper">
                 <div class="music-nav-pill" role="tablist" aria-label="Music View Selector">
-                    <button class="music-tab-btn active" role="tab" id="tab-tracks" aria-selected="true"
-                        aria-controls="music-pane-tracks" data-tab="tracks">
-                        <span>Tracks</span><span class="tab-period-badge">1M</span>
-                    </button>
-                    <button class="music-tab-btn" role="tab" id="tab-artists" aria-selected="false"
-                        aria-controls="music-pane-artists" data-tab="artists">
-                        <span>Artists</span><span class="tab-period-badge">1M</span>
-                    </button>
+                    <div class="music-pill-group">
+                        <button class="music-tab-btn active" role="tab" id="tab-tracks" aria-selected="true"
+                            aria-controls="music-pane-tracks" data-tab="tracks">Tracks</button>
+                        <button class="music-tab-btn" role="tab" id="tab-artists" aria-selected="false"
+                            aria-controls="music-pane-artists" data-tab="artists">Artists</button>
+                        <span class="music-group-period active" id="period-badge-monthly">1m</span>
+                    </div>
                     <div class="music-pill-divider" aria-hidden="true"></div>
-                    <button class="music-tab-btn" role="tab" id="tab-albums" aria-selected="false"
-                        aria-controls="music-pane-albums" data-tab="albums">
-                        <span>Albums</span><span class="tab-period-badge all-time">All-Time</span>
-                    </button>
+                    <div class="music-pill-group">
+                        <button class="music-tab-btn" role="tab" id="tab-albums" aria-selected="false"
+                            aria-controls="music-pane-albums" data-tab="albums">Albums</button>
+                        <span class="music-group-period" id="period-badge-alltime">all-time</span>
+                    </div>
                 </div>
             </div>
 
@@ -68,8 +72,6 @@
                 <!-- Tracks Pane (Active by default) -->
                 <div id="music-pane-tracks" class="music-tab-pane active" role="tabpanel" aria-labelledby="tab-tracks">
                     <div id="spotify-tracks-container" class="spotify-tracks-grid">
-                        <p id="spotify-loading" style="color: var(--text-secondary);">Connecting to Spotify <span
-                                class="loading-dots">...</span></p>
                     </div>
                 </div>
 
@@ -103,7 +105,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/music.js?v=4.5"></script>
+    <script type="module" src="../assets/js/pages/music.js?v=4.6"></script>
 </body>
 
 

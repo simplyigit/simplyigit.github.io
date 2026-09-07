@@ -2137,7 +2137,7 @@ footer p {
     /* Maximum width utilization */
     gap: 8px;
     /* Minimal gap to allow largest possible circles */
-    margin-bottom: 20px;
+    margin-bottom: 0;
     width: 100%;
     box-sizing: border-box;
     padding: 16px 12px 20px 12px;
@@ -2227,7 +2227,7 @@ footer p {
 }
 
 .top-track-banner:hover {
-    transform: scale(1.01) translateY(-5px);
+    transform: translateY(-5px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, rgba(0, 0, 0, 0.2));
     /* Reduced hover glow further */
     border-color: rgba(255, 255, 255, 0.3);
@@ -2438,7 +2438,6 @@ footer p {
 }
 
 .spotify-track-card:hover {
-    transform: scale(1.02);
     border-color: rgba(255, 255, 255, 0.2);
 }
 

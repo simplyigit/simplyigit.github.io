@@ -195,14 +195,20 @@ function initMusicTabs() {
 
         const targetHeight = incomingPane.offsetHeight;
 
-        // Step 4: Morph container height smoothly
-        container.style.height = `${startHeight}px`;
-        container.style.transition = "height 0.4s cubic-bezier(0.16, 1, 0.3, 1)";
-        requestAnimationFrame(() => {
-            container.style.height = `${targetHeight}px`;
+        // Step 4 & 5: Clean GPU-accelerated directional slide & synchronized height morph
+        const duration = 320;
+        const easing = "cubic-bezier(0.16, 1, 0.3, 1)";
+
+        // Synchronize container height morph smoothly with pane animations
+        const heightAnim = container.animate([
+            { height: `${startHeight}px` },
+            { height: `${targetHeight}px` }
+        ], {
+            duration: duration,
+            easing: easing,
+            fill: "forwards"
         });
 
-        // Step 5: Clean GPU-accelerated directional slide & scale (no blur filter, no conflicting child stagger)
         const xDist = 36;
         const outX = direction === "forward" ? -xDist : xDist;
         const inX = direction === "forward" ? xDist : -xDist;
@@ -219,7 +225,7 @@ function initMusicTabs() {
             }
         ], {
             duration: 260,
-            easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+            easing: easing,
             fill: "forwards"
         });
 
@@ -234,8 +240,8 @@ function initMusicTabs() {
                 transform: "translateX(0px) scale(1)"
             }
         ], {
-            duration: 300,
-            easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+            duration: duration,
+            easing: easing,
             fill: "forwards"
         });
 
@@ -260,9 +266,9 @@ function initMusicTabs() {
             incomingPane.classList.remove("is-animating");
             try { incomingAnim.cancel(); } catch (e) {}
 
-            // Release container height
-            container.style.height = "auto";
-            container.style.transition = "";
+            // Release container height cleanly
+            try { heightAnim.cancel(); } catch (e) {}
+            container.style.height = "";
 
             isTransitioning = false;
         };

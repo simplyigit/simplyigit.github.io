@@ -23,10 +23,10 @@ function initMusic() {
 
                 if (artistsContainer) {
                     if (artistList.length > 0) {
-                        artistsContainer.innerHTML = artistList.map((artist, index) => `
-                            <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item fade-in delay-${(index % 3) + 1}">
+                        artistsContainer.innerHTML = artistList.map((artist) => `
+                            <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item">
                                 <div class="artist-img-wrapper">
-                                    <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img" ${index > 0 ? 'loading="lazy"' : ''}>
+                                    <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img" decoding="async">
                                     <div class="artist-playcount-overlay">
                                         <span class="artist-playcount-value">${Number(artist.playcount).toLocaleString()}</span>
                                         <span class="artist-playcount-label">Plays</span>
@@ -57,10 +57,10 @@ function initMusic() {
                             }
 
                             return `
-                                <a id="track-card-${index}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTopStyle ? 'top-track-banner' : 'grid-track'} fade-in delay-${(index % 4) + 1}" style="${isTopStyle ? `--track-art: url('${track.cover_url}')` : ''}">
+                                <a id="track-card-${index}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTopStyle ? 'top-track-banner' : 'grid-track'}" style="${isTopStyle ? `--track-art: url('${track.cover_url}')` : ''}">
                                     ${isTopStyle ? `<div class="banner-bg-blur"></div>` : ''}
                                     <div class="case-art-wrapper">
-                                        <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img" ${index > 1 ? 'loading="lazy"' : ''}>
+                                        <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img" decoding="async">
                                     </div>
                                     <div class="case-info">
                                         <div class="track-text-stack">
@@ -90,7 +90,6 @@ function initMusic() {
                         tracksContainer.innerHTML = `<p style="color: var(--text-secondary);">No top tracks recorded.</p>`;
                     }
                 }
-                document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
             })
             .catch(() => {
                 if (artistsContainer) artistsContainer.innerHTML = `<p style="color: var(--text-secondary);">Failed to load Spotify data.</p>`;
@@ -203,65 +202,41 @@ function initMusicTabs() {
             container.style.height = `${targetHeight}px`;
         });
 
-        // Step 5: High-end directional spatial transition with depth, scale & optics blur
-        const xDist = 45;
+        // Step 5: Clean GPU-accelerated directional slide & scale (no blur filter, no conflicting child stagger)
+        const xDist = 36;
         const outX = direction === "forward" ? -xDist : xDist;
         const inX = direction === "forward" ? xDist : -xDist;
 
-        // Outgoing animation: slides out with subtle shrinking scale and camera blur
+        // Outgoing animation: slides away with subtle scale-down and opacity fade
         const outgoingAnim = outgoingPane.animate([
             {
                 opacity: 1,
-                transform: "translateX(0px) scale(1) translateY(0px)",
-                filter: "blur(0px)"
+                transform: "translateX(0px) scale(1)"
             },
             {
                 opacity: 0,
-                transform: `translateX(${outX}px) scale(0.95) translateY(-6px)`,
-                filter: "blur(6px)"
+                transform: `translateX(${outX}px) scale(0.97)`
             }
         ], {
-            duration: 320,
+            duration: 260,
             easing: "cubic-bezier(0.16, 1, 0.3, 1)",
             fill: "forwards"
         });
 
-        // Incoming animation: sweeps in from opposite direction, expands into crisp focus
+        // Incoming animation: slides in smoothly from opposite direction
         const incomingAnim = incomingPane.animate([
             {
                 opacity: 0,
-                transform: `translateX(${inX}px) scale(0.95) translateY(6px)`,
-                filter: "blur(6px)"
+                transform: `translateX(${inX}px) scale(0.97)`
             },
             {
                 opacity: 1,
-                transform: "translateX(0px) scale(1) translateY(0px)",
-                filter: "blur(0px)"
+                transform: "translateX(0px) scale(1)"
             }
         ], {
-            duration: 380,
+            duration: 300,
             easing: "cubic-bezier(0.16, 1, 0.3, 1)",
             fill: "forwards"
-        });
-
-        // Micro-stagger incoming items for an organic fluid ripple feel
-        const childItems = incomingPane.querySelectorAll(".spotify-track-card, .spotify-artist-item");
-        childItems.forEach((item, idx) => {
-            item.animate([
-                {
-                    opacity: 0,
-                    transform: `translateX(${direction === "forward" ? "20px" : "-20px"}) scale(0.97)`
-                },
-                {
-                    opacity: 1,
-                    transform: "translateX(0px) scale(1)"
-                }
-            ], {
-                duration: 340,
-                delay: Math.min(idx * 35, 140),
-                easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-                fill: "both"
-            });
         });
 
         incomingAnim.onfinish = () => {

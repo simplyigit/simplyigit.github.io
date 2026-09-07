@@ -2073,44 +2073,47 @@ footer p {
 .music-nav-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px;
+    gap: 4px;
+    padding: 4px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .music-tab-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 24px;
+    padding: 7px 22px;
     border-radius: 30px;
-    color: var(--text-secondary);
-    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.85rem;
     font-weight: 500;
     background: transparent;
     border: 1px solid transparent;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     outline: none;
     user-select: none;
 }
 
 .music-tab-btn:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .music-tab-btn.active {
     color: #ffffff;
-    background: rgba(29, 185, 84, 0.22);
-    border: 1px solid rgba(29, 185, 84, 0.45);
-    box-shadow: 0 0 18px rgba(29, 185, 84, 0.25);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .music-panes-container {
@@ -2746,47 +2749,52 @@ footer p {
 .library-nav-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px;
+    gap: 4px;
+    padding: 4px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 40px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .lib-nav-item {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 18px;
+    padding: 7px 20px;
     border-radius: 30px;
-    color: var(--text-secondary);
+    color: rgba(255, 255, 255, 0.45);
     font-size: 0.85rem;
     font-weight: 500;
     text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .lib-nav-item:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .lib-nav-item.active {
     color: #ffffff;
-    background: rgba(0, 54, 143, 0.45);
-    border: 1px solid rgba(0, 210, 255, 0.35);
-    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 /* ======================================================== */
 /*   ACCESSIBILITY: Focus Rings & Reduced Motion            */
 /* ======================================================== */
 :focus-visible {
-    outline: 2px solid rgba(0, 210, 255, 0.6);
+    outline: 2px solid rgba(255, 255, 255, 0.4);
     outline-offset: 3px;
 }
 
@@ -2798,7 +2806,7 @@ footer p {
 .lib-nav-item:focus-visible,
 .music-tab-btn:focus-visible,
 .social-icon:focus-visible {
-    outline: 2px solid rgba(0, 210, 255, 0.8);
+    outline: 2px solid rgba(255, 255, 255, 0.5);
     outline-offset: 4px;
 }
 

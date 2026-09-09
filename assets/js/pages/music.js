@@ -2,20 +2,33 @@ import { initAmbientMesh, initGlobalReveal, initGlassParallax, observer } from '
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { SEED_SPOTIFY } from '../modules/seed-data.js';
 
+const ALBUM_BANNERS = {
+    "purple rain": "/images/albums/purple-rain-banner.webp",
+    "angel face": "/images/albums/angel-face-banner.webp",
+    "angel face (club deluxe)": "/images/albums/angel-face-banner.webp",
+    "5sos5": "/images/albums/5sos5-banner.webp",
+    "5sos5 (deluxe)": "/images/albums/5sos5-banner.webp",
+    "fine line": "/images/albums/fine-line-banner.webp",
+    "4th wall": "/images/albums/4th-wall-banner.webp"
+};
+
 function renderAlbums(container, albumList) {
     if (!container) return;
     const list = Array.isArray(albumList) && albumList.length > 0 ? albumList : (SEED_SPOTIFY?.favorite_albums || []);
     container.innerHTML = list.map((album) => {
         const coverSrc = album.optimized_cover_url || album.cover_url || "";
         const [r, g, b] = album.prominent_color || [255, 255, 255];
+        const titleKey = (album.title || "").toLowerCase().trim();
+        const bannerSrc = album.banner_url || ALBUM_BANNERS[titleKey] || "";
+        const spotifyUrl = album.spotify_url || (album.spotify_id ? `https://open.spotify.com/album/${album.spotify_id}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`);
+
         return `
-            <a href="${album.spotify_url || '#'}" target="_blank" rel="noopener noreferrer" class="spotify-album-item" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.35);">
-                <div class="album-art-wrapper">
-                    <img src="${coverSrc}" alt="${album.title}" class="spotify-album-img" loading="lazy" decoding="async">
+            <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="spotify-album-card" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.35); --album-rgb: ${r}, ${g}, ${b};" aria-label="${album.title} by ${album.artist}">
+                <div class="album-cover-slot">
+                    <img src="${coverSrc}" alt="${album.title} cover" class="album-cover-img" loading="lazy" decoding="async">
                 </div>
-                <div class="spotify-album-meta">
-                    <span class="spotify-album-title" title="${album.title}">${album.title}</span>
-                    <span class="spotify-album-artist" title="${album.artist}">${album.artist}</span>
+                <div class="album-banner-slot">
+                    <img src="${bannerSrc}" alt="${album.title} banner" class="album-banner-img" loading="lazy" decoding="async">
                 </div>
             </a>`;
     }).join('');

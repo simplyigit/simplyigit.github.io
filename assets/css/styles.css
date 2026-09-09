@@ -2236,84 +2236,80 @@ footer p {
     text-align: center;
 }
 
-/* Spotify Albums Grid (All-Time Favorites) */
+/* Spotify Albums Grid (All-Time Favorites) - Panoramic Editorial Banners */
 .spotify-albums-grid {
     display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 0;
+    flex-direction: column;
+    gap: 18px;
     width: 100%;
     box-sizing: border-box;
-    padding: 18px 14px 22px 14px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
     position: relative;
 }
 
-.spotify-album-item {
+.spotify-album-card {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    width: 155px;
-    flex-shrink: 1;
-    text-decoration: none;
-}
-
-.album-art-wrapper {
-    width: 142px;
-    height: 142px;
-    position: relative;
-    border-radius: 12px;
+    flex-direction: row;
+    align-items: stretch;
+    width: 100%;
+    height: clamp(84px, 22vw, 160px);
+    box-sizing: border-box;
+    border-radius: 16px;
     overflow: hidden;
-    background: #111;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
-    transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.35s ease;
+    text-decoration: none;
+    background: rgba(18, 18, 18, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px var(--album-glow, rgba(0, 0, 0, 0.1));
+    position: relative;
+    /* Hardware acceleration & anti-aliased border clipping */
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+    transform: translateZ(0);
+    isolation: isolate;
+    transition: border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
-.spotify-album-img {
+.spotify-album-card:hover {
+    border-color: rgba(var(--album-rgb, 255, 255, 255), 0.45);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 28px var(--album-glow, rgba(255, 255, 255, 0.25));
+}
+
+.album-cover-slot {
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #0d0d0d;
+    position: relative;
+}
+
+.album-cover-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-.spotify-album-item:hover .album-art-wrapper {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 22px var(--album-glow, rgba(255, 255, 255, 0.15));
+.album-banner-slot {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: #0d0d0d;
 }
 
-.spotify-album-meta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 3px;
+.album-banner-img {
     width: 100%;
-    padding: 0 4px;
-    box-sizing: border-box;
-}
-
-.spotify-album-title {
-    font-size: 0.85rem;
-    font-weight: 550;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
-
-.spotify-album-artist {
-    font-size: 0.74rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
+    display: block;
 }
 
 .spotify-tracks-grid {
@@ -2636,8 +2632,7 @@ footer p {
 }
 
 @media (max-width: 900px) {
-    .spotify-artists-grid,
-    .spotify-albums-grid {
+    .spotify-artists-grid {
         flex-wrap: wrap;
         justify-content: center;
     }
@@ -3085,9 +3080,8 @@ footer p {
         height: 16px;
     }
 
-    /* Horizontal Scroll for Artists & Albums */
-    .spotify-artists-grid,
-    .spotify-albums-grid {
+    /* Horizontal Scroll for Artists */
+    .spotify-artists-grid {
         display: flex !important;
         flex-wrap: nowrap !important;
         justify-content: flex-start !important;
@@ -3097,8 +3091,7 @@ footer p {
         padding-bottom: 20px !important;
         gap: 16px !important;
     }
-    .spotify-artist-item,
-    .spotify-album-item {
+    .spotify-artist-item {
         scroll-snap-align: start;
         flex: 0 0 120px !important;
         width: 120px !important;
@@ -3107,8 +3100,12 @@ footer p {
         width: 110px !important;
         height: 110px !important;
     }
-    .album-art-wrapper {
-        width: 120px !important;
-        height: 120px !important;
+
+    /* Mobile Album Banners */
+    .spotify-albums-grid {
+        gap: 12px;
+    }
+    .spotify-album-card {
+        border-radius: 12px;
     }
 }

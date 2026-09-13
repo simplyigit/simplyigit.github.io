@@ -15,6 +15,8 @@ export const SEED_SPOTIFY = {
         95,
         106
       ],
+      "year": "1984",
+      "format_tag": "LP · 1984",
       "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp"
     },
     {
@@ -32,6 +34,8 @@ export const SEED_SPOTIFY = {
         86,
         69
       ],
+      "year": "2023",
+      "format_tag": "LP · 2023",
       "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp"
     },
     {
@@ -48,6 +52,8 @@ export const SEED_SPOTIFY = {
         221,
         207
       ],
+      "year": "2022",
+      "format_tag": "LP · 2022",
       "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp"
     },
     {
@@ -65,6 +71,8 @@ export const SEED_SPOTIFY = {
         194,
         214
       ],
+      "year": "2019",
+      "format_tag": "LP · 2019",
       "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp"
     },
     {
@@ -82,6 +90,8 @@ export const SEED_SPOTIFY = {
         78,
         88
       ],
+      "year": "2023",
+      "format_tag": "LP · 2023",
       "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp"
     }
   ],

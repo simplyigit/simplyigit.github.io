@@ -6,37 +6,51 @@ const ALBUM_LAYERS = {
     "purple rain": {
         bg: "/images/albums/purple-rain-bg.webp",
         typo: "/images/albums/purple-rain-typo.webp",
-        fallback: "/images/albums/purple-rain-banner.webp"
+        fallback: "/images/albums/purple-rain-banner.webp",
+        year: "1984",
+        format: "LP"
     },
     "angel face": {
         bg: "/images/albums/angel-face-bg.webp",
         typo: "/images/albums/angel-face-typo.webp",
-        fallback: "/images/albums/angel-face-banner.webp"
+        fallback: "/images/albums/angel-face-banner.webp",
+        year: "2023",
+        format: "LP"
     },
     "angel face (club deluxe)": {
         bg: "/images/albums/angel-face-bg.webp",
         typo: "/images/albums/angel-face-typo.webp",
-        fallback: "/images/albums/angel-face-banner.webp"
+        fallback: "/images/albums/angel-face-banner.webp",
+        year: "2023",
+        format: "LP"
     },
     "5sos5": {
         bg: "/images/albums/5sos5-bg.webp",
         typo: "/images/albums/5sos5-typo.webp",
-        fallback: "/images/albums/5sos5-banner.webp"
+        fallback: "/images/albums/5sos5-banner.webp",
+        year: "2022",
+        format: "LP"
     },
     "5sos5 (deluxe)": {
         bg: "/images/albums/5sos5-bg.webp",
         typo: "/images/albums/5sos5-typo.webp",
-        fallback: "/images/albums/5sos5-banner.webp"
+        fallback: "/images/albums/5sos5-banner.webp",
+        year: "2022",
+        format: "LP"
     },
     "fine line": {
         bg: "/images/albums/fine-line-bg.webp",
         typo: "/images/albums/fine-line-typo.webp",
-        fallback: "/images/albums/fine-line-banner.webp"
+        fallback: "/images/albums/fine-line-banner.webp",
+        year: "2019",
+        format: "LP"
     },
     "4th wall": {
         bg: "/images/albums/4th-wall-bg.webp",
         typo: "/images/albums/4th-wall-typo.webp",
-        fallback: "/images/albums/4th-wall-banner.webp"
+        fallback: "/images/albums/4th-wall-banner.webp",
+        year: "2023",
+        format: "LP"
     }
 };
 
@@ -52,6 +66,8 @@ function renderAlbums(container, albumList) {
         const typoSrc = album.typo_url || layerInfo.typo || "";
         const fallbackBannerSrc = album.banner_url || layerInfo.fallback || "";
         const spotifyUrl = album.spotify_url || (album.spotify_id ? `https://open.spotify.com/album/${album.spotify_id}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`);
+        const year = album.year || layerInfo.year || (album.release_date ? album.release_date.slice(0, 4) : "");
+        const formatTag = album.format_tag || (year ? `LP · ${year}` : "LP");
 
         const bannerContent = typoSrc ? `
             <div class="album-banner-bg-wrap">
@@ -71,6 +87,7 @@ function renderAlbums(container, albumList) {
             <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="spotify-album-card" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.45); --album-rgb: ${r}, ${g}, ${b}; --stagger-idx: ${idx};" aria-label="${album.title} by ${album.artist}">
                 <div class="album-cover-slot">
                     <img src="${coverSrc}" alt="${album.title} cover" class="album-cover-img" loading="lazy" decoding="async">
+                    <div class="album-cover-gloss" aria-hidden="true"></div>
                 </div>
                 <div class="album-vinyl-disc" aria-hidden="true">
                     <div class="vinyl-sheen"></div>

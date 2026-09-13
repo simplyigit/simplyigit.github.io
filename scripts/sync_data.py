@@ -337,6 +337,8 @@ FAVORITE_ALBUMS_RAW = [
         "artist": "Prince and The Revolution",
         "raw_cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front",
         "banner_url": "/images/albums/purple-rain-banner.webp",
+        "bg_url": "/images/albums/purple-rain-bg.webp",
+        "typo_url": "/images/albums/purple-rain-typo.webp",
         "prominent_color": [120, 95, 106]
     },
     {
@@ -344,6 +346,8 @@ FAVORITE_ALBUMS_RAW = [
         "artist": "Stephen Sanchez",
         "raw_cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419.jpg",
         "banner_url": "/images/albums/angel-face-banner.webp",
+        "bg_url": "/images/albums/angel-face-bg.webp",
+        "typo_url": "/images/albums/angel-face-typo.webp",
         "prominent_color": [213, 86, 69]
     },
     {
@@ -351,6 +355,8 @@ FAVORITE_ALBUMS_RAW = [
         "artist": "5 Seconds of Summer",
         "raw_cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front",
         "banner_url": "/images/albums/5sos5-banner.webp",
+        "bg_url": "/images/albums/5sos5-bg.webp",
+        "typo_url": "/images/albums/5sos5-typo.webp",
         "prominent_color": [247, 221, 207]
     },
     {
@@ -358,6 +364,8 @@ FAVORITE_ALBUMS_RAW = [
         "artist": "Harry Styles",
         "raw_cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front",
         "banner_url": "/images/albums/fine-line-banner.webp",
+        "bg_url": "/images/albums/fine-line-bg.webp",
+        "typo_url": "/images/albums/fine-line-typo.webp",
         "prominent_color": [115, 194, 214]
     },
     {
@@ -365,6 +373,8 @@ FAVORITE_ALBUMS_RAW = [
         "artist": "Ruel",
         "raw_cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front",
         "banner_url": "/images/albums/4th-wall-banner.webp",
+        "bg_url": "/images/albums/4th-wall-bg.webp",
+        "typo_url": "/images/albums/4th-wall-typo.webp",
         "prominent_color": [74, 78, 88]
     }
 ]

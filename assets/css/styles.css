@@ -2237,6 +2237,7 @@ footer p {
 }
 
 /* Spotify Albums Grid (All-Time Favorites) - Panoramic Editorial Banners */
+/* Spotify Albums Grid (All-Time Favorites) - Fluid Multi-Layered Editorial Experience */
 .spotify-albums-grid {
     display: flex;
     flex-direction: column;
@@ -2252,6 +2253,23 @@ footer p {
     position: relative;
 }
 
+/* Cascading fluid entry when Albums tab is active */
+.music-tab-pane.active .spotify-album-card {
+    animation: albumCardCascade 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: calc(var(--stagger-idx, 0) * 45ms);
+}
+
+@keyframes albumCardCascade {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .spotify-album-card {
     display: flex;
     flex-direction: row;
@@ -2262,30 +2280,32 @@ footer p {
     border-radius: 16px;
     overflow: hidden;
     text-decoration: none;
-    background: rgba(18, 18, 18, 0.85);
+    background: rgba(14, 14, 14, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px var(--album-glow, rgba(0, 0, 0, 0.1));
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 14px var(--album-glow, rgba(0, 0, 0, 0.1));
     position: relative;
+    isolation: isolate;
+    cursor: pointer;
     /* Hardware acceleration & anti-aliased border clipping */
     -webkit-mask-image: -webkit-radial-gradient(white, black);
     mask-image: radial-gradient(white, black);
     transform: translateZ(0);
-    isolation: isolate;
     transition: border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 .spotify-album-card:hover {
     border-color: rgba(var(--album-rgb, 255, 255, 255), 0.45);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 28px var(--album-glow, rgba(255, 255, 255, 0.25));
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.65), 0 0 28px var(--album-glow, rgba(255, 255, 255, 0.25));
 }
 
+/* Album Gatefold Cover Slot */
 .album-cover-slot {
     height: 100%;
     aspect-ratio: 1 / 1;
     flex-shrink: 0;
-    overflow: hidden;
-    background: #0d0d0d;
     position: relative;
+    z-index: 3;
+    background: #000;
 }
 
 .album-cover-img {
@@ -2293,24 +2313,212 @@ footer p {
     height: 100%;
     object-fit: cover;
     display: block;
+    position: relative;
+    z-index: 3;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    transition: filter 0.35s ease;
 }
 
+.spotify-album-card:hover .album-cover-img {
+    filter: brightness(1.05) contrast(1.02);
+}
+
+/* Interactive Vinyl Disc (Slides out from sleeve on hover) */
+.album-vinyl-disc {
+    position: absolute;
+    top: 5%;
+    left: 4%;
+    height: 90%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, #0e0e0e 0, #0e0e0e 2px, #1a1a1a 3px, #0e0e0e 4px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    z-index: 2;
+    transform: translateX(0) rotate(0deg);
+    transition: transform 0.65s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.35s ease;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spotify-album-card:hover .album-vinyl-disc {
+    opacity: 1;
+    transform: translateX(clamp(20px, 5.5vw, 42px)) rotate(180deg);
+}
+
+.vinyl-sheen {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 30deg,
+        rgba(255, 255, 255, 0.12) 0deg,
+        transparent 45deg,
+        transparent 135deg,
+        rgba(255, 255, 255, 0.12) 180deg,
+        transparent 225deg,
+        transparent 315deg,
+        rgba(255, 255, 255, 0.12) 360deg
+    );
+}
+
+.vinyl-label {
+    width: 34%;
+    height: 34%;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 0 0 2px #0a0a0a, inset 0 0 6px rgba(0, 0, 0, 0.6);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vinyl-hole {
+    width: 20%;
+    height: 20%;
+    border-radius: 50%;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Panoramic Banner Slot */
 .album-banner-slot {
     flex: 1;
     min-width: 0;
     height: 100%;
-    overflow: hidden;
     position: relative;
-    background: #0d0d0d;
+    overflow: hidden;
+    background: #0a0a0a;
+    z-index: 1;
 }
 
-.album-banner-img {
+/* Layer 0: Background Photo with 2.5D Parallax */
+.album-banner-bg-wrap {
+    position: absolute;
+    inset: -6%;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.album-banner-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: translate3d(calc(var(--parallax-x, 0) * -10px), calc(var(--parallax-y, 0) * -6px), 0) scale(1.03);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+    will-change: transform;
+}
+
+.spotify-album-card:hover .album-banner-bg {
+    filter: brightness(1.04);
+}
+
+.album-banner-vignette {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.4) 0%, transparent 16%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Layer 2: Floating Foreground Typography */
+.album-banner-typo-wrap {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.album-banner-typo {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: right center;
     display: block;
+    transform: translate3d(calc(var(--parallax-x, 0) * 8px), calc(var(--parallax-y, 0) * 5px), 0);
+    filter: drop-shadow(calc(var(--parallax-x, 0) * -4px) 6px 16px rgba(0, 0, 0, 0.8));
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+    will-change: transform, filter;
 }
+
+/* Layer 3: Interactive Glass Specular Spotlight (Tracks Pointer) */
+.album-banner-sheen {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    background: radial-gradient(
+        circle 320px at var(--mouse-x, -500px) var(--mouse-y, -500px),
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(var(--album-rgb, 255, 255, 255), 0.1) 40%,
+        transparent 70%
+    );
+    mix-blend-mode: overlay;
+    transition: opacity 0.35s ease;
+}
+
+.spotify-album-card:hover .album-banner-sheen {
+    opacity: 1;
+}
+
+/* Layer 4: Interactive Floating Spotify Pill with Soundwave Equalizer */
+.album-hover-pill {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 11px;
+    background: rgba(12, 12, 12, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    color: #f0f0f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    z-index: 6;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.spotify-album-card:hover .album-hover-pill {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.album-eq {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 10px;
+}
+
+.album-eq span {
+    width: 2px;
+    border-radius: 1px;
+    background: #1DB954;
+    display: block;
+}
+
+.album-eq span:nth-child(1) { height: 4px; animation: eqBounce1 0.7s infinite alternate ease-in-out; }
+.album-eq span:nth-child(2) { height: 9px; animation: eqBounce2 0.5s infinite alternate ease-in-out 0.15s; }
+.album-eq span:nth-child(3) { height: 6px; animation: eqBounce3 0.8s infinite alternate ease-in-out 0.3s; }
+
+@keyframes eqBounce1 { 0% { height: 3px; } 100% { height: 10px; } }
+@keyframes eqBounce2 { 0% { height: 10px; } 100% { height: 4px; } }
+@keyframes eqBounce3 { 0% { height: 5px; } 100% { height: 10px; } }
 
 .spotify-tracks-grid {
     display: grid;
@@ -3107,5 +3315,11 @@ footer p {
     }
     .spotify-album-card {
         border-radius: 12px;
+    }
+    .spotify-album-card .album-hover-pill {
+        display: none;
+    }
+    .spotify-album-card:hover .album-vinyl-disc {
+        transform: translateX(18px) rotate(90deg);
     }
 }

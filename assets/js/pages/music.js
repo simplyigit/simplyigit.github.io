@@ -2,36 +2,131 @@ import { initAmbientMesh, initGlobalReveal, initGlassParallax, observer } from '
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { SEED_SPOTIFY } from '../modules/seed-data.js';
 
-const ALBUM_BANNERS = {
-    "purple rain": "/images/albums/purple-rain-banner.webp",
-    "angel face": "/images/albums/angel-face-banner.webp",
-    "angel face (club deluxe)": "/images/albums/angel-face-banner.webp",
-    "5sos5": "/images/albums/5sos5-banner.webp",
-    "5sos5 (deluxe)": "/images/albums/5sos5-banner.webp",
-    "fine line": "/images/albums/fine-line-banner.webp",
-    "4th wall": "/images/albums/4th-wall-banner.webp"
+const ALBUM_LAYERS = {
+    "purple rain": {
+        bg: "/images/albums/purple-rain-bg.webp",
+        typo: "/images/albums/purple-rain-typo.webp",
+        fallback: "/images/albums/purple-rain-banner.webp"
+    },
+    "angel face": {
+        bg: "/images/albums/angel-face-bg.webp",
+        typo: "/images/albums/angel-face-typo.webp",
+        fallback: "/images/albums/angel-face-banner.webp"
+    },
+    "angel face (club deluxe)": {
+        bg: "/images/albums/angel-face-bg.webp",
+        typo: "/images/albums/angel-face-typo.webp",
+        fallback: "/images/albums/angel-face-banner.webp"
+    },
+    "5sos5": {
+        bg: "/images/albums/5sos5-bg.webp",
+        typo: "/images/albums/5sos5-typo.webp",
+        fallback: "/images/albums/5sos5-banner.webp"
+    },
+    "5sos5 (deluxe)": {
+        bg: "/images/albums/5sos5-bg.webp",
+        typo: "/images/albums/5sos5-typo.webp",
+        fallback: "/images/albums/5sos5-banner.webp"
+    },
+    "fine line": {
+        bg: "/images/albums/fine-line-bg.webp",
+        typo: "/images/albums/fine-line-typo.webp",
+        fallback: "/images/albums/fine-line-banner.webp"
+    },
+    "4th wall": {
+        bg: "/images/albums/4th-wall-bg.webp",
+        typo: "/images/albums/4th-wall-typo.webp",
+        fallback: "/images/albums/4th-wall-banner.webp"
+    }
 };
 
 function renderAlbums(container, albumList) {
     if (!container) return;
     const list = Array.isArray(albumList) && albumList.length > 0 ? albumList : (SEED_SPOTIFY?.favorite_albums || []);
-    container.innerHTML = list.map((album) => {
+    container.innerHTML = list.map((album, idx) => {
         const coverSrc = album.optimized_cover_url || album.cover_url || "";
         const [r, g, b] = album.prominent_color || [255, 255, 255];
         const titleKey = (album.title || "").toLowerCase().trim();
-        const bannerSrc = album.banner_url || ALBUM_BANNERS[titleKey] || "";
+        const layerInfo = ALBUM_LAYERS[titleKey] || {};
+        const bgSrc = album.bg_url || layerInfo.bg || album.banner_url || layerInfo.fallback || "";
+        const typoSrc = album.typo_url || layerInfo.typo || "";
+        const fallbackBannerSrc = album.banner_url || layerInfo.fallback || "";
         const spotifyUrl = album.spotify_url || (album.spotify_id ? `https://open.spotify.com/album/${album.spotify_id}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`);
 
+        const bannerContent = typoSrc ? `
+            <div class="album-banner-bg-wrap">
+                <img src="${bgSrc}" alt="${album.title} backdrop" class="album-banner-bg" loading="lazy" decoding="async">
+            </div>
+            <div class="album-banner-vignette"></div>
+            <div class="album-banner-typo-wrap">
+                <img src="${typoSrc}" alt="${album.title} title" class="album-banner-typo" loading="lazy" decoding="async">
+            </div>
+        ` : `
+            <div class="album-banner-bg-wrap">
+                <img src="${fallbackBannerSrc}" alt="${album.title} banner" class="album-banner-bg" loading="lazy" decoding="async">
+            </div>
+        `;
+
         return `
-            <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="spotify-album-card" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.35); --album-rgb: ${r}, ${g}, ${b};" aria-label="${album.title} by ${album.artist}">
+            <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="spotify-album-card" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.45); --album-rgb: ${r}, ${g}, ${b}; --stagger-idx: ${idx};" aria-label="${album.title} by ${album.artist}">
                 <div class="album-cover-slot">
                     <img src="${coverSrc}" alt="${album.title} cover" class="album-cover-img" loading="lazy" decoding="async">
                 </div>
+                <div class="album-vinyl-disc" aria-hidden="true">
+                    <div class="vinyl-sheen"></div>
+                    <div class="vinyl-label" style="background-image: url('${coverSrc}');">
+                        <div class="vinyl-hole"></div>
+                    </div>
+                </div>
                 <div class="album-banner-slot">
-                    <img src="${bannerSrc}" alt="${album.title} banner" class="album-banner-img" loading="lazy" decoding="async">
+                    ${bannerContent}
+                    <div class="album-banner-sheen"></div>
+                    <div class="album-hover-pill">
+                        <div class="album-eq"><span></span><span></span><span></span></div>
+                        <span>Spotify</span>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                    </div>
                 </div>
             </a>`;
     }).join('');
+
+    initAlbumInteractivity(container);
+}
+
+function initAlbumInteractivity(container) {
+    if (!container) return;
+    const cards = container.querySelectorAll('.spotify-album-card');
+    cards.forEach(card => {
+        if (card.dataset.interactivityInitialized) return;
+        card.dataset.interactivityInitialized = "true";
+
+        let rect = null;
+
+        card.addEventListener('mouseenter', () => {
+            rect = card.getBoundingClientRect();
+        });
+
+        card.addEventListener('mousemove', (e) => {
+            if (!rect) rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const px = ((x / rect.width) - 0.5) * 2;
+            const py = ((y / rect.height) - 0.5) * 2;
+
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+            card.style.setProperty('--parallax-x', px.toFixed(3));
+            card.style.setProperty('--parallax-y', py.toFixed(3));
+        });
+
+        card.addEventListener('mouseleave', () => {
+            rect = null;
+            card.style.setProperty('--parallax-x', '0');
+            card.style.setProperty('--parallax-y', '0');
+            card.style.setProperty('--mouse-x', '-500px');
+            card.style.setProperty('--mouse-y', '-500px');
+        });
+    });
 }
 
 function renderArtists(container, artistList) {

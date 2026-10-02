@@ -164,20 +164,49 @@ function initCinema() {
     if (favContainer || recentContainer || watchlistContainer) {
         // Instant 0ms render from cache or bundled seed data
         const cached = getCachedData("simplyigit_cache_movies", SEED_MOVIES);
+        let renderedCinemaSig = '';
+
+        const getCinemaSig = (data) => {
+            if (!data) return '';
+            const rec = (data.recent_activity || []).map(m => m.title).join('|');
+            const fav = (data.favorite_films || []).map(m => m.title).join('|');
+            const wat = (data.watchlist || []).map(m => m.title).join('|');
+            return `${rec}##${fav}##${wat}`;
+        };
+
         if (cached) {
+            renderedCinemaSig = getCinemaSig(cached);
             renderCinemaData(cached);
         }
 
-        // Silent background fetch to keep fresh
-        fetch("/api/movies")
-            .then(res => res.json())
-            .then(json => {
-                if (json.success && json.data) {
-                    setCachedData("simplyigit_cache_movies", json.data);
-                    renderCinemaData(json.data);
+        // Fast static fetch (<20ms) with seamless API fallback
+        const fetchMoviesData = async () => {
+            try {
+                const res = await fetch("/data/movies.json");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
                 }
-            })
-            .catch(() => {});
+            } catch {}
+            try {
+                const res = await fetch("/api/movies");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
+                }
+            } catch {}
+            return null;
+        };
+
+        fetchMoviesData().then(data => {
+            if (!data) return;
+            setCachedData("simplyigit_cache_movies", data);
+            const newSig = getCinemaSig(data);
+            if (newSig && newSig !== renderedCinemaSig) {
+                renderedCinemaSig = newSig;
+                renderCinemaData(data);
+            }
+        });
     }
 }
 

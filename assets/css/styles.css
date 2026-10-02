@@ -518,6 +518,10 @@ p {
     color: #3776AB;
 }
 
+.social-icon.ai:hover {
+    color: #38bdf8;
+}
+
 .social-icon.pytorch:hover {
     color: #EE4C2C;
 }

@@ -1,4 +1,5 @@
 import { initAmbientMesh, initGlobalReveal, initGlassParallax, observer } from '../modules/core.js';
+import { SEED_SPOTIFY, SEED_MOVIES, SEED_BOOKS } from '../modules/seed-data.js';
 
 const projects = [
     {
@@ -87,59 +88,71 @@ function initIndex() {
         });
     }
 
-    // Typewriter
-    const statusText = document.querySelector('.status-text');
-    if (statusText) {
-        const phrases = ["Machine Learning & Software", "Python Developer", "AI & Robotics Student"];
-        let phraseIndex = 0, charIndex = phrases[0].length, isDeleting = true;
-        const type = () => {
-            const currentPhrase = phrases[phraseIndex];
-            if (isDeleting) charIndex--; else charIndex++;
-            statusText.textContent = currentPhrase.substring(0, charIndex);
-            let typeSpeed = isDeleting ? 40 : 80;
-            if (!isDeleting && charIndex === currentPhrase.length) { typeSpeed = 2000; isDeleting = true; }
-            else if (isDeleting && charIndex === 0) { isDeleting = false; phraseIndex = (phraseIndex + 1) % phrases.length; typeSpeed = 500; }
-            setTimeout(type, typeSpeed);
-        };
-        setTimeout(type, 2000);
-    }
 
     // Index Data Sync with LocalStorage Cache (Instant Load Pattern)
     const indexBooksContainer = document.getElementById("index-books-container");
     const indexMoviesContainer = document.getElementById("index-movies-container");
     const cassetteArtistName = document.getElementById("cassette-artist-name");
     const cassetteSongTitle = document.getElementById("cassette-song-title");
+    let renderedSpotifySig = '';
+    let renderedBooksSig = '';
+    let renderedMoviesSig = '';
 
     if (indexBooksContainer && indexMoviesContainer) {
         const CACHE_KEY = 'simplyigit_dashboard_cache';
         
-        // 1. Try to load from cache immediately
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        if (cachedData) {
+        // 1. Instant 0ms render from LocalStorage Cache or Bundled Seed Data
+        let initialData = null;
+        try {
+            const stored = localStorage.getItem(CACHE_KEY);
+            if (stored) initialData = JSON.parse(stored);
+        } catch {}
+
+        if (!initialData || !initialData.spotify || !initialData.movies || !initialData.books) {
+            initialData = {
+                spotify: SEED_SPOTIFY,
+                movies: SEED_MOVIES,
+                books: SEED_BOOKS
+            };
+        }
+
+        renderSpotify(initialData.spotify);
+        renderBooks(initialData.books);
+        renderMovies(initialData.movies);
+
+        // 2. Fetch fresh data: fast static CDN (<20ms) with seamless API fallback
+        async function fetchFreshDashboard() {
             try {
-                const { spotify, books, movies } = JSON.parse(cachedData);
-                renderSpotify(spotify);
-                renderBooks(books);
-                renderMovies(movies);
-            } catch (e) {
-                console.error("Cache parse error", e);
+                const res = await fetch("/data/dashboard.json");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.data) return json.data;
+                }
+            } catch {}
+            try {
+                const [s, b, m] = await Promise.all([
+                    fetch("/api/spotify").then(r => r.json()).catch(() => null),
+                    fetch("/api/books").then(r => r.json()).catch(() => null),
+                    fetch("/api/movies").then(r => r.json()).catch(() => null)
+                ]);
+                return {
+                    spotify: s?.data || s,
+                    books: b?.data || b,
+                    movies: m?.data || m
+                };
+            } catch {
+                return null;
             }
         }
 
-        // 2. Fetch fresh data in the background
-        const fetchSpotify = fetch("/api/spotify?v=4.2").then(res => res.json()).catch(() => ({ success: false }));
-        const fetchBooks = fetch("/api/books?v=4.2").then(res => res.json()).catch(() => ({ success: false }));
-        const fetchMovies = fetch("/api/movies?v=4.2").then(res => res.json()).catch(() => ({ success: false }));
+        fetchFreshDashboard().then(fresh => {
+            if (!fresh) return;
+            if (fresh.spotify) renderSpotify(fresh.spotify);
+            if (fresh.books) renderBooks(fresh.books);
+            if (fresh.movies) renderMovies(fresh.movies);
 
-        Promise.all([fetchSpotify, fetchBooks, fetchMovies]).then(([spotify, books, movies]) => {
-            // 3. Update UI with fresh data
-            renderSpotify(spotify);
-            renderBooks(books);
-            renderMovies(movies);
-
-            // 4. Save fresh data to cache for next time
             try {
-                localStorage.setItem(CACHE_KEY, JSON.stringify({ spotify, books, movies }));
+                localStorage.setItem(CACHE_KEY, JSON.stringify(fresh));
             } catch {}
         });
     }
@@ -156,40 +169,44 @@ function initIndex() {
         if (!spotify) return;
         const data = spotify.data || spotify;
         const topTrack = data.top_tracks_last_month?.[0];
-        if (topTrack) {
-            if (cassetteArtistName) cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
-            if (cassetteSongTitle) {
-                const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
-                if (marquee) {
-                    marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text">${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
-                    const titleLen = (topTrack.title || "").length;
-                    const duration = Math.max(5, Math.min(12, 4 + titleLen * 0.12));
-                    marquee.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
-                }
+        if (!topTrack) return;
+
+        const sig = `${topTrack.title}|${topTrack.artist}|${topTrack.cover_url}`;
+        if (sig === renderedSpotifySig) return; // Prevent unnecessary DOM wipe & marquee reset
+        renderedSpotifySig = sig;
+
+        if (cassetteArtistName) cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
+        if (cassetteSongTitle) {
+            const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
+            if (marquee) {
+                marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text">${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
+                const titleLen = (topTrack.title || "").length;
+                const duration = Math.max(5, Math.min(12, 4 + titleLen * 0.12));
+                marquee.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
             }
-            const cassetteBody = document.getElementById("cassette-body");
-            if (cassetteBody && topTrack.cover_url) {
-                cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
-                if (topTrack.prominent_color && Array.isArray(topTrack.prominent_color)) {
-                    const [r, g, b] = topTrack.prominent_color;
-                    cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
+        }
+        const cassetteBody = document.getElementById("cassette-body");
+        if (cassetteBody && topTrack.cover_url) {
+            cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
+            if (topTrack.prominent_color && Array.isArray(topTrack.prominent_color)) {
+                const [r, g, b] = topTrack.prominent_color;
+                cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
+                cassetteBody.classList.add('has-art');
+            } else {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.src = topTrack.cover_url;
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = 1; canvas.height = 1;
+                        ctx.drawImage(img, 0, 0, 1, 1);
+                        const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+                        cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
+                    } catch {}
                     cassetteBody.classList.add('has-art');
-                } else {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.src = topTrack.cover_url;
-                    img.onload = () => {
-                        try {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            canvas.width = 1; canvas.height = 1;
-                            ctx.drawImage(img, 0, 0, 1, 1);
-                            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-                            cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
-                        } catch {}
-                        cassetteBody.classList.add('has-art');
-                    };
-                }
+                };
             }
         }
     }
@@ -214,6 +231,11 @@ function initIndex() {
         const bookList = Array.isArray(data) ? data : (Array.isArray(data.books) ? data.books : []);
         if (bookList.length === 0) return;
         const top3 = bookList.slice(0, 3);
+
+        const sig = top3.map(b => `${b.title}|${b.cover_url}`).join(';;');
+        if (sig === renderedBooksSig) return; // Prevent DOM destruction & image flicker
+        renderedBooksSig = sig;
+
         const heroBook = top3[0];
         const safeTitle = (heroBook.title || '').replace(/"/g, '&quot;');
         const safeAuthor = (heroBook.author || '').replace(/"/g, '&quot;');
@@ -295,6 +317,10 @@ function initIndex() {
         if (recent.length === 0) return;
 
         const list = recent.slice(0, 10);
+        const sig = list.map(f => `${f.title}|${f.cover_url}`).join(';;');
+        if (sig === renderedMoviesSig) return; // Prevent marquee animation reset & image reload
+        renderedMoviesSig = sig;
+
         const duplicated = list.length >= 4 ? [...list, ...list] : [...list, ...list, ...list, ...list];
 
         indexMoviesContainer.innerHTML = `

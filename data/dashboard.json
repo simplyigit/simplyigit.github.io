@@ -1,0 +1,400 @@
+{
+  "success": true,
+  "data": {
+    "spotify": {
+      "favorite_albums": [
+        {
+          "title": "Purple Rain",
+          "artist": "Prince and The Revolution",
+          "bg_url": "/images/albums/purple-rain-bg.webp",
+          "typo_url": "/images/albums/purple-rain-typo.webp",
+          "cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
+          "banner_url": "/images/albums/purple-rain-banner.webp",
+          "raw_cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front",
+          "prominent_color": [
+            120,
+            95,
+            106
+          ],
+          "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp",
+          "year": "1984",
+          "format_tag": "LP \u00b7 1984"
+        },
+        {
+          "title": "Angel Face (Club Deluxe)",
+          "artist": "Stephen Sanchez",
+          "bg_url": "/images/albums/angel-face-bg.webp",
+          "typo_url": "/images/albums/angel-face-typo.webp",
+          "cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg",
+          "banner_url": "/images/albums/angel-face-banner.webp",
+          "spotify_id": "3fD6ZQKymy2oP1t6c8NEOc",
+          "spotify_url": "https://open.spotify.com/album/3fD6ZQKymy2oP1t6c8NEOc",
+          "raw_cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419.jpg",
+          "prominent_color": [
+            213,
+            86,
+            69
+          ],
+          "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp",
+          "year": "2023",
+          "format_tag": "LP \u00b7 2023"
+        },
+        {
+          "title": "5SOS5 (Deluxe)",
+          "artist": "5 Seconds of Summer",
+          "bg_url": "/images/albums/5sos5-bg.webp",
+          "typo_url": "/images/albums/5sos5-typo.webp",
+          "cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
+          "banner_url": "/images/albums/5sos5-banner.webp",
+          "raw_cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front",
+          "prominent_color": [
+            247,
+            221,
+            207
+          ],
+          "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp",
+          "year": "2022",
+          "format_tag": "LP \u00b7 2022"
+        },
+        {
+          "title": "Fine Line",
+          "artist": "Harry Styles",
+          "bg_url": "/images/albums/fine-line-bg.webp",
+          "typo_url": "/images/albums/fine-line-typo.webp",
+          "cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500",
+          "banner_url": "/images/albums/fine-line-banner.webp",
+          "spotify_id": "7xV2TzoaVc0ycW7fwBwAml",
+          "spotify_url": "https://open.spotify.com/album/7xV2TzoaVc0ycW7fwBwAml",
+          "raw_cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front",
+          "prominent_color": [
+            115,
+            194,
+            214
+          ],
+          "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp",
+          "year": "2019",
+          "format_tag": "LP \u00b7 2019"
+        },
+        {
+          "title": "4TH WALL",
+          "artist": "Ruel",
+          "bg_url": "/images/albums/4th-wall-bg.webp",
+          "typo_url": "/images/albums/4th-wall-typo.webp",
+          "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
+          "banner_url": "/images/albums/4th-wall-banner.webp",
+          "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
+          "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
+          "raw_cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front",
+          "prominent_color": [
+            74,
+            78,
+            88
+          ],
+          "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
+          "year": "2023",
+          "format_tag": "LP \u00b7 2023"
+        }
+      ],
+      "top_tracks_last_month": [
+        {
+          "title": "Eva & Mia",
+          "artist": "GOKO!",
+          "ai_lyrics": {
+            "lyric1": "Adam olmay\u0131 \u00f6\u011frenmedin hi\u00e7 kad\u0131na el kald\u0131r\u0131yorsan",
+            "lyric2": "\u00d6pmeye k\u0131yam\u0131yorsam  sensiz uyuyam\u0131yorsam",
+            "lyric3": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane"
+          },
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b27336f9a8140a0ea4f78a2b9b2d",
+          "playcount": "48",
+          "spotify_id": "2FuWptjK1pc0rkVpF5O0CG",
+          "spotify_url": "https://open.spotify.com/track/2FuWptjK1pc0rkVpF5O0CG",
+          "prominent_color": [
+            225,
+            205,
+            187
+          ]
+        },
+        {
+          "title": "Chain Reaction",
+          "artist": "Matilda Mann",
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
+          "playcount": "44",
+          "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
+          "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
+          "prominent_color": [
+            149,
+            165,
+            163
+          ]
+        },
+        {
+          "title": "Phantom",
+          "artist": "Ryan Beatty",
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b2734d0045f25c5e6da7ad67f94e",
+          "playcount": "31",
+          "spotify_id": "6QmvvglistS1I0ZSuGKqcg",
+          "spotify_url": "https://open.spotify.com/track/6QmvvglistS1I0ZSuGKqcg",
+          "prominent_color": [
+            176,
+            131,
+            110
+          ]
+        },
+        {
+          "title": "When You Look Me in the Eyes",
+          "artist": "Jonas Brothers",
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b273c58743f823bf8e52d85f24f6",
+          "playcount": "30",
+          "spotify_id": "0mFh1ToSAR3iiW9J17de4Z",
+          "spotify_url": "https://open.spotify.com/track/0mFh1ToSAR3iiW9J17de4Z",
+          "prominent_color": [
+            76,
+            76,
+            76
+          ]
+        },
+        {
+          "title": "E\u011eLEN",
+          "artist": "Baneva",
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
+          "playcount": "28",
+          "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
+          "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
+          "prominent_color": [
+            210,
+            209,
+            214
+          ]
+        }
+      ],
+      "top_artists_last_month": [
+        {
+          "name": "Shawn Mendes",
+          "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
+          "playcount": "154",
+          "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr",
+          "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr"
+        },
+        {
+          "name": "Ryan Beatty",
+          "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
+          "playcount": "135",
+          "spotify_id": "60NNvDqsif0u40CXMV6jDQ",
+          "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ"
+        },
+        {
+          "name": "Harry Styles",
+          "image_url": "https://i.scdn.co/image/ab6761610000e5ebe309f8c3056a59f20d0968ca",
+          "playcount": "69",
+          "spotify_id": "6KImCVD70vtIoJWnq6nGn3",
+          "spotify_url": "https://open.spotify.com/artist/6KImCVD70vtIoJWnq6nGn3"
+        },
+        {
+          "name": "Stephen Sanchez",
+          "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
+          "playcount": "66",
+          "spotify_id": "5XKFrudbV4IiuE5WuTPRmT",
+          "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT"
+        },
+        {
+          "name": "5 Seconds of Summer",
+          "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
+          "playcount": "65",
+          "spotify_id": "5Rl15oVamLq7FbSb0NNBNy",
+          "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy"
+        }
+      ]
+    },
+    "books": [
+      {
+        "link": "https://www.goodreads.com/review/show/8548051218?utm_medium=api&utm_source=rss",
+        "title": "Love and Will",
+        "author": "Rollo May",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1347231020l/1373530.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8537654155?utm_medium=api&utm_source=rss",
+        "title": "The Code Book: The Science of Secrecy from Ancient Egypt to Quantum Cryptography",
+        "author": "Simon Singh",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403181687l/17994.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8482686849?utm_medium=api&utm_source=rss",
+        "title": "Normal People",
+        "author": "Sally Rooney",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1571423190l/41057294.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8390901870?utm_medium=api&utm_source=rss",
+        "title": "The Book of Laughter and Forgetting",
+        "author": "Milan Kundera",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1614905132l/240976.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8390817026?utm_medium=api&utm_source=rss",
+        "title": "Demian",
+        "author": "Hermann Hesse",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1547675855l/43595132.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8390813494?utm_medium=api&utm_source=rss",
+        "title": "The Unbearable Lightness of Being",
+        "author": "Milan Kundera",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1265401884l/9717.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8390806190?utm_medium=api&utm_source=rss",
+        "title": "Project Hail Mary",
+        "author": "Andy Weir",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1764703833l/54493401.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8390803415?utm_medium=api&utm_source=rss",
+        "title": "In Search of Schr\u00f6dinger's Cat: Quantum Physics and Reality",
+        "author": "John Gribbin",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1440464162l/513367.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8390789222?utm_medium=api&utm_source=rss",
+        "title": "iCon: Steve Jobs, the Greatest Second Act in the History of Business",
+        "author": "Jeffrey S. Young",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1284942395l/49312.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8390784351?utm_medium=api&utm_source=rss",
+        "title": "Song of Solomon",
+        "author": "Toni Morrison",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1632283992l/11334.jpg"
+      },
+      {
+        "link": "https://www.goodreads.com/review/show/8390783478?utm_medium=api&utm_source=rss",
+        "title": "Alan Turing: The Enigma",
+        "author": "Andrew Hodges",
+        "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1312040148l/150731.jpg"
+      }
+    ],
+    "movies": {
+      "watchlist": [
+        {
+          "link": "https://letterboxd.com/film/primetime-2026/",
+          "title": "Primetime",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/2/6/2/0/1/9/1262019-primetime-2026-0-600-0-900-crop.jpg?v=41640d6988"
+        },
+        {
+          "link": "https://letterboxd.com/film/purple-rain/",
+          "title": "Purple Rain",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/3u/yq/fn/hr/epUyAfIgsrpIcY0qi6dhnay5rpl-0-600-0-900-crop.jpg?v=af040301f2"
+        },
+        {
+          "link": "https://letterboxd.com/film/minions-monsters-2026/",
+          "title": "Minions & Monsters",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/1/9/6/8/0/8/1196808-minions-monsters-2026-0-600-0-900-crop.jpg?v=8ff282e996"
+        },
+        {
+          "link": "https://letterboxd.com/film/caught-stealing/",
+          "title": "Caught Stealing",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/1/2/9/1/9/9/1129199-caught-stealing-0-600-0-900-crop.jpg?v=d3b8da3722"
+        },
+        {
+          "link": "https://letterboxd.com/film/magazine-dreams/",
+          "title": "Magazine Dreams",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/7/0/3/0/7/7/703077-magazine-dreams-0-600-0-900-crop.jpg?v=dbf872d684"
+        },
+        {
+          "link": "https://letterboxd.com/film/nocturnal-animals/",
+          "title": "Nocturnal Animals",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/nu/i0/7z/nd/oHL437Dz1TGQMlKfpE6rSQJgMxb-0-600-0-900-crop.jpg?v=16ef03c9c1"
+        },
+        {
+          "link": "https://letterboxd.com/film/proof-2005/",
+          "title": "Proof",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/4/6/8/3/3/46833-proof-0-600-0-900-crop.jpg?v=cf7915eb32"
+        }
+      ],
+      "favorite_films": [
+        {
+          "link": "https://letterboxd.com/oneyigit/film/interstellar/",
+          "title": "Interstellar",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/1/7/6/2/1/117621-interstellar-0-600-0-900-crop.jpg?v=7ad89e6666",
+          "backdrop_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/r4/0u/oq/0i/interstellar-1200-1200-675-675-crop-000000.jpg?v=fc649141b5"
+        },
+        {
+          "link": "https://letterboxd.com/oneyigit/film/the-perks-of-being-a-wallflower/1/",
+          "title": "The Perks of Being a Wallflower",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/7/1/3/3/8/71338-the-perks-of-being-a-wallflower-0-600-0-900-crop.jpg?v=f2235860f7",
+          "backdrop_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/alternative-backdrop/7/1/3/3/8/tmdb/rusdnkVpMzHOhbED1E1XqEPKdw9-1200-1200-675-675-crop-000000.jpg?v=aa137182c0"
+        },
+        {
+          "link": "https://letterboxd.com/oneyigit/film/before-sunrise/",
+          "title": "Before Sunrise",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/5/1/9/7/4/51974-before-sunrise-0-600-0-900-crop.jpg?v=006e8fedea",
+          "backdrop_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/jr/x9/lb/om/before-sunrise-1200-1200-675-675-crop-000000.jpg?v=7d4eb3b9e1"
+        },
+        {
+          "link": "https://letterboxd.com/oneyigit/film/ai-artificial-intelligence/",
+          "title": "A.I. Artificial Intelligence",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/5/1/4/8/0/51480-a-i-artificial-intelligence-0-600-0-900-crop.jpg?v=cce766abd8",
+          "backdrop_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/1t/9w/t3/lv/ai-1200-1200-675-675-crop-000000.jpg?v=6b300098c9"
+        }
+      ],
+      "recent_activity": [
+        {
+          "link": "https://letterboxd.com/oneyigit/film/green-lantern-first-flight/",
+          "title": "Green Lantern: First Flight",
+          "rating": "\u2605\u2605\u2605\u2605",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/4/1/0/0/4/41004-green-lantern-first-flight-0-600-0-900-crop.jpg?v=5b5e85f566",
+          "is_rewatch": false,
+          "is_favorite": false
+        },
+        {
+          "link": "https://letterboxd.com/oneyigit/film/green-lantern/",
+          "title": "Green Lantern",
+          "rating": "\u2605\u2605\u00bd",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/2/0/2/9/3/20293-green-lantern-0-600-0-900-crop.jpg?v=e17d7cdcdb",
+          "is_rewatch": false,
+          "is_favorite": false
+        },
+        {
+          "link": "https://letterboxd.com/oneyigit/film/catch-me-if-you-can-2002/",
+          "title": "Catch Me If You Can",
+          "rating": "\u2605\u2605\u2605\u2605\u00bd",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/5/1/4/8/4/51484-catch-me-if-you-can-0-600-0-900-crop.jpg?v=942d676423",
+          "is_rewatch": false,
+          "is_favorite": false
+        },
+        {
+          "link": "https://letterboxd.com/oneyigit/film/everything-everywhere-all-at-once/",
+          "title": "Everything Everywhere All at Once",
+          "rating": "\u2605\u2605\u2605\u2605\u2605",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/4/7/4/4/7/4/474474-everything-everywhere-all-at-once-0-600-0-900-crop.jpg?v=281f1a041e",
+          "is_rewatch": false,
+          "is_favorite": false
+        },
+        {
+          "link": "https://letterboxd.com/oneyigit/film/spider-man-brand-new-day/",
+          "title": "Spider-Man: Brand New Day",
+          "rating": "\u2605\u2605\u2605\u2605",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/8/7/2/8/7/1/872871-spider-man-brand-new-day-0-600-0-900-crop.jpg?v=ebe6beb4fc",
+          "is_rewatch": false,
+          "is_favorite": false
+        },
+        {
+          "link": "https://letterboxd.com/oneyigit/film/aladdin/",
+          "title": "Aladdin",
+          "rating": "\u2605\u2605\u2605\u2605\u2605",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/n3/26/lb/e2/trm94WPjW5ApKulhFvuRm5cT8KQ-0-600-0-900-crop.jpg?v=7aa7423779",
+          "is_rewatch": false,
+          "is_favorite": false
+        },
+        {
+          "link": "https://letterboxd.com/oneyigit/film/tenet/",
+          "title": "Tenet",
+          "rating": "\u2605\u2605\u2605\u2605\u2605",
+          "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/pq/9f/sr/vt/aCIFMriQh8rvhxpN1IWGgvH0Tlg-0-600-0-900-crop.jpg?v=f3165fe17f",
+          "is_rewatch": false,
+          "is_favorite": false
+        }
+      ]
+    }
+  }
+}

@@ -232,40 +232,72 @@ function initMusic() {
 
     // Instant 0ms render from persistent cache or bundled seed snapshot
     const cached = getCachedData("simplyigit_cache_spotify", SEED_SPOTIFY);
+    let renderedAlbumsSig = '';
+    let renderedArtistsSig = '';
+    let renderedTracksSig = '';
+
     if (cached) {
-        if (albumsContainer && Array.isArray(cached.favorite_albums)) {
+        if (albumsContainer && Array.isArray(cached.favorite_albums) && cached.favorite_albums.length > 0) {
+            renderedAlbumsSig = cached.favorite_albums.map(a => a.title).join('|');
             renderAlbums(albumsContainer, cached.favorite_albums);
         }
-        if (artistsContainer && Array.isArray(cached.top_artists_last_month)) {
+        if (artistsContainer && Array.isArray(cached.top_artists_last_month) && cached.top_artists_last_month.length > 0) {
+            renderedArtistsSig = cached.top_artists_last_month.map(a => a.name).join('|');
             renderArtists(artistsContainer, cached.top_artists_last_month);
         }
-        if (tracksContainer && Array.isArray(cached.top_tracks_last_month)) {
+        if (tracksContainer && Array.isArray(cached.top_tracks_last_month) && cached.top_tracks_last_month.length > 0) {
+            renderedTracksSig = cached.top_tracks_last_month.map(t => `${t.title}-${t.artist}`).join('|');
             renderTracks(tracksContainer, cached.top_tracks_last_month);
         }
     }
 
-    // Silent background fetch to keep fresh
+    // Fast static fetch (<20ms) with seamless API fallback
     if (artistsContainer || tracksContainer || albumsContainer) {
-        fetch("/api/spotify")
-            .then(res => res.json())
-            .then(json => {
-                if (json.success && json.data) {
-                    setCachedData("simplyigit_cache_spotify", json.data);
-                    const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = json.data;
-                    if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
-                        renderAlbums(albumsContainer, albums);
-                    }
-                    if (artistsContainer && Array.isArray(artists) && artists.length > 0) {
-                        renderArtists(artistsContainer, artists);
-                    }
-                    if (tracksContainer && Array.isArray(tracks) && tracks.length > 0) {
-                        renderTracks(tracksContainer, tracks);
-                    }
+        const fetchSpotifyData = async () => {
+            try {
+                const res = await fetch("/data/spotify.json");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
                 }
-            })
-            .catch(() => {
-                // If offline or network error, cached/seed data remains smoothly in place
-            });
+            } catch {}
+            try {
+                const res = await fetch("/api/spotify");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
+                }
+            } catch {}
+            return null;
+        };
+
+        fetchSpotifyData().then(data => {
+            if (!data) return;
+            setCachedData("simplyigit_cache_spotify", data);
+            const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
+
+            if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
+                const newAlbumsSig = albums.map(a => a.title).join('|');
+                if (newAlbumsSig !== renderedAlbumsSig) {
+                    renderedAlbumsSig = newAlbumsSig;
+                    renderAlbums(albumsContainer, albums);
+                }
+            }
+            if (artistsContainer && Array.isArray(artists) && artists.length > 0) {
+                const newArtistsSig = artists.map(a => a.name).join('|');
+                if (newArtistsSig !== renderedArtistsSig) {
+                    renderedArtistsSig = newArtistsSig;
+                    renderArtists(artistsContainer, artists);
+                }
+            }
+            if (tracksContainer && Array.isArray(tracks) && tracks.length > 0) {
+                const newTracksSig = tracks.map(t => `${t.title}-${t.artist}`).join('|');
+                if (newTracksSig !== renderedTracksSig) {
+                    renderedTracksSig = newTracksSig;
+                    renderTracks(tracksContainer, tracks);
+                }
+            }
+        });
     }
 }
 

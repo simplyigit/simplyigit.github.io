@@ -1,31 +1,30 @@
-// Seed data for instantaneous 0ms first-paint
+// Seed data for instantaneous 0ms first-paint (Synchronized with live data)
 export const SEED_SPOTIFY = {
   "favorite_albums": [
     {
       "title": "Purple Rain",
       "artist": "Prince and The Revolution",
-      "cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
-      "banner_url": "/images/albums/purple-rain-banner.webp",
       "bg_url": "/images/albums/purple-rain-bg.webp",
       "typo_url": "/images/albums/purple-rain-typo.webp",
-      "spotify_url": "https://open.spotify.com/search/Purple%20Rain%20Prince%20and%20The%20Revolution",
+      "cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
+      "banner_url": "/images/albums/purple-rain-banner.webp",
       "raw_cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front",
       "prominent_color": [
         120,
         95,
         106
       ],
+      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp",
       "year": "1984",
-      "format_tag": "LP · 1984",
-      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp"
+      "format_tag": "LP \u00b7 1984"
     },
     {
       "title": "Angel Face (Club Deluxe)",
       "artist": "Stephen Sanchez",
-      "cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg",
-      "banner_url": "/images/albums/angel-face-banner.webp",
       "bg_url": "/images/albums/angel-face-bg.webp",
       "typo_url": "/images/albums/angel-face-typo.webp",
+      "cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg",
+      "banner_url": "/images/albums/angel-face-banner.webp",
       "spotify_id": "3fD6ZQKymy2oP1t6c8NEOc",
       "spotify_url": "https://open.spotify.com/album/3fD6ZQKymy2oP1t6c8NEOc",
       "raw_cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419.jpg",
@@ -34,35 +33,34 @@ export const SEED_SPOTIFY = {
         86,
         69
       ],
+      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp",
       "year": "2023",
-      "format_tag": "LP · 2023",
-      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp"
+      "format_tag": "LP \u00b7 2023"
     },
     {
       "title": "5SOS5 (Deluxe)",
       "artist": "5 Seconds of Summer",
-      "cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
-      "banner_url": "/images/albums/5sos5-banner.webp",
       "bg_url": "/images/albums/5sos5-bg.webp",
       "typo_url": "/images/albums/5sos5-typo.webp",
-      "spotify_url": "https://open.spotify.com/search/5SOS5%205%20Seconds%20of%20Summer",
+      "cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
+      "banner_url": "/images/albums/5sos5-banner.webp",
       "raw_cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front",
       "prominent_color": [
         247,
         221,
         207
       ],
+      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp",
       "year": "2022",
-      "format_tag": "LP · 2022",
-      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp"
+      "format_tag": "LP \u00b7 2022"
     },
     {
       "title": "Fine Line",
       "artist": "Harry Styles",
-      "cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500",
-      "banner_url": "/images/albums/fine-line-banner.webp",
       "bg_url": "/images/albums/fine-line-bg.webp",
       "typo_url": "/images/albums/fine-line-typo.webp",
+      "cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500",
+      "banner_url": "/images/albums/fine-line-banner.webp",
       "spotify_id": "7xV2TzoaVc0ycW7fwBwAml",
       "spotify_url": "https://open.spotify.com/album/7xV2TzoaVc0ycW7fwBwAml",
       "raw_cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front",
@@ -71,17 +69,17 @@ export const SEED_SPOTIFY = {
         194,
         214
       ],
+      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp",
       "year": "2019",
-      "format_tag": "LP · 2019",
-      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp"
+      "format_tag": "LP \u00b7 2019"
     },
     {
       "title": "4TH WALL",
       "artist": "Ruel",
-      "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
-      "banner_url": "/images/albums/4th-wall-banner.webp",
       "bg_url": "/images/albums/4th-wall-bg.webp",
       "typo_url": "/images/albums/4th-wall-typo.webp",
+      "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
+      "banner_url": "/images/albums/4th-wall-banner.webp",
       "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
       "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
       "raw_cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front",
@@ -90,9 +88,9 @@ export const SEED_SPOTIFY = {
         78,
         88
       ],
+      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
       "year": "2023",
-      "format_tag": "LP · 2023",
-      "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp"
+      "format_tag": "LP \u00b7 2023"
     }
   ],
   "top_tracks_last_month": [
@@ -100,12 +98,12 @@ export const SEED_SPOTIFY = {
       "title": "Eva & Mia",
       "artist": "GOKO!",
       "ai_lyrics": {
-        "lyric1": "Adam olmayı öğrenmedin hiç kadına el kaldırıyorsan",
-        "lyric2": "Sensiz benim içim buruk, sanki boş bi terane",
-        "lyric3": "İlk hamlen bel altı olursa bu ilahi müdahale"
+        "lyric1": "Adam olmay\u0131 \u00f6\u011frenmedin hi\u00e7 kad\u0131na el kald\u0131r\u0131yorsan",
+        "lyric2": "\u00d6pmeye k\u0131yam\u0131yorsam  sensiz uyuyam\u0131yorsam",
+        "lyric3": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane"
       },
       "cover_url": "https://i.scdn.co/image/ab67616d0000b27336f9a8140a0ea4f78a2b9b2d",
-      "playcount": "46",
+      "playcount": "48",
       "spotify_id": "2FuWptjK1pc0rkVpF5O0CG",
       "spotify_url": "https://open.spotify.com/track/2FuWptjK1pc0rkVpF5O0CG",
       "prominent_color": [
@@ -115,55 +113,55 @@ export const SEED_SPOTIFY = {
       ]
     },
     {
-      "title": "Yalnızlığımla Başbaşa",
-      "artist": "Nilüfer",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273956353622837823b66f85ace",
-      "playcount": "19",
-      "spotify_id": "2fKnZ89rygGoyGF5BKMu8A",
-      "spotify_url": "https://open.spotify.com/track/2fKnZ89rygGoyGF5BKMu8A",
+      "title": "Chain Reaction",
+      "artist": "Matilda Mann",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
+      "playcount": "44",
+      "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
+      "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
       "prominent_color": [
-        92,
+        149,
+        165,
+        163
+      ]
+    },
+    {
+      "title": "Phantom",
+      "artist": "Ryan Beatty",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b2734d0045f25c5e6da7ad67f94e",
+      "playcount": "31",
+      "spotify_id": "6QmvvglistS1I0ZSuGKqcg",
+      "spotify_url": "https://open.spotify.com/track/6QmvvglistS1I0ZSuGKqcg",
+      "prominent_color": [
+        176,
+        131,
+        110
+      ]
+    },
+    {
+      "title": "When You Look Me in the Eyes",
+      "artist": "Jonas Brothers",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273c58743f823bf8e52d85f24f6",
+      "playcount": "30",
+      "spotify_id": "0mFh1ToSAR3iiW9J17de4Z",
+      "spotify_url": "https://open.spotify.com/track/0mFh1ToSAR3iiW9J17de4Z",
+      "prominent_color": [
         76,
-        53
+        76,
+        76
       ]
     },
     {
-      "title": "Candy",
-      "artist": "Robbie Williams",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273ee74127a92398367d9dc2f07",
-      "playcount": "19",
-      "spotify_id": "5NlFXQ0si6U87gXs6hq81B",
-      "spotify_url": "https://open.spotify.com/track/5NlFXQ0si6U87gXs6hq81B",
+      "title": "E\u011eLEN",
+      "artist": "Baneva",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
+      "playcount": "28",
+      "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
+      "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
       "prominent_color": [
-        8,
-        58,
-        255
-      ]
-    },
-    {
-      "title": "Sweet Fortune",
-      "artist": "Ryan Beatty",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b2734d0045f25c5e6da7ad67f94e",
-      "playcount": "19",
-      "spotify_id": "6kJT9PjWFAeUl68dZLv6wf",
-      "spotify_url": "https://open.spotify.com/track/6kJT9PjWFAeUl68dZLv6wf",
-      "prominent_color": [
-        176,
-        131,
-        110
-      ]
-    },
-    {
-      "title": "Dust",
-      "artist": "Ryan Beatty",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b2734d0045f25c5e6da7ad67f94e",
-      "playcount": "17",
-      "spotify_id": "31dh4GIwhwhnZ4VC77NhsZ",
-      "spotify_url": "https://open.spotify.com/track/31dh4GIwhwhnZ4VC77NhsZ",
-      "prominent_color": [
-        176,
-        131,
-        110
+        210,
+        209,
+        214
       ]
     }
   ],
@@ -171,21 +169,28 @@ export const SEED_SPOTIFY = {
     {
       "name": "Shawn Mendes",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
-      "playcount": "124",
+      "playcount": "154",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr"
     },
     {
       "name": "Ryan Beatty",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
-      "playcount": "95",
+      "playcount": "135",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ"
     },
     {
+      "name": "Harry Styles",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe309f8c3056a59f20d0968ca",
+      "playcount": "69",
+      "spotify_id": "6KImCVD70vtIoJWnq6nGn3",
+      "spotify_url": "https://open.spotify.com/artist/6KImCVD70vtIoJWnq6nGn3"
+    },
+    {
       "name": "Stephen Sanchez",
       "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
-      "playcount": "90",
+      "playcount": "66",
       "spotify_id": "5XKFrudbV4IiuE5WuTPRmT",
       "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT"
     },
@@ -195,13 +200,6 @@ export const SEED_SPOTIFY = {
       "playcount": "65",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy"
-    },
-    {
-      "name": "Prince",
-      "image_url": "https://i.scdn.co/image/ab6761610000e5ebadf109a73dae96653131b023",
-      "playcount": "57",
-      "spotify_id": "5a2EaR3hamoenG9rDuVn8j",
-      "spotify_url": "https://open.spotify.com/artist/5a2EaR3hamoenG9rDuVn8j"
     }
   ]
 };
@@ -209,9 +207,24 @@ export const SEED_SPOTIFY = {
 export const SEED_MOVIES = {
   "watchlist": [
     {
-      "link": "https://letterboxd.com/film/catch-me-if-you-can-2002/",
-      "title": "Catch Me If You Can",
-      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/5/1/4/8/4/51484-catch-me-if-you-can-0-600-0-900-crop.jpg?v=942d676423"
+      "link": "https://letterboxd.com/film/primetime-2026/",
+      "title": "Primetime",
+      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/2/6/2/0/1/9/1262019-primetime-2026-0-600-0-900-crop.jpg?v=41640d6988"
+    },
+    {
+      "link": "https://letterboxd.com/film/purple-rain/",
+      "title": "Purple Rain",
+      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/3u/yq/fn/hr/epUyAfIgsrpIcY0qi6dhnay5rpl-0-600-0-900-crop.jpg?v=af040301f2"
+    },
+    {
+      "link": "https://letterboxd.com/film/minions-monsters-2026/",
+      "title": "Minions & Monsters",
+      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/1/9/6/8/0/8/1196808-minions-monsters-2026-0-600-0-900-crop.jpg?v=8ff282e996"
+    },
+    {
+      "link": "https://letterboxd.com/film/caught-stealing/",
+      "title": "Caught Stealing",
+      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/1/2/9/1/9/9/1129199-caught-stealing-0-600-0-900-crop.jpg?v=d3b8da3722"
     },
     {
       "link": "https://letterboxd.com/film/magazine-dreams/",
@@ -227,21 +240,6 @@ export const SEED_MOVIES = {
       "link": "https://letterboxd.com/film/proof-2005/",
       "title": "Proof",
       "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/4/6/8/3/3/46833-proof-0-600-0-900-crop.jpg?v=cf7915eb32"
-    },
-    {
-      "link": "https://letterboxd.com/film/begin-again/",
-      "title": "Begin Again",
-      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/4/2/2/9/9/142299-begin-again-0-600-0-900-crop.jpg?v=4050295ee8"
-    },
-    {
-      "link": "https://letterboxd.com/film/drive-me-crazy/",
-      "title": "Drive Me Crazy",
-      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/lo/66/96/z6/wVntR5hxS62CKdLWs1CbvIfRMRf-0-600-0-900-crop.jpg?v=586d6f1607"
-    },
-    {
-      "link": "https://letterboxd.com/film/guess-whos-coming-to-dinner/",
-      "title": "Guess Who's Coming to Dinner",
-      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/5/0/7/2/4/50724-guess-who-s-coming-to-dinner-0-600-0-900-crop.jpg?v=0c45e0caea"
     }
   ],
   "favorite_films": [
@@ -272,9 +270,33 @@ export const SEED_MOVIES = {
   ],
   "recent_activity": [
     {
+      "link": "https://letterboxd.com/oneyigit/film/green-lantern-first-flight/",
+      "title": "Green Lantern: First Flight",
+      "rating": "\u2605\u2605\u2605\u2605",
+      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/4/1/0/0/4/41004-green-lantern-first-flight-0-600-0-900-crop.jpg?v=5b5e85f566",
+      "is_rewatch": false,
+      "is_favorite": false
+    },
+    {
+      "link": "https://letterboxd.com/oneyigit/film/green-lantern/",
+      "title": "Green Lantern",
+      "rating": "\u2605\u2605\u00bd",
+      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/2/0/2/9/3/20293-green-lantern-0-600-0-900-crop.jpg?v=e17d7cdcdb",
+      "is_rewatch": false,
+      "is_favorite": false
+    },
+    {
+      "link": "https://letterboxd.com/oneyigit/film/catch-me-if-you-can-2002/",
+      "title": "Catch Me If You Can",
+      "rating": "\u2605\u2605\u2605\u2605\u00bd",
+      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/5/1/4/8/4/51484-catch-me-if-you-can-0-600-0-900-crop.jpg?v=942d676423",
+      "is_rewatch": false,
+      "is_favorite": false
+    },
+    {
       "link": "https://letterboxd.com/oneyigit/film/everything-everywhere-all-at-once/",
       "title": "Everything Everywhere All at Once",
-      "rating": "★★★★★",
+      "rating": "\u2605\u2605\u2605\u2605\u2605",
       "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/4/7/4/4/7/4/474474-everything-everywhere-all-at-once-0-600-0-900-crop.jpg?v=281f1a041e",
       "is_rewatch": false,
       "is_favorite": false
@@ -282,7 +304,7 @@ export const SEED_MOVIES = {
     {
       "link": "https://letterboxd.com/oneyigit/film/spider-man-brand-new-day/",
       "title": "Spider-Man: Brand New Day",
-      "rating": "★★★★",
+      "rating": "\u2605\u2605\u2605\u2605",
       "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/8/7/2/8/7/1/872871-spider-man-brand-new-day-0-600-0-900-crop.jpg?v=ebe6beb4fc",
       "is_rewatch": false,
       "is_favorite": false
@@ -290,7 +312,7 @@ export const SEED_MOVIES = {
     {
       "link": "https://letterboxd.com/oneyigit/film/aladdin/",
       "title": "Aladdin",
-      "rating": "★★★★★",
+      "rating": "\u2605\u2605\u2605\u2605\u2605",
       "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/n3/26/lb/e2/trm94WPjW5ApKulhFvuRm5cT8KQ-0-600-0-900-crop.jpg?v=7aa7423779",
       "is_rewatch": false,
       "is_favorite": false
@@ -298,32 +320,8 @@ export const SEED_MOVIES = {
     {
       "link": "https://letterboxd.com/oneyigit/film/tenet/",
       "title": "Tenet",
-      "rating": "★★★★★",
+      "rating": "\u2605\u2605\u2605\u2605\u2605",
       "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/sm/upload/pq/9f/sr/vt/aCIFMriQh8rvhxpN1IWGgvH0Tlg-0-600-0-900-crop.jpg?v=f3165fe17f",
-      "is_rewatch": false,
-      "is_favorite": false
-    },
-    {
-      "link": "https://letterboxd.com/oneyigit/film/supergirl-2026/",
-      "title": "Supergirl",
-      "rating": "★★★",
-      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/9/7/4/2/8/6/974286-supergirl-2026-0-600-0-900-crop.jpg?v=e85ddf39db",
-      "is_rewatch": false,
-      "is_favorite": false
-    },
-    {
-      "link": "https://letterboxd.com/oneyigit/film/the-odyssey-2026/",
-      "title": "The Odyssey",
-      "rating": "★★★★★",
-      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/2/5/5/3/9/4/1255394-the-odyssey-2026-0-600-0-900-crop.jpg?v=1eed046d0c",
-      "is_rewatch": false,
-      "is_favorite": false
-    },
-    {
-      "link": "https://letterboxd.com/oneyigit/film/cars-2/",
-      "title": "Cars 2",
-      "rating": "★★★★★",
-      "cover_url": "https://wsrv.nl/?url=https://a.ltrbxd.com/resized/film-poster/1/6/5/6/0/16560-cars-2-0-600-0-900-crop.jpg?v=cb91a3561f",
       "is_rewatch": false,
       "is_favorite": false
     }
@@ -357,7 +355,7 @@ export const SEED_BOOKS = [
   },
   {
     "link": "https://www.goodreads.com/review/show/8390817026?utm_medium=api&utm_source=rss",
-    "title": "Demian by Hermann Hesse",
+    "title": "Demian",
     "author": "Hermann Hesse",
     "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1547675855l/43595132.jpg"
   },
@@ -375,7 +373,7 @@ export const SEED_BOOKS = [
   },
   {
     "link": "https://www.goodreads.com/review/show/8390803415?utm_medium=api&utm_source=rss",
-    "title": "In Search of Schrödinger's Cat: Quantum Physics and Reality",
+    "title": "In Search of Schr\u00f6dinger's Cat: Quantum Physics and Reality",
     "author": "John Gribbin",
     "cover_url": "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1440464162l/513367.jpg"
   },

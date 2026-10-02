@@ -736,6 +736,9 @@ def main():
         "last_updated": time.time()
     }
     
+    print("Exporting static snapshots...")
+    export_static_snapshots(data)
+
     print("Uploading to Supabase...")
     # Upsert each section into its own row for better organization
     for category in ["spotify", "favorite_albums", "movies", "books", "projects"]:
@@ -765,6 +768,62 @@ def main():
             print(f"Failed to update {category}: {str(e)}")
 
     print("Sync complete!")
+
+def export_static_snapshots(data):
+    """Exports synchronized snapshots to static data/ files and seed-data.js."""
+    try:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        data_dir = os.path.join(base_dir, "data")
+        os.makedirs(data_dir, exist_ok=True)
+
+        spotify = data.get("spotify", {})
+        movies = data.get("movies", {})
+        books = data.get("books", [])
+        
+        album_years = {
+            'Purple Rain': '1984',
+            'Angel Face (Club Deluxe)': '2023',
+            '5SOS5 (Deluxe)': '2022',
+            'Fine Line': '2019',
+            '4TH WALL': '2023'
+        }
+        if isinstance(spotify, dict):
+            for alb in spotify.get('favorite_albums', []):
+                y = album_years.get(alb.get('title'), '2023')
+                alb['year'] = y
+                alb['format_tag'] = f'LP · {y}'
+
+        with open(os.path.join(data_dir, "spotify.json"), "w") as f:
+            json.dump({"success": True, "data": spotify}, f, indent=2)
+
+        with open(os.path.join(data_dir, "movies.json"), "w") as f:
+            json.dump({"success": True, "data": movies}, f, indent=2)
+
+        with open(os.path.join(data_dir, "books.json"), "w") as f:
+            json.dump({"success": True, "data": books}, f, indent=2)
+
+        dashboard = {
+            "spotify": spotify,
+            "books": books,
+            "movies": movies
+        }
+        with open(os.path.join(data_dir, "dashboard.json"), "w") as f:
+            json.dump({"success": True, "data": dashboard}, f, indent=2)
+
+        seed_path = os.path.join(base_dir, "assets", "js", "modules", "seed-data.js")
+        seed_content = f"""// Seed data for instantaneous 0ms first-paint (Synchronized with live data)
+export const SEED_SPOTIFY = {json.dumps(spotify, indent=2)};
+
+export const SEED_MOVIES = {json.dumps(movies, indent=2)};
+
+export const SEED_BOOKS = {json.dumps(books, indent=2)};
+"""
+        with open(seed_path, "w") as f:
+            f.write(seed_content)
+
+        print("Exported static snapshots to data/*.json and seed-data.js successfully!")
+    except Exception as e:
+        print(f"Error exporting static snapshots: {e}")
 
 if __name__ == "__main__":
     main()

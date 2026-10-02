@@ -24,21 +24,46 @@ function initReading() {
     if (booksContainer) {
         // Instant 0ms render from cache or bundled seed data
         const cached = getCachedData("simplyigit_cache_books", SEED_BOOKS);
+        let renderedBooksSig = '';
+
+        const getBooksSig = (list) => {
+            if (!Array.isArray(list)) return '';
+            return list.map(b => b.title || '').join('|');
+        };
+
         if (cached && cached.length > 0) {
+            renderedBooksSig = getBooksSig(cached);
             renderBooks(booksContainer, cached);
         }
 
-        // Silent background fetch to keep fresh
-        fetch("/api/books")
-            .then(res => res.json())
-            .then(json => {
-                const books = Array.isArray(json.data) ? json.data : [];
-                if (books.length > 0) {
-                    setCachedData("simplyigit_cache_books", books);
-                    renderBooks(booksContainer, books);
+        // Fast static fetch (<20ms) with seamless API fallback
+        const fetchBooksData = async () => {
+            try {
+                const res = await fetch("/data/books.json");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) return json.data;
                 }
-            })
-            .catch(() => {});
+            } catch {}
+            try {
+                const res = await fetch("/api/books");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) return json.data;
+                }
+            } catch {}
+            return null;
+        };
+
+        fetchBooksData().then(books => {
+            if (!books || books.length === 0) return;
+            setCachedData("simplyigit_cache_books", books);
+            const newSig = getBooksSig(books);
+            if (newSig && newSig !== renderedBooksSig) {
+                renderedBooksSig = newSig;
+                renderBooks(booksContainer, books);
+            }
+        });
     }
 }
 

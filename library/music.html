@@ -13,7 +13,7 @@
     <link rel="dns-prefetch" href="https://wsrv.nl">
     <link rel="preconnect" href="https://coverartarchive.org">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css?v=3.6">
+    <link rel="stylesheet" href="../assets/css/styles.css?v=3.7">
 </head>
 
 <body>
@@ -52,18 +52,32 @@
         <section class="section music-section">
             <div class="music-selector-wrapper">
                 <div class="music-nav-pill" role="tablist" aria-label="Music View Selector">
-                    <div class="music-pill-group">
-                        <button class="music-tab-btn active" role="tab" id="tab-tracks" aria-selected="true"
-                            aria-controls="music-pane-tracks" data-tab="tracks">Tracks</button>
-                        <button class="music-tab-btn" role="tab" id="tab-artists" aria-selected="false"
-                            aria-controls="music-pane-artists" data-tab="artists">Artists</button>
-                        <span class="music-group-period active" id="period-badge-monthly">1m</span>
+                    <!-- Segment 1: Past Month -->
+                    <div class="music-pill-segment">
+                        <div class="music-segment-header active" id="period-badge-monthly" aria-hidden="true">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="music-period-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span>Past Month</span>
+                        </div>
+                        <div class="music-pill-btn-group">
+                            <button class="music-tab-btn active" role="tab" id="tab-tracks" aria-selected="true"
+                                aria-controls="music-pane-tracks" data-tab="tracks" title="Top tracks listened over the past month">Tracks</button>
+                            <button class="music-tab-btn" role="tab" id="tab-artists" aria-selected="false"
+                                aria-controls="music-pane-artists" data-tab="artists" title="Top artists listened over the past month">Artists</button>
+                        </div>
                     </div>
+
                     <div class="music-pill-divider" aria-hidden="true"></div>
-                    <div class="music-pill-group">
-                        <button class="music-tab-btn" role="tab" id="tab-albums" aria-selected="false"
-                            aria-controls="music-pane-albums" data-tab="albums">Albums</button>
-                        <span class="music-group-period" id="period-badge-alltime">all-time</span>
+
+                    <!-- Segment 2: All-Time -->
+                    <div class="music-pill-segment">
+                        <div class="music-segment-header" id="period-badge-alltime" aria-hidden="true">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="music-period-icon"><path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.267-8-12.356-8-5.096 0-5.096 8 0 8 5.089 0 7.261-8 12.356-8Z"></path></svg>
+                            <span>All-Time</span>
+                        </div>
+                        <div class="music-pill-btn-group">
+                            <button class="music-tab-btn" role="tab" id="tab-albums" aria-selected="false"
+                                aria-controls="music-pane-albums" data-tab="albums" title="All-time favorite albums">Albums</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -105,7 +119,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/music.js?v=5.0"></script>
+    <script type="module" src="../assets/js/pages/music.js?v=5.1"></script>
 </body>
 
 

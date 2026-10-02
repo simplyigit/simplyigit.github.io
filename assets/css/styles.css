@@ -2077,17 +2077,52 @@ footer p {
 .music-nav-pill {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px;
+    gap: 6px;
+    padding: 6px 8px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border-radius: 50px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-.music-pill-group {
+.music-pill-segment {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 4px;
+}
+
+.music-segment-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.58rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.32);
+    margin-bottom: 4px;
+    transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    pointer-events: none;
+}
+
+.music-segment-header.active {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.music-segment-header .music-period-icon {
+    opacity: 0.85;
+}
+
+.music-segment-header.active .music-period-icon {
+    opacity: 1;
+}
+
+.music-pill-btn-group {
     display: inline-flex;
     align-items: center;
     gap: 3px;
@@ -2098,10 +2133,10 @@ footer p {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 6px 14px;
-    border-radius: 30px;
+    padding: 6px 16px;
+    border-radius: 26px;
     color: rgba(255, 255, 255, 0.45);
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     font-weight: 500;
     background: transparent;
     border: 1px solid transparent;
@@ -2121,40 +2156,17 @@ footer p {
     color: #ffffff;
     font-weight: 600;
     background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
 
-.music-group-period {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    font-weight: 600;
-    text-transform: lowercase;
-    letter-spacing: 0.5px;
-    padding: 2px 6px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.4);
-    line-height: 1.2;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    user-select: none;
-    pointer-events: none;
-    margin-left: 2px;
-}
-
-.music-group-period.active {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
 .music-pill-divider {
     width: 1px;
-    height: 18px;
-    background: rgba(255, 255, 255, 0.14);
-    margin: 0 4px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.12);
+    margin: 0 2px;
     flex-shrink: 0;
     align-self: center;
 }
@@ -3288,30 +3300,30 @@ footer p {
         margin: 4px 0 20px 0;
     }
     .music-nav-pill {
-        width: 100%;
-        max-width: 370px;
+        width: auto;
+        max-width: 96%;
         justify-content: center;
-        gap: 2px;
-        padding: 4px 5px;
+        gap: 4px;
+        padding: 5px 6px;
     }
-    .music-pill-group {
-        display: inline-flex;
-        align-items: center;
+    .music-pill-segment {
+        padding: 0 2px;
+    }
+    .music-segment-header {
+        font-size: 0.54rem;
+        letter-spacing: 0.07em;
+        margin-bottom: 3px;
+    }
+    .music-pill-btn-group {
         gap: 2px;
     }
     .music-tab-btn {
-        padding: 5px 8px;
-        font-size: 0.76rem;
-        gap: 3px;
-    }
-    .music-group-period {
-        font-size: 0.54rem;
-        padding: 1.5px 4px;
-        margin-left: 1px;
+        padding: 5px 12px;
+        font-size: 0.78rem;
     }
     .music-pill-divider {
         margin: 0 2px;
-        height: 16px;
+        height: 30px;
     }
 
     /* Horizontal Scroll for Artists */

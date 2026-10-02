@@ -1,125 +1,32 @@
 {
   "success": true,
   "data": {
-    "favorite_albums": [
-      {
-        "title": "Purple Rain",
-        "artist": "Prince and The Revolution",
-        "bg_url": "/images/albums/purple-rain-bg.webp",
-        "typo_url": "/images/albums/purple-rain-typo.webp",
-        "cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
-        "banner_url": "/images/albums/purple-rain-banner.webp",
-        "raw_cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front",
-        "prominent_color": [
-          120,
-          95,
-          106
-        ],
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp",
-        "year": "1984",
-        "format_tag": "LP \u00b7 1984"
-      },
-      {
-        "title": "Angel Face (Club Deluxe)",
-        "artist": "Stephen Sanchez",
-        "bg_url": "/images/albums/angel-face-bg.webp",
-        "typo_url": "/images/albums/angel-face-typo.webp",
-        "cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg",
-        "banner_url": "/images/albums/angel-face-banner.webp",
-        "spotify_id": "3fD6ZQKymy2oP1t6c8NEOc",
-        "spotify_url": "https://open.spotify.com/album/3fD6ZQKymy2oP1t6c8NEOc",
-        "raw_cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419.jpg",
-        "prominent_color": [
-          213,
-          86,
-          69
-        ],
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp",
-        "year": "2023",
-        "format_tag": "LP \u00b7 2023"
-      },
-      {
-        "title": "5SOS5 (Deluxe)",
-        "artist": "5 Seconds of Summer",
-        "bg_url": "/images/albums/5sos5-bg.webp",
-        "typo_url": "/images/albums/5sos5-typo.webp",
-        "cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
-        "banner_url": "/images/albums/5sos5-banner.webp",
-        "raw_cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front",
-        "prominent_color": [
-          247,
-          221,
-          207
-        ],
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp",
-        "year": "2022",
-        "format_tag": "LP \u00b7 2022"
-      },
-      {
-        "title": "Fine Line",
-        "artist": "Harry Styles",
-        "bg_url": "/images/albums/fine-line-bg.webp",
-        "typo_url": "/images/albums/fine-line-typo.webp",
-        "cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500",
-        "banner_url": "/images/albums/fine-line-banner.webp",
-        "spotify_id": "7xV2TzoaVc0ycW7fwBwAml",
-        "spotify_url": "https://open.spotify.com/album/7xV2TzoaVc0ycW7fwBwAml",
-        "raw_cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front",
-        "prominent_color": [
-          115,
-          194,
-          214
-        ],
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp",
-        "year": "2019",
-        "format_tag": "LP \u00b7 2019"
-      },
-      {
-        "title": "4TH WALL",
-        "artist": "Ruel",
-        "bg_url": "/images/albums/4th-wall-bg.webp",
-        "typo_url": "/images/albums/4th-wall-typo.webp",
-        "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
-        "banner_url": "/images/albums/4th-wall-banner.webp",
-        "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
-        "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
-        "raw_cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front",
-        "prominent_color": [
-          74,
-          78,
-          88
-        ],
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
-        "year": "2023",
-        "format_tag": "LP \u00b7 2023"
-      }
-    ],
     "top_tracks_last_month": [
       {
         "title": "Eva & Mia",
         "artist": "GOKO!",
-        "ai_lyrics": {
-          "lyric1": "Adam olmay\u0131 \u00f6\u011frenmedin hi\u00e7 kad\u0131na el kald\u0131r\u0131yorsan",
-          "lyric2": "\u00d6pmeye k\u0131yam\u0131yorsam  sensiz uyuyam\u0131yorsam",
-          "lyric3": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane"
-        },
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b27336f9a8140a0ea4f78a2b9b2d",
         "playcount": "48",
-        "spotify_id": "2FuWptjK1pc0rkVpF5O0CG",
         "spotify_url": "https://open.spotify.com/track/2FuWptjK1pc0rkVpF5O0CG",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b27336f9a8140a0ea4f78a2b9b2d",
+        "spotify_id": "2FuWptjK1pc0rkVpF5O0CG",
         "prominent_color": [
           225,
           205,
           187
-        ]
+        ],
+        "ai_lyrics": {
+          "lyric1": "Adam olmay\u0131 \u00f6\u011frenmedin hi\u00e7 kad\u0131na el kald\u0131r\u0131yorsan",
+          "lyric2": "\u00d6pmeye k\u0131yam\u0131yorsam  sensiz uyuyam\u0131yorsam",
+          "lyric3": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane"
+        }
       },
       {
         "title": "Chain Reaction",
         "artist": "Matilda Mann",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
-        "playcount": "44",
-        "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
+        "playcount": "45",
         "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
+        "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
         "prominent_color": [
           149,
           165,
@@ -129,10 +36,10 @@
       {
         "title": "Phantom",
         "artist": "Ryan Beatty",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b2734d0045f25c5e6da7ad67f94e",
-        "playcount": "31",
-        "spotify_id": "6QmvvglistS1I0ZSuGKqcg",
+        "playcount": "33",
         "spotify_url": "https://open.spotify.com/track/6QmvvglistS1I0ZSuGKqcg",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b2734d0045f25c5e6da7ad67f94e",
+        "spotify_id": "6QmvvglistS1I0ZSuGKqcg",
         "prominent_color": [
           176,
           131,
@@ -142,10 +49,10 @@
       {
         "title": "When You Look Me in the Eyes",
         "artist": "Jonas Brothers",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b273c58743f823bf8e52d85f24f6",
-        "playcount": "30",
-        "spotify_id": "0mFh1ToSAR3iiW9J17de4Z",
+        "playcount": "31",
         "spotify_url": "https://open.spotify.com/track/0mFh1ToSAR3iiW9J17de4Z",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273c58743f823bf8e52d85f24f6",
+        "spotify_id": "0mFh1ToSAR3iiW9J17de4Z",
         "prominent_color": [
           76,
           76,
@@ -155,10 +62,10 @@
       {
         "title": "E\u011eLEN",
         "artist": "Baneva",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
-        "playcount": "28",
-        "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
+        "playcount": "29",
         "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
+        "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
         "prominent_color": [
           210,
           209,
@@ -169,38 +76,131 @@
     "top_artists_last_month": [
       {
         "name": "Shawn Mendes",
+        "playcount": "155",
+        "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
-        "playcount": "154",
-        "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr",
-        "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr"
+        "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
       },
       {
         "name": "Ryan Beatty",
+        "playcount": "137",
+        "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
-        "playcount": "135",
-        "spotify_id": "60NNvDqsif0u40CXMV6jDQ",
-        "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ"
+        "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
       },
       {
         "name": "Harry Styles",
+        "playcount": "68",
+        "spotify_url": "https://open.spotify.com/artist/6KImCVD70vtIoJWnq6nGn3",
         "image_url": "https://i.scdn.co/image/ab6761610000e5ebe309f8c3056a59f20d0968ca",
-        "playcount": "69",
-        "spotify_id": "6KImCVD70vtIoJWnq6nGn3",
-        "spotify_url": "https://open.spotify.com/artist/6KImCVD70vtIoJWnq6nGn3"
+        "spotify_id": "6KImCVD70vtIoJWnq6nGn3"
       },
       {
         "name": "Stephen Sanchez",
+        "playcount": "67",
+        "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
         "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
-        "playcount": "66",
-        "spotify_id": "5XKFrudbV4IiuE5WuTPRmT",
-        "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT"
+        "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"
       },
       {
         "name": "5 Seconds of Summer",
+        "playcount": "66",
+        "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
-        "playcount": "65",
-        "spotify_id": "5Rl15oVamLq7FbSb0NNBNy",
-        "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy"
+        "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
+      }
+    ],
+    "favorite_albums": [
+      {
+        "title": "Purple Rain",
+        "artist": "Prince and The Revolution",
+        "raw_cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front",
+        "banner_url": "/images/albums/purple-rain-banner.webp",
+        "bg_url": "/images/albums/purple-rain-bg.webp",
+        "typo_url": "/images/albums/purple-rain-typo.webp",
+        "prominent_color": [
+          120,
+          95,
+          106
+        ],
+        "cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp",
+        "year": "1984",
+        "format_tag": "LP \u00b7 1984"
+      },
+      {
+        "title": "Angel Face (Club Deluxe)",
+        "artist": "Stephen Sanchez",
+        "raw_cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419.jpg",
+        "banner_url": "/images/albums/angel-face-banner.webp",
+        "bg_url": "/images/albums/angel-face-bg.webp",
+        "typo_url": "/images/albums/angel-face-typo.webp",
+        "prominent_color": [
+          213,
+          86,
+          69
+        ],
+        "cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg",
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp",
+        "spotify_url": "https://open.spotify.com/album/3fD6ZQKymy2oP1t6c8NEOc",
+        "spotify_id": "3fD6ZQKymy2oP1t6c8NEOc",
+        "year": "2023",
+        "format_tag": "LP \u00b7 2023"
+      },
+      {
+        "title": "5SOS5 (Deluxe)",
+        "artist": "5 Seconds of Summer",
+        "raw_cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front",
+        "banner_url": "/images/albums/5sos5-banner.webp",
+        "bg_url": "/images/albums/5sos5-bg.webp",
+        "typo_url": "/images/albums/5sos5-typo.webp",
+        "prominent_color": [
+          247,
+          221,
+          207
+        ],
+        "cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp",
+        "year": "2022",
+        "format_tag": "LP \u00b7 2022"
+      },
+      {
+        "title": "Fine Line",
+        "artist": "Harry Styles",
+        "raw_cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front",
+        "banner_url": "/images/albums/fine-line-banner.webp",
+        "bg_url": "/images/albums/fine-line-bg.webp",
+        "typo_url": "/images/albums/fine-line-typo.webp",
+        "prominent_color": [
+          115,
+          194,
+          214
+        ],
+        "cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500",
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp",
+        "spotify_url": "https://open.spotify.com/album/7xV2TzoaVc0ycW7fwBwAml",
+        "spotify_id": "7xV2TzoaVc0ycW7fwBwAml",
+        "year": "2019",
+        "format_tag": "LP \u00b7 2019"
+      },
+      {
+        "title": "4TH WALL",
+        "artist": "Ruel",
+        "raw_cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front",
+        "banner_url": "/images/albums/4th-wall-banner.webp",
+        "bg_url": "/images/albums/4th-wall-bg.webp",
+        "typo_url": "/images/albums/4th-wall-typo.webp",
+        "prominent_color": [
+          74,
+          78,
+          88
+        ],
+        "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
+        "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
+        "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
+        "year": "2023",
+        "format_tag": "LP \u00b7 2023"
       }
     ]
   }

@@ -22,7 +22,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "Chain Reaction",
       "artist": "Matilda Mann",
-      "playcount": "45",
+      "playcount": "47",
       "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
       "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
@@ -59,23 +59,23 @@ export const SEED_SPOTIFY = {
       ]
     },
     {
-      "title": "E\u011eLEN",
-      "artist": "Baneva",
-      "playcount": "29",
-      "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
-      "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
+      "title": "She\u2019ll Be The One (2016 Demo)",
+      "artist": "Shawn Mendes",
+      "playcount": "30",
+      "spotify_url": "https://open.spotify.com/track/1FvjDYcfKpSM9OPQ9zxXfm",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273dd0d95a73f3b48cb2e28b4ca",
+      "spotify_id": "1FvjDYcfKpSM9OPQ9zxXfm",
       "prominent_color": [
-        210,
-        209,
-        214
+        72,
+        92,
+        80
       ]
     }
   ],
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",
-      "playcount": "155",
+      "playcount": "160",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"

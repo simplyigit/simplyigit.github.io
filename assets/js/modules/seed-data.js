@@ -16,7 +16,7 @@ export const SEED_SPOTIFY = {
       "ai_lyrics": {
         "lyric1": "Adam olmay\u0131 \u00f6\u011frenmedin hi\u00e7 kad\u0131na el kald\u0131r\u0131yorsan",
         "lyric2": "\u00d6pmeye k\u0131yam\u0131yorsam  sensiz uyuyam\u0131yorsam",
-        "lyric3": "\u0130lk hamlen bel alt\u0131 olursa bu ilahi m\u00fcdahale"
+        "lyric3": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane"
       }
     },
     {
@@ -196,8 +196,8 @@ export const SEED_SPOTIFY = {
       ],
       "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
       "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
-      "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
-      "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
+      "spotify_url": "https://open.spotify.com/album/17FxTkMIOb6nzuewcCmTJc",
+      "spotify_id": "17FxTkMIOb6nzuewcCmTJc",
       "year": "2023",
       "format_tag": "LP \u00b7 2023"
     }
@@ -265,26 +265,26 @@ export const SEED_MOVIES = {
   ],
   "favorite_films": [
     {
-      "title": "Interstellar",
       "link": "https://letterboxd.com/oneyigit/film/interstellar/",
+      "title": "Interstellar",
       "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/1/7/6/2/1/117621-interstellar-0-600-0-900-crop.jpg?v=7ad89e6666",
       "backdrop_url": "https://a.ltrbxd.com/resized/sm/upload/r4/0u/oq/0i/interstellar-1200-1200-675-675-crop-000000.jpg?v=fc649141b5"
     },
     {
-      "title": "The Perks of Being a Wallflower",
       "link": "https://letterboxd.com/oneyigit/film/the-perks-of-being-a-wallflower/1/",
+      "title": "The Perks of Being a Wallflower",
       "cover_url": "https://a.ltrbxd.com/resized/film-poster/7/1/3/3/8/71338-the-perks-of-being-a-wallflower-0-600-0-900-crop.jpg?v=f2235860f7",
       "backdrop_url": "https://a.ltrbxd.com/resized/alternative-backdrop/7/1/3/3/8/tmdb/rusdnkVpMzHOhbED1E1XqEPKdw9-1200-1200-675-675-crop-000000.jpg?v=aa137182c0"
     },
     {
-      "title": "Before Sunrise",
       "link": "https://letterboxd.com/oneyigit/film/before-sunrise/",
+      "title": "Before Sunrise",
       "cover_url": "https://a.ltrbxd.com/resized/film-poster/5/1/9/7/4/51974-before-sunrise-0-600-0-900-crop.jpg?v=006e8fedea",
       "backdrop_url": "https://a.ltrbxd.com/resized/sm/upload/jr/x9/lb/om/before-sunrise-1200-1200-675-675-crop-000000.jpg?v=7d4eb3b9e1"
     },
     {
-      "title": "A.I. Artificial Intelligence",
       "link": "https://letterboxd.com/oneyigit/film/ai-artificial-intelligence/",
+      "title": "A.I. Artificial Intelligence",
       "cover_url": "https://a.ltrbxd.com/resized/film-poster/5/1/4/8/0/51480-a-i-artificial-intelligence-0-600-0-900-crop.jpg?v=cce766abd8",
       "backdrop_url": "https://a.ltrbxd.com/resized/sm/upload/1t/9w/t3/lv/ai-1200-1200-675-675-crop-000000.jpg?v=6b300098c9"
     }

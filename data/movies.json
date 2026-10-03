@@ -3,6 +3,14 @@
   "data": {
     "recent_activity": [
       {
+        "title": "Avengers: Endgame",
+        "rating": "\u2605\u2605\u2605\u2605",
+        "is_rewatch": false,
+        "is_favorite": false,
+        "link": "https://letterboxd.com/oneyigit/film/avengers-endgame/1/",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/2/6/6/6/0/226660-avengers-endgame-0-600-0-900-crop.jpg?v=d4006bfd5e"
+      },
+      {
         "title": "Green Lantern: First Flight",
         "rating": "\u2605\u2605\u2605\u2605",
         "is_rewatch": false,
@@ -49,14 +57,6 @@
         "is_favorite": false,
         "link": "https://letterboxd.com/oneyigit/film/aladdin/",
         "cover_url": "https://a.ltrbxd.com/resized/sm/upload/n3/26/lb/e2/trm94WPjW5ApKulhFvuRm5cT8KQ-0-600-0-900-crop.jpg?v=7aa7423779"
-      },
-      {
-        "title": "Tenet",
-        "rating": "\u2605\u2605\u2605\u2605\u2605",
-        "is_rewatch": false,
-        "is_favorite": false,
-        "link": "https://letterboxd.com/oneyigit/film/tenet/",
-        "cover_url": "https://a.ltrbxd.com/resized/sm/upload/pq/9f/sr/vt/aCIFMriQh8rvhxpN1IWGgvH0Tlg-0-600-0-900-crop.jpg?v=f3165fe17f"
       }
     ],
     "favorite_films": [

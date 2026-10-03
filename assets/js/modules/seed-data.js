@@ -15,8 +15,8 @@ export const SEED_SPOTIFY = {
       ],
       "ai_lyrics": {
         "lyric1": "Adam olmay\u0131 \u00f6\u011frenmedin hi\u00e7 kad\u0131na el kald\u0131r\u0131yorsan",
-        "lyric2": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane",
-        "lyric3": "\u0130lk hamlen bel alt\u0131 olursa bu ilahi m\u00fcdahale"
+        "lyric2": "\u00d6pmeye k\u0131yam\u0131yorsam  sensiz uyuyam\u0131yorsam",
+        "lyric3": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane"
       }
     },
     {
@@ -196,8 +196,8 @@ export const SEED_SPOTIFY = {
       ],
       "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
       "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
-      "spotify_url": "https://open.spotify.com/album/17FxTkMIOb6nzuewcCmTJc",
-      "spotify_id": "17FxTkMIOb6nzuewcCmTJc",
+      "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
+      "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
       "year": "2023",
       "format_tag": "LP \u00b7 2023"
     }
@@ -206,6 +206,14 @@ export const SEED_SPOTIFY = {
 
 export const SEED_MOVIES = {
   "recent_activity": [
+    {
+      "title": "Avengers: Endgame",
+      "rating": "\u2605\u2605\u2605\u2605",
+      "is_rewatch": false,
+      "is_favorite": false,
+      "link": "https://letterboxd.com/oneyigit/film/avengers-endgame/1/",
+      "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/2/6/6/6/0/226660-avengers-endgame-0-600-0-900-crop.jpg?v=d4006bfd5e"
+    },
     {
       "title": "Green Lantern: First Flight",
       "rating": "\u2605\u2605\u2605\u2605",
@@ -253,14 +261,6 @@ export const SEED_MOVIES = {
       "is_favorite": false,
       "link": "https://letterboxd.com/oneyigit/film/aladdin/",
       "cover_url": "https://a.ltrbxd.com/resized/sm/upload/n3/26/lb/e2/trm94WPjW5ApKulhFvuRm5cT8KQ-0-600-0-900-crop.jpg?v=7aa7423779"
-    },
-    {
-      "title": "Tenet",
-      "rating": "\u2605\u2605\u2605\u2605\u2605",
-      "is_rewatch": false,
-      "is_favorite": false,
-      "link": "https://letterboxd.com/oneyigit/film/tenet/",
-      "cover_url": "https://a.ltrbxd.com/resized/sm/upload/pq/9f/sr/vt/aCIFMriQh8rvhxpN1IWGgvH0Tlg-0-600-0-900-crop.jpg?v=f3165fe17f"
     }
   ],
   "favorite_films": [

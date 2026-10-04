@@ -15,8 +15,8 @@ export const SEED_SPOTIFY = {
       ],
       "ai_lyrics": {
         "lyric1": "Adam olmay\u0131 \u00f6\u011frenmedin hi\u00e7 kad\u0131na el kald\u0131r\u0131yorsan",
-        "lyric2": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane",
-        "lyric3": "\u0130lk hamlen bel alt\u0131 olursa bu ilahi m\u00fcdahale"
+        "lyric2": "\u00d6pmeye k\u0131yam\u0131yorsam  sensiz uyuyam\u0131yorsam",
+        "lyric3": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane"
       }
     },
     {
@@ -33,6 +33,19 @@ export const SEED_SPOTIFY = {
       ]
     },
     {
+      "title": "She\u2019ll Be The One (2016 Demo)",
+      "artist": "Shawn Mendes",
+      "playcount": "46",
+      "spotify_url": "https://open.spotify.com/track/1FvjDYcfKpSM9OPQ9zxXfm",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273dd0d95a73f3b48cb2e28b4ca",
+      "spotify_id": "1FvjDYcfKpSM9OPQ9zxXfm",
+      "prominent_color": [
+        72,
+        92,
+        80
+      ]
+    },
+    {
       "title": "Phantom",
       "artist": "Ryan Beatty",
       "playcount": "33",
@@ -46,36 +59,23 @@ export const SEED_SPOTIFY = {
       ]
     },
     {
-      "title": "When You Look Me in the Eyes",
-      "artist": "Jonas Brothers",
-      "playcount": "31",
-      "spotify_url": "https://open.spotify.com/track/0mFh1ToSAR3iiW9J17de4Z",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273c58743f823bf8e52d85f24f6",
-      "spotify_id": "0mFh1ToSAR3iiW9J17de4Z",
+      "title": "Flowers",
+      "artist": "Andrew Lucier",
+      "playcount": "32",
+      "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
+      "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
       "prominent_color": [
-        76,
-        76,
-        76
-      ]
-    },
-    {
-      "title": "She\u2019ll Be The One (2016 Demo)",
-      "artist": "Shawn Mendes",
-      "playcount": "30",
-      "spotify_url": "https://open.spotify.com/track/1FvjDYcfKpSM9OPQ9zxXfm",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273dd0d95a73f3b48cb2e28b4ca",
-      "spotify_id": "1FvjDYcfKpSM9OPQ9zxXfm",
-      "prominent_color": [
-        72,
-        92,
-        80
+        182,
+        146,
+        110
       ]
     }
   ],
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",
-      "playcount": "160",
+      "playcount": "180",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
@@ -103,7 +103,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "5 Seconds of Summer",
-      "playcount": "66",
+      "playcount": "67",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"

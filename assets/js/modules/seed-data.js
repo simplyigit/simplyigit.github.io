@@ -2,6 +2,19 @@
 export const SEED_SPOTIFY = {
   "top_tracks_last_month": [
     {
+      "title": "She\u2019ll Be The One (2016 Demo)",
+      "artist": "Shawn Mendes",
+      "playcount": "49",
+      "spotify_url": "https://open.spotify.com/track/1FvjDYcfKpSM9OPQ9zxXfm",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273dd0d95a73f3b48cb2e28b4ca",
+      "spotify_id": "1FvjDYcfKpSM9OPQ9zxXfm",
+      "prominent_color": [
+        72,
+        92,
+        80
+      ]
+    },
+    {
       "title": "Eva & Mia",
       "artist": "GOKO!",
       "playcount": "48",
@@ -12,12 +25,7 @@ export const SEED_SPOTIFY = {
         225,
         205,
         187
-      ],
-      "ai_lyrics": {
-        "lyric1": "Adam olmay\u0131 \u00f6\u011frenmedin hi\u00e7 kad\u0131na el kald\u0131r\u0131yorsan",
-        "lyric2": "\u00d6pmeye k\u0131yam\u0131yorsam  sensiz uyuyam\u0131yorsam",
-        "lyric3": "Sensiz benim i\u00e7im buruk, sanki bo\u015f bi terane"
-      }
+      ]
     },
     {
       "title": "Chain Reaction",
@@ -33,16 +41,16 @@ export const SEED_SPOTIFY = {
       ]
     },
     {
-      "title": "She\u2019ll Be The One (2016 Demo)",
-      "artist": "Shawn Mendes",
-      "playcount": "46",
-      "spotify_url": "https://open.spotify.com/track/1FvjDYcfKpSM9OPQ9zxXfm",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273dd0d95a73f3b48cb2e28b4ca",
-      "spotify_id": "1FvjDYcfKpSM9OPQ9zxXfm",
+      "title": "Flowers",
+      "artist": "Andrew Lucier",
+      "playcount": "34",
+      "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
+      "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
       "prominent_color": [
-        72,
-        92,
-        80
+        182,
+        146,
+        110
       ]
     },
     {
@@ -57,25 +65,12 @@ export const SEED_SPOTIFY = {
         131,
         110
       ]
-    },
-    {
-      "title": "Flowers",
-      "artist": "Andrew Lucier",
-      "playcount": "32",
-      "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
-      "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
-      "prominent_color": [
-        182,
-        146,
-        110
-      ]
     }
   ],
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",
-      "playcount": "180",
+      "playcount": "183",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"

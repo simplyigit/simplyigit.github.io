@@ -30,7 +30,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "Chain Reaction",
       "artist": "Matilda Mann",
-      "playcount": "47",
+      "playcount": "48",
       "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
       "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
@@ -43,7 +43,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "Flowers",
       "artist": "Andrew Lucier",
-      "playcount": "36",
+      "playcount": "38",
       "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
       "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -77,7 +77,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Ryan Beatty",
-      "playcount": "137",
+      "playcount": "138",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
@@ -98,7 +98,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "5 Seconds of Summer",
-      "playcount": "67",
+      "playcount": "66",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"

@@ -30,19 +30,6 @@
           ]
         },
         {
-          "title": "Eva & Mia",
-          "artist": "GOKO!",
-          "playcount": "46",
-          "spotify_url": "https://open.spotify.com/track/2FuWptjK1pc0rkVpF5O0CG",
-          "cover_url": "https://i.scdn.co/image/ab67616d0000b27336f9a8140a0ea4f78a2b9b2d",
-          "spotify_id": "2FuWptjK1pc0rkVpF5O0CG",
-          "prominent_color": [
-            225,
-            205,
-            187
-          ]
-        },
-        {
           "title": "Flowers",
           "artist": "Andrew Lucier",
           "playcount": "39",
@@ -53,6 +40,19 @@
             182,
             146,
             110
+          ]
+        },
+        {
+          "title": "Eva & Mia",
+          "artist": "GOKO!",
+          "playcount": "39",
+          "spotify_url": "https://open.spotify.com/track/2FuWptjK1pc0rkVpF5O0CG",
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b27336f9a8140a0ea4f78a2b9b2d",
+          "spotify_id": "2FuWptjK1pc0rkVpF5O0CG",
+          "prominent_color": [
+            225,
+            205,
+            187
           ]
         },
         {

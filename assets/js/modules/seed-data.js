@@ -15,6 +15,19 @@ export const SEED_SPOTIFY = {
       ]
     },
     {
+      "title": "Chain Reaction",
+      "artist": "Matilda Mann",
+      "playcount": "49",
+      "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
+      "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
+      "prominent_color": [
+        149,
+        165,
+        163
+      ]
+    },
+    {
       "title": "Eva & Mia",
       "artist": "GOKO!",
       "playcount": "48",
@@ -28,22 +41,9 @@ export const SEED_SPOTIFY = {
       ]
     },
     {
-      "title": "Chain Reaction",
-      "artist": "Matilda Mann",
-      "playcount": "48",
-      "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
-      "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
-      "prominent_color": [
-        149,
-        165,
-        163
-      ]
-    },
-    {
       "title": "Flowers",
       "artist": "Andrew Lucier",
-      "playcount": "38",
+      "playcount": "39",
       "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
       "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -70,17 +70,24 @@ export const SEED_SPOTIFY = {
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",
-      "playcount": "184",
+      "playcount": "186",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
     },
     {
       "name": "Ryan Beatty",
-      "playcount": "138",
+      "playcount": "139",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
+    },
+    {
+      "name": "Stephen Sanchez",
+      "playcount": "70",
+      "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
+      "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"
     },
     {
       "name": "Harry Styles",
@@ -88,13 +95,6 @@ export const SEED_SPOTIFY = {
       "spotify_url": "https://open.spotify.com/artist/6KImCVD70vtIoJWnq6nGn3",
       "image_url": "https://i.scdn.co/image/ab6761610000e5ebe309f8c3056a59f20d0968ca",
       "spotify_id": "6KImCVD70vtIoJWnq6nGn3"
-    },
-    {
-      "name": "Stephen Sanchez",
-      "playcount": "68",
-      "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
-      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
-      "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"
     },
     {
       "name": "5 Seconds of Summer",

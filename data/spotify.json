@@ -42,19 +42,6 @@
         ]
       },
       {
-        "title": "Eva & Mia",
-        "artist": "GOKO!",
-        "playcount": "34",
-        "spotify_url": "https://open.spotify.com/track/2FuWptjK1pc0rkVpF5O0CG",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b27336f9a8140a0ea4f78a2b9b2d",
-        "spotify_id": "2FuWptjK1pc0rkVpF5O0CG",
-        "prominent_color": [
-          225,
-          205,
-          187
-        ]
-      },
-      {
         "title": "Phantom",
         "artist": "Ryan Beatty",
         "playcount": "33",
@@ -65,6 +52,19 @@
           176,
           131,
           110
+        ]
+      },
+      {
+        "title": "E\u011eLEN",
+        "artist": "Baneva",
+        "playcount": "31",
+        "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
+        "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
+        "prominent_color": [
+          210,
+          209,
+          214
         ]
       }
     ],
@@ -84,18 +84,18 @@
         "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
       },
       {
+        "name": "5 Seconds of Summer",
+        "playcount": "69",
+        "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
+        "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
+        "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
+      },
+      {
         "name": "Stephen Sanchez",
         "playcount": "67",
         "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
         "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
         "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"
-      },
-      {
-        "name": "5 Seconds of Summer",
-        "playcount": "66",
-        "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
-        "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
-        "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
       },
       {
         "name": "Harry Styles",
@@ -192,8 +192,8 @@
         ],
         "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
         "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
-        "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
-        "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
+        "spotify_url": "https://open.spotify.com/album/17FxTkMIOb6nzuewcCmTJc",
+        "spotify_id": "17FxTkMIOb6nzuewcCmTJc",
         "year": "2023",
         "format_tag": "LP \u00b7 2023"
       }

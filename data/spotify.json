@@ -3,6 +3,24 @@
   "data": {
     "top_tracks_last_month": [
       {
+        "title": "Chain Reaction",
+        "artist": "Matilda Mann",
+        "playcount": "51",
+        "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
+        "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
+        "prominent_color": [
+          149,
+          165,
+          163
+        ],
+        "ai_lyrics": {
+          "lyric1": "You've given me something to lose",
+          "lyric2": "No one in this world could prevent the fall",
+          "lyric3": "There's a force of nature pulling you to me"
+        }
+      },
+      {
         "title": "She\u2019ll Be The One (2016 Demo)",
         "artist": "Shawn Mendes",
         "playcount": "50",
@@ -16,22 +34,9 @@
         ]
       },
       {
-        "title": "Chain Reaction",
-        "artist": "Matilda Mann",
-        "playcount": "49",
-        "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
-        "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
-        "prominent_color": [
-          149,
-          165,
-          163
-        ]
-      },
-      {
         "title": "Flowers",
         "artist": "Andrew Lucier",
-        "playcount": "39",
+        "playcount": "40",
         "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
         "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
         "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -57,7 +62,7 @@
       {
         "title": "E\u011eLEN",
         "artist": "Baneva",
-        "playcount": "31",
+        "playcount": "32",
         "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
         "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
         "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
@@ -78,14 +83,14 @@
       },
       {
         "name": "Ryan Beatty",
-        "playcount": "138",
+        "playcount": "140",
         "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
         "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
       },
       {
         "name": "5 Seconds of Summer",
-        "playcount": "69",
+        "playcount": "70",
         "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
         "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"

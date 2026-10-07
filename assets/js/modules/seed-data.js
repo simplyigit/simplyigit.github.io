@@ -82,7 +82,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Ryan Beatty",
-      "playcount": "134",
+      "playcount": "133",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ"

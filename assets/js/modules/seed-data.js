@@ -4,7 +4,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "Chain Reaction",
       "artist": "Matilda Mann",
-      "playcount": "51",
+      "playcount": "52",
       "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
       "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
@@ -15,7 +15,7 @@ export const SEED_SPOTIFY = {
       ],
       "ai_lyrics": {
         "lyric1": "You've given me something to lose",
-        "lyric2": "No one in this world could prevent the fall",
+        "lyric2": "I can't stop falling for you",
         "lyric3": "There's a force of nature pulling you to me"
       }
     },
@@ -35,7 +35,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "Flowers",
       "artist": "Andrew Lucier",
-      "playcount": "40",
+      "playcount": "42",
       "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
       "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -43,6 +43,19 @@ export const SEED_SPOTIFY = {
         182,
         146,
         110
+      ]
+    },
+    {
+      "title": "E\u011eLEN",
+      "artist": "Baneva",
+      "playcount": "33",
+      "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
+      "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
+      "prominent_color": [
+        210,
+        209,
+        214
       ]
     },
     {
@@ -57,49 +70,29 @@ export const SEED_SPOTIFY = {
         131,
         110
       ]
-    },
-    {
-      "title": "E\u011eLEN",
-      "artist": "Baneva",
-      "playcount": "32",
-      "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
-      "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
-      "prominent_color": [
-        210,
-        209,
-        214
-      ]
     }
   ],
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",
-      "playcount": "182",
+      "playcount": "176",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
     },
     {
       "name": "Ryan Beatty",
-      "playcount": "133",
+      "playcount": "131",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
     },
     {
       "name": "5 Seconds of Summer",
-      "playcount": "70",
+      "playcount": "69",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
-    },
-    {
-      "name": "Harry Styles",
-      "playcount": "65",
-      "spotify_url": "https://open.spotify.com/artist/6KImCVD70vtIoJWnq6nGn3",
-      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe309f8c3056a59f20d0968ca",
-      "spotify_id": "6KImCVD70vtIoJWnq6nGn3"
     },
     {
       "name": "Stephen Sanchez",
@@ -107,6 +100,13 @@ export const SEED_SPOTIFY = {
       "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
       "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
       "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"
+    },
+    {
+      "name": "Harry Styles",
+      "playcount": "64",
+      "spotify_url": "https://open.spotify.com/artist/6KImCVD70vtIoJWnq6nGn3",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe309f8c3056a59f20d0968ca",
+      "spotify_id": "6KImCVD70vtIoJWnq6nGn3"
     }
   ],
   "favorite_albums": [

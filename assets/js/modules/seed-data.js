@@ -75,7 +75,7 @@ export const SEED_SPOTIFY = {
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",
-      "playcount": "176",
+      "playcount": "175",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
@@ -196,8 +196,8 @@ export const SEED_SPOTIFY = {
       ],
       "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
       "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
-      "spotify_url": "https://open.spotify.com/album/17FxTkMIOb6nzuewcCmTJc",
-      "spotify_id": "17FxTkMIOb6nzuewcCmTJc",
+      "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
+      "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
       "year": "2023",
       "format_tag": "LP \u00b7 2023"
     }

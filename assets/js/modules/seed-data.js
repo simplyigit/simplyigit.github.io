@@ -35,7 +35,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "Flowers",
       "artist": "Andrew Lucier",
-      "playcount": "44",
+      "playcount": "45",
       "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
       "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -75,21 +75,28 @@ export const SEED_SPOTIFY = {
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",
-      "playcount": "171",
+      "playcount": "172",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
     },
     {
       "name": "Ryan Beatty",
-      "playcount": "123",
+      "playcount": "121",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
     },
     {
+      "name": "Baneva",
+      "playcount": "72",
+      "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
+      "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
+    },
+    {
       "name": "5 Seconds of Summer",
-      "playcount": "70",
+      "playcount": "69",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
@@ -100,13 +107,6 @@ export const SEED_SPOTIFY = {
       "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
       "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
       "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"
-    },
-    {
-      "name": "Harry Styles",
-      "playcount": "63",
-      "spotify_url": "https://open.spotify.com/artist/6KImCVD70vtIoJWnq6nGn3",
-      "image_url": "https://i.scdn.co/image/ab6761610000e5ebe309f8c3056a59f20d0968ca",
-      "spotify_id": "6KImCVD70vtIoJWnq6nGn3"
     }
   ],
   "favorite_albums": [

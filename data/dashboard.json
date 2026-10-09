@@ -6,7 +6,7 @@
         {
           "title": "Chain Reaction",
           "artist": "Matilda Mann",
-          "playcount": "54",
+          "playcount": "55",
           "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
           "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
@@ -37,7 +37,7 @@
         {
           "title": "Flowers",
           "artist": "Andrew Lucier",
-          "playcount": "45",
+          "playcount": "46",
           "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
           "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -77,7 +77,7 @@
       "top_artists_last_month": [
         {
           "name": "Shawn Mendes",
-          "playcount": "172",
+          "playcount": "171",
           "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
           "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
           "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
@@ -91,7 +91,7 @@
         },
         {
           "name": "Baneva",
-          "playcount": "72",
+          "playcount": "83",
           "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
           "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
           "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
@@ -105,7 +105,7 @@
         },
         {
           "name": "Stephen Sanchez",
-          "playcount": "69",
+          "playcount": "68",
           "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
           "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
           "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"

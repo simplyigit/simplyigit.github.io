@@ -75,7 +75,7 @@ export const SEED_SPOTIFY = {
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",
-      "playcount": "171",
+      "playcount": "169",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
@@ -89,7 +89,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Baneva",
-      "playcount": "99",
+      "playcount": "108",
       "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
       "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
@@ -103,7 +103,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Stephen Sanchez",
-      "playcount": "68",
+      "playcount": "69",
       "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
       "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
       "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"

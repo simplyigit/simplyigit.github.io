@@ -5,9 +5,9 @@
       {
         "title": "Chain Reaction",
         "artist": "Matilda Mann",
-        "playcount": "55",
+        "playcount": "56",
         "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b273517d994d8523fcb8318fc038",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b2739bad87d43779793e11240cf5",
         "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
         "prominent_color": [
           149,
@@ -36,7 +36,7 @@
       {
         "title": "Flowers",
         "artist": "Andrew Lucier",
-        "playcount": "46",
+        "playcount": "47",
         "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
         "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
         "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -90,14 +90,14 @@
       },
       {
         "name": "Baneva",
-        "playcount": "83",
+        "playcount": "95",
         "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
         "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
       },
       {
         "name": "5 Seconds of Summer",
-        "playcount": "69",
+        "playcount": "70",
         "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
         "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"

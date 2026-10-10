@@ -6,7 +6,7 @@
         {
           "title": "Chain Reaction",
           "artist": "Matilda Mann",
-          "playcount": "57",
+          "playcount": "58",
           "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b2739bad87d43779793e11240cf5",
           "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
@@ -37,7 +37,7 @@
         {
           "title": "Flowers",
           "artist": "Andrew Lucier",
-          "playcount": "47",
+          "playcount": "48",
           "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
           "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -50,7 +50,7 @@
         {
           "title": "E\u011eLEN",
           "artist": "Baneva",
-          "playcount": "37",
+          "playcount": "38",
           "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
           "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
@@ -63,7 +63,7 @@
         {
           "title": "When You Look Me in the Eyes",
           "artist": "Jonas Brothers",
-          "playcount": "32",
+          "playcount": "33",
           "spotify_url": "https://open.spotify.com/track/0mFh1ToSAR3iiW9J17de4Z",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b273c58743f823bf8e52d85f24f6",
           "spotify_id": "0mFh1ToSAR3iiW9J17de4Z",
@@ -84,7 +84,7 @@
         },
         {
           "name": "Baneva",
-          "playcount": "126",
+          "playcount": "133",
           "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
           "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
           "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
@@ -334,26 +334,26 @@
       ],
       "favorite_films": [
         {
-          "title": "Interstellar",
           "link": "https://letterboxd.com/oneyigit/film/interstellar/",
+          "title": "Interstellar",
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/1/7/6/2/1/117621-interstellar-0-600-0-900-crop.jpg?v=7ad89e6666",
           "backdrop_url": "https://a.ltrbxd.com/resized/sm/upload/r4/0u/oq/0i/interstellar-1200-1200-675-675-crop-000000.jpg?v=fc649141b5"
         },
         {
-          "title": "The Perks of Being a Wallflower",
           "link": "https://letterboxd.com/oneyigit/film/the-perks-of-being-a-wallflower/1/",
+          "title": "The Perks of Being a Wallflower",
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/7/1/3/3/8/71338-the-perks-of-being-a-wallflower-0-600-0-900-crop.jpg?v=f2235860f7",
           "backdrop_url": "https://a.ltrbxd.com/resized/alternative-backdrop/7/1/3/3/8/tmdb/rusdnkVpMzHOhbED1E1XqEPKdw9-1200-1200-675-675-crop-000000.jpg?v=aa137182c0"
         },
         {
-          "title": "Before Sunrise",
           "link": "https://letterboxd.com/oneyigit/film/before-sunrise/",
+          "title": "Before Sunrise",
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/5/1/9/7/4/51974-before-sunrise-0-600-0-900-crop.jpg?v=006e8fedea",
           "backdrop_url": "https://a.ltrbxd.com/resized/sm/upload/jr/x9/lb/om/before-sunrise-1200-1200-675-675-crop-000000.jpg?v=7d4eb3b9e1"
         },
         {
-          "title": "A.I. Artificial Intelligence",
           "link": "https://letterboxd.com/oneyigit/film/ai-artificial-intelligence/",
+          "title": "A.I. Artificial Intelligence",
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/5/1/4/8/0/51480-a-i-artificial-intelligence-0-600-0-900-crop.jpg?v=cce766abd8",
           "backdrop_url": "https://a.ltrbxd.com/resized/sm/upload/1t/9w/t3/lv/ai-1200-1200-675-675-crop-000000.jpg?v=6b300098c9"
         }

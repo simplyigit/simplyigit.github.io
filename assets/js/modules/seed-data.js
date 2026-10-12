@@ -12,17 +12,12 @@ export const SEED_SPOTIFY = {
         149,
         165,
         163
-      ],
-      "ai_lyrics": {
-        "lyric1": "You've given me something to lose",
-        "lyric2": "No one in this world could prevent the fall",
-        "lyric3": "There's a force of nature pulling you to me"
-      }
+      ]
     },
     {
       "title": "Flowers",
       "artist": "Andrew Lucier",
-      "playcount": "51",
+      "playcount": "52",
       "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
       "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -82,7 +77,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Baneva",
-      "playcount": "149",
+      "playcount": "159",
       "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
       "spotify_id": "19YsBPYDyAmKbcFoor4W4e"

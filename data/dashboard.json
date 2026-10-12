@@ -6,7 +6,7 @@
         {
           "title": "Chain Reaction",
           "artist": "Matilda Mann",
-          "playcount": "59",
+          "playcount": "60",
           "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b2739bad87d43779793e11240cf5",
           "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
@@ -14,12 +14,17 @@
             149,
             165,
             163
-          ]
+          ],
+          "ai_lyrics": {
+            "lyric1": "You've given me something to lose",
+            "lyric2": "No one in this world could prevent the fall",
+            "lyric3": "I can't stop falling for you"
+          }
         },
         {
           "title": "Flowers",
           "artist": "Andrew Lucier",
-          "playcount": "52",
+          "playcount": "53",
           "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
           "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -56,16 +61,16 @@
           ]
         },
         {
-          "title": "When You Look Me in the Eyes",
-          "artist": "Jonas Brothers",
-          "playcount": "33",
-          "spotify_url": "https://open.spotify.com/track/0mFh1ToSAR3iiW9J17de4Z",
-          "cover_url": "https://i.scdn.co/image/ab67616d0000b273c58743f823bf8e52d85f24f6",
-          "spotify_id": "0mFh1ToSAR3iiW9J17de4Z",
+          "title": "X10",
+          "artist": "Baneva",
+          "playcount": "35",
+          "spotify_url": "https://open.spotify.com/track/5uJDj4e09ASkZWUzQ6qOMJ",
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
+          "spotify_id": "5uJDj4e09ASkZWUzQ6qOMJ",
           "prominent_color": [
-            76,
-            76,
-            76
+            210,
+            209,
+            214
           ]
         }
       ],
@@ -79,7 +84,7 @@
         },
         {
           "name": "Baneva",
-          "playcount": "159",
+          "playcount": "169",
           "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
           "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
           "spotify_id": "19YsBPYDyAmKbcFoor4W4e"

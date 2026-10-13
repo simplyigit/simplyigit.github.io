@@ -16,7 +16,7 @@ export const SEED_SPOTIFY = {
       "ai_lyrics": {
         "lyric1": "You've given me something to lose",
         "lyric2": "No one in this world could prevent the fall",
-        "lyric3": "I can't stop falling for you"
+        "lyric3": "My epiphany, like it's meant to be"
       }
     },
     {
@@ -61,7 +61,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "X10",
       "artist": "Baneva",
-      "playcount": "35",
+      "playcount": "37",
       "spotify_url": "https://open.spotify.com/track/5uJDj4e09ASkZWUzQ6qOMJ",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
       "spotify_id": "5uJDj4e09ASkZWUzQ6qOMJ",
@@ -75,7 +75,7 @@ export const SEED_SPOTIFY = {
   "top_artists_last_month": [
     {
       "name": "Baneva",
-      "playcount": "169",
+      "playcount": "174",
       "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
       "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
@@ -96,7 +96,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "5 Seconds of Summer",
-      "playcount": "71",
+      "playcount": "72",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"

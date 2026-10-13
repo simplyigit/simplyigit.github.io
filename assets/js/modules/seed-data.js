@@ -46,25 +46,25 @@ export const SEED_SPOTIFY = {
       ]
     },
     {
+      "title": "Keep It To Yourself",
+      "artist": "Love Spells",
+      "playcount": "40",
+      "spotify_url": "https://open.spotify.com/track/0UUnMVRHGJKFq4mlsld8GV",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b2738e9fe55db9bf2f866d047034",
+      "spotify_id": "0UUnMVRHGJKFq4mlsld8GV",
+      "prominent_color": [
+        162,
+        41,
+        48
+      ]
+    },
+    {
       "title": "E\u011eLEN",
       "artist": "Baneva",
       "playcount": "38",
       "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
       "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
-      "prominent_color": [
-        210,
-        209,
-        214
-      ]
-    },
-    {
-      "title": "X10",
-      "artist": "Baneva",
-      "playcount": "38",
-      "spotify_url": "https://open.spotify.com/track/5uJDj4e09ASkZWUzQ6qOMJ",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
-      "spotify_id": "5uJDj4e09ASkZWUzQ6qOMJ",
       "prominent_color": [
         210,
         209,
@@ -82,14 +82,14 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Shawn Mendes",
-      "playcount": "172",
+      "playcount": "170",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
     },
     {
       "name": "Ryan Beatty",
-      "playcount": "115",
+      "playcount": "114",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ"

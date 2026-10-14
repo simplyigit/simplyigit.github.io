@@ -82,7 +82,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Shawn Mendes",
-      "playcount": "170",
+      "playcount": "171",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
@@ -102,11 +102,11 @@ export const SEED_SPOTIFY = {
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
     },
     {
-      "name": "Stephen Sanchez",
-      "playcount": "65",
-      "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
-      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
-      "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"
+      "name": "Matilda Mann",
+      "playcount": "63",
+      "spotify_url": "https://open.spotify.com/artist/76oY04bOzECod3aGVTDtzu",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb55a39e76ed8dd77f8e772ec8",
+      "spotify_id": "76oY04bOzECod3aGVTDtzu"
     }
   ],
   "favorite_albums": [
@@ -196,8 +196,8 @@ export const SEED_SPOTIFY = {
       ],
       "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
       "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
-      "spotify_url": "https://open.spotify.com/album/17FxTkMIOb6nzuewcCmTJc",
-      "spotify_id": "17FxTkMIOb6nzuewcCmTJc",
+      "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
+      "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
       "year": "2023",
       "format_tag": "LP \u00b7 2023"
     }

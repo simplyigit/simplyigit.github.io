@@ -14,17 +14,12 @@
             149,
             165,
             163
-          ],
-          "ai_lyrics": {
-            "lyric1": "You've given me something to lose",
-            "lyric2": "No one in this world could prevent the fall",
-            "lyric3": "There's a force of nature pulling you to me"
-          }
+          ]
         },
         {
           "title": "Flowers",
           "artist": "Andrew Lucier",
-          "playcount": "56",
+          "playcount": "57",
           "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
           "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
@@ -50,7 +45,7 @@
         {
           "title": "Keep It To Yourself",
           "artist": "Love Spells",
-          "playcount": "41",
+          "playcount": "43",
           "spotify_url": "https://open.spotify.com/track/0UUnMVRHGJKFq4mlsld8GV",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b2738e9fe55db9bf2f866d047034",
           "spotify_id": "0UUnMVRHGJKFq4mlsld8GV",
@@ -61,12 +56,12 @@
           ]
         },
         {
-          "title": "E\u011eLEN",
+          "title": "X10",
           "artist": "Baneva",
-          "playcount": "38",
-          "spotify_url": "https://open.spotify.com/track/6IIXirTrL8ueg7a0jTAc9t",
+          "playcount": "39",
+          "spotify_url": "https://open.spotify.com/track/5uJDj4e09ASkZWUzQ6qOMJ",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
-          "spotify_id": "6IIXirTrL8ueg7a0jTAc9t",
+          "spotify_id": "5uJDj4e09ASkZWUzQ6qOMJ",
           "prominent_color": [
             210,
             209,
@@ -77,7 +72,7 @@
       "top_artists_last_month": [
         {
           "name": "Baneva",
-          "playcount": "178",
+          "playcount": "179",
           "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
           "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
           "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
@@ -91,7 +86,7 @@
         },
         {
           "name": "Ryan Beatty",
-          "playcount": "115",
+          "playcount": "114",
           "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
           "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
           "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
@@ -105,7 +100,7 @@
         },
         {
           "name": "Stephen Sanchez",
-          "playcount": "66",
+          "playcount": "64",
           "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
           "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
           "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"

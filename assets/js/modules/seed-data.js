@@ -16,7 +16,7 @@ export const SEED_SPOTIFY = {
       "ai_lyrics": {
         "lyric1": "You've given me something to lose",
         "lyric2": "No one in this world could prevent the fall",
-        "lyric3": "Sudden as a landslide"
+        "lyric3": "I can't stop falling for you"
       }
     },
     {

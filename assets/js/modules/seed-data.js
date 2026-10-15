@@ -48,7 +48,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "Keep It To Yourself",
       "artist": "Love Spells",
-      "playcount": "43",
+      "playcount": "44",
       "spotify_url": "https://open.spotify.com/track/0UUnMVRHGJKFq4mlsld8GV",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b2738e9fe55db9bf2f866d047034",
       "spotify_id": "0UUnMVRHGJKFq4mlsld8GV",
@@ -61,7 +61,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "X10",
       "artist": "Baneva",
-      "playcount": "39",
+      "playcount": "40",
       "spotify_url": "https://open.spotify.com/track/5uJDj4e09ASkZWUzQ6qOMJ",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
       "spotify_id": "5uJDj4e09ASkZWUzQ6qOMJ",
@@ -75,14 +75,14 @@ export const SEED_SPOTIFY = {
   "top_artists_last_month": [
     {
       "name": "Baneva",
-      "playcount": "179",
+      "playcount": "176",
       "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
       "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
     },
     {
       "name": "Shawn Mendes",
-      "playcount": "177",
+      "playcount": "175",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
@@ -96,7 +96,7 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "5 Seconds of Summer",
-      "playcount": "72",
+      "playcount": "71",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"

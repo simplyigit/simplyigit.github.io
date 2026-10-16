@@ -15,8 +15,8 @@ export const SEED_SPOTIFY = {
       ],
       "ai_lyrics": {
         "lyric1": "You've given me something to lose",
-        "lyric2": "In every life, I'm always next to you",
-        "lyric3": "There's a force of nature pulling you to me"
+        "lyric2": "No one in this world could prevent the fall",
+        "lyric3": "Sudden as a landslide"
       }
     },
     {
@@ -48,7 +48,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "Keep It To Yourself",
       "artist": "Love Spells",
-      "playcount": "45",
+      "playcount": "47",
       "spotify_url": "https://open.spotify.com/track/0UUnMVRHGJKFq4mlsld8GV",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b2738e9fe55db9bf2f866d047034",
       "spotify_id": "0UUnMVRHGJKFq4mlsld8GV",
@@ -89,21 +89,21 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Ryan Beatty",
-      "playcount": "114",
+      "playcount": "115",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
     },
     {
       "name": "5 Seconds of Summer",
-      "playcount": "78",
+      "playcount": "80",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
     },
     {
       "name": "Stephen Sanchez",
-      "playcount": "67",
+      "playcount": "68",
       "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
       "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
       "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"

@@ -1,86 +1,20 @@
 // Seed data for instantaneous 0ms first-paint (Synchronized with live data)
 export const SEED_SPOTIFY = {
-  "top_tracks_last_month": [
-    {
-      "title": "Chain Reaction",
-      "artist": "Matilda Mann",
-      "playcount": "60",
-      "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b2739bad87d43779793e11240cf5",
-      "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
-      "prominent_color": [
-        149,
-        165,
-        163
-      ]
-    },
-    {
-      "title": "Flowers",
-      "artist": "Andrew Lucier",
-      "playcount": "57",
-      "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
-      "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
-      "prominent_color": [
-        182,
-        146,
-        110
-      ]
-    },
-    {
-      "title": "She\u2019ll Be The One (2016 Demo)",
-      "artist": "Shawn Mendes",
-      "playcount": "53",
-      "spotify_url": "https://open.spotify.com/track/1FvjDYcfKpSM9OPQ9zxXfm",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273dd0d95a73f3b48cb2e28b4ca",
-      "spotify_id": "1FvjDYcfKpSM9OPQ9zxXfm",
-      "prominent_color": [
-        72,
-        92,
-        80
-      ]
-    },
-    {
-      "title": "Keep It To Yourself",
-      "artist": "Love Spells",
-      "playcount": "45",
-      "spotify_url": "https://open.spotify.com/track/0UUnMVRHGJKFq4mlsld8GV",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b2738e9fe55db9bf2f866d047034",
-      "spotify_id": "0UUnMVRHGJKFq4mlsld8GV",
-      "prominent_color": [
-        162,
-        41,
-        48
-      ]
-    },
-    {
-      "title": "X10",
-      "artist": "Baneva",
-      "playcount": "41",
-      "spotify_url": "https://open.spotify.com/track/5uJDj4e09ASkZWUzQ6qOMJ",
-      "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
-      "spotify_id": "5uJDj4e09ASkZWUzQ6qOMJ",
-      "prominent_color": [
-        210,
-        209,
-        214
-      ]
-    }
-  ],
+  "top_tracks_last_month": [],
   "top_artists_last_month": [
+    {
+      "name": "Shawn Mendes",
+      "playcount": "179",
+      "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
+      "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
+    },
     {
       "name": "Baneva",
       "playcount": "177",
       "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
       "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
-    },
-    {
-      "name": "Shawn Mendes",
-      "playcount": "176",
-      "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
-      "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
-      "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
     },
     {
       "name": "Ryan Beatty",
@@ -97,11 +31,11 @@ export const SEED_SPOTIFY = {
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
     },
     {
-      "name": "Matilda Mann",
-      "playcount": "63",
-      "spotify_url": "https://open.spotify.com/artist/76oY04bOzECod3aGVTDtzu",
-      "image_url": "https://i.scdn.co/image/ab6761610000e5eb55a39e76ed8dd77f8e772ec8",
-      "spotify_id": "76oY04bOzECod3aGVTDtzu"
+      "name": "Stephen Sanchez",
+      "playcount": "66",
+      "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
+      "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"
     }
   ],
   "favorite_albums": [

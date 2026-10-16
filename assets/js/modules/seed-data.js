@@ -1,6 +1,77 @@
 // Seed data for instantaneous 0ms first-paint (Synchronized with live data)
 export const SEED_SPOTIFY = {
-  "top_tracks_last_month": [],
+  "top_tracks_last_month": [
+    {
+      "title": "Chain Reaction",
+      "artist": "Matilda Mann",
+      "playcount": "60",
+      "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b2739bad87d43779793e11240cf5",
+      "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
+      "prominent_color": [
+        149,
+        165,
+        163
+      ],
+      "ai_lyrics": {
+        "lyric1": "You've given me something to lose",
+        "lyric2": "No one in this world could prevent the fall",
+        "lyric3": "In every life, I'm always next to you"
+      }
+    },
+    {
+      "title": "Flowers",
+      "artist": "Andrew Lucier",
+      "playcount": "57",
+      "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
+      "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
+      "prominent_color": [
+        182,
+        146,
+        110
+      ]
+    },
+    {
+      "title": "She\u2019ll Be The One (2016 Demo)",
+      "artist": "Shawn Mendes",
+      "playcount": "53",
+      "spotify_url": "https://open.spotify.com/track/1FvjDYcfKpSM9OPQ9zxXfm",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273dd0d95a73f3b48cb2e28b4ca",
+      "spotify_id": "1FvjDYcfKpSM9OPQ9zxXfm",
+      "prominent_color": [
+        72,
+        92,
+        80
+      ]
+    },
+    {
+      "title": "Keep It To Yourself",
+      "artist": "Love Spells",
+      "playcount": "45",
+      "spotify_url": "https://open.spotify.com/track/0UUnMVRHGJKFq4mlsld8GV",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b2738e9fe55db9bf2f866d047034",
+      "spotify_id": "0UUnMVRHGJKFq4mlsld8GV",
+      "prominent_color": [
+        162,
+        41,
+        48
+      ]
+    },
+    {
+      "title": "X10",
+      "artist": "Baneva",
+      "playcount": "41",
+      "spotify_url": "https://open.spotify.com/track/5uJDj4e09ASkZWUzQ6qOMJ",
+      "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
+      "spotify_id": "5uJDj4e09ASkZWUzQ6qOMJ",
+      "prominent_color": [
+        210,
+        209,
+        214
+      ]
+    }
+  ],
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",

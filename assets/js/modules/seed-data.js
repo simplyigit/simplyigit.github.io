@@ -16,7 +16,7 @@ export const SEED_SPOTIFY = {
       "ai_lyrics": {
         "lyric1": "You've given me something to lose",
         "lyric2": "No one in this world could prevent the fall",
-        "lyric3": "In every life, I'm always next to you"
+        "lyric3": "Sudden as a landslide"
       }
     },
     {
@@ -61,7 +61,7 @@ export const SEED_SPOTIFY = {
     {
       "title": "X10",
       "artist": "Baneva",
-      "playcount": "41",
+      "playcount": "42",
       "spotify_url": "https://open.spotify.com/track/5uJDj4e09ASkZWUzQ6qOMJ",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
       "spotify_id": "5uJDj4e09ASkZWUzQ6qOMJ",
@@ -75,7 +75,7 @@ export const SEED_SPOTIFY = {
   "top_artists_last_month": [
     {
       "name": "Shawn Mendes",
-      "playcount": "179",
+      "playcount": "178",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
@@ -89,21 +89,21 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Ryan Beatty",
-      "playcount": "112",
+      "playcount": "113",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
     },
     {
       "name": "5 Seconds of Summer",
-      "playcount": "71",
+      "playcount": "72",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
     },
     {
       "name": "Stephen Sanchez",
-      "playcount": "66",
+      "playcount": "67",
       "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
       "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
       "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"

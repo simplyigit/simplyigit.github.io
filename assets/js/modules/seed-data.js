@@ -14,8 +14,8 @@ export const SEED_SPOTIFY = {
         163
       ],
       "ai_lyrics": {
-        "lyric1": "You've given me something to lose",
-        "lyric2": "No one in this world could prevent the fall",
+        "lyric1": "No one in this world could prevent the fall",
+        "lyric2": "You've given me something to lose",
         "lyric3": "There's a force of nature pulling you to me"
       }
     },
@@ -291,6 +291,21 @@ export const SEED_MOVIES = {
   ],
   "watchlist": [
     {
+      "title": "Crimson Peak",
+      "link": "https://letterboxd.com/film/crimson-peak/",
+      "cover_url": "https://a.ltrbxd.com/resized/sm/upload/ab/6v/2r/jl/pCj8zem1NDAODdtvha9WFEB6iWR-0-600-0-900-crop.jpg?v=b019ae9643"
+    },
+    {
+      "title": "Miss Peregrine's Home for Peculiar Children",
+      "link": "https://letterboxd.com/film/miss-peregrines-home-for-peculiar-children/",
+      "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/0/8/6/6/4/208664-miss-peregrine-s-home-for-peculiar-children-0-600-0-900-crop.jpg?v=d0835b2f50"
+    },
+    {
+      "title": "21",
+      "link": "https://letterboxd.com/film/21/",
+      "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/7/9/0/0/47900-21-0-600-0-900-crop.jpg?v=733647ac0d"
+    },
+    {
       "title": "Alvin and the Chipmunks",
       "link": "https://letterboxd.com/film/alvin-and-the-chipmunks/",
       "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/8/2/9/8/48298-alvin-and-the-chipmunks-0-600-0-900-crop.jpg?v=5ad5d3b4e2"
@@ -309,21 +324,6 @@ export const SEED_MOVIES = {
       "title": "Minions & Monsters",
       "link": "https://letterboxd.com/film/minions-monsters-2026/",
       "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/1/9/6/8/0/8/1196808-minions-monsters-2026-0-600-0-900-crop.jpg?v=8ff282e996"
-    },
-    {
-      "title": "Caught Stealing",
-      "link": "https://letterboxd.com/film/caught-stealing/",
-      "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/1/2/9/1/9/9/1129199-caught-stealing-0-600-0-900-crop.jpg?v=d3b8da3722"
-    },
-    {
-      "title": "Magazine Dreams",
-      "link": "https://letterboxd.com/film/magazine-dreams/",
-      "cover_url": "https://a.ltrbxd.com/resized/film-poster/7/0/3/0/7/7/703077-magazine-dreams-0-600-0-900-crop.jpg?v=dbf872d684"
-    },
-    {
-      "title": "Nocturnal Animals",
-      "link": "https://letterboxd.com/film/nocturnal-animals/",
-      "cover_url": "https://a.ltrbxd.com/resized/sm/upload/nu/i0/7z/nd/oHL437Dz1TGQMlKfpE6rSQJgMxb-0-600-0-900-crop.jpg?v=16ef03c9c1"
     }
   ]
 };

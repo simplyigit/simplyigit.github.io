@@ -16,7 +16,7 @@ export const SEED_SPOTIFY = {
       "ai_lyrics": {
         "lyric1": "You've given me something to lose",
         "lyric2": "No one in this world could prevent the fall",
-        "lyric3": "Sudden as a landslide"
+        "lyric3": "There's a force of nature pulling you to me"
       }
     },
     {
@@ -96,14 +96,14 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "5 Seconds of Summer",
-      "playcount": "80",
+      "playcount": "79",
       "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
     },
     {
       "name": "Stephen Sanchez",
-      "playcount": "68",
+      "playcount": "66",
       "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
       "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
       "spotify_id": "5XKFrudbV4IiuE5WuTPRmT"

@@ -87,6 +87,11 @@
     ],
     "watchlist": [
       {
+        "title": "Alvin and the Chipmunks",
+        "link": "https://letterboxd.com/film/alvin-and-the-chipmunks/",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/8/2/9/8/48298-alvin-and-the-chipmunks-0-600-0-900-crop.jpg?v=5ad5d3b4e2"
+      },
+      {
         "title": "Primetime",
         "link": "https://letterboxd.com/film/primetime-2026/",
         "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/2/6/2/0/1/9/1262019-primetime-2026-0-600-0-900-crop.jpg?v=41640d6988"
@@ -115,11 +120,6 @@
         "title": "Nocturnal Animals",
         "link": "https://letterboxd.com/film/nocturnal-animals/",
         "cover_url": "https://a.ltrbxd.com/resized/sm/upload/nu/i0/7z/nd/oHL437Dz1TGQMlKfpE6rSQJgMxb-0-600-0-900-crop.jpg?v=16ef03c9c1"
-      },
-      {
-        "title": "Proof",
-        "link": "https://letterboxd.com/film/proof-2005/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/6/8/3/3/46833-proof-0-600-0-900-crop.jpg?v=cf7915eb32"
       }
     ]
   }

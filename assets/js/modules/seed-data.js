@@ -82,14 +82,14 @@ export const SEED_SPOTIFY = {
     },
     {
       "name": "Shawn Mendes",
-      "playcount": "178",
+      "playcount": "177",
       "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
       "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
     },
     {
       "name": "Ryan Beatty",
-      "playcount": "115",
+      "playcount": "113",
       "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
       "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
       "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
@@ -291,6 +291,11 @@ export const SEED_MOVIES = {
   ],
   "watchlist": [
     {
+      "title": "Alvin and the Chipmunks",
+      "link": "https://letterboxd.com/film/alvin-and-the-chipmunks/",
+      "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/8/2/9/8/48298-alvin-and-the-chipmunks-0-600-0-900-crop.jpg?v=5ad5d3b4e2"
+    },
+    {
       "title": "Primetime",
       "link": "https://letterboxd.com/film/primetime-2026/",
       "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/2/6/2/0/1/9/1262019-primetime-2026-0-600-0-900-crop.jpg?v=41640d6988"
@@ -319,11 +324,6 @@ export const SEED_MOVIES = {
       "title": "Nocturnal Animals",
       "link": "https://letterboxd.com/film/nocturnal-animals/",
       "cover_url": "https://a.ltrbxd.com/resized/sm/upload/nu/i0/7z/nd/oHL437Dz1TGQMlKfpE6rSQJgMxb-0-600-0-900-crop.jpg?v=16ef03c9c1"
-    },
-    {
-      "title": "Proof",
-      "link": "https://letterboxd.com/film/proof-2005/",
-      "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/6/8/3/3/46833-proof-0-600-0-900-crop.jpg?v=cf7915eb32"
     }
   ]
 };

@@ -71,22 +71,22 @@ function renderAlbums(container, albumList) {
 
         const bannerContent = typoSrc ? `
             <div class="album-banner-bg-wrap">
-                <img src="${bgSrc}" alt="${album.title} backdrop" class="album-banner-bg" loading="lazy" decoding="async">
+                <img src="${bgSrc}" alt="${album.title} backdrop" class="album-banner-bg" loading="lazy" fetchpriority="low" decoding="async">
             </div>
             <div class="album-banner-vignette"></div>
             <div class="album-banner-typo-wrap">
-                <img src="${typoSrc}" alt="${album.title} title" class="album-banner-typo" loading="lazy" decoding="async">
+                <img src="${typoSrc}" alt="${album.title} title" class="album-banner-typo" loading="lazy" fetchpriority="low" decoding="async">
             </div>
         ` : `
             <div class="album-banner-bg-wrap">
-                <img src="${fallbackBannerSrc}" alt="${album.title} banner" class="album-banner-bg" loading="lazy" decoding="async">
+                <img src="${fallbackBannerSrc}" alt="${album.title} banner" class="album-banner-bg" loading="lazy" fetchpriority="low" decoding="async">
             </div>
         `;
 
         return `
             <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="spotify-album-card" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.45); --album-rgb: ${r}, ${g}, ${b}; --stagger-idx: ${idx};" aria-label="${album.title} by ${album.artist}">
                 <div class="album-cover-slot">
-                    <img src="${coverSrc}" alt="${album.title} cover" class="album-cover-img" loading="lazy" decoding="async">
+                    <img src="${coverSrc}" alt="${album.title} cover" class="album-cover-img" loading="lazy" fetchpriority="low" decoding="async">
                     <div class="album-cover-gloss" aria-hidden="true"></div>
                 </div>
                 <div class="album-vinyl-disc" aria-hidden="true">
@@ -156,7 +156,7 @@ function renderArtists(container, artistList) {
     container.innerHTML = list.map((artist) => `
         <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item">
             <div class="artist-img-wrapper">
-                <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img" decoding="async">
+                <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img" loading="lazy" fetchpriority="low" decoding="async">
                 <div class="artist-playcount-overlay">
                     <span class="artist-playcount-value">${Number(artist.playcount).toLocaleString()}</span>
                     <span class="artist-playcount-label">Plays</span>
@@ -192,7 +192,7 @@ function renderTracks(container, trackList) {
             <a id="track-card-${index}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTopStyle ? 'top-track-banner' : 'grid-track'}" style="${isTopStyle ? `--track-art: url('${track.cover_url}')` : ''}">
                 ${isTopStyle ? `<div class="banner-bg-blur"></div>` : ''}
                 <div class="case-art-wrapper">
-                    <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img" decoding="async">
+                    <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img" ${isTopCard ? 'fetchpriority="high"' : 'decoding="async"'}>
                 </div>
                 <div class="case-info">
                     <div class="track-text-stack">

@@ -1,4 +1,4 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax, observer } from '../modules/core.js';
+import { initAmbientMesh, initGlobalReveal, initGlassParallax, safeImg } from '../modules/core.js';
 import { SEED_SPOTIFY, SEED_MOVIES, SEED_BOOKS } from '../modules/seed-data.js';
 
 const projects = [
@@ -8,7 +8,7 @@ const projects = [
         tags: ["ML & DL", "Image Processing"],
         type: "wide",
         customClass: "project-real",
-        visualHtml: '<img src="projects/real-deepfake-or-ai/real-deepfake-or-ai.png" style="width: 100%; height: 100%; object-fit: cover;" alt="Real, Deepfake or AI">',
+        visualHtml: '<img src="projects/real-deepfake-or-ai/real-deepfake-or-ai.webp" style="width: 100%; height: 100%; object-fit: cover;" alt="Real, Deepfake or AI" loading="lazy" decoding="async">',
         url: "/projects/real-deepfake-or-ai"
     }
 ];
@@ -157,14 +157,6 @@ function initIndex() {
         });
     }
 
-    function safeImg(url) {
-        if (!url) return '';
-        if (url.includes('a.ltrbxd.com') && !url.includes('wsrv.nl')) {
-            return `https://wsrv.nl/?url=${encodeURIComponent(url)}`;
-        }
-        return url;
-    }
-
     function renderSpotify(spotify) {
         if (!spotify) return;
         const data = spotify.data || spotify;
@@ -230,16 +222,28 @@ function initIndex() {
         const data = books.data || books;
         const bookList = Array.isArray(data) ? data : (Array.isArray(data.books) ? data.books : []);
         if (bookList.length === 0) return;
-        const top3 = bookList.slice(0, 3);
 
-        const sig = top3.map(b => `${b.title}|${b.cover_url}`).join(';;');
+        // Prioritize 'currently-reading' books first, then 'to-read', then 'read'
+        const sorted = [...bookList].sort((a, b) => {
+            const order = { 'currently-reading': 0, 'to-read': 1, 'read': 2 };
+            return (order[a.shelf] ?? 1) - (order[b.shelf] ?? 1);
+        });
+        const top3 = sorted.slice(0, 3);
+
+        const sig = top3.map(b => `${b.title}|${b.cover_url}|${b.shelf || ''}|${b.num_pages || ''}`).join(';;');
         if (sig === renderedBooksSig) return; // Prevent DOM destruction & image flicker
         renderedBooksSig = sig;
 
         const heroBook = top3[0];
         const safeTitle = (heroBook.title || '').replace(/"/g, '&quot;');
         const safeAuthor = (heroBook.author || '').replace(/"/g, '&quot;');
-        const heroCover = safeImg(heroBook.cover_url);
+        const heroCover = safeImg(heroBook.cover_url, 240);
+        const isCurrentlyReading = heroBook.shelf === 'currently-reading';
+        const statusLabel = isCurrentlyReading ? 'READING' : 'UP NEXT';
+        const pageMeta = heroBook.num_pages ? `${heroBook.num_pages} pp.` : (heroBook.year || 'EX LIBRIS');
+
+        const statusEl = document.getElementById('book-bay-status');
+        if (statusEl) statusEl.textContent = statusLabel;
 
         const initials = getBookAcronym(heroBook.title);
         const initialsEl = document.getElementById('book-bay-initials') || document.querySelector('.book-bay-counter');
@@ -252,10 +256,10 @@ function initIndex() {
 
         indexBooksContainer.innerHTML = `
             <div class="book-shelf-item book-shelf-left">
-                <img src="${safeImg(book3.cover_url)}" alt="${(book3.title || '').replace(/"/g, '&quot;')}" loading="lazy">
+                <img src="${safeImg(book3.cover_url, 200)}" alt="${(book3.title || '').replace(/"/g, '&quot;')}" loading="lazy" decoding="async">
             </div>
             <div class="book-shelf-item book-shelf-right">
-                <img src="${safeImg(book2.cover_url)}" alt="${(book2.title || '').replace(/"/g, '&quot;')}" loading="lazy">
+                <img src="${safeImg(book2.cover_url, 200)}" alt="${(book2.title || '').replace(/"/g, '&quot;')}" loading="lazy" decoding="async">
             </div>
 
             <div class="book-shelf-item book-shelf-center" id="hero-book-wrapper">
@@ -282,8 +286,8 @@ function initIndex() {
                                 </div>
                             </div>
                             <div class="book-page-footer">
-                                <span>READING</span>
-                                <span class="book-page-num">p. 142</span>
+                                <span>${statusLabel}</span>
+                                <span class="book-page-num">${pageMeta}</span>
                             </div>
                         </div>
                     </div>
@@ -291,7 +295,7 @@ function initIndex() {
                     <div class="book-front-cover-assembly">
                         <div class="book-cover-outside">
                             <div class="book-ribbon-tag"></div>
-                            <img src="${heroCover}" class="book-cover-art" alt="${safeTitle}">
+                            <img src="${heroCover}" class="book-cover-art" alt="${safeTitle}" decoding="async">
                             <div class="book-cover-emboss-spine"></div>
                             <div class="book-cover-glare"></div>
                         </div>
@@ -326,11 +330,11 @@ function initIndex() {
         indexMoviesContainer.innerHTML = `
             <div class="vhs-filmstrip-track">
                 ${duplicated.map((film) => {
-                    const imgUrl = safeImg(film.cover_url);
+                    const imgUrl = safeImg(film.cover_url, 150);
                     const cleanTitle = (film.title || "").replace(/"/g, '&quot;');
                     return `
                         <div class="vhs-filmstrip-item" title="${cleanTitle}">
-                            <img src="${imgUrl}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy">
+                            <img src="${imgUrl}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy" decoding="async">
                         </div>
                     `;
                 }).join('')}

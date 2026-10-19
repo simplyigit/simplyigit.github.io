@@ -6,18 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yigit | Portfolio</title>
     <meta name="robots" content="noindex, nofollow">
-    <!-- Preconnect to Google Fonts -->
+    <!-- Preconnect to Google Fonts & Image CDN -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=3.6">
+    <link rel="preconnect" href="https://wsrv.nl" crossorigin>
+    <link rel="dns-prefetch" href="https://wsrv.nl">
+    <!-- Inter, JetBrains Mono & Playfair Display Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.8">
 </head>
 
 <body>
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-
     <div class="container fade-in">
         <header class="hero fade-in" style="display: flex; flex-direction: column; gap: 20px; position: relative;">
 
@@ -25,7 +24,7 @@
                 style="padding: 12px 28px 12px 16px; gap: 24px; width: fit-content; align-items: center;">
                 <div class="hero-glow-1"></div>
                 <div class="hero-glow-2"></div>
-                <img src="images/pp.png" alt="Memoji" class="avatar-memoji" fetchpriority="high" width="52" height="52"
+                <img src="images/pp.webp" alt="Memoji" class="avatar-memoji" fetchpriority="high" width="52" height="52"
                     style="position: relative; width: 52px; height: 52px; min-width: 52px; z-index: 1; transform: scale(1.15);">
                 <h1 class="gradient-text"
                     style="position: relative; margin: 0; font-size: 2.5rem; line-height: 1; padding-bottom: 3px; z-index: 1;">
@@ -62,29 +61,29 @@
                 <h2 class="section-title" style="margin-bottom: 0;">Projects</h2>
                 <div class="social-tube tech-tube"
                     style="margin-bottom: 0; padding: 6px 14px; width: fit-content; gap: 14px;">
-                    <a href="#" class="social-icon python" style="display:flex; align-items:center;"
-                        aria-label="Python">
+                    <span class="social-icon python" style="display:flex; align-items:center;"
+                        role="img" aria-label="Python" title="Python">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="tech-icon python"
-                            aria-label="Python">
+                            aria-hidden="true">
                             <title>Python</title>
                             <path
                                 d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z" />
                         </svg>
-                    </a>
+                    </span>
 
-                    <a href="#" class="social-icon ai" style="display:flex; align-items:center;"
-                        aria-label="Artificial Intelligence">
+                    <span class="social-icon ai" style="display:flex; align-items:center;"
+                        role="img" aria-label="Artificial Intelligence" title="Artificial Intelligence">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="tech-icon ai"
-                            aria-label="Artificial Intelligence">
+                            aria-hidden="true">
                             <title>Artificial Intelligence</title>
                             <path
                                 d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2zM7.5 13a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-8 5a1 1 0 0 0 0 2h7a1 1 0 1 0 0-2h-7z" />
                         </svg>
-                    </a>
+                    </span>
                 </div>
             </div>
             <div class="projects-grid-complex" id="projects-container">
-                <!-- Projects will be injected by script.js?v=2.2 -->
+                <!-- Projects will be injected by index.js -->
             </div>
         </section>
 
@@ -102,7 +101,7 @@
                             <div class="book-bay-header">
                                 <div class="book-bay-indicator">
                                     <span class="book-bay-dot"></span>
-                                    <span>READING</span>
+                                    <span id="book-bay-status">READING</span>
                                 </div>
                                 <div class="book-bay-counter" id="book-bay-initials">L&W</div>
                             </div>

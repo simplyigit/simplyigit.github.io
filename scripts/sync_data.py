@@ -2,7 +2,6 @@ import os
 import json
 import time
 import requests
-from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 import re
 import concurrent.futures
@@ -216,6 +215,7 @@ def fetch_spotify_data(url, key):
 
     # Check existing DB for the top track's lyrics to avoid unnecessary API calls
     existing_lyrics = None
+    existing_ai_lyrics = None
     existing_top_track_name = None
     try:
         res = requests.get(
@@ -229,6 +229,7 @@ def fetch_spotify_data(url, key):
             if existing_tracks:
                 existing_top_track_name = existing_tracks[0].get("title")
                 existing_lyrics = existing_tracks[0].get("lyrics")
+                existing_ai_lyrics = existing_tracks[0].get("ai_lyrics")
     except Exception as e:
         print(f"Failed to check existing lyrics in DB: {e}")
 
@@ -264,7 +265,7 @@ def fetch_spotify_data(url, key):
     lyric_future = None
     if raw_lfm_tracks:
         top_t = raw_lfm_tracks[0]
-        if existing_top_track_name == top_t['name'] and existing_lyrics:
+        if existing_top_track_name == top_t['name'] and (existing_ai_lyrics or existing_lyrics):
             print(f"Top track '{top_t['name']}' hasn't changed. Using cached lyrics.")
         else:
             lyric_future = executor.submit(get_lyrics, top_t['name'], top_t['artist']['name'])
@@ -306,20 +307,27 @@ def fetch_spotify_data(url, key):
     if final_tracks:
         print("Processing AI Lyrics for #1 track...")
         top_track = final_tracks[0]
-        lyrics_text = existing_lyrics if (existing_top_track_name == top_track['title'] and existing_lyrics) else None
-        
-        if lyric_future:
-            try:
-                lyrics_text = lyric_future.result(timeout=15)
-            except Exception as e:
-                print(f"Lyric fetching timed out/failed: {str(e)}")
-
-        if lyrics_text:
-            top_track['ai_lyrics'] = generate_lyric_snippets(top_track['title'], top_track['artist'], lyrics_text)
-            if top_track.get('ai_lyrics'):
-                print("AI Lyrics curated successfully!")
+        if existing_top_track_name == top_track['title'] and existing_ai_lyrics:
+            top_track['ai_lyrics'] = existing_ai_lyrics
+            if existing_lyrics:
+                top_track['lyrics'] = existing_lyrics
+            print("Reused cached AI lyrics for unchanged #1 track!")
         else:
-            print("Skipping curation: No real lyrics retrieved.")
+            lyrics_text = existing_lyrics if (existing_top_track_name == top_track['title'] and existing_lyrics) else None
+            
+            if lyric_future:
+                try:
+                    lyrics_text = lyric_future.result(timeout=15)
+                except Exception as e:
+                    print(f"Lyric fetching timed out/failed: {str(e)}")
+
+            if lyrics_text:
+                top_track['lyrics'] = lyrics_text
+                top_track['ai_lyrics'] = generate_lyric_snippets(top_track['title'], top_track['artist'], lyrics_text)
+                if top_track.get('ai_lyrics'):
+                    print("AI Lyrics curated successfully!")
+            else:
+                print("Skipping curation: No real lyrics retrieved.")
 
     executor.shutdown(wait=True)
     favorite_albums = fetch_favorite_albums(access_token)
@@ -625,7 +633,7 @@ def fetch_movies_data(url=None, key=None):
 # --- HELPERS: BOOKS ---
 
 def fetch_books_data(url=None, key=None):
-    goodreads_url = 'https://www.goodreads.com/review/list_rss/199124060?shelf=to-read'
+    goodreads_url = 'https://www.goodreads.com/review/list_rss/199124060'
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
@@ -637,13 +645,70 @@ def fetch_books_data(url=None, key=None):
             root = ET.fromstring(rss_response.read())
             items = root.findall('./channel/item')
             for item in items:
-                title = item.find('title').text if item.find('title') is not None else "Unknown Title"
-                title = html.unescape(title)
-                author = item.find('author_name').text if item.find('author_name') is not None else "Unknown Author"
-                author = html.unescape(author)
-                cover_url = item.find('book_image_url').text if item.find('book_image_url') is not None else ""
-                if cover_url: cover_url = re.sub(r'\._[A-Za-z0-9]+_\.', '.', cover_url)
-                books_data.append({"title": title, "author": author, "cover_url": cover_url, "link": item.find('link').text if item.find('link') is not None else "#"})
+                title = item.find('title').text if item.find('title') is not None and item.find('title').text else "Unknown Title"
+                title = html.unescape(title).strip()
+                author = item.find('author_name').text if item.find('author_name') is not None and item.find('author_name').text else "Unknown Author"
+                author = html.unescape(author).strip()
+
+                cover_url = item.find('book_large_image_url').text if item.find('book_large_image_url') is not None and item.find('book_large_image_url').text else ""
+                if not cover_url and item.find('book_image_url') is not None and item.find('book_image_url').text:
+                    cover_url = item.find('book_image_url').text
+                if cover_url:
+                    cover_url = re.sub(r'\._[A-Za-z0-9]+_\.', '.', cover_url.strip())
+
+                raw_shelves = (item.find('user_shelves').text or "").strip() if item.find('user_shelves') is not None else ""
+                shelf_tokens = [s.strip() for s in raw_shelves.split(',') if s.strip()]
+                if 'currently-reading' in shelf_tokens:
+                    shelf = 'currently-reading'
+                elif 'to-read' in shelf_tokens:
+                    shelf = 'to-read'
+                else:
+                    shelf = 'read'
+
+                book_node = item.find('book')
+                num_pages = None
+                if book_node is not None and book_node.find('num_pages') is not None and book_node.find('num_pages').text:
+                    raw_pages = book_node.find('num_pages').text.strip()
+                    if raw_pages.isdigit():
+                        num_pages = int(raw_pages)
+
+                rating = 0
+                if item.find('user_rating') is not None and item.find('user_rating').text:
+                    raw_rating = item.find('user_rating').text.strip()
+                    if raw_rating.isdigit():
+                        rating = int(raw_rating)
+
+                avg_rating = ""
+                if item.find('average_rating') is not None and item.find('average_rating').text:
+                    avg_rating = item.find('average_rating').text.strip()
+
+                year = ""
+                if item.find('book_published') is not None and item.find('book_published').text:
+                    year = item.find('book_published').text.strip()
+
+                link_el = item.find('link')
+                link = link_el.text.strip() if link_el is not None and link_el.text else "#"
+
+                entry = {
+                    "title": title,
+                    "author": author,
+                    "cover_url": cover_url,
+                    "link": link,
+                    "shelf": shelf
+                }
+                if num_pages:
+                    entry["num_pages"] = num_pages
+                if rating > 0:
+                    entry["rating"] = rating
+                if avg_rating:
+                    entry["average_rating"] = avg_rating
+                if year:
+                    entry["year"] = year
+
+                books_data.append(entry)
+
+        shelf_order = {'currently-reading': 0, 'to-read': 1, 'read': 2}
+        books_data.sort(key=lambda b: shelf_order.get(b.get('shelf', 'to-read'), 1))
     except Exception as e:
         print(f"Error fetching Goodreads books: {e}")
 
@@ -779,6 +844,7 @@ def export_static_snapshots(data):
         spotify = data.get("spotify", {})
         movies = data.get("movies", {})
         books = data.get("books", [])
+        projects = data.get("projects", {})
         
         album_years = {
             'Purple Rain': '1984',
@@ -801,6 +867,10 @@ def export_static_snapshots(data):
 
         with open(os.path.join(data_dir, "books.json"), "w") as f:
             json.dump({"success": True, "data": books}, f, indent=2)
+
+        if projects:
+            with open(os.path.join(data_dir, "projects.json"), "w") as f:
+                json.dump({"success": True, "data": projects}, f, indent=2)
 
         dashboard = {
             "spotify": spotify,
@@ -827,4 +897,5 @@ export const SEED_BOOKS = {json.dumps(books, indent=2)};
 
 if __name__ == "__main__":
     main()
+
 

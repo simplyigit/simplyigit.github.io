@@ -11,11 +11,11 @@
     <link rel="preconnect" href="https://i.gr-assets.com">
     <link rel="preconnect" href="https://wsrv.nl" crossorigin>
     <link rel="dns-prefetch" href="https://wsrv.nl">
-    <!-- Add Playfair Display explicitly for the 'Classical' look -->
+    <!-- Add Playfair Display & JetBrains Mono explicitly for the 'Classical' look -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css?v=3.6">
+    <link rel="stylesheet" href="../assets/css/styles.css?v=3.8">
 </head>
 
 <body>
@@ -47,7 +47,26 @@
         </header>
 
         <section class="section">
-            <h2 class="section-title" style="font-family: 'Playfair Display', serif;">Currently Reading & Backlog</h2>
+            <div class="reading-header-row">
+                <div>
+                    <div class="section-eyebrow">Ex Libris</div>
+                    <h2 class="section-title" id="reading-shelf-heading" style="font-family: 'Playfair Display', serif; margin-bottom: 0;">All Shelves</h2>
+                </div>
+                <div class="reading-shelf-tabs" role="tablist" aria-label="Bookshelf Filter">
+                    <button class="reading-shelf-btn active" role="tab" aria-selected="true" data-shelf="all">
+                        All <span class="shelf-count" id="count-all">0</span>
+                    </button>
+                    <button class="reading-shelf-btn" role="tab" aria-selected="false" data-shelf="currently-reading">
+                        Reading <span class="shelf-count" id="count-reading">0</span>
+                    </button>
+                    <button class="reading-shelf-btn" role="tab" aria-selected="false" data-shelf="to-read">
+                        Want to Read <span class="shelf-count" id="count-toread">0</span>
+                    </button>
+                    <button class="reading-shelf-btn" role="tab" aria-selected="false" data-shelf="read">
+                        Read <span class="shelf-count" id="count-read">0</span>
+                    </button>
+                </div>
+            </div>
             <div id="goodreads-books-container" class="classical-books-grid">
             </div>
         </section>
@@ -66,7 +85,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/reading.js?v=4.3"></script>
+    <script type="module" src="../assets/js/pages/reading.js?v=4.5"></script>
 </body>
 
 

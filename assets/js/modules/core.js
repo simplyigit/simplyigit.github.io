@@ -9,10 +9,19 @@ export const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
 export function initGlobalReveal() {
-    document.querySelectorAll('.glass-card, .section-title, .hero p, .social-tube, .fade-in').forEach(el => {
+    document.querySelectorAll('.glass-card:not(.fade-in), .section-title:not(.fade-in), .hero p:not(.fade-in), .social-tube:not(.fade-in)').forEach(el => {
         el.classList.add('reveal');
         observer.observe(el);
     });
+}
+
+export function safeImg(url, width = 0) {
+    if (!url) return '';
+    if ((url.includes('a.ltrbxd.com') || url.includes('i.gr-assets.com')) && !url.includes('wsrv.nl')) {
+        const wParam = width > 0 ? `&w=${width}` : '';
+        return `https://wsrv.nl/?url=${encodeURIComponent(url)}${wParam}&output=webp`;
+    }
+    return url;
 }
 
 export function initAmbientMesh() {

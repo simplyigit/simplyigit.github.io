@@ -9,14 +9,11 @@
     <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/styles.css?v=3.8">
 </head>
 
 <body>
-    <div class="blob blob-1" style="background: rgba(100, 200, 255, 0.1)"></div>
-    <div class="blob blob-2" style="background: rgba(180, 50, 255, 0.08)"></div>
-
     <div class="container fade-in">
 
         <section class="section"
@@ -30,20 +27,122 @@
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
                     stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
                     <path
-                        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                        d="M9 19c-5 1.5-5-5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
                     </path>
                 </svg>
-                Repository <span class="arrow" style="margin-right: 8px;"></span>→
+                Repository <span class="arrow" style="margin-left: 8px;">→</span>
             </a>
         </section>
 
         <section class="section">
             <div class="list-grid">
                 <div class="glass-card list-card fade-in delay-1"
-                    style="flex-direction: column; align-items: flex-start; gap: 20px;">
-                    <img src="/projects/real-deepfake-or-ai/real-deepfake-or-ai-thumb.png"
-                        style="width: 100%; object-fit: cover; border-radius: 8px; margin-bottom: -15px; margin-top: 8px;"
+                    style="flex-direction: column; align-items: flex-start; gap: 24px;">
+                    <img src="/projects/real-deepfake-or-ai/real-deepfake-or-ai-thumb.webp"
+                        fetchpriority="high"
+                        width="1440" height="810"
+                        style="width: 100%; height: auto; object-fit: cover; border-radius: 10px; margin-top: 4px;"
                         alt="Real, Deepfake or AI">
+
+                    <!-- Interactive Pipeline Demo Sandbox -->
+                    <div class="detector-demo-card" id="detector-demo">
+                        <div class="detector-demo-header">
+                            <div>
+                                <div class="section-eyebrow" style="margin-bottom: 4px;">Interactive Pipeline Sandbox</div>
+                                <h2 class="detector-demo-title">ConvNeXt-Tiny + Calibrated SVM Inspector</h2>
+                            </div>
+                            <span class="detector-accuracy-pill">98.66% Test Acc · 768-D</span>
+                        </div>
+
+                        <!-- Sample Selector & Upload -->
+                        <div class="detector-controls" role="tablist" aria-label="Sample Presets">
+                            <button type="button" class="detector-sample-btn active" data-sample="real" role="tab" aria-selected="true">
+                                <span class="sample-dot dot-real"></span> Sample 1: Real (CelebA)
+                            </button>
+                            <button type="button" class="detector-sample-btn" data-sample="ai" role="tab" aria-selected="false">
+                                <span class="sample-dot dot-ai"></span> Sample 2: AI Synth (Nano-Banana)
+                            </button>
+                            <button type="button" class="detector-sample-btn" data-sample="deepfake" role="tab" aria-selected="false">
+                                <span class="sample-dot dot-df"></span> Sample 3: Deepfake (Face2Face)
+                            </button>
+                            <label class="detector-upload-btn" for="detector-file-input" title="Analyze a local image in your browser">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <span>Test Custom Image</span>
+                                <input type="file" id="detector-file-input" accept="image/*" hidden>
+                            </label>
+                        </div>
+
+                        <!-- Pipeline Stage Flow -->
+                        <div class="detector-pipeline-bar" id="detector-pipeline-bar">
+                            <div class="pipeline-step active" data-step="1">
+                                <span class="step-idx">01</span>
+                                <span class="step-name">Crop 224×224</span>
+                            </div>
+                            <span class="pipeline-arrow">→</span>
+                            <div class="pipeline-step active" data-step="2">
+                                <span class="step-idx">02</span>
+                                <span class="step-name">ConvNeXt-Tiny (768-D)</span>
+                            </div>
+                            <span class="pipeline-arrow">→</span>
+                            <div class="pipeline-step active" data-step="3">
+                                <span class="step-idx">03</span>
+                                <span class="step-name">Calibrated SGD / SVM</span>
+                            </div>
+                        </div>
+
+                        <!-- Main Interactive Grid: Visual Scan + Probabilities & CLI Output -->
+                        <div class="detector-workbench">
+                            <div class="detector-visual-pane">
+                                <div class="detector-canvas-wrap" id="detector-canvas-wrap">
+                                    <canvas id="detector-preview-canvas" width="224" height="224"></canvas>
+                                    <div class="detector-scan-line"></div>
+                                    <div class="detector-hud-tag" id="detector-hud-tag">224×224 RGB · L2 Norm: 18.42</div>
+                                </div>
+                                <div class="detector-embedding-strip" id="detector-embedding-strip" title="768-D Feature Embedding Activation Preview">
+                                </div>
+                            </div>
+
+                            <div class="detector-results-pane">
+                                <div class="detector-verdict-row">
+                                    <div>
+                                        <span class="verdict-eyebrow">PREDICTED CLASS</span>
+                                        <div class="verdict-badge" id="detector-verdict-badge">REAL</div>
+                                    </div>
+                                    <div class="verdict-conf-box">
+                                        <span class="verdict-eyebrow">CONFIDENCE</span>
+                                        <div class="verdict-conf-val" id="detector-verdict-conf">96.4%</div>
+                                    </div>
+                                </div>
+
+                                <div class="detector-bars">
+                                    <div class="prob-row">
+                                        <div class="prob-label-row">
+                                            <span class="prob-name">[0] Real</span>
+                                            <span class="prob-val" id="prob-val-real">96.4%</span>
+                                        </div>
+                                        <div class="prob-track"><div class="prob-fill fill-real" id="prob-bar-real" style="width: 96.4%"></div></div>
+                                    </div>
+                                    <div class="prob-row">
+                                        <div class="prob-label-row">
+                                            <span class="prob-name">[1] AI Fake</span>
+                                            <span class="prob-val" id="prob-val-ai">3.4%</span>
+                                        </div>
+                                        <div class="prob-track"><div class="prob-fill fill-ai" id="prob-bar-ai" style="width: 3.4%"></div></div>
+                                    </div>
+                                    <div class="prob-row">
+                                        <div class="prob-label-row">
+                                            <span class="prob-name">[2] Deepfake</span>
+                                            <span class="prob-val" id="prob-val-df">0.2%</span>
+                                        </div>
+                                        <div class="prob-track"><div class="prob-fill fill-df" id="prob-bar-df" style="width: 0.2%"></div></div>
+                                    </div>
+                                </div>
+
+                                <pre class="detector-cli-box" id="detector-cli-output" aria-live="polite"></pre>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="github-content" style="width: 100%;">
                         <p style="text-align: center; color: var(--text-secondary);">Loading project data from GitHub
                             <span class="loading-dots">...</span>
@@ -58,54 +157,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../../assets/js/pages/project-detail.js?v=4.1"></script>
-    <script>
-        function loadProject() {
-            const repoPath = "simplyigit/Real-Deepfake-or-AI";
-            const repoName = "Real-Deepfake-or-AI";
-            const CACHE_KEY = "simplyigit_project_" + repoName;
-
-            const cachedData = localStorage.getItem(CACHE_KEY);
-            if (cachedData) {
-                document.getElementById("github-content").innerHTML = cachedData;
-            }
-
-            fetch("/api/projects?v=4.1")
-                .then(res => res.json())
-                .then(json => {
-                    if (json.success && json.data) {
-                        let content = json.data[repoPath] || json.data[repoName];
-                        
-                        if (content) {
-                            // Fix relative image paths in GitHub content since we flattened the structure
-                            content = content.replace(/src="images\//g, 'src="');
-                            if (content !== cachedData) {
-                                document.getElementById("github-content").innerHTML = content;
-                                localStorage.setItem(CACHE_KEY, content);
-                            }
-                        } else if (!cachedData) {
-                            console.error("Project keys found in DB:", Object.keys(json.data));
-                            throw new Error("Project not found in database");
-                        }
-                    } else if (!cachedData) {
-                        throw new Error(json.error || "Failed to load database");
-                    }
-                })
-                .catch(err => {
-                    if (!cachedData) {
-                        console.error("Loading error:", err);
-                        document.getElementById("github-content").innerHTML =
-                            `<p style='color: #ff6b6b;'>Could not load project data: ${err.message}. Please verify the database sync.</p>`;
-                    }
-                });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadProject);
-        } else {
-            loadProject();
-        }
-    </script>
+    <script type="module" src="../../assets/js/pages/project-detail.js?v=4.5"></script>
 </body>
 
 </html>

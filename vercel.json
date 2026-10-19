@@ -14,8 +14,12 @@
       "destination": "/library/cinema.html"
     },
     {
+      "source": "/library/reading",
+      "destination": "/library/reading.html"
+    },
+    {
       "source": "/projects/real-deepfake-or-ai",
-      "destination": "/projects/real-deepfake-or-ai.html"
+      "destination": "/projects/real-deepfake-or-ai/index.html"
     }
   ]
 }

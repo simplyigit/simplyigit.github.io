@@ -206,17 +206,17 @@ function initCinema() {
             renderCinemaData(cached);
         }
 
-        // Fast static fetch (<20ms) with seamless API fallback
+        // Edge-cached /api/movies (<20ms SWR) with static snapshot fallback
         const fetchMoviesData = async () => {
             try {
-                const res = await fetch("/data/movies.json");
+                const res = await fetch("/api/movies");
                 if (res.ok) {
                     const json = await res.json();
                     if (json.success && json.data) return json.data;
                 }
             } catch {}
             try {
-                const res = await fetch("/api/movies");
+                const res = await fetch("/data/movies.json");
                 if (res.ok) {
                     const json = await res.json();
                     if (json.success && json.data) return json.data;

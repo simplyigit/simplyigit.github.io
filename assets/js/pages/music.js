@@ -251,18 +251,18 @@ function initMusic() {
         }
     }
 
-    // Fast static fetch (<20ms) with seamless API fallback
+    // Edge-cached /api/spotify (<20ms SWR) with static snapshot fallback
     if (artistsContainer || tracksContainer || albumsContainer) {
         const fetchSpotifyData = async () => {
             try {
-                const res = await fetch("/data/spotify.json");
+                const res = await fetch("/api/spotify");
                 if (res.ok) {
                     const json = await res.json();
                     if (json.success && json.data) return json.data;
                 }
             } catch {}
             try {
-                const res = await fetch("/api/spotify");
+                const res = await fetch("/data/spotify.json");
                 if (res.ok) {
                     const json = await res.json();
                     if (json.success && json.data) return json.data;

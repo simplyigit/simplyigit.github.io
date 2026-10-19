@@ -67,11 +67,11 @@ function loadProjectReadme() {
     };
 
     const fetchProjectData = async () => {
-        // 1. Fast static CDN snapshot (<20ms)
+        // 1. Edge-cached /api/projects (<20ms SWR)
         try {
-            const staticRes = await fetch("/data/projects.json");
-            if (staticRes.ok) {
-                const json = await staticRes.json();
+            const apiRes = await fetch("/api/projects");
+            if (apiRes.ok) {
+                const json = await apiRes.json();
                 if (json.success && json.data) {
                     const content = json.data[repoPath] || json.data[repoName];
                     if (content) return content;
@@ -79,11 +79,11 @@ function loadProjectReadme() {
             }
         } catch {}
 
-        // 2. Serverless API fallback
+        // 2. Static snapshot fallback
         try {
-            const apiRes = await fetch("/api/projects?v=4.2");
-            if (apiRes.ok) {
-                const json = await apiRes.json();
+            const staticRes = await fetch("/data/projects.json");
+            if (staticRes.ok) {
+                const json = await staticRes.json();
                 if (json.success && json.data) {
                     const content = json.data[repoPath] || json.data[repoName];
                     if (content) return content;

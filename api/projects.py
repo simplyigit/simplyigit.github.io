@@ -6,8 +6,8 @@ import time
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # Cache for 1 minute at the edge
-        cache_header = 's-maxage=60, stale-while-revalidate=300'
+        # Cache for 5 min in browser, 1 hour at edge CDN, 24h stale-while-revalidate
+        cache_header = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
         
         try:
             supabase_url = os.environ.get('SUPABASE_URL', '').rstrip('/')

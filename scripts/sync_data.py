@@ -792,6 +792,19 @@ def main():
         if isinstance(spotify_data, dict):
             spotify_data["favorite_albums"] = favorite_albums
 
+    album_years = {
+        'Purple Rain': '1984',
+        'Angel Face (Club Deluxe)': '2023',
+        '5SOS5 (Deluxe)': '2022',
+        'Fine Line': '2019',
+        '4TH WALL': '2023'
+    }
+    if isinstance(spotify_data, dict):
+        for alb in spotify_data.get('favorite_albums', []):
+            y = album_years.get(alb.get('title'), '2023')
+            alb['year'] = y
+            alb['format_tag'] = f'LP · {y}'
+
     data = {
         "spotify": spotify_data,
         "favorite_albums": favorite_albums,
@@ -800,9 +813,10 @@ def main():
         "projects": fetch_projects_data(github_token),
         "last_updated": time.time()
     }
-    
-    print("Exporting static snapshots...")
-    export_static_snapshots(data)
+
+    if os.environ.get("EXPORT_STATIC") == "1" or os.environ.get("GITHUB_ACTIONS") != "true":
+        print("Exporting static snapshots...")
+        export_static_snapshots(data)
 
     print("Uploading to Supabase...")
     # Upsert each section into its own row for better organization
@@ -845,19 +859,6 @@ def export_static_snapshots(data):
         movies = data.get("movies", {})
         books = data.get("books", [])
         projects = data.get("projects", {})
-        
-        album_years = {
-            'Purple Rain': '1984',
-            'Angel Face (Club Deluxe)': '2023',
-            '5SOS5 (Deluxe)': '2022',
-            'Fine Line': '2019',
-            '4TH WALL': '2023'
-        }
-        if isinstance(spotify, dict):
-            for alb in spotify.get('favorite_albums', []):
-                y = album_years.get(alb.get('title'), '2023')
-                alb['year'] = y
-                alb['format_tag'] = f'LP · {y}'
 
         with open(os.path.join(data_dir, "spotify.json"), "w") as f:
             json.dump({"success": True, "data": spotify}, f, indent=2)

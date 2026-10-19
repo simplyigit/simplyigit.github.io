@@ -120,8 +120,15 @@ function initIndex() {
         renderBooks(initialData.books);
         renderMovies(initialData.movies);
 
-        // 2. Fetch fresh data: fast static CDN (<20ms) with seamless API fallback
+        // 2. Fetch fresh data: Edge-cached /api/dashboard (<20ms SWR) with static snapshot fallback
         async function fetchFreshDashboard() {
+            try {
+                const res = await fetch("/api/dashboard");
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && json.data) return json.data;
+                }
+            } catch {}
             try {
                 const res = await fetch("/data/dashboard.json");
                 if (res.ok) {
@@ -129,20 +136,7 @@ function initIndex() {
                     if (json.data) return json.data;
                 }
             } catch {}
-            try {
-                const [s, b, m] = await Promise.all([
-                    fetch("/api/spotify").then(r => r.json()).catch(() => null),
-                    fetch("/api/books").then(r => r.json()).catch(() => null),
-                    fetch("/api/movies").then(r => r.json()).catch(() => null)
-                ]);
-                return {
-                    spotify: s?.data || s,
-                    books: b?.data || b,
-                    movies: m?.data || m
-                };
-            } catch {
-                return null;
-            }
+            return null;
         }
 
         fetchFreshDashboard().then(fresh => {

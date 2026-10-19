@@ -135,17 +135,17 @@ function initReading() {
             renderBooks(booksContainer, useList, currentShelf);
         }
 
-        // Fast static fetch (<20ms) with seamless API fallback
+        // Edge-cached /api/books (<20ms SWR) with static snapshot fallback
         const fetchBooksData = async () => {
             try {
-                const res = await fetch("/data/books.json");
+                const res = await fetch("/api/books");
                 if (res.ok) {
                     const json = await res.json();
                     if (json.success && Array.isArray(json.data)) return json.data;
                 }
             } catch {}
             try {
-                const res = await fetch("/api/books");
+                const res = await fetch("/data/books.json");
                 if (res.ok) {
                     const json = await res.json();
                     if (json.success && Array.isArray(json.data)) return json.data;

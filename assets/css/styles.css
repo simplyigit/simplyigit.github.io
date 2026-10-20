@@ -2956,6 +2956,15 @@ footer p {
     border-color: rgba(255, 255, 255, 0.16);
 }
 
+.detector-upload-btn.is-disabled,
+.detector-upload-btn.is-disabled:hover {
+    opacity: 0.55;
+    cursor: not-allowed;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
 .detector-sample-btn.active {
     color: #fff;
     background: rgba(0, 54, 143, 0.35);

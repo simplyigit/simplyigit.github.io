@@ -65,10 +65,10 @@
                             <button type="button" class="detector-sample-btn" data-sample="deepfake" role="tab" aria-selected="false">
                                 <span class="sample-dot dot-df"></span> Sample 3: Deepfake (Face2Face)
                             </button>
-                            <label class="detector-upload-btn" for="detector-file-input" title="Analyze a local image in your browser">
+                            <label class="detector-upload-btn" id="detector-upload-label" for="detector-file-input" title="Analyze a local image in your browser (.jpg, .jpeg, .png, .webp)">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                <span>Test Custom Image</span>
-                                <input type="file" id="detector-file-input" accept="image/*" hidden>
+                                <span id="detector-upload-text">Test Custom Image</span>
+                                <input type="file" id="detector-file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden>
                             </label>
                         </div>
 

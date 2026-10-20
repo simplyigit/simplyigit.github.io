@@ -41,6 +41,8 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
+    width: 100dvw;
+    height: 100dvh;
     z-index: -2;
     overflow: hidden;
     pointer-events: none;
@@ -1584,16 +1586,6 @@ footer p {
     }
 }
 
-@media (max-width: 600px) {
-    .container {
-        padding: 60px 20px;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-    }
-}
-
 /* Github Markdown Content */
 #github-content {
     line-height: 1.6;
@@ -1990,7 +1982,7 @@ footer p {
     flex-direction: row;
     align-items: stretch;
     width: 100%;
-    height: clamp(84px, 22vw, 160px);
+    height: clamp(100px, 24vw, 160px);
     box-sizing: border-box;
     border-radius: 16px;
     overflow: hidden;
@@ -2375,8 +2367,7 @@ footer p {
     position: absolute;
     top: 0;
     left: 0;
-    width: 360px;
-    /* Made longer for better presence */
+    width: min(360px, 100%);
     height: 1px;
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent);
 }
@@ -2586,20 +2577,20 @@ footer p {
         grid-template-columns: 1fr;
     }
 
-    .top-track-banner {
-        flex-direction: column;
-        text-align: center;
-        padding: 30px;
+    .spotify-track-card.top-track-banner {
         height: auto;
+        min-height: 200px;
+        padding: 20px;
+        gap: 24px;
     }
 
     .top-track-banner .case-art-wrapper {
-        width: 180px;
-        height: 180px;
+        width: 170px;
+        height: 170px;
     }
 
     .top-track-banner .case-title {
-        font-size: 2.2rem;
+        font-size: 2.1rem;
     }
 }
 
@@ -2866,7 +2857,7 @@ footer p {
   .reel-line { flex: 1; height: 1px; background: rgba(255,255,255,0.04); }
 
   /* Horizontal scroll strip */
-  .scroll-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 72px; scrollbar-width: none; -ms-overflow-style: none; }
+  .scroll-strip { display: flex; gap: 10px; overflow-x: auto; padding-top: 10px; padding-bottom: 12px; margin-bottom: 72px; scrollbar-width: none; -ms-overflow-style: none; }
   .scroll-strip::-webkit-scrollbar { display: none; }
   .strip-card { flex: 0 0 auto; width: 108px; height: 162px; position: relative; border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.5s cubic-bezier(0.16,1,0.3,1), border-color 0.5s ease; display: block; text-decoration: none; color: inherit; }
   .strip-card:hover { transform: scale(1.08) translateY(-8px); box-shadow: 0 16px 40px -8px rgba(0,0,0,0.7), 0 0 24px rgba(64,188,244,0.2); border-color: rgba(64,188,244,0.35); z-index: 2; }
@@ -2890,9 +2881,17 @@ footer p {
 /*   INTERACTIVE DETECTOR PIPELINE SANDBOX                  */
 /* ======================================================== */
 .detector-demo-card {
+    display: flex;
     flex-direction: column;
     gap: 20px;
     padding: 28px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .detector-demo-header {
@@ -2969,21 +2968,26 @@ footer p {
     height: 8px;
     border-radius: 50%;
     display: inline-block;
+    flex-shrink: 0;
 }
-.sample-dot.real { background: #10b981; box-shadow: 0 0 8px #10b981; }
-.sample-dot.deepfake { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
-.sample-dot.ai { background: #a855f7; box-shadow: 0 0 8px #a855f7; }
+.sample-dot.real, .sample-dot.dot-real { background: #10b981; box-shadow: 0 0 8px #10b981; }
+.sample-dot.ai, .sample-dot.dot-ai { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+.sample-dot.deepfake, .sample-dot.dot-df { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
 
 .detector-pipeline-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
+    gap: 8px;
     padding: 10px 14px;
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.05);
     overflow-x: auto;
+    scrollbar-width: none;
+}
+.detector-pipeline-bar::-webkit-scrollbar {
+    display: none;
 }
 
 .pipeline-step {
@@ -3026,15 +3030,17 @@ footer p {
 
 .detector-workbench {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 220px minmax(0, 1fr);
     gap: 24px;
     align-items: stretch;
+    min-width: 0;
 }
 
 .detector-visual-pane {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
 }
 
 .detector-canvas-wrap {
@@ -3047,7 +3053,8 @@ footer p {
     background: #050a14;
 }
 
-#detector-canvas {
+#detector-canvas,
+#detector-preview-canvas {
     width: 100%;
     height: 100%;
     display: block;
@@ -3064,7 +3071,8 @@ footer p {
     pointer-events: none;
 }
 
-.detector-scan-line.scanning {
+.detector-scan-line.scanning,
+.detector-canvas-wrap.is-scanning .detector-scan-line {
     animation: scanSweep 0.65s ease-in-out;
 }
 
@@ -3087,6 +3095,9 @@ footer p {
     color: #94a3b8;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .detector-embedding-strip {
@@ -3112,6 +3123,7 @@ footer p {
     flex-direction: column;
     justify-content: space-between;
     gap: 14px;
+    min-width: 0;
 }
 
 .detector-verdict-row {
@@ -3123,19 +3135,28 @@ footer p {
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.025);
     border: 1px solid rgba(255, 255, 255, 0.06);
+    flex-wrap: wrap;
 }
 
-.verdict-label {
+.verdict-label,
+.verdict-eyebrow {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.62rem;
     letter-spacing: 1.5px;
     color: var(--text-secondary);
     margin-bottom: 4px;
+    text-transform: uppercase;
 }
 
-.verdict-value {
+.verdict-conf-box {
+    text-align: right;
+}
+
+.verdict-value,
+.verdict-conf-val {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 1.05rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary);
 }
 
@@ -3145,24 +3166,28 @@ footer p {
     font-weight: 700;
     padding: 6px 12px;
     border-radius: 8px;
+    display: inline-block;
 }
 
-.verdict-badge.real {
+.verdict-badge.real,
+.verdict-badge.verdict-real {
     color: #10b981;
     background: rgba(16, 185, 129, 0.12);
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.verdict-badge.deepfake {
+.verdict-badge.ai,
+.verdict-badge.verdict-ai {
     color: #f59e0b;
     background: rgba(245, 158, 11, 0.12);
     border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-.verdict-badge.ai {
-    color: #c084fc;
-    background: rgba(168, 85, 247, 0.12);
-    border: 1px solid rgba(168, 85, 247, 0.3);
+.verdict-badge.deepfake,
+.verdict-badge.verdict-df {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .detector-bars {
@@ -3177,7 +3202,8 @@ footer p {
     gap: 4px;
 }
 
-.prob-header {
+.prob-header,
+.prob-label-row {
     display: flex;
     justify-content: space-between;
     font-size: 0.78rem;
@@ -3199,19 +3225,23 @@ footer p {
     transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.prob-fill.real { background: linear-gradient(90deg, #059669, #10b981); }
-.prob-fill.deepfake { background: linear-gradient(90deg, #d97706, #f59e0b); }
-.prob-fill.ai { background: linear-gradient(90deg, #7c3aed, #a855f7); }
+.prob-fill.real, .prob-fill.fill-real { background: linear-gradient(90deg, #059669, #10b981); }
+.prob-fill.ai, .prob-fill.fill-ai { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.prob-fill.deepfake, .prob-fill.fill-df { background: linear-gradient(90deg, #dc2626, #ef4444); }
 
 .detector-cli-box {
+    margin: 0;
     padding: 10px 14px;
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.06);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.74rem;
-    line-height: 1.5;
+    font-size: 0.72rem;
+    line-height: 1.45;
     color: #cbd5e1;
+    max-width: 100%;
+    overflow-x: auto;
+    box-sizing: border-box;
 }
 
 .cli-prompt {
@@ -3283,6 +3313,7 @@ footer p {
     border: 1px solid transparent;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    white-space: nowrap;
 }
 
 .lib-nav-item:hover {
@@ -3344,7 +3375,18 @@ footer p {
     .strip-card .poster-overlay,
     .watchlist-card .poster-overlay {
         opacity: 1;
-        background: linear-gradient(to top, rgba(2, 8, 19, 0.92) 0%, rgba(2, 8, 19, 0.25) 55%, transparent 100%);
+        padding: 8px;
+        background: linear-gradient(to top, rgba(2, 8, 19, 0.94) 0%, rgba(2, 8, 19, 0.45) 45%, transparent 100%);
+    }
+
+    .strip-card .overlay-title,
+    .watchlist-card .overlay-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 0.68rem;
+        line-height: 1.2;
     }
 
     .filmstrip-card .overlay-title {
@@ -3357,15 +3399,34 @@ footer p {
 
     .artist-playcount-overlay {
         opacity: 1;
-        background: linear-gradient(to top, rgba(2, 8, 19, 0.85) 0%, rgba(2, 8, 19, 0.2) 50%, transparent 100%);
+        justify-content: flex-end;
+        padding-bottom: 8px;
+        background: linear-gradient(to top, rgba(2, 8, 19, 0.92) 0%, rgba(2, 8, 19, 0.35) 38%, transparent 65%);
+    }
+
+    .artist-playcount-value {
+        font-size: 0.9rem;
+        line-height: 1.1;
+    }
+
+    .artist-playcount-label {
+        font-size: 0.52rem;
+    }
+
+    .cassette-link {
+        --tape-play-state: running;
     }
 
     .cassette-link .spool-inner {
         animation-play-state: running;
     }
 
-    .vhs-link .vhs-spool {
-        animation: spinSpool 8s linear infinite;
+    .vhs-link {
+        --movie-play-state: running;
+    }
+
+    .vhs-link .vhs-filmstrip-track {
+        animation-play-state: running;
     }
 }
 
@@ -3374,7 +3435,7 @@ footer p {
 /* ======================== */
 @media screen and (max-width: 768px) {
     .container {
-        padding: 40px 20px 80px 20px;
+        padding: 36px 20px 72px 20px;
         border-left: none;
         border-right: none;
     }
@@ -3388,16 +3449,6 @@ footer p {
         grid-template-columns: 1fr;
     }
 
-    .detector-workbench {
-        grid-template-columns: 1fr;
-    }
-
-    .detector-canvas-wrap {
-        width: 100%;
-        max-width: 240px;
-        margin: 0 auto;
-    }
-
     .wide-card,
     .full-wide-card {
         grid-column: span 1;
@@ -3408,16 +3459,29 @@ footer p {
 
     .card-visual {
         width: 100%;
+        max-height: 220px;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .card-visual img {
+        max-height: 220px;
+        object-fit: cover;
     }
 
     .card-content {
         align-items: center;
     }
 
-    .glass-card {
+    .glass-card .tags {
+        justify-content: center;
+    }
+
+    .glass-card:not(.back-btn):not(.repo-btn) {
         padding: 20px;
     }
 
+    /* Homepage Hero Pill Symmetry */
     .social-tube.unified-hero-tube {
         padding: 10px 18px 10px 14px !important;
         gap: 16px !important;
@@ -3430,29 +3494,72 @@ footer p {
         font-size: 2rem !important;
     }
 
+    .hero-social-divider {
+        padding-left: 16px !important;
+        gap: 14px !important;
+    }
+
     .avatar-memoji {
         width: 44px !important;
         height: 44px !important;
         min-width: 44px !important;
         transform: scale(1.05) !important;
     }
-    
+
+    /* Homepage Skeuomorphic Library Cards on Mobile */
+    .cassette-link {
+        min-height: 218px;
+    }
+
+    .cassette-window {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    .book-shelf-stage {
+        transform: scale(1.06);
+        transform-origin: center bottom;
+    }
+
+    /* Cinema Filmstrip & Scroll Strips on Mobile */
     .animated-filmstrip-container {
-        margin: 0 -20px;
+        width: calc(100% + 40px);
+        margin: 0 -20px 44px -20px;
         border-radius: 0;
         border-left: none;
         border-right: none;
     }
 
+    .filmstrip-card {
+        height: 170px;
+    }
+
+    .filmstrip-card.landscape {
+        width: 296px;
+    }
+
+    .filmstrip-card.portrait {
+        width: 116px;
+    }
+
+    .scroll-strip {
+        margin-bottom: 40px;
+    }
+
     /* Subpage Hero Responsive Layout */
-    .hero > div {
-        flex-wrap: nowrap !important;
-        gap: 8px;
+    .hero > div:not(.unified-hero-tube) {
+        flex-wrap: wrap !important;
+        gap: 10px;
     }
     .hero h1 {
         font-size: 1.8rem !important;
     }
-    .hero .back-btn, .hero .repo-btn {
+    .hero .back-btn,
+    .hero .repo-btn,
+    .back-btn,
+    .repo-btn {
         padding: 8px 14px !important;
         font-size: 0.85rem !important;
         white-space: nowrap;
@@ -3464,6 +3571,7 @@ footer p {
     /* Library Navigation Dock on Mobile */
     .library-nav-pill {
         width: 100%;
+        max-width: 420px;
         justify-content: center;
         gap: 4px;
     }
@@ -3474,7 +3582,7 @@ footer p {
         justify-content: center;
     }
 
-    /* Music Tab Selector on Mobile */
+    /* Music Tab Selector & Top Track Banner on Mobile */
     .music-selector-wrapper {
         margin: 4px 0 20px 0;
     }
@@ -3497,12 +3605,66 @@ footer p {
         gap: 2px;
     }
     .music-tab-btn {
-        padding: 5px 12px;
+        padding: 6px 13px;
         font-size: 0.78rem;
     }
     .music-pill-divider {
         margin: 0 2px;
         height: 30px;
+    }
+
+    .spotify-track-card.top-track-banner {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        height: auto;
+        min-height: 0;
+        padding: 16px;
+        gap: 16px;
+        border-radius: 20px;
+    }
+
+    .top-track-banner .case-art-wrapper {
+        width: 96px;
+        height: 96px;
+        border-radius: 12px;
+    }
+
+    .top-track-banner .case-info {
+        flex: 1;
+        min-width: 150px;
+        text-align: left;
+    }
+
+    .top-track-banner .case-title {
+        font-size: 1.35rem;
+        margin-bottom: 4px;
+    }
+
+    .top-track-banner .case-artist {
+        font-size: 0.95rem;
+    }
+
+    .top-track-banner .track-ai-lyric {
+        font-size: 0.92rem;
+        margin-top: 10px;
+        padding-top: 10px;
+        max-width: 100%;
+    }
+
+    .top-track-banner .track-stats-pill {
+        margin-top: 10px;
+    }
+
+    .top-track-banner .stats-badge {
+        padding: 4px 10px;
+        font-size: 0.58rem;
+        letter-spacing: 0.9px;
+    }
+
+    .top-track-banner .stats-plays {
+        padding: 0 10px 0 8px;
+        font-size: 0.76rem;
     }
 
     /* Horizontal Scroll for Artists */
@@ -3513,17 +3675,22 @@ footer p {
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
         scroll-snap-type: x mandatory;
-        padding-bottom: 20px !important;
+        padding-bottom: 12px !important;
         gap: 16px !important;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .spotify-artists-grid::-webkit-scrollbar {
+        display: none;
     }
     .spotify-artist-item {
         scroll-snap-align: start;
-        flex: 0 0 120px !important;
-        width: 120px !important;
+        flex: 0 0 116px !important;
+        width: 116px !important;
     }
     .artist-img-wrapper {
-        width: 110px !important;
-        height: 110px !important;
+        width: 108px !important;
+        height: 108px !important;
     }
 
     /* Mobile Album Banners */
@@ -3532,6 +3699,7 @@ footer p {
     }
     .spotify-album-card {
         border-radius: 12px;
+        height: clamp(96px, 24vw, 136px);
     }
     .spotify-album-card .album-vinyl-disc {
         transform: translateX(10px) rotate(0deg);
@@ -3541,5 +3709,238 @@ footer p {
     }
     .spotify-album-card .album-hover-pill {
         display: none;
+    }
+    .album-banner-typo {
+        object-fit: contain;
+        object-position: right center;
+    }
+
+    /* Project Detail & Detector Sandbox on Mobile */
+    .list-card {
+        padding: 16px !important;
+    }
+
+    .detector-demo-card {
+        padding: 16px !important;
+        gap: 16px;
+    }
+
+    .detector-workbench {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .detector-canvas-wrap {
+        width: 100%;
+        max-width: 220px;
+        height: 220px;
+        margin: 0 auto;
+    }
+
+    .detector-sample-btn,
+    .detector-upload-btn {
+        flex: 1 1 calc(50% - 4px);
+        justify-content: center;
+        font-size: 0.78rem;
+        padding: 8px 10px;
+        text-align: center;
+    }
+
+    #github-content h1 {
+        font-size: 1.45rem;
+    }
+
+    #github-content h2 {
+        font-size: 1.2rem;
+    }
+
+    #github-content h3 {
+        font-size: 1.05rem;
+    }
+
+    #github-content code {
+        word-break: break-word;
+    }
+
+    #github-content table {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        font-size: 0.8rem;
+    }
+
+    #github-content th,
+    #github-content td {
+        padding: 8px 10px;
+    }
+}
+
+/* Narrow Tablets & Phones (<= 600px) */
+@media screen and (max-width: 600px) {
+    /* 2-Tier Subpage Header Bar so buttons & title never collide */
+    .hero > div:not(.unified-hero-tube) {
+        display: grid !important;
+        grid-template-columns: auto auto;
+        justify-content: space-between;
+        align-items: center !important;
+        row-gap: 14px;
+        width: 100%;
+    }
+
+    .hero > div:not(.unified-hero-tube) > h1 {
+        grid-column: 1 / -1;
+        order: 2;
+        text-align: center;
+        font-size: 2rem !important;
+        margin-top: 2px !important;
+    }
+
+    /* Reading Page: Single-row scrollable shelf tabs & 2-column bookshelf */
+    .reading-header-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .reading-shelf-tabs {
+        width: 100%;
+        box-sizing: border-box;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: space-between;
+        gap: 3px;
+        padding: 3px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .reading-shelf-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .reading-shelf-btn {
+        flex: 1 0 auto;
+        justify-content: center;
+        gap: 4px;
+        padding: 6px 7px;
+        font-size: 0.71rem;
+        white-space: nowrap;
+    }
+
+    .shelf-count {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+    }
+
+    .classical-books-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .classical-book-card {
+        padding: 14px 10px 16px 10px !important;
+        gap: 10px;
+    }
+
+    .classical-book-top-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .classical-shelf-badge {
+        font-size: 0.56rem;
+        padding: 2px 6px;
+    }
+
+    .classical-book-meta {
+        font-size: 0.6rem;
+    }
+
+    .classical-book-cover {
+        width: 92px;
+        height: 138px;
+    }
+
+    .classical-book-title {
+        font-size: 0.92rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .classical-book-author {
+        font-size: 0.78rem;
+    }
+}
+
+/* Compact Phones (<= 480px) */
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 28px 16px 64px 16px;
+    }
+
+    .animated-filmstrip-container {
+        width: calc(100% + 32px);
+        margin: 0 -16px 36px -16px;
+    }
+
+    /* Compact Track Cards (#1-#5) so song titles & stats pills have ample breathing room */
+    .spotify-track-card.top-track-banner {
+        padding: 14px;
+        gap: 14px;
+    }
+
+    .top-track-banner .case-art-wrapper {
+        width: 88px;
+        height: 88px;
+    }
+
+    .top-track-banner .stats-badge {
+        padding: 4px 8px;
+        font-size: 0.55rem;
+        letter-spacing: 0.7px;
+    }
+
+    .top-track-banner .stats-plays {
+        padding: 0 9px 0 7px;
+        font-size: 0.73rem;
+    }
+
+    .spotify-track-card.grid-track {
+        height: 92px;
+        gap: 14px;
+        padding: 0 14px 0 0;
+        border-radius: 16px;
+    }
+
+    .grid-track .case-art-wrapper {
+        width: 92px;
+        height: 92px;
+    }
+
+    .grid-track .case-title {
+        font-size: 1rem;
+    }
+
+    .grid-track .case-artist {
+        font-size: 0.85rem;
+    }
+
+    .grid-track .stats-badge {
+        padding: 4px 10px;
+        font-size: 0.6rem;
+    }
+
+    .grid-track .stats-plays {
+        padding: 0 10px 0 8px;
+        font-size: 0.75rem;
+    }
+
+    .detector-sample-btn,
+    .detector-upload-btn {
+        flex: 1 1 100%;
     }
 }

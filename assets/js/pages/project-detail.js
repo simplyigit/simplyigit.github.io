@@ -37,6 +37,10 @@ function sanitizeProjectHtml(html) {
     if (!html) return '';
     return html
         .replace(/src="images\//g, 'src="')
+        .replace(
+            /<td[^>]*>\\multicolumn\{(\d+)\}\{[a-z]\}\{(.*?)\}<\/td>(?:\s*<td[^>]*><\/td>){0,4}/gi,
+            '<td colspan="$1" style="text-align: center;">$2</td>'
+        )
         .replace(/\\multicolumn\{\d+\}\{[a-z]\}\{\*\*(.*?)\*\*\s*(.*?)\}/g, '<strong>$1</strong> $2')
         .replace(/\\multicolumn\{\d+\}\{[a-z]\}\{(.*?)\}/g, '$1');
 }

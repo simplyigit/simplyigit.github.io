@@ -94,7 +94,10 @@ export function initAmbientMesh() {
 }
 
 export function initGlassParallax() {
-    const cards = document.querySelectorAll('.glass-card');
+    // Only apply 3D cursor tilt on devices with hover and a fine pointer
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    const cards = document.querySelectorAll('.glass-card:not(.list-card)');
     cards.forEach(card => {
         if (card.dataset.parallaxInitialized) return;
         card.dataset.parallaxInitialized = "true";

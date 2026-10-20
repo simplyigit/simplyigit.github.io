@@ -173,12 +173,11 @@ function renderTracks(container, trackList) {
         container.innerHTML = `<p style="color: var(--text-secondary);">No top tracks recorded.</p>`;
         return;
     }
-    const isMobile = window.innerWidth <= 768;
     container.innerHTML = list.map((track, index) => {
         const isTopCard = index === 0;
-        const isTopStyle = isTopCard && !isMobile;
+        const isTopStyle = isTopCard;
         
-        const rankTag = !isTopCard ? `<span class="stats-badge">#${index + 1}</span>` : `<span class="stats-badge">#1${isMobile ? '' : ' THIS MONTH'}</span>`;
+        const rankTag = !isTopCard ? `<span class="stats-badge">#${index + 1}</span>` : `<span class="stats-badge">#1 THIS MONTH</span>`;
         let lyricHtml = '';
         if (isTopStyle && track.ai_lyrics) {
             const lyrics = [track.ai_lyrics.lyric1, track.ai_lyrics.lyric2, track.ai_lyrics.lyric3].filter(Boolean);
@@ -209,7 +208,7 @@ function renderTracks(container, trackList) {
     list.forEach((track, index) => {
         if (track.prominent_color) {
             const [R, G, B] = track.prominent_color;
-            const isTopStyle = index === 0 && window.innerWidth > 768;
+            const isTopStyle = index === 0;
             const card = document.getElementById(`track-card-${index}`);
             if (card) {
                 card.style.setProperty('--track-color-rgb', `${R}, ${G}, ${B}`);

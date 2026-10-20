@@ -44,26 +44,22 @@
                         style="width: 100%; height: auto; object-fit: cover; border-radius: 10px; margin-top: 4px;"
                         alt="Real, Deepfake or AI">
 
-                    <!-- Interactive Pipeline Demo Sandbox -->
+                    <!-- Interactive Sandbox -->
                     <div class="detector-demo-card" id="detector-demo">
                         <div class="detector-demo-header">
-                            <div>
-                                <div class="section-eyebrow" style="margin-bottom: 4px;">Interactive Pipeline Sandbox</div>
-                                <h2 class="detector-demo-title">ConvNeXt-Tiny + Calibrated SVM Inspector</h2>
-                            </div>
-                            <span class="detector-accuracy-pill">98.66% Test Acc · 768-D</span>
+                            <h2 class="detector-demo-title">Interactive Sandbox</h2>
                         </div>
 
                         <!-- Sample Selector & Upload -->
                         <div class="detector-controls" role="tablist" aria-label="Sample Presets">
-                            <button type="button" class="detector-sample-btn active" data-sample="real" role="tab" aria-selected="true">
-                                <span class="sample-dot dot-real"></span> Sample 1: Real (CelebA)
+                            <button type="button" class="detector-sample-btn sample-btn-real active" data-sample="real" role="tab" aria-selected="true">
+                                Real
                             </button>
-                            <button type="button" class="detector-sample-btn" data-sample="ai" role="tab" aria-selected="false">
-                                <span class="sample-dot dot-ai"></span> Sample 2: AI Synth (Nano-Banana)
+                            <button type="button" class="detector-sample-btn sample-btn-ai" data-sample="ai" role="tab" aria-selected="false">
+                                AI Synth
                             </button>
-                            <button type="button" class="detector-sample-btn" data-sample="deepfake" role="tab" aria-selected="false">
-                                <span class="sample-dot dot-df"></span> Sample 3: Deepfake (Face2Face)
+                            <button type="button" class="detector-sample-btn sample-btn-df" data-sample="deepfake" role="tab" aria-selected="false">
+                                Deepfake
                             </button>
                             <label class="detector-upload-btn" id="detector-upload-label" for="detector-file-input" title="Analyze a local image in your browser (.jpg, .jpeg, .png, .webp)">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -72,43 +68,22 @@
                             </label>
                         </div>
 
-                        <!-- Pipeline Stage Flow -->
-                        <div class="detector-pipeline-bar" id="detector-pipeline-bar">
-                            <div class="pipeline-step active" data-step="1">
-                                <span class="step-idx">01</span>
-                                <span class="step-name">Crop 224×224</span>
-                            </div>
-                            <span class="pipeline-arrow">→</span>
-                            <div class="pipeline-step active" data-step="2">
-                                <span class="step-idx">02</span>
-                                <span class="step-name">ConvNeXt-Tiny (768-D)</span>
-                            </div>
-                            <span class="pipeline-arrow">→</span>
-                            <div class="pipeline-step active" data-step="3">
-                                <span class="step-idx">03</span>
-                                <span class="step-name">Calibrated SGD / SVM</span>
-                            </div>
-                        </div>
-
-                        <!-- Main Interactive Grid: Visual Scan + Probabilities & CLI Output -->
+                        <!-- Main Interactive Grid: Visual Scan + Probabilities -->
                         <div class="detector-workbench">
                             <div class="detector-visual-pane">
                                 <div class="detector-canvas-wrap" id="detector-canvas-wrap">
                                     <canvas id="detector-preview-canvas" width="224" height="224"></canvas>
                                     <div class="detector-scan-line"></div>
-                                    <div class="detector-hud-tag" id="detector-hud-tag">224×224 RGB · L2 Norm: 18.42</div>
-                                </div>
-                                <div class="detector-embedding-strip" id="detector-embedding-strip" title="768-D Feature Embedding Activation Preview">
                                 </div>
                             </div>
 
                             <div class="detector-results-pane">
                                 <div class="detector-verdict-row">
-                                    <div>
-                                        <span class="verdict-eyebrow">PREDICTED CLASS</span>
+                                    <div class="verdict-inline-group">
+                                        <span class="verdict-eyebrow">CLASS</span>
                                         <div class="verdict-badge" id="detector-verdict-badge">REAL</div>
                                     </div>
-                                    <div class="verdict-conf-box">
+                                    <div class="verdict-inline-group">
                                         <span class="verdict-eyebrow">CONFIDENCE</span>
                                         <div class="verdict-conf-val" id="detector-verdict-conf">96.4%</div>
                                     </div>
@@ -138,7 +113,7 @@
                                     </div>
                                 </div>
 
-                                <pre class="detector-cli-box" id="detector-cli-output" aria-live="polite"></pre>
+                                <div class="detector-status-msg" id="detector-status-msg" aria-live="polite" hidden></div>
                             </div>
                         </div>
                     </div>

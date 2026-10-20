@@ -107,25 +107,6 @@ function loadProjectReadme() {
     });
 }
 
-function formatCliOutput(fileName, prediction, confidence, probs) {
-    const makeBar = (pct) => '#'.repeat(Math.round((pct / 100) * 20));
-    const padPct = (n) => n.toFixed(1).padStart(5, ' ') + '%';
-    return [
-        "=============================================",
-        "           PREDICTION RESULTS",
-        "=============================================",
-        `File:       ${fileName}`,
-        `Prediction: ${prediction}`,
-        `Confidence: ${confidence.toFixed(1)}%`,
-        "",
-        "Class Probabilities:",
-        `  [0] Real       : ${padPct(probs.real)}  ${makeBar(probs.real)}`,
-        `  [1] AI Fake    : ${padPct(probs.ai)}  ${makeBar(probs.ai)}`,
-        `  [2] Deepfake   : ${padPct(probs.df)}  ${makeBar(probs.df)}`,
-        "============================================="
-    ].join("\n");
-}
-
 function drawPresetSample(canvas, type, preset) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -245,39 +226,6 @@ function drawPresetSample(canvas, type, preset) {
     ctx.beginPath(); ctx.moveTo(w - m - len, h - m); ctx.lineTo(w - m, h - m); ctx.lineTo(w - m, h - m - len); ctx.stroke();
 
     ctx.restore();
-}
-
-function renderEmbeddingStrip(container, seed, color, embedding = null) {
-    if (!container) return;
-    const bars = 32;
-    let html = '';
-
-    if (embedding && embedding.length === 768) {
-        const chunkSize = 768 / bars; // 24 dims per bar
-        const bucketMeans = new Float32Array(bars);
-        let maxBucket = 1e-6;
-        for (let b = 0; b < bars; b++) {
-            let sum = 0;
-            const start = b * chunkSize;
-            for (let j = 0; j < chunkSize; j++) {
-                sum += Math.abs(embedding[start + j]);
-            }
-            bucketMeans[b] = sum / chunkSize;
-            if (bucketMeans[b] > maxBucket) maxBucket = bucketMeans[b];
-        }
-        for (let i = 0; i < bars; i++) {
-            const normVal = bucketMeans[i] / maxBucket;
-            const pct = Math.max(15, Math.min(100, Math.round(normVal * 100)));
-            html += `<span class="emb-bar" style="height:${pct}%; background:${color}; opacity:${(0.35 + normVal * 0.65).toFixed(2)}"></span>`;
-        }
-    } else {
-        for (let i = 0; i < bars; i++) {
-            const val = Math.abs(Math.sin(seed * 1.7 + i * 0.65) * Math.cos(seed * 0.4 + i * 0.23));
-            const pct = Math.max(15, Math.min(100, Math.round(val * 100)));
-            html += `<span class="emb-bar" style="height:${pct}%; background:${color}; opacity:${(0.35 + val * 0.65).toFixed(2)}"></span>`;
-        }
-    }
-    container.innerHTML = html;
 }
 
 // --- Client-Side Security, File Validation & Upload Rate Limiter ---
@@ -608,8 +556,6 @@ function initDetectorDemo() {
 
     const canvas = document.getElementById('detector-preview-canvas');
     const canvasWrap = document.getElementById('detector-canvas-wrap');
-    const hudTag = document.getElementById('detector-hud-tag');
-    const embStrip = document.getElementById('detector-embedding-strip');
     const verdictBadge = document.getElementById('detector-verdict-badge');
     const verdictConf = document.getElementById('detector-verdict-conf');
     const probValReal = document.getElementById('prob-val-real');
@@ -618,7 +564,7 @@ function initDetectorDemo() {
     const probBarReal = document.getElementById('prob-bar-real');
     const probBarAi = document.getElementById('prob-bar-ai');
     const probBarDf = document.getElementById('prob-bar-df');
-    const cliOutput = document.getElementById('detector-cli-output');
+    const statusMsg = document.getElementById('detector-status-msg');
     const sampleBtns = demoCard.querySelectorAll('.detector-sample-btn');
     const fileInput = document.getElementById('detector-file-input');
     const uploadLabel = document.getElementById('detector-upload-label');
@@ -638,6 +584,19 @@ function initDetectorDemo() {
         if (uploadText && labelText) {
             uploadText.textContent = labelText;
         }
+    };
+
+    const showStatus = (message, isError = false) => {
+        if (!statusMsg) return;
+        if (!message) {
+            statusMsg.hidden = true;
+            statusMsg.textContent = '';
+            statusMsg.classList.remove('is-error');
+            return;
+        }
+        statusMsg.hidden = false;
+        statusMsg.classList.toggle('is-error', isError);
+        statusMsg.textContent = message;
     };
 
     const startCooldownCountdown = (durationMs, prefix = 'Cooldown') => {
@@ -660,20 +619,7 @@ function initDetectorDemo() {
         cooldownTimer = setInterval(tick, 250);
     };
 
-    const showCliNotice = (header, message) => {
-        if (!cliOutput) return;
-        cliOutput.textContent = [
-            "=============================================",
-            `           ${header}`,
-            "=============================================",
-            message,
-            "Allowed:    .jpg, .jpeg, .png, .webp (<= 10 MB)",
-            `Rate Limit: Max ${RL_MAX_UPLOADS} uploads / 60s (${RL_COOLDOWN_MS / 1000}s cooldown)`,
-            "============================================="
-        ].join("\n");
-    };
-
-    const updateUI = ({ file, prediction, badgeClass, probs, l2Norm, seed, color, embedding = null }) => {
+    const updateUI = ({ prediction, badgeClass, probs }) => {
         if (canvasWrap) {
             canvasWrap.classList.remove('is-scanning');
             void canvasWrap.offsetWidth;
@@ -681,7 +627,6 @@ function initDetectorDemo() {
         }
 
         const maxConf = Math.max(probs.real, probs.ai, probs.df);
-        if (hudTag) hudTag.textContent = `224×224 RGB · L2 Norm: ${l2Norm}`;
         if (verdictBadge) {
             verdictBadge.textContent = prediction;
             verdictBadge.className = `verdict-badge ${badgeClass}`;
@@ -695,17 +640,12 @@ function initDetectorDemo() {
         if (probBarReal) probBarReal.style.width = `${probs.real}%`;
         if (probBarAi) probBarAi.style.width = `${probs.ai}%`;
         if (probBarDf) probBarDf.style.width = `${probs.df}%`;
-
-        renderEmbeddingStrip(embStrip, seed, color, embedding);
-
-        if (cliOutput) {
-            cliOutput.textContent = formatCliOutput(file, prediction, maxConf, probs);
-        }
     };
 
     const selectPreset = (key) => {
         const preset = PRESET_SAMPLES[key];
         if (!preset) return;
+        showStatus('');
         sampleBtns.forEach(btn => {
             const active = btn.getAttribute('data-sample') === key;
             btn.classList.toggle('active', active);
@@ -713,13 +653,9 @@ function initDetectorDemo() {
         });
         drawPresetSample(canvas, key, preset);
         updateUI({
-            file: preset.file,
             prediction: preset.prediction,
             badgeClass: preset.badgeClass,
-            probs: preset.probs,
-            l2Norm: preset.l2Norm,
-            seed: preset.seed,
-            color: preset.palette[0]
+            probs: preset.probs
         });
     };
 
@@ -740,7 +676,7 @@ function initDetectorDemo() {
             const rl = checkRateLimit();
             if (!rl.allowed) {
                 e.preventDefault();
-                showCliNotice('RATE LIMIT ACTIVE', rl.reason);
+                showStatus(rl.reason, true);
                 startCooldownCountdown(rl.waitMs, 'Rate Limited');
             }
         });
@@ -756,19 +692,20 @@ function initDetectorDemo() {
 
             const rl = checkRateLimit();
             if (!rl.allowed) {
-                showCliNotice('RATE LIMIT ACTIVE', rl.reason);
+                showStatus(rl.reason, true);
                 startCooldownCountdown(rl.waitMs, 'Rate Limited');
                 return;
             }
 
             const validation = await validateImageFile(file);
             if (!validation.valid) {
-                showCliNotice('SECURITY VALIDATION FAILED', validation.error);
+                showStatus(validation.error, true);
                 return;
             }
 
             isInferring = true;
             setUploadButtonState(true, 'Analyzing...');
+            showStatus('Preparing image...');
 
             const objUrl = URL.createObjectURL(file);
             const img = new Image();
@@ -781,9 +718,9 @@ function initDetectorDemo() {
                 if (natW > MAX_DIMENSION || natH > MAX_DIMENSION || natW < MIN_DIMENSION || natH < MIN_DIMENSION) {
                     isInferring = false;
                     setUploadButtonState(false, 'Test Custom Image');
-                    showCliNotice(
-                        'SECURITY VALIDATION FAILED',
-                        `Image dimensions (${natW}×${natH}) outside allowed range (${MIN_DIMENSION}px–${MAX_DIMENSION}px).`
+                    showStatus(
+                        `Image dimensions (${natW}×${natH}) outside allowed range (${MIN_DIMENSION}px–${MAX_DIMENSION}px).`,
+                        true
                     );
                     return;
                 }
@@ -797,17 +734,13 @@ function initDetectorDemo() {
                 });
 
                 try {
-                    const safeName = sanitizeFileName(file.name);
                     const res = await runRealModelOnCanvas(img, canvas, (statusText) => {
-                        if (hudTag) hudTag.textContent = statusText;
-                        if (cliOutput) cliOutput.textContent = `[ONNX Runtime Web] ${statusText}`;
+                        showStatus(statusText, false);
                     });
-                    updateUI({
-                        file: `local/${safeName}`,
-                        ...res
-                    });
+                    showStatus('');
+                    updateUI(res);
                 } catch (err) {
-                    showCliNotice('INFERENCE ERROR', err?.message || 'Failed to run ConvNeXt-Tiny ONNX model.');
+                    showStatus(err?.message || 'Failed to run ConvNeXt-Tiny ONNX model.', true);
                 } finally {
                     isInferring = false;
                     const postRl = checkRateLimit();
@@ -823,7 +756,7 @@ function initDetectorDemo() {
                 URL.revokeObjectURL(objUrl);
                 isInferring = false;
                 setUploadButtonState(false, 'Test Custom Image');
-                showCliNotice('SECURITY VALIDATION FAILED', 'Browser failed to decode image payload.');
+                showStatus('Browser failed to decode image payload.', true);
             };
 
             img.src = objUrl;

@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/styles.css?v=3.8">
+    <link rel="stylesheet" href="../../assets/css/styles.css?v=6.0">
 </head>
 
 <body>
@@ -48,24 +48,22 @@
                     <div class="detector-demo-card" id="detector-demo">
                         <div class="detector-demo-header">
                             <h2 class="detector-demo-title">Interactive Sandbox</h2>
-                        </div>
-
-                        <!-- Sample Selector & Upload -->
-                        <div class="detector-controls" role="tablist" aria-label="Sample Presets">
-                            <button type="button" class="detector-sample-btn sample-btn-real active" data-sample="real" role="tab" aria-selected="true">
-                                Real
-                            </button>
-                            <button type="button" class="detector-sample-btn sample-btn-ai" data-sample="ai" role="tab" aria-selected="false">
-                                AI Synth
-                            </button>
-                            <button type="button" class="detector-sample-btn sample-btn-df" data-sample="deepfake" role="tab" aria-selected="false">
-                                Deepfake
-                            </button>
-                            <label class="detector-upload-btn" id="detector-upload-label" for="detector-file-input" title="Analyze a local image in your browser (.jpg, .jpeg, .png, .webp)">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                <span id="detector-upload-text">Test Custom Image</span>
-                                <input type="file" id="detector-file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden>
-                            </label>
+                            <div class="detector-controls" role="tablist" aria-label="Sample Presets">
+                                <button type="button" class="detector-sample-btn sample-btn-real active" data-sample="real" role="tab" aria-selected="true">
+                                    Real
+                                </button>
+                                <button type="button" class="detector-sample-btn sample-btn-ai" data-sample="ai" role="tab" aria-selected="false">
+                                    AI Synth
+                                </button>
+                                <button type="button" class="detector-sample-btn sample-btn-df" data-sample="deepfake" role="tab" aria-selected="false">
+                                    Deepfake
+                                </button>
+                                <label class="detector-upload-btn" id="detector-upload-label" for="detector-file-input" title="Analyze a local image in your browser (.jpg, .jpeg, .png, .webp)">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <span id="detector-upload-text">Test Custom Image</span>
+                                    <input type="file" id="detector-file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Main Interactive Grid: Visual Scan + Probabilities -->
@@ -132,7 +130,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../../assets/js/pages/project-detail.js?v=4.5"></script>
+    <script type="module" src="../../assets/js/pages/project-detail.js?v=6.0"></script>
 </body>
 
 </html>

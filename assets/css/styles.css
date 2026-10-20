@@ -2883,8 +2883,8 @@ footer p {
 .detector-demo-card {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 28px;
+    gap: 18px;
+    padding: 20px 24px;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -2897,20 +2897,23 @@ footer p {
 .detector-demo-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
+    align-items: center;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .detector-demo-title {
-    margin: 0;
-    font-size: 1.25rem;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2;
+    font-size: 1.18rem;
     font-weight: 600;
     color: var(--text-primary);
 }
 
 .detector-controls {
     display: flex;
+    align-items: center;
     gap: 8px;
     flex-wrap: wrap;
 }
@@ -2921,22 +2924,22 @@ footer p {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 7px 14px;
-    border-radius: 10px;
+    padding: 6px 13px;
+    border-radius: 9px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--text-secondary);
     font-family: 'Inter', -apple-system, sans-serif;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .detector-upload-btn:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 .detector-upload-btn.is-disabled,
@@ -2948,18 +2951,25 @@ footer p {
     border-color: rgba(255, 255, 255, 0.06);
 }
 
-/* Colored outlines for class sample buttons */
+/* Colored outlines & hover/active states for class sample buttons */
 .detector-sample-btn[data-sample="real"],
 .detector-sample-btn.sample-btn-real {
     border-color: rgba(16, 185, 129, 0.45);
     color: rgba(209, 250, 229, 0.85);
 }
 .detector-sample-btn[data-sample="real"]:hover,
-.detector-sample-btn[data-sample="real"].active {
+.detector-sample-btn.sample-btn-real:hover {
     color: #ecfdf5;
     background: rgba(16, 185, 129, 0.14);
+    border-color: #34d399;
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.22);
+}
+.detector-sample-btn[data-sample="real"].active,
+.detector-sample-btn.sample-btn-real.active {
+    color: #ecfdf5;
+    background: rgba(16, 185, 129, 0.2);
     border-color: #10b981;
-    box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+    box-shadow: 0 0 18px rgba(16, 185, 129, 0.32);
 }
 
 .detector-sample-btn[data-sample="ai"],
@@ -2968,11 +2978,18 @@ footer p {
     color: rgba(254, 243, 199, 0.85);
 }
 .detector-sample-btn[data-sample="ai"]:hover,
-.detector-sample-btn[data-sample="ai"].active {
+.detector-sample-btn.sample-btn-ai:hover {
     color: #fffbeb;
     background: rgba(245, 158, 11, 0.14);
+    border-color: #fbbf24;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.22);
+}
+.detector-sample-btn[data-sample="ai"].active,
+.detector-sample-btn.sample-btn-ai.active {
+    color: #fffbeb;
+    background: rgba(245, 158, 11, 0.2);
     border-color: #f59e0b;
-    box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.32);
 }
 
 .detector-sample-btn[data-sample="deepfake"],
@@ -2981,11 +2998,18 @@ footer p {
     color: rgba(254, 226, 226, 0.85);
 }
 .detector-sample-btn[data-sample="deepfake"]:hover,
-.detector-sample-btn[data-sample="deepfake"].active {
+.detector-sample-btn.sample-btn-df:hover {
     color: #fef2f2;
     background: rgba(239, 68, 68, 0.14);
+    border-color: #f87171;
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.22);
+}
+.detector-sample-btn[data-sample="deepfake"].active,
+.detector-sample-btn.sample-btn-df.active {
+    color: #fef2f2;
+    background: rgba(239, 68, 68, 0.2);
     border-color: #ef4444;
-    box-shadow: 0 0 16px rgba(239, 68, 68, 0.25);
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.32);
 }
 
 .detector-workbench {
@@ -3644,7 +3668,15 @@ footer p {
 
     .detector-demo-card {
         padding: 16px !important;
-        gap: 16px;
+        gap: 14px;
+    }
+
+    .detector-demo-header {
+        gap: 10px;
+    }
+
+    .detector-controls {
+        width: 100%;
     }
 
     .detector-workbench {

@@ -3904,3 +3904,89 @@ footer p {
         flex: 1 1 100%;
     }
 }
+
+/* ==========================================================================
+   Zero-Flicker Data Sync & View Transition Morphing
+   ========================================================================== */
+
+.morph-settled .fade-in,
+.morph-settled.fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+::view-transition-group(*) {
+    animation-duration: 440ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(*),
+::view-transition-new(*) {
+    animation-duration: 360ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    mix-blend-mode: normal;
+}
+
+.data-morph-out {
+    opacity: 0.18 !important;
+    filter: blur(6px);
+    transform: scale(0.985) translateY(3px);
+    transition:
+        opacity 170ms cubic-bezier(0.4, 0, 1, 1),
+        filter 170ms cubic-bezier(0.4, 0, 1, 1),
+        transform 170ms cubic-bezier(0.4, 0, 1, 1) !important;
+    pointer-events: none;
+}
+
+.data-morph-in {
+    animation: dataMorphIn 440ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dataMorphIn {
+    0% {
+        opacity: 0.18;
+        filter: blur(6px);
+        transform: scale(0.985) translateY(-3px);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0px);
+        transform: scale(1) translateY(0);
+    }
+}
+
+.text-morph-out {
+    opacity: 0 !important;
+    filter: blur(3px);
+    transform: translateY(3px) scale(0.96);
+    transition:
+        opacity 135ms ease-in,
+        filter 135ms ease-in,
+        transform 135ms ease-in !important;
+}
+
+.text-morph-in {
+    animation: textMorphIn 340ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes textMorphIn {
+    0% {
+        opacity: 0;
+        filter: blur(3px);
+        transform: translateY(-3px) scale(1.04);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0px);
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation-duration: 0.01ms !important;
+    }
+}

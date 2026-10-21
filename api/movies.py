@@ -1,13 +1,13 @@
 from http.server import BaseHTTPRequestHandler
 import json
 import os
-import requests
 import time
+import urllib.request
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # Cache for 5 min in browser, 1 hour at edge CDN, 24h stale-while-revalidate
-        cache_header = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+        # Cache for 60s in browser, 10 min fresh at edge CDN, 24h stale-while-revalidate
+        cache_header = 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400'
         
         try:
             supabase_url = os.environ.get('SUPABASE_URL', '').rstrip('/')
@@ -16,20 +16,19 @@ class handler(BaseHTTPRequestHandler):
             if not supabase_url or not supabase_key:
                 raise ValueError("Missing SUPABASE credentials")
 
-            # Fetch from Supabase REST API
-            res = requests.get(
+            # Fetch from Supabase REST API using stdlib urllib
+            req = urllib.request.Request(
                 f"{supabase_url}/rest/v1/portfolio_data?key=eq.movies&select=value",
                 headers={
                     "apikey": supabase_key,
-                    "Authorization": f"Bearer {supabase_key}"
-                },
-                timeout=5
+                    "Authorization": f"Bearer {supabase_key}",
+                    "Accept": "application/json"
+                }
             )
-            
-            if res.status_code != 200:
-                raise Exception(f"Supabase Error {res.status_code}: {res.text}")
-                
-            rows = res.json()
+            with urllib.request.urlopen(req, timeout=5) as res:
+                if res.status != 200:
+                    raise Exception(f"Supabase Error {res.status}")
+                rows = json.loads(res.read().decode('utf-8'))
             if not rows:
                 movies_data = {}
             else:

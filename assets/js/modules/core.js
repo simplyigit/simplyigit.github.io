@@ -133,3 +133,119 @@ export function initGlassParallax() {
     });
 }
 
+// --- Zero-Flicker Preload & Smooth Morph Utilities ---
+
+export function toTransitionSlug(prefix, raw) {
+    const clean = String(raw || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 36);
+    return clean ? `vt-${prefix}-${clean}` : '';
+}
+
+export async function preloadImages(urls = [], timeoutMs = 2200) {
+    const unique = [...new Set((urls || []).filter(Boolean))];
+    if (unique.length === 0) return;
+
+    const decodeOne = (url) => new Promise((resolve) => {
+        const img = new Image();
+        img.decoding = 'async';
+        const done = () => resolve();
+        img.onload = () => {
+            if (typeof img.decode === 'function') {
+                img.decode().then(done).catch(done);
+            } else {
+                done();
+            }
+        };
+        img.onerror = done;
+        img.src = url;
+    });
+
+    await Promise.race([
+        Promise.all(unique.map(decodeOne)),
+        new Promise(resolve => setTimeout(resolve, timeoutMs))
+    ]);
+}
+
+export async function awaitFastPrefetch(fetchPromise, maxWaitMs = 65) {
+    if (!fetchPromise) return null;
+    try {
+        const winner = await Promise.race([
+            fetchPromise.then(val => ({ resolved: true, val })).catch(() => ({ resolved: true, val: null })),
+            new Promise(resolve => setTimeout(() => resolve({ resolved: false, val: null }), maxWaitMs))
+        ]);
+        return winner.resolved ? winner.val : null;
+    } catch {
+        return null;
+    }
+}
+
+let activeViewTransition = false;
+
+export async function smoothMorph(targetEl, updateFn, imageUrls = []) {
+    if (!targetEl) {
+        updateFn();
+        return;
+    }
+
+    // 1. Pre-decode all new images offscreen BEFORE touching the DOM
+    if (imageUrls && imageUrls.length > 0) {
+        await preloadImages(imageUrls);
+    }
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    targetEl.classList.add('morph-settled');
+    if (reducedMotion || document.hidden) {
+        updateFn();
+        return;
+    }
+
+    // 2. Use View Transitions API when available and not already running a transition
+    if (typeof document.startViewTransition === 'function' && !activeViewTransition) {
+        activeViewTransition = true;
+        targetEl.classList.add('vt-morph-scope');
+        try {
+            const vt = document.startViewTransition(() => {
+                updateFn();
+            });
+            await vt.finished;
+        } catch {
+            updateFn();
+        } finally {
+            targetEl.classList.remove('vt-morph-scope');
+            activeViewTransition = false;
+        }
+        return;
+    }
+
+    // 3. Compositor blur-scale morph fallback (also used when multiple sections update simultaneously)
+    targetEl.classList.remove('data-morph-in');
+    targetEl.classList.add('data-morph-out');
+    await new Promise(resolve => setTimeout(resolve, 170));
+    updateFn();
+    void targetEl.offsetWidth;
+    targetEl.classList.remove('data-morph-out');
+    targetEl.classList.add('data-morph-in');
+    setTimeout(() => {
+        targetEl.classList.remove('data-morph-in');
+    }, 460);
+}
+
+export function morphText(el, newText) {
+    if (!el || el.textContent === String(newText)) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.textContent = newText;
+        return;
+    }
+    el.classList.remove('text-morph-in');
+    el.classList.add('text-morph-out');
+    setTimeout(() => {
+        el.textContent = newText;
+        el.classList.remove('text-morph-out');
+        el.classList.add('text-morph-in');
+        setTimeout(() => el.classList.remove('text-morph-in'), 360);
+    }, 140);
+}
+

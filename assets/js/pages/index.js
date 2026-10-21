@@ -1,4 +1,5 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax, safeImg } from '../modules/core.js';
+import { initAmbientMesh, initGlobalReveal, initGlassParallax, safeImg, smoothMorph, morphText, awaitFastPrefetch } from '../modules/core.js';
+import { setDashboardCachedData } from '../modules/cache.js';
 import { SEED_SPOTIFY, SEED_MOVIES, SEED_BOOKS } from '../modules/seed-data.js';
 
 const projects = [
@@ -116,12 +117,14 @@ function initIndex() {
             };
         }
 
-        renderSpotify(initialData.spotify);
-        renderBooks(initialData.books);
-        renderMovies(initialData.movies);
-
-        // 2. Fetch fresh data: Edge-cached /api/dashboard (<20ms SWR) with static snapshot fallback
         async function fetchFreshDashboard() {
+            if (window.__PREFETCH_DASHBOARD__) {
+                try {
+                    const pre = await window.__PREFETCH_DASHBOARD__;
+                    window.__PREFETCH_DASHBOARD__ = null;
+                    if (pre && pre.success && pre.data) return pre.data;
+                } catch {}
+            }
             try {
                 const res = await fetch("/api/dashboard");
                 if (res.ok) {
@@ -139,15 +142,29 @@ function initIndex() {
             return null;
         }
 
-        fetchFreshDashboard().then(fresh => {
-            if (!fresh) return;
-            if (fresh.spotify) renderSpotify(fresh.spotify);
-            if (fresh.books) renderBooks(fresh.books);
-            if (fresh.movies) renderMovies(fresh.movies);
+        const freshPromise = fetchFreshDashboard();
 
-            try {
-                localStorage.setItem(CACHE_KEY, JSON.stringify(fresh));
-            } catch {}
+        awaitFastPrefetch(freshPromise, 65).then(fastFresh => {
+            if (fastFresh) {
+                setDashboardCachedData(fastFresh);
+                if (fastFresh.spotify) renderSpotify(fastFresh.spotify);
+                if (fastFresh.books) renderBooks(fastFresh.books);
+                if (fastFresh.movies) renderMovies(fastFresh.movies);
+                return;
+            }
+
+            // Render cached data immediately if network takes >65ms
+            renderSpotify(initialData.spotify);
+            renderBooks(initialData.books);
+            renderMovies(initialData.movies);
+
+            freshPromise.then(fresh => {
+                if (!fresh) return;
+                setDashboardCachedData(fresh);
+                if (fresh.spotify) renderSpotify(fresh.spotify);
+                if (fresh.books) renderBooks(fresh.books);
+                if (fresh.movies) renderMovies(fresh.movies);
+            });
         });
     }
 
@@ -158,42 +175,53 @@ function initIndex() {
         if (!topTrack) return;
 
         const sig = `${topTrack.title}|${topTrack.artist}|${topTrack.cover_url}`;
-        if (sig === renderedSpotifySig) return; // Prevent unnecessary DOM wipe & marquee reset
+        if (sig === renderedSpotifySig) return;
+        const isUpdate = renderedSpotifySig !== '';
         renderedSpotifySig = sig;
 
-        if (cassetteArtistName) cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
-        if (cassetteSongTitle) {
-            const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
-            if (marquee) {
-                marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text">${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
-                const titleLen = (topTrack.title || "").length;
-                const duration = Math.max(5, Math.min(12, 4 + titleLen * 0.12));
-                marquee.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
-            }
-        }
         const cassetteBody = document.getElementById("cassette-body");
-        if (cassetteBody && topTrack.cover_url) {
-            cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
-            if (topTrack.prominent_color && Array.isArray(topTrack.prominent_color)) {
-                const [r, g, b] = topTrack.prominent_color;
-                cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
-                cassetteBody.classList.add('has-art');
-            } else {
-                const img = new Image();
-                img.crossOrigin = "Anonymous";
-                img.src = topTrack.cover_url;
-                img.onload = () => {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        canvas.width = 1; canvas.height = 1;
-                        ctx.drawImage(img, 0, 0, 1, 1);
-                        const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-                        cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
-                    } catch {}
-                    cassetteBody.classList.add('has-art');
-                };
+        const applySpotifyDom = () => {
+            if (cassetteArtistName) {
+                cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
             }
+            if (cassetteSongTitle) {
+                const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
+                if (marquee) {
+                    marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text">${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
+                    const titleLen = (topTrack.title || "").length;
+                    const duration = Math.max(5, Math.min(12, 4 + titleLen * 0.12));
+                    marquee.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
+                }
+            }
+            if (cassetteBody && topTrack.cover_url) {
+                cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
+                if (topTrack.prominent_color && Array.isArray(topTrack.prominent_color)) {
+                    const [r, g, b] = topTrack.prominent_color;
+                    cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
+                    cassetteBody.classList.add('has-art');
+                } else {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.src = topTrack.cover_url;
+                    img.onload = () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = 1; canvas.height = 1;
+                            ctx.drawImage(img, 0, 0, 1, 1);
+                            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+                            cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
+                        } catch {}
+                        cassetteBody.classList.add('has-art');
+                    };
+                }
+            }
+        };
+
+        if (isUpdate && cassetteBody) {
+            smoothMorph(cassetteBody, applySpotifyDom, [topTrack.cover_url]);
+        } else {
+            applySpotifyDom();
         }
     }
 
@@ -225,7 +253,8 @@ function initIndex() {
         const top3 = sorted.slice(0, 3);
 
         const sig = top3.map(b => `${b.title}|${b.cover_url}|${b.shelf || ''}|${b.num_pages || ''}`).join(';;');
-        if (sig === renderedBooksSig) return; // Prevent DOM destruction & image flicker
+        if (sig === renderedBooksSig) return;
+        const isUpdate = renderedBooksSig !== '';
         renderedBooksSig = sig;
 
         const heroBook = top3[0];
@@ -235,77 +264,112 @@ function initIndex() {
         const isCurrentlyReading = heroBook.shelf === 'currently-reading';
         const statusLabel = isCurrentlyReading ? 'READING' : 'UP NEXT';
         const pageMeta = heroBook.num_pages ? `${heroBook.num_pages} pp.` : (heroBook.year || 'EX LIBRIS');
-
-        const statusEl = document.getElementById('book-bay-status');
-        if (statusEl) statusEl.textContent = statusLabel;
-
         const initials = getBookAcronym(heroBook.title);
-        const initialsEl = document.getElementById('book-bay-initials') || document.querySelector('.book-bay-counter');
-        if (initialsEl && initials) {
-            initialsEl.textContent = initials;
-        }
 
         const book3 = top3[2] || top3[0];
         const book2 = top3[1] || top3[0];
+        const leftCover = safeImg(book3.cover_url, 200);
+        const rightCover = safeImg(book2.cover_url, 200);
 
-        indexBooksContainer.innerHTML = `
-            <div class="book-shelf-item book-shelf-left">
-                <img src="${safeImg(book3.cover_url, 200)}" alt="${(book3.title || '').replace(/"/g, '&quot;')}" loading="lazy" decoding="async">
-            </div>
-            <div class="book-shelf-item book-shelf-right">
-                <img src="${safeImg(book2.cover_url, 200)}" alt="${(book2.title || '').replace(/"/g, '&quot;')}" loading="lazy" decoding="async">
-            </div>
+        const applyBooksDom = () => {
+            const statusEl = document.getElementById('book-bay-status');
+            if (statusEl) morphText(statusEl, statusLabel);
 
-            <div class="book-shelf-item book-shelf-center" id="hero-book-wrapper">
-                <div class="book-3d-obj" id="hero-book-obj">
-                    <div class="book-obj-spine"></div>
-                    <div class="book-obj-base">
-                        <div class="book-pages-edge-right"></div>
-                    </div>
+            const initialsEl = document.getElementById('book-bay-initials') || document.querySelector('.book-bay-counter');
+            if (initialsEl && initials) {
+                morphText(initialsEl, initials);
+            }
 
-                    <div class="book-page-spread-right">
-                        <div class="book-ribbon-drape"></div>
-                        <div class="book-page-paper">
-                            <div class="book-page-header">
-                                <span class="book-page-crest">❦</span>
-                            </div>
-                            <div class="book-page-body">
-                                <div class="book-page-heading">${safeTitle}</div>
-                                <div class="book-page-byline">${safeAuthor ? `by ${safeAuthor}` : ''}</div>
-                                <div class="book-page-rule"></div>
-                                <div class="book-page-text-lines">
-                                    <div class="page-line line-1"></div>
-                                    <div class="page-line line-2"></div>
-                                    <div class="page-line line-3"></div>
+            // If 3D book bay already exists, update covers and text in-place so hover state never breaks
+            const existingHeroImg = indexBooksContainer.querySelector('.book-cover-art');
+            const existingLeftImg = indexBooksContainer.querySelector('.book-shelf-left img');
+            const existingRightImg = indexBooksContainer.querySelector('.book-shelf-right img');
+
+            if (existingHeroImg && existingLeftImg && existingRightImg) {
+                existingLeftImg.src = leftCover;
+                existingLeftImg.alt = book3.title || '';
+                existingRightImg.src = rightCover;
+                existingRightImg.alt = book2.title || '';
+                existingHeroImg.src = heroCover;
+                existingHeroImg.alt = heroBook.title || '';
+
+                const headingEl = indexBooksContainer.querySelector('.book-page-heading');
+                const bylineEl = indexBooksContainer.querySelector('.book-page-byline');
+                const footerSpans = indexBooksContainer.querySelectorAll('.book-page-footer span');
+                if (headingEl) headingEl.textContent = heroBook.title || '';
+                if (bylineEl) bylineEl.textContent = heroBook.author ? `by ${heroBook.author}` : '';
+                if (footerSpans.length >= 2) {
+                    footerSpans[0].textContent = statusLabel;
+                    footerSpans[1].textContent = pageMeta;
+                }
+                return;
+            }
+
+            indexBooksContainer.innerHTML = `
+                <div class="book-shelf-item book-shelf-left">
+                    <img src="${leftCover}" alt="${(book3.title || '').replace(/"/g, '&quot;')}" loading="lazy" decoding="async">
+                </div>
+                <div class="book-shelf-item book-shelf-right">
+                    <img src="${rightCover}" alt="${(book2.title || '').replace(/"/g, '&quot;')}" loading="lazy" decoding="async">
+                </div>
+
+                <div class="book-shelf-item book-shelf-center" id="hero-book-wrapper">
+                    <div class="book-3d-obj" id="hero-book-obj">
+                        <div class="book-obj-spine"></div>
+                        <div class="book-obj-base">
+                            <div class="book-pages-edge-right"></div>
+                        </div>
+
+                        <div class="book-page-spread-right">
+                            <div class="book-ribbon-drape"></div>
+                            <div class="book-page-paper">
+                                <div class="book-page-header">
+                                    <span class="book-page-crest">❦</span>
+                                </div>
+                                <div class="book-page-body">
+                                    <div class="book-page-heading">${safeTitle}</div>
+                                    <div class="book-page-byline">${safeAuthor ? `by ${safeAuthor}` : ''}</div>
+                                    <div class="book-page-rule"></div>
+                                    <div class="book-page-text-lines">
+                                        <div class="page-line line-1"></div>
+                                        <div class="page-line line-2"></div>
+                                        <div class="page-line line-3"></div>
+                                    </div>
+                                </div>
+                                <div class="book-page-footer">
+                                    <span>${statusLabel}</span>
+                                    <span class="book-page-num">${pageMeta}</span>
                                 </div>
                             </div>
-                            <div class="book-page-footer">
-                                <span>${statusLabel}</span>
-                                <span class="book-page-num">${pageMeta}</span>
-                            </div>
                         </div>
-                    </div>
 
-                    <div class="book-front-cover-assembly">
-                        <div class="book-cover-outside">
-                            <div class="book-ribbon-tag"></div>
-                            <img src="${heroCover}" class="book-cover-art" alt="${safeTitle}" decoding="async">
-                            <div class="book-cover-emboss-spine"></div>
-                            <div class="book-cover-glare"></div>
-                        </div>
-                        <div class="book-cover-inside">
-                            <div class="book-endpaper-vintage">
-                                <div class="bookplate-seal">
-                                    <div class="bookplate-tag">EX LIBRIS</div>
-                                    <div class="bookplate-monogram">Y</div>
-                                    <div class="bookplate-sub">COLLECTION</div>
+                        <div class="book-front-cover-assembly">
+                            <div class="book-cover-outside">
+                                <div class="book-ribbon-tag"></div>
+                                <img src="${heroCover}" class="book-cover-art" alt="${safeTitle}" decoding="async">
+                                <div class="book-cover-emboss-spine"></div>
+                                <div class="book-cover-glare"></div>
+                            </div>
+                            <div class="book-cover-inside">
+                                <div class="book-endpaper-vintage">
+                                    <div class="bookplate-seal">
+                                        <div class="bookplate-tag">EX LIBRIS</div>
+                                        <div class="bookplate-monogram">Y</div>
+                                        <div class="bookplate-sub">COLLECTION</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+        };
+
+        if (isUpdate) {
+            smoothMorph(indexBooksContainer, applyBooksDom, [heroCover, leftCover, rightCover]);
+        } else {
+            applyBooksDom();
+        }
     }
 
     function renderMovies(movies) {
@@ -316,24 +380,51 @@ function initIndex() {
 
         const list = recent.slice(0, 10);
         const sig = list.map(f => `${f.title}|${f.cover_url}`).join(';;');
-        if (sig === renderedMoviesSig) return; // Prevent marquee animation reset & image reload
+        if (sig === renderedMoviesSig) return;
+        const isUpdate = renderedMoviesSig !== '';
         renderedMoviesSig = sig;
 
         const duplicated = list.length >= 4 ? [...list, ...list] : [...list, ...list, ...list, ...list];
+        const imgUrls = list.map(f => safeImg(f.cover_url, 150));
 
-        indexMoviesContainer.innerHTML = `
-            <div class="vhs-filmstrip-track">
-                ${duplicated.map((film) => {
+        const applyMoviesDom = () => {
+            // Update existing filmstrip items in-place if count matches so VHS marquee never resets
+            const existingItems = indexMoviesContainer.querySelectorAll('.vhs-filmstrip-item');
+            if (existingItems.length === duplicated.length) {
+                duplicated.forEach((film, idx) => {
+                    const item = existingItems[idx];
+                    const img = item.querySelector('img');
                     const imgUrl = safeImg(film.cover_url, 150);
-                    const cleanTitle = (film.title || "").replace(/"/g, '&quot;');
-                    return `
-                        <div class="vhs-filmstrip-item" title="${cleanTitle}">
-                            <img src="${imgUrl}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy" decoding="async">
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
+                    const cleanTitle = film.title || "";
+                    item.title = cleanTitle;
+                    if (img) {
+                        img.src = imgUrl;
+                        img.alt = cleanTitle;
+                    }
+                });
+                return;
+            }
+
+            indexMoviesContainer.innerHTML = `
+                <div class="vhs-filmstrip-track">
+                    ${duplicated.map((film) => {
+                        const imgUrl = safeImg(film.cover_url, 150);
+                        const cleanTitle = (film.title || "").replace(/"/g, '&quot;');
+                        return `
+                            <div class="vhs-filmstrip-item" title="${cleanTitle}">
+                                <img src="${imgUrl}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy" decoding="async">
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        };
+
+        if (isUpdate) {
+            smoothMorph(indexMoviesContainer, applyMoviesDom, imgUrls);
+        } else {
+            applyMoviesDom();
+        }
     }
 
     // VHS Cassette Hover Interaction: Live SP timer and state toggle

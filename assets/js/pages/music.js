@@ -1,4 +1,4 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax, observer } from '../modules/core.js';
+import { initAmbientMesh, initGlobalReveal, initGlassParallax, observer, smoothMorph, morphText, toTransitionSlug, awaitFastPrefetch } from '../modules/core.js';
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { SEED_SPOTIFY } from '../modules/seed-data.js';
 
@@ -153,17 +153,23 @@ function renderArtists(container, artistList) {
         container.innerHTML = `<p style="color: var(--text-secondary);">No top artists recorded.</p>`;
         return;
     }
-    container.innerHTML = list.map((artist) => `
-        <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item">
+    const seenSlugs = new Set();
+    container.innerHTML = list.map((artist, idx) => {
+        let vtName = toTransitionSlug('artist', artist.name || `idx-${idx}`);
+        if (seenSlugs.has(vtName)) vtName = `${vtName}-${idx}`;
+        seenSlugs.add(vtName);
+        return `
+        <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item" style="${vtName ? `view-transition-name: ${vtName};` : ''}">
             <div class="artist-img-wrapper">
-                <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img" loading="lazy" fetchpriority="low" decoding="async">
+                <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img" decoding="async">
                 <div class="artist-playcount-overlay">
                     <span class="artist-playcount-value">${Number(artist.playcount).toLocaleString()}</span>
                     <span class="artist-playcount-label">Plays</span>
                 </div>
             </div>
             <span class="spotify-artist-name">${artist.name}</span>
-        </a>`).join('');
+        </a>`;
+    }).join('');
 }
 
 function renderTracks(container, trackList) {
@@ -173,9 +179,13 @@ function renderTracks(container, trackList) {
         container.innerHTML = `<p style="color: var(--text-secondary);">No top tracks recorded.</p>`;
         return;
     }
+    const seenSlugs = new Set();
     container.innerHTML = list.map((track, index) => {
         const isTopCard = index === 0;
         const isTopStyle = isTopCard;
+        let vtName = toTransitionSlug('track', `${track.title}-${track.artist}`);
+        if (seenSlugs.has(vtName)) vtName = `${vtName}-${index}`;
+        seenSlugs.add(vtName);
         
         const rankTag = !isTopCard ? `<span class="stats-badge">#${index + 1}</span>` : `<span class="stats-badge">#1 THIS MONTH</span>`;
         let lyricHtml = '';
@@ -187,8 +197,13 @@ function renderTracks(container, trackList) {
             }
         }
 
+        const inlineStyles = [
+            isTopStyle ? `--track-art: url('${track.cover_url}')` : '',
+            vtName ? `view-transition-name: ${vtName}` : ''
+        ].filter(Boolean).join('; ');
+
         return `
-            <a id="track-card-${index}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTopStyle ? 'top-track-banner' : 'grid-track'}" style="${isTopStyle ? `--track-art: url('${track.cover_url}')` : ''}">
+            <a id="track-card-${index}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTopStyle ? 'top-track-banner' : 'grid-track'}" style="${inlineStyles}">
                 ${isTopStyle ? `<div class="banner-bg-blur"></div>` : ''}
                 <div class="case-art-wrapper">
                     <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img" ${isTopCard ? 'fetchpriority="high"' : 'decoding="async"'}>
@@ -229,30 +244,36 @@ function initMusic() {
     const tracksContainer = document.getElementById("spotify-tracks-container");
     const albumsContainer = document.getElementById("spotify-albums-container");
 
-    // Instant 0ms render from persistent cache or bundled seed snapshot
     const cached = getCachedData("simplyigit_cache_spotify", SEED_SPOTIFY);
     let renderedAlbumsSig = '';
     let renderedArtistsSig = '';
     let renderedTracksSig = '';
 
-    if (cached) {
-        if (albumsContainer && Array.isArray(cached.favorite_albums) && cached.favorite_albums.length > 0) {
-            renderedAlbumsSig = cached.favorite_albums.map(a => a.title).join('|');
-            renderAlbums(albumsContainer, cached.favorite_albums);
+    const applyInitial = (sourceData) => {
+        if (!sourceData) return;
+        if (albumsContainer && Array.isArray(sourceData.favorite_albums) && sourceData.favorite_albums.length > 0) {
+            renderedAlbumsSig = sourceData.favorite_albums.map(a => a.title).join('|');
+            renderAlbums(albumsContainer, sourceData.favorite_albums);
         }
-        if (artistsContainer && Array.isArray(cached.top_artists_last_month) && cached.top_artists_last_month.length > 0) {
-            renderedArtistsSig = cached.top_artists_last_month.map(a => a.name).join('|');
-            renderArtists(artistsContainer, cached.top_artists_last_month);
+        if (artistsContainer && Array.isArray(sourceData.top_artists_last_month) && sourceData.top_artists_last_month.length > 0) {
+            renderedArtistsSig = sourceData.top_artists_last_month.map(a => a.name).join('|');
+            renderArtists(artistsContainer, sourceData.top_artists_last_month);
         }
-        if (tracksContainer && Array.isArray(cached.top_tracks_last_month) && cached.top_tracks_last_month.length > 0) {
-            renderedTracksSig = cached.top_tracks_last_month.map(t => `${t.title}-${t.artist}`).join('|');
-            renderTracks(tracksContainer, cached.top_tracks_last_month);
+        if (tracksContainer && Array.isArray(sourceData.top_tracks_last_month) && sourceData.top_tracks_last_month.length > 0) {
+            renderedTracksSig = sourceData.top_tracks_last_month.map(t => `${t.title}-${t.artist}`).join('|');
+            renderTracks(tracksContainer, sourceData.top_tracks_last_month);
         }
-    }
+    };
 
-    // Edge-cached /api/spotify (<20ms SWR) with static snapshot fallback
     if (artistsContainer || tracksContainer || albumsContainer) {
         const fetchSpotifyData = async () => {
+            if (window.__PREFETCH_SPOTIFY__) {
+                try {
+                    const pre = await window.__PREFETCH_SPOTIFY__;
+                    window.__PREFETCH_SPOTIFY__ = null;
+                    if (pre && pre.success && pre.data) return pre.data;
+                } catch {}
+            }
             try {
                 const res = await fetch("/api/spotify");
                 if (res.ok) {
@@ -270,32 +291,65 @@ function initMusic() {
             return null;
         };
 
-        fetchSpotifyData().then(data => {
-            if (!data) return;
-            setCachedData("simplyigit_cache_spotify", data);
-            const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
+        const freshPromise = fetchSpotifyData();
 
-            if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
-                const newAlbumsSig = albums.map(a => a.title).join('|');
-                if (newAlbumsSig !== renderedAlbumsSig) {
-                    renderedAlbumsSig = newAlbumsSig;
-                    renderAlbums(albumsContainer, albums);
-                }
+        awaitFastPrefetch(freshPromise, 65).then(fastData => {
+            if (fastData) {
+                setCachedData("simplyigit_cache_spotify", fastData);
+                applyInitial(fastData);
+                return;
             }
-            if (artistsContainer && Array.isArray(artists) && artists.length > 0) {
-                const newArtistsSig = artists.map(a => a.name).join('|');
-                if (newArtistsSig !== renderedArtistsSig) {
-                    renderedArtistsSig = newArtistsSig;
-                    renderArtists(artistsContainer, artists);
+
+            applyInitial(cached);
+
+            freshPromise.then(data => {
+                if (!data) return;
+                setCachedData("simplyigit_cache_spotify", data);
+                const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
+
+                if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
+                    const newAlbumsSig = albums.map(a => a.title).join('|');
+                    if (newAlbumsSig !== renderedAlbumsSig) {
+                        renderedAlbumsSig = newAlbumsSig;
+                        const albumImgs = albums.map(a => a.cover_url).filter(Boolean);
+                        smoothMorph(albumsContainer, () => renderAlbums(albumsContainer, albums), albumImgs);
+                    }
                 }
-            }
-            if (tracksContainer && Array.isArray(tracks) && tracks.length > 0) {
-                const newTracksSig = tracks.map(t => `${t.title}-${t.artist}`).join('|');
-                if (newTracksSig !== renderedTracksSig) {
-                    renderedTracksSig = newTracksSig;
-                    renderTracks(tracksContainer, tracks);
+
+                if (artistsContainer && Array.isArray(artists) && artists.length > 0) {
+                    const newArtistsSig = artists.map(a => a.name).join('|');
+                    if (newArtistsSig !== renderedArtistsSig) {
+                        renderedArtistsSig = newArtistsSig;
+                        const artistImgs = artists.map(a => a.image_url).filter(Boolean);
+                        smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artistImgs);
+                    } else {
+                        // Same artists in same order: morph playcounts in-place without resetting DOM
+                        const valueEls = artistsContainer.querySelectorAll('.artist-playcount-value');
+                        artists.forEach((artist, idx) => {
+                            if (valueEls[idx]) {
+                                morphText(valueEls[idx], Number(artist.playcount).toLocaleString());
+                            }
+                        });
+                    }
                 }
-            }
+
+                if (tracksContainer && Array.isArray(tracks) && tracks.length > 0) {
+                    const newTracksSig = tracks.map(t => `${t.title}-${t.artist}`).join('|');
+                    if (newTracksSig !== renderedTracksSig) {
+                        renderedTracksSig = newTracksSig;
+                        const trackImgs = tracks.map(t => t.cover_url).filter(Boolean);
+                        smoothMorph(tracksContainer, () => renderTracks(tracksContainer, tracks), trackImgs);
+                    } else {
+                        // Same tracks in same order: morph playcounts in-place without resetting lyrics or DOM
+                        const playEls = tracksContainer.querySelectorAll('.stats-plays');
+                        tracks.forEach((track, idx) => {
+                            if (playEls[idx]) {
+                                morphText(playEls[idx], `${Number(track.playcount).toLocaleString()} plays`);
+                            }
+                        });
+                    }
+                }
+            });
         });
     }
 }

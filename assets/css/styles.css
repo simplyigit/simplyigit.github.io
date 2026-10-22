@@ -3916,16 +3916,21 @@ footer p {
     transform: none !important;
 }
 
-::view-transition-group(*) {
+/* Card-level view-transition-names are ONLY active during same-document data morphs.
+   During cross-document page navigation they are disabled so the page crossfades as one clean layer. */
+html:not(.vt-data-morph) [style*="view-transition-name"] {
+    view-transition-name: none !important;
+}
+
+html.vt-data-morph::view-transition-group(*) {
     animation-duration: 440ms;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-::view-transition-old(*),
-::view-transition-new(*) {
+html.vt-data-morph::view-transition-old(*),
+html.vt-data-morph::view-transition-new(*) {
     animation-duration: 360ms;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    mix-blend-mode: normal;
 }
 
 .data-morph-out {
@@ -3984,9 +3989,9 @@ footer p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    ::view-transition-group(*),
-    ::view-transition-old(*),
-    ::view-transition-new(*) {
+    html.vt-data-morph::view-transition-group(*),
+    html.vt-data-morph::view-transition-old(*),
+    html.vt-data-morph::view-transition-new(*) {
         animation-duration: 0.01ms !important;
     }
 }

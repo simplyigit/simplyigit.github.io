@@ -205,6 +205,17 @@ export async function smoothMorph(targetEl, updateFn, imageUrls = []) {
     // 2. Use View Transitions API when available and not already running a transition
     if (typeof document.startViewTransition === 'function' && !activeViewTransition) {
         activeViewTransition = true;
+
+        // Never interrupt the cross-document page navigation transition (starting a new
+        // transition would skip it and cause a full-page snap). Wait for it to finish first.
+        const navVT = window.__NAV_VT__ || document.activeViewTransition;
+        if (navVT && navVT.finished) {
+            try { await navVT.finished; } catch {}
+        }
+        window.__NAV_VT__ = null;
+
+        const root = document.documentElement;
+        root.classList.add('vt-data-morph');
         targetEl.classList.add('vt-morph-scope');
         try {
             const vt = document.startViewTransition(() => {
@@ -215,6 +226,7 @@ export async function smoothMorph(targetEl, updateFn, imageUrls = []) {
             updateFn();
         } finally {
             targetEl.classList.remove('vt-morph-scope');
+            root.classList.remove('vt-data-morph');
             activeViewTransition = false;
         }
         return;

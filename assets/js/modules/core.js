@@ -38,25 +38,23 @@ export function initAmbientMesh() {
 
     let scrollPercent = 0;
     let ticking = false;
-    let currentMouseX = 0.5;
-    let currentMouseY = 0.5;
-    let winWidth = window.innerWidth || 1920;
     let winHeight = window.innerHeight || 1080;
 
     const ambientMesh = document.getElementById('ambient-mesh');
 
+    // Orbs drift with scroll only (no mouse-follow)
     const updateMesh = () => {
         if (!ambientMesh || document.hidden) {
             ticking = false;
             return;
         }
 
-        const y1 = 20 + (scrollPercent * 40) + ((currentMouseY - 0.5) * 10);
-        const x1 = 20 + ((currentMouseX - 0.5) * 10);
-        const y2 = 80 - (scrollPercent * 50) + ((currentMouseY - 0.5) * -15);
-        const x2 = 80 + ((currentMouseX - 0.5) * -15);
-        const y3 = 50 + (scrollPercent * 30) + ((currentMouseY - 0.5) * 8);
-        const x3 = 50 + (scrollPercent * 20) + ((currentMouseX - 0.5) * 12);
+        const y1 = 20 + (scrollPercent * 40);
+        const x1 = 20;
+        const y2 = 80 - (scrollPercent * 50);
+        const x2 = 80;
+        const y3 = 50 + (scrollPercent * 30);
+        const x3 = 50 + (scrollPercent * 20);
 
         ambientMesh.style.setProperty('--bg-y1', `${y1}vh`);
         ambientMesh.style.setProperty('--bg-x1', `${x1}vw`);
@@ -69,7 +67,6 @@ export function initAmbientMesh() {
     };
 
     window.addEventListener('resize', () => {
-        winWidth = window.innerWidth || 1920;
         winHeight = window.innerHeight || 1080;
     }, { passive: true });
 
@@ -83,14 +80,28 @@ export function initAmbientMesh() {
         }
     }, { passive: true });
 
-    window.addEventListener('mousemove', (e) => {
-        currentMouseX = e.clientX / winWidth;
-        currentMouseY = e.clientY / winHeight;
-        if (!ticking) {
-            window.requestAnimationFrame(updateMesh);
-            ticking = true;
-        }
-    }, { passive: true });
+    initFocusPause();
+}
+
+let focusPauseInitialized = false;
+
+// Toggles html.page-inactive when the tab is hidden or the window loses focus,
+// which pauses all looping CSS animations (see styles.css).
+export function initFocusPause() {
+    if (focusPauseInitialized) return;
+    focusPauseInitialized = true;
+
+    const root = document.documentElement;
+    const sync = () => {
+        const inactive = document.hidden || !document.hasFocus();
+        root.classList.toggle('page-inactive', inactive);
+    };
+
+    document.addEventListener('visibilitychange', sync);
+    window.addEventListener('focus', sync);
+    window.addEventListener('blur', sync);
+    window.addEventListener('pageshow', sync);
+    sync();
 }
 
 export function initGlassParallax() {

@@ -34,7 +34,6 @@ export function safeImg(url, width = 0) {
 }
 
 export function initAmbientMesh() {
-    // Inject hardware-accelerated ambient meshes
     if (!document.getElementById('ambient-mesh')) {
         document.body.insertAdjacentHTML('afterbegin', `
             <div id="ambient-mesh">
@@ -45,33 +44,99 @@ export function initAmbientMesh() {
         `);
     }
 
+    const ambientMesh = document.getElementById('ambient-mesh');
+    let meshCanvas = ambientMesh ? ambientMesh.querySelector('.ambient-mesh-canvas') : null;
+
+    if (ambientMesh && !meshCanvas) {
+        meshCanvas = document.createElement('canvas');
+        meshCanvas.className = 'ambient-mesh-canvas';
+        const W = 540, H = 360;
+        meshCanvas.width = W;
+        meshCanvas.height = H;
+        const ctx = meshCanvas.getContext('2d', { alpha: false });
+        if (ctx) {
+            const img = ctx.createImageData(W, H);
+            const data = img.data;
+            const orbs = [
+                { cx: 0.20 * W, cy: 0.22 * H, rx: 0.38 * W, ry: 0.38 * H, a: 0.40 },
+                { cx: 0.80 * W, cy: 0.78 * H, rx: 0.34 * W, ry: 0.34 * H, a: 0.35 },
+                { cx: 0.50 * W, cy: 0.50 * H, rx: 0.42 * W, ry: 0.42 * H, a: 0.20 }
+            ];
+            const gx = orbs.map(o => {
+                const arr = new Float32Array(W);
+                for (let x = 0; x < W; x++) {
+                    const d = (x - o.cx) / o.rx;
+                    arr[x] = o.a * Math.exp(-d * d * 1.35);
+                }
+                return arr;
+            });
+            const gy = orbs.map(o => {
+                const arr = new Float32Array(H);
+                for (let y = 0; y < H; y++) {
+                    const d = (y - o.cy) / o.ry;
+                    arr[y] = Math.exp(-d * d * 1.35);
+                }
+                return arr;
+            });
+
+            const gx0 = gx[0], gx1 = gx[1], gx2 = gx[2];
+            const gy0 = gy[0], gy1 = gy[1], gy2 = gy[2];
+            let seed = 2463534242, idx = 0;
+
+            for (let y = 0; y < H; y++) {
+                const wy0 = gy0[y], wy1 = gy1[y], wy2 = gy2[y];
+                for (let x = 0; x < W; x++) {
+                    const w0 = gx0[x] * wy0;
+                    const w1 = gx1[x] * wy1;
+                    const w2 = gx2[x] * wy2;
+
+                    // Floating-point blend over #020813 (2, 8, 19)
+                    let R = 2.0  * (1 - w0) + 3.0  * w0;
+                    let G = 8.0  * (1 - w0) + 26.0 * w0;
+                    let B = 19.0 * (1 - w0) + 57.0 * w0;
+
+                    R = R * (1 - w1) + 43.0 * w1;
+                    G = G * (1 - w1) + 5.0  * w1;
+                    B = B * (1 - w1) + 73.0 * w1;
+
+                    R = R * (1 - w2) + 1.0  * w2;
+                    G = G * (1 - w2) + 65.0 * w2;
+                    B = B * (1 - w2) + 65.0 * w2;
+
+                    // Triangular PDF dither in [-0.95, +0.95] LSB before 8-bit quantization
+                    seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+                    const u1 = (seed >>> 0) * 2.3283064365386963e-10;
+                    seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+                    const u2 = (seed >>> 0) * 2.3283064365386963e-10;
+                    const dither = (u1 - u2) * 0.95;
+
+                    data[idx]     = R + dither + 0.5;
+                    data[idx + 1] = G + dither + 0.5;
+                    data[idx + 2] = B + dither + 0.5;
+                    data[idx + 3] = 255;
+                    idx += 4;
+                }
+            }
+            ctx.putImageData(img, 0, 0);
+            ambientMesh.appendChild(meshCanvas);
+            ambientMesh.classList.add('canvas-ready');
+        }
+    }
+
     let scrollPercent = 0;
     let ticking = false;
     let winHeight = window.innerHeight || 1080;
 
-    const ambientMesh = document.getElementById('ambient-mesh');
-
-    // Orbs drift with scroll only (no mouse-follow)
+    // Smooth vertical drift on scroll via a single GPU layer translate3d
     const updateMesh = () => {
         if (!ambientMesh || document.hidden) {
             ticking = false;
             return;
         }
-
-        const y1 = 20 + (scrollPercent * 40);
-        const x1 = 20;
-        const y2 = 80 - (scrollPercent * 50);
-        const x2 = 80;
-        const y3 = 50 + (scrollPercent * 30);
-        const x3 = 50 + (scrollPercent * 20);
-
-        ambientMesh.style.setProperty('--bg-y1', `${y1}vh`);
-        ambientMesh.style.setProperty('--bg-x1', `${x1}vw`);
-        ambientMesh.style.setProperty('--bg-y2', `${y2}vh`);
-        ambientMesh.style.setProperty('--bg-x2', `${x2}vw`);
-        ambientMesh.style.setProperty('--bg-y3', `${y3}vh`);
-        ambientMesh.style.setProperty('--bg-x3', `${x3}vw`);
-        
+        if (meshCanvas) {
+            const shiftVh = (0.5 - scrollPercent) * 18;
+            meshCanvas.style.transform = `translate3d(0, ${shiftVh.toFixed(2)}vh, 0)`;
+        }
         ticking = false;
     };
 

@@ -56,27 +56,43 @@ body {
     pointer-events: none;
 }
 
-/* Orbs use pre-softened radial gradients instead of filter: blur(120px).
-   Same soft glow, but rasterized once (no per-frame GPU blur cost). */
+/* Orbs provide the instant pre-JS fallback; once initAmbientMesh() runs (~5ms),
+   a single floating-point triangular-dithered <canvas> takes over for zero 8-bit banding. */
+.ambient-mesh-canvas {
+    position: absolute;
+    left: 0;
+    top: -12vh;
+    width: 100vw;
+    height: 124vh;
+    width: 100dvw;
+    height: 124dvh;
+    pointer-events: none;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}
+
+#ambient-mesh.canvas-ready .orb {
+    display: none;
+}
+
 .orb {
     position: absolute;
     border-radius: 50%;
     top: 0;
     left: 0;
-    will-change: transform;
 }
 
 .orb-1 {
     width: calc(70vw + 480px);
     height: calc(70vh + 480px);
     background: radial-gradient(closest-side,
-            rgba(3, 26, 57, 0.4) 0%,
-            rgba(3, 26, 57, 0.37) 20%,
-            rgba(3, 26, 57, 0.3) 38%,
-            rgba(3, 26, 57, 0.2) 55%,
-            rgba(3, 26, 57, 0.1) 72%,
-            rgba(3, 26, 57, 0.035) 87%,
-            rgba(3, 26, 57, 0) 100%);
+            rgba(16, 113, 239, 0.068) 0%,
+            rgba(16, 113, 239, 0.062) 15%,
+            rgba(16, 113, 239, 0.048) 32%,
+            rgba(16, 113, 239, 0.031) 50%,
+            rgba(16, 113, 239, 0.016) 68%,
+            rgba(16, 113, 239, 0.005) 85%,
+            rgba(16, 113, 239, 0) 100%);
     transform: translate3d(calc(var(--bg-x1, 20vw) - 50%), calc(var(--bg-y1, 20vh) - 50%), 0);
 }
 
@@ -84,13 +100,13 @@ body {
     width: calc(60vw + 480px);
     height: calc(60vh + 480px);
     background: radial-gradient(closest-side,
-            rgba(43, 5, 73, 0.35) 0%,
-            rgba(43, 5, 73, 0.32) 20%,
-            rgba(43, 5, 73, 0.26) 38%,
-            rgba(43, 5, 73, 0.175) 55%,
-            rgba(43, 5, 73, 0.088) 72%,
-            rgba(43, 5, 73, 0.03) 87%,
-            rgba(43, 5, 73, 0) 100%);
+            rgba(170, 0, 239, 0.088) 0%,
+            rgba(170, 0, 239, 0.08) 15%,
+            rgba(170, 0, 239, 0.062) 32%,
+            rgba(170, 0, 239, 0.04) 50%,
+            rgba(170, 0, 239, 0.02) 68%,
+            rgba(170, 0, 239, 0.007) 85%,
+            rgba(170, 0, 239, 0) 100%);
     transform: translate3d(calc(var(--bg-x2, 80vw) - 50%), calc(var(--bg-y2, 80vh) - 50%), 0);
 }
 
@@ -98,13 +114,13 @@ body {
     width: calc(80vw + 480px);
     height: calc(80vh + 480px);
     background: radial-gradient(closest-side,
-            rgba(1, 65, 65, 0.2) 0%,
-            rgba(1, 65, 65, 0.185) 20%,
-            rgba(1, 65, 65, 0.15) 38%,
-            rgba(1, 65, 65, 0.1) 55%,
-            rgba(1, 65, 65, 0.05) 72%,
-            rgba(1, 65, 65, 0.018) 87%,
-            rgba(1, 65, 65, 0) 100%);
+            rgba(0, 226, 203, 0.05) 0%,
+            rgba(0, 226, 203, 0.045) 15%,
+            rgba(0, 226, 203, 0.035) 32%,
+            rgba(0, 226, 203, 0.023) 50%,
+            rgba(0, 226, 203, 0.012) 68%,
+            rgba(0, 226, 203, 0.004) 85%,
+            rgba(0, 226, 203, 0) 100%);
     transform: translate3d(calc(var(--bg-x3, 50vw) - 50%), calc(var(--bg-y3, 50vh) - 50%), 0);
 }
 

@@ -9,7 +9,16 @@ export const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
 export function initGlobalReveal() {
+    // When arriving via a cross-document view transition, the page crossfade already provides the
+    // entrance. Hiding above-the-fold elements again would make them blink out mid-crossfade (Safari).
+    const arrivedViaTransition = document.documentElement.classList.contains('vt-nav');
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+
     document.querySelectorAll('.glass-card:not(.fade-in), .section-title:not(.fade-in), .hero p:not(.fade-in), .social-tube:not(.fade-in)').forEach(el => {
+        if (arrivedViaTransition) {
+            const r = el.getBoundingClientRect();
+            if (r.top < vh && r.bottom > 0) return;
+        }
         el.classList.add('reveal');
         observer.observe(el);
     });

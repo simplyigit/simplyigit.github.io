@@ -15,6 +15,14 @@
     navigation: auto;
 }
 
+/* Arriving via a page crossfade: skip the page's own fade-in so the incoming snapshot is fully
+   painted (otherwise Safari crossfades into a near-invisible page, then fades it in again = flicker).
+   Duration is zeroed rather than removing the animation, so dropping the class later never restarts it. */
+html.vt-nav .fade-in {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+}
+
 .library-nav-dock {
     view-transition-name: library-nav-dock;
 }

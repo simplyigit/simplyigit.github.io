@@ -102,11 +102,11 @@ export const SEED_SPOTIFY = {
       "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
     },
     {
-      "name": "Matilda Mann",
-      "playcount": "63",
-      "spotify_url": "https://open.spotify.com/artist/76oY04bOzECod3aGVTDtzu",
-      "image_url": "https://i.scdn.co/image/ab6761610000e5eb55a39e76ed8dd77f8e772ec8",
-      "spotify_id": "76oY04bOzECod3aGVTDtzu"
+      "name": "Ruel",
+      "playcount": "70",
+      "spotify_url": "https://open.spotify.com/artist/5xkAtLTf309LAGZTbvULBn",
+      "image_url": "https://i.scdn.co/image/ab6761610000e5eb9184ca89cc9c4ecd7487bb5f",
+      "spotify_id": "5xkAtLTf309LAGZTbvULBn"
     }
   ],
   "favorite_albums": [

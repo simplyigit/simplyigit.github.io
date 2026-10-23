@@ -34,6 +34,33 @@ class handler(BaseHTTPRequestHandler):
                 spotify_data = {}
             else:
                 spotify_data = rows[0].get("value", {})
+
+            # Sanitize artist image URLs: replace Last.fm placeholder star with known Spotify images
+            KNOWN_ARTISTS = {
+                "ruel": {
+                    "spotify_id": "5xkAtLTf309LAGZTbvULBn",
+                    "spotify_url": "https://open.spotify.com/artist/5xkAtLTf309LAGZTbvULBn",
+                    "image_url": "https://i.scdn.co/image/ab6761610000e5eb9184ca89cc9c4ecd7487bb5f"
+                }
+            }
+            if isinstance(spotify_data, dict):
+                artists = spotify_data.get("top_artists_last_month", [])
+                if isinstance(artists, list):
+                    for a in artists:
+                        if isinstance(a, dict):
+                            key = a.get("name", "").lower().strip()
+                            img = a.get("image_url") or ""
+                            is_placeholder = "2a96cbd8b46e442fc41c2b86b821562f" in img or not img
+                            if key in KNOWN_ARTISTS:
+                                known = KNOWN_ARTISTS[key]
+                                if is_placeholder:
+                                    a["image_url"] = known["image_url"]
+                                if not a.get("spotify_url"):
+                                    a["spotify_url"] = known["spotify_url"]
+                                if not a.get("spotify_id"):
+                                    a["spotify_id"] = known["spotify_id"]
+                            elif is_placeholder:
+                                a["image_url"] = ""
             
             response = {
                 "success": True,

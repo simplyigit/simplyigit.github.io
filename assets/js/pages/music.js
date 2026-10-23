@@ -146,9 +146,51 @@ function initAlbumInteractivity(container) {
     });
 }
 
+const KNOWN_ARTISTS = {
+    "ruel": {
+        spotify_id: "5xkAtLTf309LAGZTbvULBn",
+        spotify_url: "https://open.spotify.com/artist/5xkAtLTf309LAGZTbvULBn",
+        image_url: "https://i.scdn.co/image/ab6761610000e5eb9184ca89cc9c4ecd7487bb5f"
+    }
+};
+
+function sanitizeArtists(artistList) {
+    if (!Array.isArray(artistList)) return [];
+    return artistList.map(a => {
+        if (!a || typeof a !== 'object') return a;
+        const key = (a.name || "").toLowerCase().trim();
+        const img = a.image_url || "";
+        const isPlaceholder = !img || img.includes("2a96cbd8b46e442fc41c2b86b821562f");
+        const known = KNOWN_ARTISTS[key];
+
+        let imageUrl = img;
+        let spotifyUrl = a.spotify_url || (a.spotify_id ? `https://open.spotify.com/artist/${a.spotify_id}` : "");
+        let spotifyId = a.spotify_id;
+
+        if (known) {
+            if (isPlaceholder) imageUrl = known.image_url;
+            if (!spotifyUrl) spotifyUrl = known.spotify_url;
+            if (!spotifyId) spotifyId = known.spotify_id;
+        } else if (isPlaceholder) {
+            imageUrl = "";
+        }
+
+        if (!spotifyUrl && a.name) {
+            spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(a.name)}`;
+        }
+
+        return {
+            ...a,
+            image_url: imageUrl,
+            spotify_url: spotifyUrl,
+            spotify_id: spotifyId
+        };
+    });
+}
+
 function renderArtists(container, artistList) {
     if (!container) return;
-    const list = Array.isArray(artistList) ? artistList : [];
+    const list = sanitizeArtists(artistList);
     if (list.length === 0) {
         container.innerHTML = `<p style="color: var(--text-secondary);">No top artists recorded.</p>`;
         return;
@@ -256,8 +298,9 @@ function initMusic() {
             renderAlbums(albumsContainer, sourceData.favorite_albums);
         }
         if (artistsContainer && Array.isArray(sourceData.top_artists_last_month) && sourceData.top_artists_last_month.length > 0) {
-            renderedArtistsSig = sourceData.top_artists_last_month.map(a => a.name).join('|');
-            renderArtists(artistsContainer, sourceData.top_artists_last_month);
+            const artists = sanitizeArtists(sourceData.top_artists_last_month);
+            renderedArtistsSig = artists.map(a => a.name).join('|');
+            renderArtists(artistsContainer, artists);
         }
         if (tracksContainer && Array.isArray(sourceData.top_tracks_last_month) && sourceData.top_tracks_last_month.length > 0) {
             renderedTracksSig = sourceData.top_tracks_last_month.map(t => `${t.title}-${t.artist}`).join('|');
@@ -305,7 +348,8 @@ function initMusic() {
             freshPromise.then(data => {
                 if (!data) return;
                 setCachedData("simplyigit_cache_spotify", data);
-                const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
+                const { top_artists_last_month: rawArtists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
+                const artists = sanitizeArtists(rawArtists);
 
                 if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
                     const newAlbumsSig = albums.map(a => a.title).join('|');

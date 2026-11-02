@@ -4,8 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heavy Rotation | Yigit</title>
-    <meta name="robots" content="noindex, nofollow">
+    <title>Heavy Rotation | yiğit</title>
+    <meta name="description" content="What yiğit has on repeat: top tracks and artists this month from Spotify and Last.fm, plus all-time favorite albums.">
+    <link rel="canonical" href="https://simplyigit.me/library/music">
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#020813">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="yiğit">
+    <meta property="og:title" content="Heavy Rotation | yiğit">
+    <meta property="og:description" content="What yiğit has on repeat: top tracks and artists this month from Spotify and Last.fm, plus all-time favorite albums.">
+    <meta property="og:url" content="https://simplyigit.me/library/music">
+    <meta property="og:image" content="https://simplyigit.me/images/og/music.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://i.scdn.co" crossorigin>
@@ -13,8 +27,9 @@
     <link rel="dns-prefetch" href="https://wsrv.nl">
     <link rel="preconnect" href="https://coverartarchive.org">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css?v=6.6">
-    <script>(function(){var d=document.documentElement;try{var n=performance.getEntriesByType("navigation")[0];if("PageRevealEvent" in window&&document.referrer&&new URL(document.referrer).origin===location.origin&&(!n||n.type!=="reload"))d.classList.add("vt-nav")}catch(e){}var done=function(){setTimeout(function(){d.classList.remove("vt-nav")},1000)};addEventListener("pagereveal",function(e){window.__NAV_VT__=e.viewTransition||null;if(e.viewTransition)e.viewTransition.finished.then(done,done);else done()},{once:true})})();</script>
+    <link rel="stylesheet" href="../assets/css/base.css?v=7.0">
+    <link rel="stylesheet" href="../assets/css/music.css?v=7.0">
+    <script src="../assets/js/vt-nav.js?v=7.0"></script>
     <script>window.__PREFETCH_SPOTIFY__ = fetch("/api/spotify", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
 </head>
 
@@ -25,33 +40,30 @@
         <div class="orb orb-3"></div>
     </div>
     <div class="container fade-in">
-        <header class="hero" style="align-items: center; text-align: center;">
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <header class="hero subpage-hero">
+            <div class="subpage-bar">
                 <a href="/" class="glass-card back-btn">
-                    <span class="arrow" style="transform: rotate(180deg); margin-right: 8px;">→</span> Portfolio
+                    <span class="arrow arrow-back">→</span> Portfolio
                 </a>
 
-                <h1 style="margin: 0; font-size: 3rem;">Heavy Rotation.</h1>
+                <h1 class="subpage-title">Heavy Rotation.</h1>
 
                 <a href="https://open.spotify.com/user/tn0gcrn9xffpr0eyx7idcyiwx?si=03a909ce0bcd437e" target="_blank"
                     rel="noopener noreferrer" class="glass-card repo-btn">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="#1DB954" style="margin-right: 8px;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="#1DB954" class="btn-icon">
                         <path
                             d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.54.659.3 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.24 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.239.54-.959.72-1.56.3z" />
                     </svg>
-                    Spotify <span class="arrow" style="margin-left: 8px;">→</span>
+                    Spotify <span class="arrow arrow-forward">→</span>
                 </a>
             </div>
 
-            <p class="subtitle"
-                style="max-width: 600px; color: var(--text-secondary); line-height: 1.6; margin-top: 8px;">
+            <p class="subtitle">
                 Synced from my <a href="https://open.spotify.com/user/tn0gcrn9xffpr0eyx7idcyiwx?si=03a909ce0bcd437e"
                     target="_blank" rel="noopener noreferrer"
-                    style="color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--accent-color);"><strong
-                        style="color: #96aa9f;">Spotify</strong></a> & <a href="https://www.last.fm/user/simplyigit"
+                    class="source-link source-link--spotify"><strong>Spotify</strong></a> & <a href="https://www.last.fm/user/simplyigit"
                     target="_blank" rel="noopener noreferrer"
-                    style="color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--accent-color);"><strong
-                        style="color: #a49292;">Last.fm</strong></a>.<br><span id="music-period-label">My most played this month.</span>
+                    class="source-link source-link--lastfm"><strong>Last.fm</strong></a>.<br><span id="music-period-label">My most played this month.</span>
             </p>
         </header>
 
@@ -117,7 +129,7 @@
             <div class="library-nav-pill">
                 <a href="/library/cinema" class="lib-nav-item">🎬 Cinema</a>
                 <a href="/library/music" class="lib-nav-item active">🎵 Music</a>
-                <a href="/library/reading" class="lib-nav-item">📖 Library</a>
+                <a href="/library/reading" class="lib-nav-item">📖 Reading</a>
             </div>
         </nav>
 
@@ -126,7 +138,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/music.js?v=6.6"></script>
+    <script type="module" src="../assets/js/pages/music.js?v=7.0"></script>
 </body>
 
 

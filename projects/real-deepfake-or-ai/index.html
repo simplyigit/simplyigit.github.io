@@ -5,13 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real, Deepfake or AI | yiğit</title>
-    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Real, Deepfake or AI: a face-image classifier (ConvNeXt-Tiny features + a linear SVM) you can try in your browser.">
+    <link rel="canonical" href="https://simplyigit.me/projects/real-deepfake-or-ai">
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#020813">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="yiğit">
+    <meta property="og:title" content="Real, Deepfake or AI | yiğit">
+    <meta property="og:description" content="Real, Deepfake or AI: a face-image classifier (ConvNeXt-Tiny features + a linear SVM) you can try in your browser.">
+    <meta property="og:url" content="https://simplyigit.me/projects/real-deepfake-or-ai">
+    <meta property="og:image" content="https://simplyigit.me/images/og/real-deepfake-or-ai.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/styles.css?v=6.6">
-    <script>(function(){var d=document.documentElement;try{var n=performance.getEntriesByType("navigation")[0];if("PageRevealEvent" in window&&document.referrer&&new URL(document.referrer).origin===location.origin&&(!n||n.type!=="reload"))d.classList.add("vt-nav")}catch(e){}var done=function(){setTimeout(function(){d.classList.remove("vt-nav")},1000)};addEventListener("pagereveal",function(e){window.__NAV_VT__=e.viewTransition||null;if(e.viewTransition)e.viewTransition.finished.then(done,done);else done()},{once:true})})();</script>
+    <link rel="stylesheet" href="../../assets/css/base.css?v=7.0">
+    <link rel="stylesheet" href="../../assets/css/project.css?v=7.0">
+    <script src="../../assets/js/vt-nav.js?v=7.0"></script>
 </head>
 
 <body>
@@ -22,32 +37,35 @@
     </div>
     <div class="container fade-in">
 
-        <section class="section"
-            style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+        <section class="section project-topbar">
             <a href="/" class="glass-card back-btn">
-                <span class="arrow" style="transform: rotate(180deg); margin-right: 8px;">→</span> Portfolio
+                <span class="arrow arrow-back">→</span> Portfolio
             </a>
 
             <a href="https://github.com/simplyigit/Real-Deepfake-or-AI" target="_blank" rel="noopener noreferrer"
                 class="glass-card repo-btn">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                    stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
                     <path
                         d="M9 19c-5 1.5-5-5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
                     </path>
                 </svg>
-                Repository <span class="arrow" style="margin-left: 8px;">→</span>
+                Repository <span class="arrow arrow-forward">→</span>
             </a>
         </section>
 
+        <header class="hero subpage-hero project-header">
+            <h1 class="subpage-title">Real, Deepfake or AI</h1>
+            <p class="subtitle">Classifies face images as real, AI-generated or deepfake using ConvNeXt-Tiny features and a linear SVM, running right in your browser.</p>
+        </header>
+
         <section class="section">
             <div class="list-grid">
-                <div class="glass-card list-card fade-in delay-1"
-                    style="flex-direction: column; align-items: flex-start; gap: 24px;">
+                <div class="glass-card list-card project-card fade-in delay-1">
                     <img src="/projects/real-deepfake-or-ai/real-deepfake-or-ai-thumb.webp"
                         fetchpriority="high"
                         width="1440" height="810"
-                        style="width: 100%; height: auto; object-fit: cover; border-radius: 10px; margin-top: 4px;"
+                        class="project-hero-img"
                         alt="Real, Deepfake or AI">
 
                     <!-- Interactive Sandbox -->
@@ -120,10 +138,12 @@
                                 <div class="detector-status-msg" id="detector-status-msg" aria-live="polite" hidden></div>
                             </div>
                         </div>
+
+                        <p class="detector-note">Custom images are analyzed locally and never uploaded. The first one downloads the 27&nbsp;MB model, which your browser then caches.</p>
                     </div>
 
-                    <div id="github-content" style="width: 100%;">
-                        <p style="text-align: center; color: var(--text-secondary);">Loading project data from GitHub
+                    <div id="github-content">
+                        <p class="readme-loading">Loading project data from GitHub
                             <span class="loading-dots">...</span>
                         </p>
                     </div>
@@ -132,11 +152,11 @@
         </section>
 
         <footer>
-            <p>&copy; 2026 Yigit.</p>
+            <p>&copy; 2026 yiğit.</p>
         </footer>
     </div>
 
-    <script type="module" src="../../assets/js/pages/project-detail.js?v=6.6"></script>
+    <script type="module" src="../../assets/js/pages/project-detail.js?v=7.0"></script>
 </body>
 
 </html>

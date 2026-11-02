@@ -4,11 +4,21 @@ import {
     initGlassParallax,
     safeImg,
     toTransitionSlug,
-    awaitFastPrefetch,
-    smoothMorph
+    smoothMorph,
+    escapeHtml
 } from '../modules/core.js';
 import { getCachedData, setCachedData } from '../modules/cache.js';
-import { SEED_MOVIES } from '../modules/seed-data.js';
+import { loadLiveData } from '../modules/live-data.js';
+
+// Strip a trailing ", 2014" / "(2014)" year from Letterboxd titles
+function cleanFilmTitle(title) {
+    return title ? title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
+}
+
+// Title card shown when a film has no poster
+function posterPlaceholder(variant, title) {
+    return `<div class="poster-bg poster-bg--${variant}"><div class="poster-bg-title">${title}</div></div>`;
+}
 
 let marqueeRafId = null;
 let marqueeCleanup = null;
@@ -37,17 +47,16 @@ function renderFavorites(favContainer, favList) {
     duplicatedFavorites.forEach((film, idx) => {
         const className = 'landscape';
         const imgUrl = safeImg(film.backdrop_url || film.cover_url, 800);
-        const cTitle = film.title ? film.title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
-        const safeTitle = cTitle.replace(/"/g, '&quot;');
+        const safeTitle = escapeHtml(cleanFilmTitle(film.title));
         const priorityAttr = idx < 2 ? 'fetchpriority="high"' : 'loading="lazy" decoding="async"';
         const ariaHiddenAttr = idx >= favList.length ? 'aria-hidden="true" tabindex="-1"' : '';
         
         html += `
-            <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="filmstrip-card fade-in ${className}" ${ariaHiddenAttr} aria-label="${safeTitle}">
+            <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="filmstrip-card fade-in ${className}" ${ariaHiddenAttr} aria-label="${safeTitle}">
                 <div class="filmstrip-card-inner">
-                    ${imgUrl ? `<img src="${imgUrl}" alt="${safeTitle}" ${priorityAttr}>` : `<div class="poster-bg" style="background: linear-gradient(160deg, #060d1a 0%, #1a2a3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
+                    ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" ${priorityAttr}>` : posterPlaceholder('fav', safeTitle)}
                     <div class="poster-overlay filmstrip-overlay">
-                        <div class="overlay-title">${cTitle}</div>
+                        <div class="overlay-title">${safeTitle}</div>
                     </div>
                 </div>
             </a>`;
@@ -144,19 +153,19 @@ function renderRecent(recentContainer, recList) {
     if (!recentContainer || !Array.isArray(recList) || recList.length === 0) return;
     const seenSlugs = new Set();
     recentContainer.innerHTML = recList.slice(0, 7).map((film, index) => {
-        const stars = film.rating ? `<div class="overlay-rating" aria-label="Rated ${film.rating}">${renderStars(film.rating)}</div>` : '';
-        const cTitle = film.title ? film.title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
-        const safeTitle = cTitle.replace(/"/g, '&quot;');
+        const stars = film.rating ? `<div class="overlay-rating" aria-label="Rated ${escapeHtml(film.rating)}">${renderStars(film.rating)}</div>` : '';
+        const cTitle = cleanFilmTitle(film.title);
+        const safeTitle = escapeHtml(cTitle);
         const imgUrl = safeImg(film.cover_url, 240);
         let vtSlug = toTransitionSlug('rec-film', cTitle || `idx-${index}`);
         if (seenSlugs.has(vtSlug)) vtSlug = `${vtSlug}-${index}`;
         seenSlugs.add(vtSlug);
 
         return `
-            <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${film.rating ? ` (${film.rating})` : ''}">
-                ${imgUrl ? `<img src="${imgUrl}" alt="${safeTitle}" decoding="async">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #1a0606 0%, #2a0a0a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
+            <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${film.rating ? ` (${escapeHtml(film.rating)})` : ''}">
+                ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" decoding="async">` : posterPlaceholder('recent', safeTitle)}
                 <div class="poster-overlay">
-                    <div class="overlay-title">${cTitle}</div>
+                    <div class="overlay-title">${safeTitle}</div>
                     ${stars}
                 </div>
             </a>`;
@@ -167,18 +176,18 @@ function renderWatchlist(watchlistContainer, watchList) {
     if (!watchlistContainer || !Array.isArray(watchList) || watchList.length === 0) return;
     const seenSlugs = new Set();
     watchlistContainer.innerHTML = watchList.slice(0, 7).map((film, index) => {
-        const cTitle = film.title ? film.title.replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim() : '';
-        const safeTitle = cTitle.replace(/"/g, '&quot;');
+        const cTitle = cleanFilmTitle(film.title);
+        const safeTitle = escapeHtml(cTitle);
         const imgUrl = safeImg(film.cover_url, 240);
         let vtSlug = toTransitionSlug('watch-film', cTitle || `idx-${index}`);
         if (seenSlugs.has(vtSlug)) vtSlug = `${vtSlug}-${index}`;
         seenSlugs.add(vtSlug);
 
         return `
-        <a href="${film.link || "#"}" target="_blank" rel="noopener noreferrer" class="watchlist-card fade-in" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}">
-            ${imgUrl ? `<img src="${imgUrl}" alt="${safeTitle}" decoding="async">` : `<div class="poster-bg" style="background: linear-gradient(160deg, #081428 0%, #0a1e3a 100%);"><div style="font-family: 'Playfair Display', Georgia, serif; font-size: 0.7rem; font-style: italic; color: rgba(230,235,241,0.3); line-height: 1.3; text-shadow: 0 1px 4px rgba(0,0,0,0.5); word-break: break-word;">${cTitle}</div></div>`}
+        <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="watchlist-card fade-in" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}">
+            ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" decoding="async">` : posterPlaceholder('watch', safeTitle)}
             <div class="poster-overlay">
-                <div class="overlay-title">${cTitle}</div>
+                <div class="overlay-title">${safeTitle}</div>
             </div>
             <div class="watchlist-badge" aria-hidden="true">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -189,7 +198,7 @@ function renderWatchlist(watchlistContainer, watchList) {
     }).join('');
 }
 
-async function initCinema() {
+function initCinema() {
     initAmbientMesh();
     initGlobalReveal();
     initGlassParallax();
@@ -197,95 +206,54 @@ async function initCinema() {
     const favContainer = document.getElementById("movies-favorites-container");
     const recentContainer = document.getElementById("movies-recent-container");
     const watchlistContainer = document.getElementById("movies-watchlist-container");
+    if (!favContainer && !recentContainer && !watchlistContainer) return;
 
-    if (favContainer || recentContainer || watchlistContainer) {
-        const getFavSig = (d) => (d?.favorite_films || []).map(m => m.title).join('|');
-        const getRecSig = (d) => (d?.recent_activity || []).slice(0, 7).map(m => `${m.title}|${m.rating || ''}`).join('|');
-        const getWatSig = (d) => (d?.watchlist || []).slice(0, 7).map(m => m.title).join('|');
-
-        let renderedFavSig = '';
-        let renderedRecSig = '';
-        let renderedWatSig = '';
-
-        // Edge-cached /api/movies (<20ms SWR) or early <head> prefetch
-        const fetchMoviesData = async () => {
-            try {
-                if (window.__PREFETCH_MOVIES__) {
-                    const pre = await window.__PREFETCH_MOVIES__;
-                    window.__PREFETCH_MOVIES__ = null;
-                    if (pre?.success && pre.data) return pre.data;
-                }
-            } catch {}
-            try {
-                const res = await fetch("/api/movies");
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json.success && json.data) return json.data;
-                }
-            } catch {}
-            try {
-                const res = await fetch("/data/movies.json");
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json.success && json.data) return json.data;
-                }
-            } catch {}
-            return null;
-        };
-
-        const fetchPromise = fetchMoviesData();
-        const fastData = await awaitFastPrefetch(fetchPromise, 65);
-
-        if (fastData) {
-            setCachedData("simplyigit_cache_movies", fastData);
-            renderedFavSig = getFavSig(fastData);
-            renderedRecSig = getRecSig(fastData);
-            renderedWatSig = getWatSig(fastData);
-            renderFavorites(favContainer, fastData.favorite_films);
-            renderRecent(recentContainer, fastData.recent_activity);
-            renderWatchlist(watchlistContainer, fastData.watchlist);
-            return;
+    const sections = [
+        {
+            container: favContainer,
+            sig: (d) => (d?.favorite_films || []).map(m => m.title).join('|'),
+            images: (d) => (d.favorite_films || []).map(f => safeImg(f.backdrop_url || f.cover_url, 800)),
+            render: (d) => renderFavorites(favContainer, d.favorite_films)
+        },
+        {
+            container: recentContainer,
+            sig: (d) => (d?.recent_activity || []).slice(0, 7).map(m => `${m.title}|${m.rating || ''}`).join('|'),
+            images: (d) => (d.recent_activity || []).slice(0, 7).map(f => safeImg(f.cover_url, 240)),
+            render: (d) => renderRecent(recentContainer, d.recent_activity)
+        },
+        {
+            container: watchlistContainer,
+            sig: (d) => (d?.watchlist || []).slice(0, 7).map(m => m.title).join('|'),
+            images: (d) => (d.watchlist || []).slice(0, 7).map(f => safeImg(f.cover_url, 240)),
+            render: (d) => renderWatchlist(watchlistContainer, d.watchlist)
         }
+    ];
+    const renderedSigs = sections.map(() => '');
 
-        // Instant fallback render from cache or bundled seed data
-        const cached = getCachedData("simplyigit_cache_movies", SEED_MOVIES);
-        if (cached) {
-            renderedFavSig = getFavSig(cached);
-            renderedRecSig = getRecSig(cached);
-            renderedWatSig = getWatSig(cached);
-            renderFavorites(favContainer, cached.favorite_films);
-            renderRecent(recentContainer, cached.recent_activity);
-            renderWatchlist(watchlistContainer, cached.watchlist);
+    // First call paints directly; later calls morph ONLY the sections that actually changed, one at a time
+    const render = async (data) => {
+        for (const [i, section] of sections.entries()) {
+            const sig = section.sig(data);
+            if (!sig || sig === renderedSigs[i]) continue;
+            const isUpdate = renderedSigs[i] !== '';
+            renderedSigs[i] = sig;
+            if (isUpdate) {
+                await smoothMorph(section.container, () => section.render(data), section.images(data));
+            } else {
+                section.render(data);
+            }
         }
+    };
 
-        fetchPromise.then(async (data) => {
-            if (!data) return;
-            setCachedData("simplyigit_cache_movies", data);
-
-            const newFavSig = getFavSig(data);
-            const newRecSig = getRecSig(data);
-            const newWatSig = getWatSig(data);
-
-            // Independently morph ONLY the sections that actually changed
-            if (newFavSig && newFavSig !== renderedFavSig) {
-                renderedFavSig = newFavSig;
-                const urls = (data.favorite_films || []).map(f => safeImg(f.backdrop_url || f.cover_url, 800));
-                await smoothMorph(favContainer, () => renderFavorites(favContainer, data.favorite_films), urls);
-            }
-
-            if (newRecSig && newRecSig !== renderedRecSig) {
-                renderedRecSig = newRecSig;
-                const urls = (data.recent_activity || []).slice(0, 7).map(f => safeImg(f.cover_url, 240));
-                await smoothMorph(recentContainer, () => renderRecent(recentContainer, data.recent_activity), urls);
-            }
-
-            if (newWatSig && newWatSig !== renderedWatSig) {
-                renderedWatSig = newWatSig;
-                const urls = (data.watchlist || []).slice(0, 7).map(f => safeImg(f.cover_url, 240));
-                await smoothMorph(watchlistContainer, () => renderWatchlist(watchlistContainer, data.watchlist), urls);
-            }
-        });
-    }
+    loadLiveData({
+        prefetch: window.__PREFETCH_MOVIES__,
+        api: "/api/movies",
+        snapshot: "/data/movies.json",
+        readCache: () => getCachedData("simplyigit_cache_movies"),
+        saveCache: (data) => setCachedData("simplyigit_cache_movies", data),
+        loadSeed: () => import('../modules/seed-data.js').then(m => m.SEED_MOVIES),
+        render
+    });
 }
 
 if (document.readyState === 'loading') {

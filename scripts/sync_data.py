@@ -49,26 +49,56 @@ def get_prominent_color(image_url):
         print(f"Color extraction error: {e}")
     return [29, 185, 84]
 
-def get_lyrics(song_title, artist_name):
-    """Fetches lyrics via Lyrica API for high reliability."""
+LRCLIB_HEADERS = {"User-Agent": "simplyigit-sync/1.0 (https://simplyigit.me)"}
+
+
+def fetch_lrclib_lyrics(song_title, artist_name):
+    """LRCLIB: free, keyless lyrics database (https://lrclib.net/docs)."""
+    # "(feat. X)" / "- Remastered" suffixes often break exact matches; retry with the bare title
+    bare_title = re.sub(r'\s*[\(\[](?:feat|ft|with)\.?[^\)\]]*[\)\]]|\s+-\s+.*$', '', song_title, flags=re.I).strip()
+    for title in dict.fromkeys([song_title, bare_title]):
+        params = {"track_name": title, "artist_name": artist_name}
+        try:
+            res = requests.get("https://lrclib.net/api/get", params=params, headers=LRCLIB_HEADERS, timeout=10)
+            if res.status_code == 200 and res.json().get("plainLyrics"):
+                return res.json()["plainLyrics"]
+            res = requests.get("https://lrclib.net/api/search", params=params, headers=LRCLIB_HEADERS, timeout=10)
+            if res.status_code == 200:
+                for hit in res.json():
+                    if hit.get("plainLyrics"):
+                        return hit["plainLyrics"]
+        except Exception as e:
+            print(f"LRCLIB Error: {e}")
+    return None
+
+
+def fetch_lyrica_lyrics(song_title, artist_name):
+    """Fallback: community Lyrica API instance."""
     base_url = "https://test-0k.onrender.com/lyrics/"
     params = {"artist": artist_name, "song": song_title}
     headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
     try:
-        print(f"Fetching Lyrica for: {song_title} - {artist_name}...")
         res = requests.get(base_url, params=params, headers=headers, timeout=15)
         if res.status_code == 200:
             data = res.json()
             if data.get("status") == "success":
-                lyrics = data["data"].get("lyrics")
-                if lyrics:
-                    # Basic cleanup of any remaining HTML artifacts or repeated newlines
-                    lyrics = re.sub(r'<[^>]*>', '', lyrics) 
-                    clean_lyrics = re.sub(r'(\n){3,}', '\n\n', lyrics).strip()
-                    print(f"Retrieved {len(clean_lyrics)} chars of lyrics.")
-                    return clean_lyrics
+                return data["data"].get("lyrics")
     except Exception as e:
         print(f"Lyrica Error: {e}")
+    return None
+
+
+def get_lyrics(song_title, artist_name):
+    """Fetches plain lyrics from LRCLIB, falling back to Lyrica."""
+    print(f"Fetching lyrics for: {song_title} - {artist_name}...")
+    for source in (fetch_lrclib_lyrics, fetch_lyrica_lyrics):
+        lyrics = source(song_title, artist_name)
+        if lyrics:
+            # Basic cleanup of any remaining HTML artifacts or repeated newlines
+            lyrics = re.sub(r'<[^>]*>', '', lyrics)
+            clean_lyrics = re.sub(r'(\n){3,}', '\n\n', lyrics).strip()
+            print(f"Retrieved {len(clean_lyrics)} chars of lyrics via {source.__name__}.")
+            return clean_lyrics
     return None
 
 def generate_lyric_snippets(title, artist, lyrics):
@@ -213,8 +243,7 @@ def fetch_spotify_data(url, key):
     raw_lfm_tracks = lfm_tracks_res.json().get("toptracks", {}).get("track", [])
     raw_lfm_artists = lfm_artists_res.json().get("topartists", {}).get("artist", [])
 
-    # Check existing DB for the top track's lyrics to avoid unnecessary API calls
-    existing_lyrics = None
+    # Check existing DB for the top track's curated snippets to avoid unnecessary API calls
     existing_ai_lyrics = None
     existing_top_track_name = None
     try:
@@ -228,7 +257,6 @@ def fetch_spotify_data(url, key):
             existing_tracks = existing_spotify.get("top_tracks_last_month", [])
             if existing_tracks:
                 existing_top_track_name = existing_tracks[0].get("title")
-                existing_lyrics = existing_tracks[0].get("lyrics")
                 existing_ai_lyrics = existing_tracks[0].get("ai_lyrics")
     except Exception as e:
         print(f"Failed to check existing lyrics in DB: {e}")
@@ -296,8 +324,8 @@ def fetch_spotify_data(url, key):
     lyric_future = None
     if raw_lfm_tracks:
         top_t = raw_lfm_tracks[0]
-        if existing_top_track_name == top_t['name'] and (existing_ai_lyrics or existing_lyrics):
-            print(f"Top track '{top_t['name']}' hasn't changed. Using cached lyrics.")
+        if existing_top_track_name == top_t['name'] and existing_ai_lyrics:
+            print(f"Top track '{top_t['name']}' hasn't changed. Using cached lyric snippets.")
         else:
             lyric_future = executor.submit(get_lyrics, top_t['name'], top_t['artist']['name'])
 
@@ -345,20 +373,17 @@ def fetch_spotify_data(url, key):
         top_track = final_tracks[0]
         if existing_top_track_name == top_track['title'] and existing_ai_lyrics:
             top_track['ai_lyrics'] = existing_ai_lyrics
-            if existing_lyrics:
-                top_track['lyrics'] = existing_lyrics
             print("Reused cached AI lyrics for unchanged #1 track!")
         else:
-            lyrics_text = existing_lyrics if (existing_top_track_name == top_track['title'] and existing_lyrics) else None
-            
+            lyrics_text = None
             if lyric_future:
                 try:
                     lyrics_text = lyric_future.result(timeout=15)
                 except Exception as e:
                     print(f"Lyric fetching timed out/failed: {str(e)}")
 
+            # Full lyrics are only input for curation: they're copyrighted, so never stored or served
             if lyrics_text:
-                top_track['lyrics'] = lyrics_text
                 top_track['ai_lyrics'] = generate_lyric_snippets(top_track['title'], top_track['artist'], lyrics_text)
                 if top_track.get('ai_lyrics'):
                     print("AI Lyrics curated successfully!")
@@ -378,6 +403,7 @@ def fetch_spotify_data(url, key):
 FAVORITE_ALBUMS_RAW = [
     {
         "title": "Purple Rain",
+        "year": "1984",
         "artist": "Prince and The Revolution",
         "raw_cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front",
         "banner_url": "/images/albums/purple-rain-banner.webp",
@@ -387,6 +413,7 @@ FAVORITE_ALBUMS_RAW = [
     },
     {
         "title": "Angel Face (Club Deluxe)",
+        "year": "2023",
         "artist": "Stephen Sanchez",
         "raw_cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419.jpg",
         "banner_url": "/images/albums/angel-face-banner.webp",
@@ -396,6 +423,7 @@ FAVORITE_ALBUMS_RAW = [
     },
     {
         "title": "5SOS5 (Deluxe)",
+        "year": "2022",
         "artist": "5 Seconds of Summer",
         "raw_cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front",
         "banner_url": "/images/albums/5sos5-banner.webp",
@@ -405,6 +433,7 @@ FAVORITE_ALBUMS_RAW = [
     },
     {
         "title": "Fine Line",
+        "year": "2019",
         "artist": "Harry Styles",
         "raw_cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front",
         "banner_url": "/images/albums/fine-line-banner.webp",
@@ -414,6 +443,7 @@ FAVORITE_ALBUMS_RAW = [
     },
     {
         "title": "4TH WALL",
+        "year": "2023",
         "artist": "Ruel",
         "raw_cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front",
         "banner_url": "/images/albums/4th-wall-banner.webp",
@@ -446,6 +476,7 @@ def fetch_favorite_albums(access_token=None):
         raw_url = album.get("raw_cover_url", "")
         cover_500 = optimize_cover_url(raw_url)
         album["cover_url"] = cover_500
+        album["format_tag"] = f"LP · {album['year']}"
         
         # wsrv.nl proxy WebP URL for fast global CDN delivery and anti-ISP-block protection
         if cover_500:
@@ -827,19 +858,6 @@ def main():
         favorite_albums = fetch_favorite_albums()
         if isinstance(spotify_data, dict):
             spotify_data["favorite_albums"] = favorite_albums
-
-    album_years = {
-        'Purple Rain': '1984',
-        'Angel Face (Club Deluxe)': '2023',
-        '5SOS5 (Deluxe)': '2022',
-        'Fine Line': '2019',
-        '4TH WALL': '2023'
-    }
-    if isinstance(spotify_data, dict):
-        for alb in spotify_data.get('favorite_albums', []):
-            y = album_years.get(alb.get('title'), '2023')
-            alb['year'] = y
-            alb['format_tag'] = f'LP · {y}'
 
     data = {
         "spotify": spotify_data,

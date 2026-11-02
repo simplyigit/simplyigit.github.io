@@ -1,0 +1,300 @@
+.delay-2 {
+    animation-delay: 0.2s;
+}
+
+
+/* Classical Book UI & Shelf Filters */
+.reading-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.reading-shelf-tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    background: rgba(23, 21, 19, 0.85);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 30px;
+    flex-wrap: wrap;
+}
+
+.reading-shelf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 24px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: rgba(230, 223, 204, 0.55);
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.reading-shelf-btn:hover {
+    color: #e6dfcc;
+    background: rgba(212, 175, 55, 0.08);
+}
+
+.reading-shelf-btn.active {
+    color: #f4ebd9;
+    background: rgba(212, 175, 55, 0.16);
+    border-color: rgba(212, 175, 55, 0.35);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.shelf-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(230, 223, 204, 0.75);
+}
+
+.classical-books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.classical-book-card {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 22px 24px 22px;
+    gap: 16px;
+    /* Ditching glassmorphism for a matte, classical leather/paper aesthetic */
+    background: #171513;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    /* Muted gold trim */
+    border-radius: 4px;
+    /* Sharp corners like a classic book or frame */
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.4);
+    align-items: center;
+    text-align: center;
+    transition: transform 0.4s ease, border-color 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.classical-book-top-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.classical-shelf-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    color: #d4af37;
+    background: rgba(212, 175, 55, 0.08);
+}
+
+.classical-shelf-badge.shelf-reading {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.4);
+    background: rgba(251, 191, 36, 0.12);
+}
+
+.classical-shelf-badge.shelf-read {
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.3);
+    background: rgba(52, 211, 153, 0.08);
+}
+
+/* Subtle classical texture overlay */
+.classical-book-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+/* Subtle bottom vignette */
+.classical-book-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background: linear-gradient(to top, #171513 10%, transparent);
+    pointer-events: none;
+}
+
+.classical-book-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(212, 175, 55, 0.4);
+    /* Gold leaf glow on hover */
+}
+
+/* Rendering the physical book cover */
+.classical-book-cover {
+    width: 120px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 2px 4px 4px 2px;
+    /* Simulate book spine and page depth */
+    box-shadow:
+        -4px 0 2px -1px rgba(255, 255, 255, 0.2) inset,
+        0 4px 15px rgba(0, 0, 0, 0.6),
+        4px 0 2px -1px rgba(0, 0, 0, 0.3) inset;
+    transform: perspective(600px) rotateY(-10deg);
+    transition: transform 0.5s ease;
+}
+
+.classical-book-card:hover .classical-book-cover {
+    transform: perspective(600px) rotateY(0deg) translateZ(10px);
+}
+
+.classical-book-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    z-index: 1;
+}
+
+.classical-book-title {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e6dfcc;
+    /* Parchment white */
+    line-height: 1.3;
+}
+
+.classical-book-author {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 0.88rem;
+    font-style: italic;
+    color: rgba(230, 223, 204, 0.6);
+}
+
+.classical-book-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: rgba(212, 175, 55, 0.65);
+    letter-spacing: 0.4px;
+    margin-top: 2px;
+}
+
+.classical-book-stars {
+    color: #d4af37;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+.classical-empty-shelf {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(230, 223, 204, 0.5);
+    font-family: "Playfair Display", Georgia, serif;
+    font-style: italic;
+}
+@media screen and (max-width: 600px) {
+
+    /* Reading Page: Single-row scrollable shelf tabs & 2-column bookshelf */
+    .reading-header-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .reading-shelf-tabs {
+        width: 100%;
+        box-sizing: border-box;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: space-between;
+        gap: 3px;
+        padding: 3px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .reading-shelf-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .reading-shelf-btn {
+        flex: 1 0 auto;
+        justify-content: center;
+        gap: 4px;
+        padding: 6px 7px;
+        font-size: 0.71rem;
+        white-space: nowrap;
+    }
+
+    .shelf-count {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+    }
+
+    .classical-books-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .classical-book-card {
+        padding: 14px 10px 16px 10px !important;
+        gap: 10px;
+    }
+
+    .classical-book-top-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .classical-shelf-badge {
+        font-size: 0.56rem;
+        padding: 2px 6px;
+    }
+
+    .classical-book-meta {
+        font-size: 0.6rem;
+    }
+
+    .classical-book-cover {
+        width: 92px;
+        height: 138px;
+    }
+
+    .classical-book-title {
+        font-size: 0.92rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .classical-book-author {
+        font-size: 0.78rem;
+    }
+}
+
+.reading-header-row .section-title {
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 0;
+}

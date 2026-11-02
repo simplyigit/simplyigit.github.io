@@ -1,0 +1,1556 @@
+.gradient-text {
+    color: var(--text-primary);
+    text-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+}
+
+/* Complex Grid Setup */
+.projects-grid-complex {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: auto;
+    gap: 20px;
+}
+
+.library-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr) minmax(0, 1fr);
+    gap: 20px;
+    align-items: stretch;
+}
+
+.default-card {
+    flex-direction: column;
+}
+
+.wide-card {
+    grid-column: span 2;
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+}
+
+.full-wide-card {
+    grid-column: span 3;
+    flex-direction: row;
+    align-items: center;
+}
+
+.card-visual {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-visual img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+}
+
+.card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.glass-card .tags {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    color: var(--text-secondary);
+}
+
+/* Visual Placeholders matching Mockup */
+.project-real .card-visual {
+    background: radial-gradient(circle at center, rgba(120, 110, 255, 0.1), transparent);
+}
+
+/* AOTY Card */
+.fun-aoty {
+    background: linear-gradient(135deg, rgba(20, 50, 60, 0.6), rgba(0, 0, 0, 0.3));
+}
+
+.social-icon {
+    color: var(--text-secondary);
+    transition: color 0.3s ease, transform 0.5s ease;
+    display: flex;
+}
+
+.social-icon:hover {
+    transform: translateY(-1px) scale(1.06);
+}
+
+.social-icon.github:hover {
+    color: #ffffff;
+}
+
+.social-icon.linkedin:hover {
+    color: #0077b5;
+}
+
+.social-icon.python:hover {
+    color: #3776AB;
+}
+
+.social-icon.ai:hover {
+    color: #38bdf8;
+}
+
+
+/* ======================== */
+/*   VINTAGE BOOK CARD      */
+/* ======================== */
+
+.book-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+    min-width: 0;
+    min-height: 218px;
+    will-change: transform;
+    height: 100%;
+}
+
+.book-link:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.hero-book-body {
+    background: linear-gradient(180deg, #24222a 0%, #1a1820 40%, #131217 100%);
+    border-radius: 14px;
+    padding: 12px 10px 12px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.3),
+        0 8px 30px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Recessed Deep Black Book Bay - EXACT match with .vhs-tape-bay */
+.book-bay {
+    background: rgba(0, 0, 0, 0.78);
+    border-radius: 8px;
+    padding: 10px 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    z-index: 2;
+    height: 100%;
+    width: 100%;
+    flex: 1;
+    box-sizing: border-box;
+    overflow: visible; /* Allows books to pop forward and extend OVER the dark background */
+}
+
+/* Bay Top: Minimal tactile indicator row */
+.book-bay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 2px;
+}
+
+.book-bay-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.8px;
+}
+
+.book-bay-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: none; /* Zero neon glow */
+}
+
+.book-bay-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 1px;
+}
+
+/* Central Bookshelf Stage */
+.book-shelf-stage {
+    position: relative;
+    width: 100%;
+    height: 126px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+    perspective-origin: 50% 35%;
+    transform-style: preserve-3d;
+    z-index: 10;
+}
+
+/* The 3 Books Layout */
+.book-shelf-item {
+    position: absolute;
+    border-radius: 3px 4px 4px 3px;
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+}
+
+/* Left Book (Book 3) */
+.book-shelf-left {
+    width: 66px;
+    height: 98px;
+    transform: translateX(-40px) translateY(2px) rotate(-6deg) translateZ(3px);
+    z-index: 1;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, filter 0.5s ease;
+}
+
+.book-shelf-left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 3px 4px 4px 3px;
+    display: block;
+}
+
+/* Right Book (Book 2) */
+.book-shelf-right {
+    width: 66px;
+    height: 98px;
+    transform: translateX(40px) translateY(2px) rotate(6deg) translateZ(3px);
+    z-index: 2;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, filter 0.5s ease;
+}
+
+.book-shelf-right img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 3px 4px 4px 3px;
+    display: block;
+}
+
+/* Hover: Side books tuck back into deep background shadows within card boundaries */
+.book-link:hover .book-shelf-left {
+    transform: translateX(-42px) translateY(6px) translateZ(-30px) rotate(-9deg) scale(0.85);
+    opacity: 0.25;
+    filter: blur(0.4px);
+}
+
+.book-link:hover .book-shelf-right {
+    transform: translateX(42px) translateY(6px) translateZ(-30px) rotate(9deg) scale(0.85);
+    opacity: 0.25;
+    filter: blur(0.4px);
+}
+
+/* Center Hero Book Assembly */
+.book-shelf-center,
+.book-3d-wrapper {
+    position: relative;
+    width: 78px;
+    height: 116px;
+    z-index: 20;
+    transform-style: preserve-3d;
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateX(0) translateY(0) translateZ(8px);
+}
+
+.book-3d-obj {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+/* On hover: opens gracefully with authentic 3D perspective */
+.book-link:hover .book-shelf-center,
+.book-link:hover .book-3d-wrapper {
+    transform: translateX(36px) translateY(-3px) translateZ(28px) scale(1.04) rotateX(4deg) rotateY(-6deg);
+}
+
+.book-link:hover .book-obj-base {
+    box-shadow: -10px 18px 26px rgba(0, 0, 0, 0.8), 0 6px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* Spine */
+.book-obj-spine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -2px;
+    width: 5px;
+    background: linear-gradient(90deg, #151319 0%, #322f3a 50%, #151319 100%);
+    border-radius: 3px 0 0 3px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+/* Base and 3D page edges */
+.book-obj-base {
+    position: absolute;
+    inset: 0;
+    border-radius: 3px 4px 4px 3px;
+    background: #1e1c24;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.65), 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Page edge on right: only visible when opened to show remaining paper block */
+.book-pages-edge-right {
+    display: none;
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    right: -2px;
+    width: 3px;
+    background: #e6dfd1;
+    border-radius: 0 1px 1px 0;
+    box-shadow: 1px 0 2px rgba(0, 0, 0, 0.3);
+}
+
+.book-link:hover .book-pages-edge-right {
+    display: block;
+}
+
+/* Inside Right Page Spread */
+.book-page-spread-right {
+    position: absolute;
+    inset: 0;
+    background: #fbf8f1;
+    border-radius: 2px 4px 4px 2px;
+    box-shadow: inset 14px 0 18px rgba(0, 0, 0, 0.25), inset 0 0 4px rgba(0, 0, 0, 0.06);
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    padding: 8px 8px 6px 12px;
+    box-sizing: border-box;
+    z-index: 2;
+}
+
+.book-ribbon-drape {
+    position: absolute;
+    top: 0;
+    right: 8px;
+    width: 5px;
+    height: 85px;
+    background: linear-gradient(180deg, #b91c1c 0%, #991b1b 80%, #7f1d1d 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 90%, 0 100%);
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.book-page-paper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    color: #2b2621;
+}
+
+.book-page-header {
+    text-align: center;
+    font-size: 0.5rem;
+    color: #92400e;
+    line-height: 1;
+}
+
+.book-page-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 0.48rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #1f1b18;
+    max-height: 2.4em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 12px;
+}
+
+.book-page-byline {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.36rem;
+    color: #78716c;
+    margin-top: 1px;
+    padding-right: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.book-page-rule {
+    height: 1px;
+    background: linear-gradient(90deg, #d6d3d1 0%, rgba(214, 211, 209, 0) 100%);
+    margin: 3px 0;
+}
+
+.book-page-text-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 2px;
+}
+
+.page-line {
+    height: 2px;
+    background: #e7e5e4;
+    border-radius: 1px;
+}
+.page-line.line-1 { width: 90%; }
+.page-line.line-2 { width: 80%; }
+.page-line.line-3 { width: 58%; }
+
+.book-page-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.34rem;
+    color: #a8a29e;
+}
+
+/* Front Cover Assembly (Hinged at left edge) */
+.book-front-cover-assembly {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transform: rotateY(0deg);
+    transition: transform 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 25;
+    cursor: pointer;
+}
+
+.book-link:hover .book-front-cover-assembly {
+    transform: rotateY(-147deg);
+}
+
+.book-cover-outside,
+.book-cover-inside {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 3px 4px 4px 3px;
+}
+
+.book-cover-outside {
+    position: relative;
+    z-index: 2;
+    transform: rotateY(0deg);
+    border-radius: 3px 4px 4px 3px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.65);
+    overflow: hidden;
+}
+
+.book-cover-art {
+    width: 78px !important;
+    height: 116px !important;
+    object-fit: cover;
+    border-radius: 3px 4px 4px 3px;
+    display: block;
+}
+
+.book-cover-emboss-spine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 6px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.book-cover-glare {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 60%);
+    border-radius: 3px 4px 4px 3px;
+    pointer-events: none;
+}
+
+.book-ribbon-tag {
+    position: absolute;
+    top: -3px;
+    right: 12px;
+    width: 7px;
+    height: 20px;
+    background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.4);
+    z-index: 5;
+}
+
+/* Inside Left Page: Vintage Flyleaf with Ex Libris bookplate */
+.book-cover-inside {
+    transform: rotateY(180deg);
+    background: #25222b;
+    border-radius: 4px 2px 2px 4px;
+    border-right: 1px solid rgba(0, 0, 0, 0.4);
+    box-shadow: inset -10px 0 16px rgba(0, 0, 0, 0.55), -6px 8px 18px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    padding: 6px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.book-endpaper-vintage {
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.bookplate-seal {
+    text-align: center;
+    color: rgba(235, 230, 220, 0.75);
+}
+
+.bookplate-tag {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    font-size: 0.36rem;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    color: #f59e0b;
+    text-transform: uppercase;
+}
+
+.bookplate-monogram {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #f3f0e8;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.bookplate-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.32rem;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Shelf Ledge at Bottom (matching VHS bay bottom row) */
+.book-shelf-ledge {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+}
+
+
+/* ======================== */
+/*   RETRO VHS CARD         */
+/* ======================== */
+
+.vhs-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+    min-width: 0;
+    min-height: 218px;
+    will-change: transform;
+    height: 100%;
+}
+
+.vhs-link:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.vhs-body {
+    background: linear-gradient(180deg, #24222a 0%, #1a1820 40%, #131217 100%);
+    border-radius: 14px;
+    padding: 12px 10px 12px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.3),
+        0 8px 30px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Recessed Acrylic VHS Tape Bay */
+.vhs-tape-bay {
+    background: rgba(0, 0, 0, 0.78);
+    border-radius: 8px;
+    padding: 10px 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    z-index: 2;
+    height: 100%;
+    flex: 1;
+    box-sizing: border-box;
+}
+
+.vhs-bay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 2px;
+}
+
+/* Phosphor VCR On-Screen Display with Smooth Play/Pause Transition */
+.vhs-osd {
+    position: relative;
+    height: 14px;
+    min-width: 52px;
+    display: flex;
+    align-items: center;
+}
+
+.vhs-osd-state {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.state-play {
+    color: #00ff88;
+    text-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.state-pause {
+    color: #fbbf24;
+    text-shadow: 0 0 6px rgba(251, 191, 36, 0.7);
+    opacity: 0;
+    transform: translateY(3px);
+}
+
+.vhs-link:hover .state-play,
+.vhs-link.is-paused .state-play {
+    opacity: 0;
+    transform: translateY(-3px);
+}
+
+.vhs-link:hover .state-pause,
+.vhs-link.is-paused .state-pause {
+    opacity: 1;
+    transform: translateY(0);
+    animation: vhsPausePulse 1.2s infinite alternate;
+}
+
+@keyframes vhsPausePulse {
+    from { text-shadow: 0 0 4px rgba(251, 191, 36, 0.5); }
+    to { text-shadow: 0 0 10px rgba(251, 191, 36, 0.9); }
+}
+
+.vhs-osd-icon {
+    font-size: 0.52rem;
+    margin-right: 3px;
+    display: inline-block;
+}
+
+.vhs-tape-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+}
+
+.vhs-link:hover .vhs-tape-counter,
+.vhs-link.is-paused .vhs-tape-counter {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.vhs-bay-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 4px;
+}
+
+.vhs-mini-spool {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: radial-gradient(circle, #222 30%, #111 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vhs-mini-spool-inner {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0.4;
+    animation: spinSpool 2.4s linear infinite;
+    animation-play-state: var(--movie-play-state, paused);
+}
+
+.vhs-link {
+    --movie-play-state: paused;
+}
+.vhs-link:hover {
+    --movie-play-state: running;
+}
+
+.vhs-spool-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+    margin: 0 6px;
+}
+
+.vhs-tag-red {
+    font-family: sans-serif;
+    font-size: 0.44rem;
+    font-weight: 900;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.6);
+    border-radius: 2px;
+    padding: 0 4px;
+    letter-spacing: 0.8px;
+    background: rgba(239, 68, 68, 0.1);
+    display: inline-block;
+    line-height: 1.2;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.vhs-tape-strip {
+    flex: 1;
+    height: 3px;
+    background: #111;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ======================== */
+/*   CINEMA REEL TRACK      */
+/* ======================== */
+.vhs-filmstrip-viewport {
+    width: 100%;
+    height: 74px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+
+.vhs-filmstrip-track {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: max-content;
+    will-change: transform;
+    /* Continuous smooth glide from left to right */
+    animation: vhsRollLeftToRight 16s linear infinite;
+    animation-play-state: paused;
+}
+
+.vhs-link:hover .vhs-filmstrip-track,
+.vhs-link.is-paused .vhs-filmstrip-track {
+    animation-play-state: running;
+}
+
+/* Left to Right translation: -50% -> 0% */
+@keyframes vhsRollLeftToRight {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+.vhs-filmstrip-item {
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+}
+
+.vhs-film-cover {
+    width: 48px !important;
+    height: 72px !important;
+    border-radius: 4px;
+    object-fit: cover;
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+    background: #18161f;
+    color: transparent;
+    font-size: 0;
+}
+
+/* ======================== */
+/*     CASSETTE TAPE        */
+/* ======================== */
+
+.cassette-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+    min-width: 0;
+    will-change: transform;
+}
+
+.cassette-link:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+}
+
+.cassette-body {
+    background: linear-gradient(180deg, #2d2a31 0%, #24222a 40%, #1e1c24 100%);
+    border-radius: 14px;
+    padding: 12px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+        0 8px 30px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+    height: 100%;
+    box-sizing: border-box;
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+}
+
+/* Realistic Screws */
+.cassette-screw {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #444, #111);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        0 1px 1px rgba(255, 255, 255, 0.05);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cassette-screw::after {
+    content: '+';
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 10px;
+    font-weight: 900;
+    font-family: sans-serif;
+    transform: rotate(45deg);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Subtly tint the background with the cover art color */
+.cassette-body::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--cassette-art-color, transparent);
+    opacity: 0.1;
+    mix-blend-mode: color;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Top Label: Dymo / Handwritten style */
+.cassette-label-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding-top: 8px;
+    z-index: 2;
+}
+
+.cassette-label-brand {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #111;
+    padding: 2px 8px;
+    border-radius: 2px;
+    box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cassette-label-brand span {
+    font-size: 0.55rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #eee;
+    text-transform: uppercase;
+}
+
+.cassette-label-artist {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #fff;
+    background: #222;
+    padding: 3px 10px;
+    border-radius: 2px;
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.5px;
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Centered Window */
+.cassette-window {
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    margin: 6px 10px 0;
+    /* Nudged down slightly */
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.tape-strand {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    right: 10px;
+    height: 14px;
+    background: linear-gradient(180deg, #1a1815 0%, #11100d 100%);
+    transform: translateY(-50%);
+    z-index: 0;
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.cassette-song-on-tape {
+    z-index: 2;
+    text-align: center;
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+    margin: 0 5px;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent);
+    display: flex;
+    justify-content: center;
+}
+
+.cassette-song-marquee {
+    display: flex;
+    white-space: nowrap;
+    width: fit-content;
+    animation: tapeMarquee var(--marquee-duration, 6s) linear infinite;
+    animation-play-state: var(--tape-play-state, paused);
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Skeleton Loading Bounce */
+@keyframes loadingSpine {
+    0%, 100% { background: rgba(255, 255, 255, 0.05); }
+    50% { background: rgba(255, 255, 255, 0.12); }
+}
+
+.spine-bounce {
+    animation: loadingSpine 1.4s infinite ease-in-out;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+
+.cassette-link {
+    --tape-play-state: paused;
+}
+
+.cassette-link:hover {
+    --tape-play-state: running;
+}
+
+.cassette-song-title-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    padding: 0 5px;
+}
+
+@keyframes tapeMarquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(calc(-100% / 7));
+    }
+}
+
+/* Spools */
+.spool {
+    --spool-size: 42px;
+    width: var(--spool-size);
+    height: var(--spool-size);
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    box-sizing: border-box;
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.6),
+        inset 0 0 8px rgba(0, 0, 0, 0.5);
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+}
+
+/* Stationary metallic background and tape pack texture */
+.spool::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 45%),
+        radial-gradient(circle, transparent 8px, rgba(255, 255, 255, 0.08) 8px, rgba(255, 255, 255, 0.08) 9px, transparent 9px),
+        repeating-radial-gradient(circle at center,
+            #1e1c22 0px, #1e1c22 1.5px,
+            #26242c 1.5px, #26242c 3px);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.spool-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    animation: spinSpool 2.4s linear infinite;
+    animation-play-state: var(--tape-play-state, paused);
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Cassette spool hub (center spindle opening) */
+.spool-hub {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    background: radial-gradient(circle, #0e0d11 35%, rgba(255, 255, 255, 0.06) 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.8), inset 0 0 2px rgba(0, 0, 0, 0.8);
+    box-sizing: border-box;
+}
+
+/* Center spindle hole */
+.spool-hub::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 2;
+}
+
+/* Cassette spindle teeth / spokes */
+.spool-spoke {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.35);
+    top: 50%;
+    left: 0;
+    transform-origin: center center;
+    border-radius: 1px;
+    z-index: 1;
+}
+
+.spool-spoke:nth-child(1) { transform: translateY(-50%) rotate(0deg); }
+.spool-spoke:nth-child(2) { transform: translateY(-50%) rotate(60deg); }
+.spool-spoke:nth-child(3) { transform: translateY(-50%) rotate(120deg); }
+
+@keyframes spinSpool {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+/* Bottom Area: Integrated Cover Art */
+.cassette-bottom-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding-bottom: 2px;
+    margin-top: 4px;
+}
+
+.cassette-cover-art-wrapper {
+    width: 100px;
+    height: 44px;
+    background: #111;
+    padding: 3px;
+    border-radius: 4px 4px 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Grainy Texture for Cover Art */
+.cassette-cover-art-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.15;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.cassette-cover-art {
+    width: 100%;
+    height: 100%;
+    background-image: var(--cassette-art, none);
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    border-radius: 2px;
+    filter: saturate(0.8) contrast(1.1);
+}
+
+.has-art .cassette-cover-art {
+    opacity: 0.9;
+}
+
+.cassette-head {
+    width: 114px;
+    height: 14px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #111 100%);
+    border-radius: 0 0 10px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    /* Trapezoidal lock-in effect matching the wrapper */
+    clip-path: polygon(0% 0%, 100% 0%, 92% 100%, 8% 100%);
+}
+
+.cassette-head-inner {
+    width: 80%;
+    height: 4px;
+    background: #000;
+    border-radius: 2px;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .library-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cassette-link {
+        grid-column: span 1;
+        order: -1;
+    }
+}
+
+.hero-glow-1,
+.hero-glow-2 {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    filter: blur(40px);
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.8;
+    animation: slowHeroOrbit 1s infinite alternate ease-in-out;
+}
+
+.hero-glow-1 {
+    background: rgba(39, 0, 75, 0.7);
+    /* Deep Purple */
+    top: -20px;
+    left: -20px;
+}
+
+.hero-glow-2 {
+    background: rgba(6, 39, 88, 0.7);
+    /* Muted Blue */
+    bottom: -20px;
+    left: 60px;
+    animation-delay: -4s;
+    animation-direction: alternate-reverse;
+}
+
+@keyframes slowHeroOrbit {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(40px, 0) scale(1.1);
+    }
+}
+
+  /* Filmstrip reel decoration */
+  .filmstrip { display: flex; align-items: center; gap: 4px; margin-bottom: 14px; }
+
+/* Floating Emoji Animations */
+.floating-emoji {
+    position: absolute;
+    pointer-events: none;
+    z-index: 9999;
+    font-size: 1.5rem;
+    animation: driftUpEmoji 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes driftUpEmoji {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: translate(-50%, calc(-50% - 60px)) scale(1.5) rotate(15deg);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spool-inner,
+    .cassette-song-marquee,
+    .floating-emoji {
+        animation: none !important;
+    }
+}
+@media (hover: none) {
+
+    .cassette-link {
+        --tape-play-state: running;
+    }
+
+    .cassette-link .spool-inner {
+        animation-play-state: running;
+    }
+
+    .vhs-link {
+        --movie-play-state: running;
+    }
+
+    .vhs-link .vhs-filmstrip-track {
+        animation-play-state: running;
+    }
+}
+@media screen and (max-width: 768px) {
+
+    .projects-grid-complex,
+    .library-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wide-card,
+    .full-wide-card {
+        grid-column: span 1;
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .card-visual {
+        width: 100%;
+        max-height: 220px;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .card-visual img {
+        max-height: 220px;
+        object-fit: cover;
+    }
+
+    .card-content {
+        align-items: center;
+    }
+
+    .glass-card .tags {
+        justify-content: center;
+    }
+
+    /* Homepage Hero Pill Symmetry */
+    .social-tube.unified-hero-tube {
+        padding: 10px 18px 10px 14px !important;
+        gap: 16px !important;
+        width: fit-content;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .social-tube.unified-hero-tube h1 {
+        font-size: 2rem !important;
+    }
+
+    .hero-social-divider {
+        padding-left: 16px !important;
+        gap: 14px !important;
+    }
+
+    .avatar-memoji {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        transform: scale(1.05) !important;
+    }
+
+    /* Homepage Skeuomorphic Library Cards on Mobile */
+    .cassette-link {
+        min-height: 218px;
+    }
+
+    .cassette-window {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    .book-shelf-stage {
+        transform: scale(1.06);
+        transform-origin: center bottom;
+    }
+}
+
+/* ======================================================== */
+/*   HOMEPAGE HERO & SECTION HEADERS                        */
+/* ======================================================== */
+.home-hero {
+    gap: 20px;
+}
+
+.social-tube.unified-hero-tube {
+    padding: 12px 28px 12px 16px;
+    gap: 24px;
+    width: fit-content;
+    align-items: center;
+}
+
+.unified-hero-tube .avatar-memoji {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    z-index: 1;
+    transform: scale(1.15);
+}
+
+.unified-hero-tube .hero-name {
+    position: relative;
+    margin: 0;
+    font-size: 2.5rem;
+    line-height: 1;
+    padding-bottom: 3px;
+    z-index: 1;
+}
+
+.unified-hero-tube .hero-social-divider {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    border-left: 1px dashed rgba(255, 255, 255, 0.15);
+    padding-left: 24px;
+    height: 32px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.section-header .section-title {
+    margin-bottom: 0;
+}
+
+.social-tube.tech-tube {
+    margin-bottom: 0;
+    padding: 6px 14px;
+    width: fit-content;
+    gap: 14px;
+}
+
+.tech-tube .social-icon {
+    display: flex;
+    align-items: center;
+}
+
+.cassette-label-brand svg {
+    opacity: 0.6;
+}
+
+.cassette-screw.screw-tl { top: 10px; left: 14px; }
+.cassette-screw.screw-tr { top: 10px; right: 14px; }
+.cassette-screw.screw-bl { bottom: 10px; left: 14px; }
+.cassette-screw.screw-br { bottom: 10px; right: 14px; }
+
+/* Skeleton placeholders shown until data renders */
+.spine-bounce.sk-book-side { width: 66px; height: 98px; border-radius: 3px; }
+.spine-bounce.sk-book-hero { width: 78px; height: 116px; border-radius: 3px; }
+.spine-bounce.sk-artist { width: 80px; height: 10px; border-radius: 2px; opacity: 0.3; }
+.spine-bounce.sk-title { width: 100px; height: 12px; border-radius: 2px; opacity: 0.4; }
+.spine-bounce.sk-poster { width: 48px; height: 72px; border-radius: 4px; }
+
+.card-visual .card-visual-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Destination captions under the library objects (text comes from data-caption) */
+.library-grid {
+    padding-bottom: 26px;
+}
+
+.book-link,
+.cassette-link,
+.vhs-link {
+    position: relative;
+}
+
+.book-link::after,
+.cassette-link::after,
+.vhs-link::after {
+    content: attr(data-caption) " →";
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    transition: opacity 0.3s ease, color 0.3s ease;
+    pointer-events: none;
+}
+
+.book-link:hover::after,
+.cassette-link:hover::after,
+.vhs-link:hover::after,
+.book-link:focus-visible::after,
+.cassette-link:focus-visible::after,
+.vhs-link:focus-visible::after {
+    opacity: 1;
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .library-grid {
+        row-gap: 46px;
+    }
+}

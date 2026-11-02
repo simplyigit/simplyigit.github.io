@@ -4,8 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library | Yigit</title>
-    <meta name="robots" content="noindex, nofollow">
+    <title>Reading | yiğit</title>
+    <meta name="description" content="What yiğit is reading: current, finished and up-next books, synced from Goodreads.">
+    <link rel="canonical" href="https://simplyigit.me/library/reading">
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#020813">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="yiğit">
+    <meta property="og:title" content="Reading | yiğit">
+    <meta property="og:description" content="What yiğit is reading: current, finished and up-next books, synced from Goodreads.">
+    <meta property="og:url" content="https://simplyigit.me/library/reading">
+    <meta property="og:image" content="https://simplyigit.me/images/og/reading.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://i.gr-assets.com">
@@ -15,8 +29,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css?v=6.6">
-    <script>(function(){var d=document.documentElement;try{var n=performance.getEntriesByType("navigation")[0];if("PageRevealEvent" in window&&document.referrer&&new URL(document.referrer).origin===location.origin&&(!n||n.type!=="reload"))d.classList.add("vt-nav")}catch(e){}var done=function(){setTimeout(function(){d.classList.remove("vt-nav")},1000)};addEventListener("pagereveal",function(e){window.__NAV_VT__=e.viewTransition||null;if(e.viewTransition)e.viewTransition.finished.then(done,done);else done()},{once:true})})();</script>
+    <link rel="stylesheet" href="../assets/css/base.css?v=7.0">
+    <link rel="stylesheet" href="../assets/css/reading.css?v=7.0">
+    <script src="../assets/js/vt-nav.js?v=7.0"></script>
     <script>window.__PREFETCH_BOOKS__ = fetch("/api/books", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
 </head>
 
@@ -27,29 +42,26 @@
         <div class="orb orb-3"></div>
     </div>
     <div class="container fade-in">
-        <header class="hero" style="font-family: 'Playfair Display', serif; align-items: center; text-align: center;">
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; width: 100%; font-family: 'Inter', sans-serif;">
+        <header class="hero subpage-hero subpage-hero--serif">
+            <div class="subpage-bar">
                 <a href="/" class="glass-card back-btn">
-                    <span class="arrow" style="transform: rotate(180deg); margin-right: 8px;">→</span> Portfolio
+                    <span class="arrow arrow-back">→</span> Portfolio
                 </a>
 
-                <h1 style="font-family: 'Playfair Display', serif; margin: 0;">Library.</h1>
+                <h1 class="subpage-title">Reading.</h1>
 
                 <a href="https://www.goodreads.com/user/show/199124060" target="_blank" rel="noopener noreferrer"
                     class="glass-card repo-btn">
-                    <span style="font-size: 1.1rem; margin-right: 8px;">📖</span>
-                    Goodreads <span class="arrow" style="margin-left: 8px;">→</span>
+                    <span class="btn-icon btn-emoji">📖</span>
+                    Goodreads <span class="arrow arrow-forward">→</span>
                 </a>
             </div>
 
-            <p class="subtitle"
-                style="font-family: 'Playfair Display', serif; font-style: italic; max-width: 600px; color: var(--text-secondary); line-height: 1.6; margin-top: 8px; font-size: 1.1rem;">
+            <p class="subtitle">
                 A reader lives a thousand lives.<br>
                 Synced from my <a href="https://www.goodreads.com/user/show/199124060" target="_blank"
                     rel="noopener noreferrer"
-                    style="color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--accent-color);"><strong
-                        style="color: #a7a7a7;">Goodreads</strong></a>.
+                    class="source-link source-link--goodreads"><strong>Goodreads</strong></a>.
             </p>
         </header>
 
@@ -57,24 +69,24 @@
             <div class="reading-header-row">
                 <div>
                     <div class="section-eyebrow">Ex Libris</div>
-                    <h2 class="section-title" id="reading-shelf-heading" style="font-family: 'Playfair Display', serif; margin-bottom: 0;">All Shelves</h2>
+                    <h2 class="section-title" id="reading-shelf-heading">All Shelves</h2>
                 </div>
                 <div class="reading-shelf-tabs" role="tablist" aria-label="Bookshelf Filter">
-                    <button class="reading-shelf-btn active" role="tab" aria-selected="true" data-shelf="all">
+                    <button class="reading-shelf-btn active" role="tab" id="shelf-tab-all" aria-selected="true" aria-controls="goodreads-books-container" data-shelf="all">
                         All <span class="shelf-count" id="count-all">0</span>
                     </button>
-                    <button class="reading-shelf-btn" role="tab" aria-selected="false" data-shelf="currently-reading">
+                    <button class="reading-shelf-btn" role="tab" id="shelf-tab-reading" aria-selected="false" aria-controls="goodreads-books-container" data-shelf="currently-reading">
                         Reading <span class="shelf-count" id="count-reading">0</span>
                     </button>
-                    <button class="reading-shelf-btn" role="tab" aria-selected="false" data-shelf="to-read">
+                    <button class="reading-shelf-btn" role="tab" id="shelf-tab-to-read" aria-selected="false" aria-controls="goodreads-books-container" data-shelf="to-read">
                         Want to Read <span class="shelf-count" id="count-toread">0</span>
                     </button>
-                    <button class="reading-shelf-btn" role="tab" aria-selected="false" data-shelf="read">
+                    <button class="reading-shelf-btn" role="tab" id="shelf-tab-read" aria-selected="false" aria-controls="goodreads-books-container" data-shelf="read">
                         Read <span class="shelf-count" id="count-read">0</span>
                     </button>
                 </div>
             </div>
-            <div id="goodreads-books-container" class="classical-books-grid">
+            <div id="goodreads-books-container" class="classical-books-grid" role="tabpanel" aria-labelledby="shelf-tab-all">
             </div>
         </section>
 
@@ -83,7 +95,7 @@
             <div class="library-nav-pill">
                 <a href="/library/cinema" class="lib-nav-item">🎬 Cinema</a>
                 <a href="/library/music" class="lib-nav-item">🎵 Music</a>
-                <a href="/library/reading" class="lib-nav-item active">📖 Library</a>
+                <a href="/library/reading" class="lib-nav-item active">📖 Reading</a>
             </div>
         </nav>
 
@@ -92,7 +104,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/reading.js?v=6.6"></script>
+    <script type="module" src="../assets/js/pages/reading.js?v=7.0"></script>
 </body>
 
 

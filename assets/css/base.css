@@ -1,0 +1,702 @@
+:root {
+    --bg-color: #020813;
+    --text-primary: #e6ebf1;
+    --text-secondary: #8c9bb0;
+    --card-bg: rgba(255, 255, 255, 0.02);
+    --card-border: rgba(255, 255, 255, 0.05);
+    --card-hover-border: rgba(0, 54, 143, 0.6);
+    --accent: #00368f;
+    --accent-color: #00368f;
+    --blob-1: rgba(0, 54, 143, 0.25);
+    --blob-2: rgba(255, 140, 0, 0.1);
+}
+
+@view-transition {
+    navigation: auto;
+}
+
+/* Arriving via a page crossfade: skip the page's own fade-in so the incoming snapshot is fully
+   painted (otherwise Safari crossfades into a near-invisible page, then fades it in again = flicker).
+   Duration is zeroed rather than removing the animation, so dropping the class later never restarts it. */
+html.vt-nav .fade-in {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+}
+
+.library-nav-dock {
+    view-transition-name: library-nav-dock;
+}
+
+html {
+    background-color: var(--bg-color);
+}
+
+body {
+    background-color: transparent;
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    line-height: 1.6;
+}
+
+#ambient-mesh {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    width: 100dvw;
+    height: 100dvh;
+    z-index: -2;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Orbs provide the instant pre-JS fallback; once initAmbientMesh() runs (~5ms),
+   a single floating-point triangular-dithered <canvas> takes over for zero 8-bit banding. */
+.ambient-mesh-canvas {
+    position: absolute;
+    left: 0;
+    top: -12vh;
+    width: 100vw;
+    height: 124vh;
+    width: 100dvw;
+    height: 124dvh;
+    pointer-events: none;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}
+
+#ambient-mesh.canvas-ready .orb {
+    display: none;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+}
+
+.orb-1 {
+    width: calc(70vw + 480px);
+    height: calc(70vh + 480px);
+    background: radial-gradient(closest-side,
+            rgba(16, 113, 239, 0.068) 0%,
+            rgba(16, 113, 239, 0.062) 15%,
+            rgba(16, 113, 239, 0.048) 32%,
+            rgba(16, 113, 239, 0.031) 50%,
+            rgba(16, 113, 239, 0.016) 68%,
+            rgba(16, 113, 239, 0.005) 85%,
+            rgba(16, 113, 239, 0) 100%);
+    transform: translate3d(calc(var(--bg-x1, 20vw) - 50%), calc(var(--bg-y1, 20vh) - 50%), 0);
+}
+
+.orb-2 {
+    width: calc(60vw + 480px);
+    height: calc(60vh + 480px);
+    background: radial-gradient(closest-side,
+            rgba(170, 0, 239, 0.088) 0%,
+            rgba(170, 0, 239, 0.08) 15%,
+            rgba(170, 0, 239, 0.062) 32%,
+            rgba(170, 0, 239, 0.04) 50%,
+            rgba(170, 0, 239, 0.02) 68%,
+            rgba(170, 0, 239, 0.007) 85%,
+            rgba(170, 0, 239, 0) 100%);
+    transform: translate3d(calc(var(--bg-x2, 80vw) - 50%), calc(var(--bg-y2, 80vh) - 50%), 0);
+}
+
+.orb-3 {
+    width: calc(80vw + 480px);
+    height: calc(80vh + 480px);
+    background: radial-gradient(closest-side,
+            rgba(0, 226, 203, 0.05) 0%,
+            rgba(0, 226, 203, 0.045) 15%,
+            rgba(0, 226, 203, 0.035) 32%,
+            rgba(0, 226, 203, 0.023) 50%,
+            rgba(0, 226, 203, 0.012) 68%,
+            rgba(0, 226, 203, 0.004) 85%,
+            rgba(0, 226, 203, 0) 100%);
+    transform: translate3d(calc(var(--bg-x3, 50vw) - 50%), calc(var(--bg-y3, 50vh) - 50%), 0);
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 60px 40px 100px 40px;
+    border-left: 1px dashed rgba(255, 255, 255, 0.04);
+    border-right: 1px dashed rgba(255, 255, 255, 0.04);
+}
+
+.hero {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin: 0;
+}
+
+::selection {
+    background: rgba(0, 54, 143, 0.6);
+    color: #fff;
+}
+
+h2.section-title {
+    font-size: 1.5rem;
+    font-weight: 550;
+    margin: 0 0 24px 0;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+    opacity: 0.9;
+}
+
+h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+}
+
+p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.hero .subtitle {
+    font-size: 1.2rem;
+    max-width: 500px;
+}
+
+.section {
+    margin-bottom: 30px;
+}
+
+
+/* Layout overrides */
+.glass-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 16px;
+    padding: 24px;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.6s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.035), transparent 45%);
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    pointer-events: none;
+}
+
+.glass-card:hover {
+    border-color: var(--card-hover-border);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.6);
+}
+
+.glass-card:hover::before {
+    opacity: 1;
+}
+
+.arrow {
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.list-card {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+}
+
+.back-btn,
+.repo-btn {
+    display: inline-flex;
+    padding: 10px 16px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    width: max-content;
+    height: fit-content;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.social-tube {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 50px;
+    padding: 8px 20px;
+    height: fit-content;
+    position: relative;
+    overflow: hidden;
+}
+
+footer {
+    border-top: 1px solid var(--card-border);
+    padding-top: 40px;
+    text-align: center;
+}
+
+footer p {
+    font-size: 0.85rem;
+}
+
+/* Animations */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.delay-1 {
+    animation-delay: 0.1s;
+}
+
+.shelf-plank {
+    flex: 1;
+    height: 3px;
+    background: #111;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.shelf-rivet {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #444;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Don't animate marquee while loading skeleton is displayed */
+.cassette-song-marquee:has(.spine-bounce) {
+    animation: none;
+}
+
+/* Local Hero Glow Layout */
+.hero {
+    position: relative;
+}
+
+.spotify-artist-item,
+.spotify-track-card,
+.classical-book-card,
+.movie-fav-card,
+.movie-watchlist-card {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+
+/* Movies Layout Architecture */
+
+  /* Section header */
+  .section-eyebrow { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 3.5px; text-transform: uppercase; color: rgba(140,155,176,0.5); margin-bottom: 6px; }
+  .section-title { font-family: 'Inter', -apple-system, sans-serif; font-size: 1.3rem; font-weight: 550; letter-spacing: -0.3px; color: #e6ebf1; margin-bottom: 24px; }
+
+
+/* ======================================================== */
+/*   LIBRARY NAVIGATION DOCK (Cross-Page Navigation)       */
+/* ======================================================== */
+.library-nav-dock {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 48px 0 16px 0;
+    position: relative;
+    z-index: 10;
+}
+
+.library-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.lib-nav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 20px;
+    border-radius: 30px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    white-space: nowrap;
+}
+
+.lib-nav-item:hover {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.lib-nav-item.active {
+    color: #ffffff;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* ======================================================== */
+/*   ACCESSIBILITY: Focus Rings & Reduced Motion            */
+/* ======================================================== */
+:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.4);
+    outline-offset: 3px;
+}
+
+.glass-card:focus-visible,
+.classical-book-card:focus-visible,
+.filmstrip-card:focus-visible,
+.strip-card:focus-visible,
+.watchlist-card:focus-visible,
+.spotify-track-card:focus-visible,
+.lib-nav-item:focus-visible,
+.music-tab-btn:focus-visible,
+.reading-shelf-btn:focus-visible,
+.detector-sample-btn:focus-visible,
+.social-icon:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Touch / Non-Hover Devices: Surface Hover-Only Metadata & Micro-Interactions */
+
+/* ======================== */
+/*   RESPONSIVE OVERRIDES   */
+/* ======================== */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 36px 20px 72px 20px;
+        border-left: none;
+        border-right: none;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+    }
+
+    .glass-card:not(.back-btn):not(.repo-btn) {
+        padding: 20px;
+    }
+
+    /* Subpage Hero Responsive Layout */
+    .hero > div:not(.unified-hero-tube) {
+        flex-wrap: wrap !important;
+        gap: 10px;
+    }
+    .hero h1 {
+        font-size: 1.8rem !important;
+    }
+    .hero .back-btn,
+    .hero .repo-btn,
+    .back-btn,
+    .repo-btn {
+        padding: 8px 14px !important;
+        font-size: 0.85rem !important;
+        white-space: nowrap;
+    }
+    .hero .subtitle {
+        font-size: 0.9rem !important;
+    }
+
+    /* Library Navigation Dock on Mobile */
+    .library-nav-pill {
+        width: 100%;
+        max-width: 420px;
+        justify-content: center;
+        gap: 4px;
+    }
+    .lib-nav-item {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* Project Detail & Detector Sandbox on Mobile */
+    .list-card {
+        padding: 16px !important;
+    }
+}
+
+/* Narrow Tablets & Phones (<= 600px) */
+@media screen and (max-width: 600px) {
+    /* 2-Tier Subpage Header Bar so buttons & title never collide */
+    .hero > div:not(.unified-hero-tube) {
+        display: grid !important;
+        grid-template-columns: auto auto;
+        justify-content: space-between;
+        align-items: center !important;
+        row-gap: 14px;
+        width: 100%;
+    }
+
+    .hero > div:not(.unified-hero-tube) > h1 {
+        grid-column: 1 / -1;
+        order: 2;
+        text-align: center;
+        font-size: 2rem !important;
+        margin-top: 2px !important;
+    }
+}
+
+/* Compact Phones (<= 480px) */
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 28px 16px 64px 16px;
+    }
+}
+
+/* ==========================================================================
+   Zero-Flicker Data Sync & View Transition Morphing
+   ========================================================================== */
+
+.morph-settled .fade-in,
+.morph-settled.fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* Card-level view-transition-names are ONLY active during same-document data morphs.
+   During cross-document page navigation they are disabled so the page crossfades as one clean layer. */
+html:not(.vt-data-morph) [style*="view-transition-name"] {
+    view-transition-name: none !important;
+}
+
+html.vt-data-morph::view-transition-group(*) {
+    animation-duration: 440ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.vt-data-morph::view-transition-old(*),
+html.vt-data-morph::view-transition-new(*) {
+    animation-duration: 360ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.data-morph-out {
+    opacity: 0.18 !important;
+    filter: blur(6px);
+    transform: scale(0.985) translateY(3px);
+    transition:
+        opacity 170ms cubic-bezier(0.4, 0, 1, 1),
+        filter 170ms cubic-bezier(0.4, 0, 1, 1),
+        transform 170ms cubic-bezier(0.4, 0, 1, 1) !important;
+    pointer-events: none;
+}
+
+.data-morph-in {
+    animation: dataMorphIn 440ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dataMorphIn {
+    0% {
+        opacity: 0.18;
+        filter: blur(6px);
+        transform: scale(0.985) translateY(-3px);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0px);
+        transform: scale(1) translateY(0);
+    }
+}
+
+.text-morph-out {
+    opacity: 0 !important;
+    filter: blur(3px);
+    transform: translateY(3px) scale(0.96);
+    transition:
+        opacity 135ms ease-in,
+        filter 135ms ease-in,
+        transform 135ms ease-in !important;
+}
+
+.text-morph-in {
+    animation: textMorphIn 340ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes textMorphIn {
+    0% {
+        opacity: 0;
+        filter: blur(3px);
+        transform: translateY(-3px) scale(1.04);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0px);
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.vt-data-morph::view-transition-group(*),
+    html.vt-data-morph::view-transition-old(*),
+    html.vt-data-morph::view-transition-new(*) {
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* Pause all looping decorative animations while the page is hidden or the window is unfocused,
+   so the browser can go fully idle (one-shot entrance animations are intentionally left alone). */
+html.page-inactive :is(
+    .vhs-link.is-paused .state-pause,
+    .vhs-mini-spool-inner,
+    .vhs-filmstrip-track,
+    .cassette-song-marquee,
+    .spine-bounce,
+    .spool-inner,
+    .hero-glow-1,
+    .hero-glow-2,
+    .album-eq span
+) {
+    animation-play-state: paused !important;
+}
+
+/* ======================================================== */
+/*   SUBPAGE HEADER & BUTTONS                               */
+/* ======================================================== */
+.subpage-hero {
+    align-items: center;
+    text-align: center;
+}
+
+.subpage-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.subpage-title {
+    margin: 0;
+}
+
+/* Serif pages set Playfair on the header; keep the button bar in Inter */
+.subpage-hero--serif .subpage-bar {
+    font-family: 'Inter', sans-serif;
+}
+
+.subpage-hero--serif .subpage-title {
+    font-family: 'Playfair Display', serif;
+}
+
+.subpage-hero .subtitle {
+    max-width: 600px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-top: 8px;
+}
+
+.subpage-hero--serif .subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+.source-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent-color);
+}
+
+.source-link--spotify strong { color: #96aa9f; }
+.source-link--lastfm strong { color: #a49292; }
+.source-link--letterboxd strong { color: #6883a7; }
+.source-link--goodreads strong { color: #a7a7a7; }
+
+.arrow-back {
+    transform: rotate(180deg);
+    margin-right: 8px;
+}
+
+.arrow-forward {
+    margin-left: 8px;
+}
+
+.btn-icon {
+    margin-right: 8px;
+}
+
+.btn-emoji {
+    font-size: 1.1rem;
+}
+
+.empty-note {
+    color: var(--text-secondary);
+}

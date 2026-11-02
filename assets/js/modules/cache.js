@@ -31,6 +31,17 @@ export function getCachedData(key, fallback = null) {
     return fallback;
 }
 
+// Unified homepage cache; only usable once it holds every section
+export function getCachedDashboard() {
+    try {
+        const dash = JSON.parse(localStorage.getItem(DASHBOARD_KEY));
+        if (dash?.spotify && dash?.movies && dash?.books) return dash;
+    } catch (e) {
+        // LocalStorage disabled or corrupt entry
+    }
+    return null;
+}
+
 export function setCachedData(key, data) {
     try {
         localStorage.setItem(key, JSON.stringify(data));

@@ -35,14 +35,46 @@ const PRESET_SAMPLES = {
 
 function sanitizeProjectHtml(html) {
     if (!html) return '';
-    return html
-        .replace(/src="images\//g, 'src="')
-        .replace(
-            /<td[^>]*>\\multicolumn\{(\d+)\}\{[a-z]\}\{(.*?)\}<\/td>(?:\s*<td[^>]*><\/td>){0,4}/gi,
-            '<td colspan="$1" style="text-align: center;">$2</td>'
-        )
-        .replace(/\\multicolumn\{\d+\}\{[a-z]\}\{\*\*(.*?)\*\*\s*(.*?)\}/g, '<strong>$1</strong> $2')
-        .replace(/\\multicolumn\{\d+\}\{[a-z]\}\{(.*?)\}/g, '$1');
+    return html.replace(/src="images\//g, 'src="');
+}
+
+const MERMAID_URL = 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+let mermaidPromise = null;
+
+// GitHub's markdown API returns ```mermaid blocks as highlighted code; render them as diagrams.
+// Loaded only when a diagram is present. If the CDN is unreachable the code block stays.
+async function renderMermaidDiagrams(container) {
+    const blocks = container.querySelectorAll('.highlight-source-mermaid');
+    if (blocks.length === 0) return;
+    try {
+        mermaidPromise ??= import(MERMAID_URL).then(({ default: mermaid }) => {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'dark',
+                themeVariables: {
+                    darkMode: true,
+                    background: 'transparent',
+                    fontFamily: 'Inter, sans-serif',
+                    primaryColor: '#0b1a33',
+                    primaryBorderColor: '#2b4a7a',
+                    primaryTextColor: '#e6ebf1',
+                    lineColor: '#8c9bb0'
+                }
+            });
+            return mermaid;
+        });
+        const mermaid = await mermaidPromise;
+        const nodes = [...blocks].map(block => {
+            const diagram = document.createElement('pre');
+            diagram.className = 'mermaid';
+            diagram.textContent = block.textContent;
+            block.replaceWith(diagram);
+            return diagram;
+        });
+        await mermaid.run({ nodes });
+    } catch {
+        mermaidPromise = null;
+    }
 }
 
 function loadProjectReadme() {
@@ -53,17 +85,25 @@ function loadProjectReadme() {
     const repoName = "Real-Deepfake-or-AI";
     const CACHE_KEY = "simplyigit_project_v2_" + repoName;
 
+    let appliedHtml = '';
+    const showReadme = (html) => {
+        appliedHtml = html;
+        container.innerHTML = html;
+        renderMermaidDiagrams(container);
+    };
+
     try {
         const cachedData = localStorage.getItem(CACHE_KEY);
         if (cachedData) {
-            container.innerHTML = cachedData;
+            showReadme(cachedData);
         }
     } catch {}
 
     const applyContent = (rawContent) => {
         const clean = sanitizeProjectHtml(rawContent);
         if (!clean) return false;
-        container.innerHTML = clean;
+        // Unchanged since the cached render: keep the DOM (and any rendered diagrams) as is
+        if (clean !== appliedHtml) showReadme(clean);
         try {
             localStorage.setItem(CACHE_KEY, clean);
         } catch {}
@@ -102,14 +142,20 @@ function loadProjectReadme() {
         if (content) {
             applyContent(content);
         } else if (!container.innerHTML || container.innerHTML.includes("Loading project data")) {
-            container.innerHTML = `<p style="color: #ff6b6b;">Could not load project README. Please check the repository link above.</p>`;
+            container.innerHTML = `<p class="readme-error">Could not load project README. Please check the repository link above.</p>`;
         }
     });
 }
 
+// The preview canvas is read back for inference; a CPU-backed context keeps that readback (and so the
+// model's output for a given image) identical across runs instead of switching backends after the first read
+function getPreviewContext(canvas) {
+    return canvas.getContext('2d', { willReadFrequently: true });
+}
+
 function drawPresetSample(canvas, type, preset) {
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = getPreviewContext(canvas);
     const w = canvas.width;
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
@@ -228,69 +274,12 @@ function drawPresetSample(canvas, type, preset) {
     ctx.restore();
 }
 
-// --- Client-Side Security, File Validation & Upload Rate Limiter ---
+// --- Client-Side File Validation ---
 const ALLOWED_EXTENSIONS = /\.(jpe?g|png|webp)$/i;
 const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_DIMENSION = 8192;
 const MIN_DIMENSION = 16;
-
-const RL_STORAGE_KEY = 'simplyigit_detector_rl_v1';
-const RL_COOLDOWN_MS = 3000;       // 3 seconds between uploads
-const RL_WINDOW_MS = 60 * 1000;    // 60 seconds rolling window
-const RL_MAX_UPLOADS = 8;          // Max 8 uploads per 60s window
-let memoryUploadTimestamps = [];
-let lastUploadTimestamp = 0;
-
-function sanitizeFileName(name) {
-    if (!name || typeof name !== 'string') return 'upload.jpg';
-    return name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 48);
-}
-
-function getUploadTimestamps() {
-    const now = Date.now();
-    let list = memoryUploadTimestamps;
-    try {
-        const raw = sessionStorage.getItem(RL_STORAGE_KEY);
-        if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) list = parsed;
-        }
-    } catch {}
-    const valid = list.filter(ts => typeof ts === 'number' && (now - ts) < RL_WINDOW_MS);
-    memoryUploadTimestamps = valid;
-    try {
-        sessionStorage.setItem(RL_STORAGE_KEY, JSON.stringify(valid));
-    } catch {}
-    return valid;
-}
-
-function checkRateLimit() {
-    const now = Date.now();
-    if (now - lastUploadTimestamp < RL_COOLDOWN_MS) {
-        const waitSec = Math.ceil((RL_COOLDOWN_MS - (now - lastUploadTimestamp)) / 1000);
-        return { allowed: false, reason: `Cooldown active. Please wait ${waitSec}s before uploading another image.`, waitMs: RL_COOLDOWN_MS - (now - lastUploadTimestamp) };
-    }
-    const timestamps = getUploadTimestamps();
-    if (timestamps.length >= RL_MAX_UPLOADS) {
-        const oldest = timestamps[0];
-        const waitMs = Math.max(1000, RL_WINDOW_MS - (now - oldest));
-        const waitSec = Math.ceil(waitMs / 1000);
-        return { allowed: false, reason: `Rate limit reached (${RL_MAX_UPLOADS} scans / 60s). Please wait ${waitSec}s.`, waitMs };
-    }
-    return { allowed: true, reason: '', waitMs: 0 };
-}
-
-function recordUploadTimestamp() {
-    const now = Date.now();
-    lastUploadTimestamp = now;
-    const timestamps = getUploadTimestamps();
-    timestamps.push(now);
-    memoryUploadTimestamps = timestamps;
-    try {
-        sessionStorage.setItem(RL_STORAGE_KEY, JSON.stringify(timestamps));
-    } catch {}
-}
 
 async function validateImageFile(file) {
     if (!file) return { valid: false, error: 'No file selected.' };
@@ -345,8 +334,18 @@ async function validateImageFile(file) {
 // --- Real In-Browser Model Inference via ONNX Runtime Web ---
 const ORT_CDN_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js';
 const ORT_WASM_DIR = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
-const MODEL_URL = '/assets/models/convnext_sgd_int8.onnx';
+// Bump the file version whenever the model is retrained so visitors never get a stale cached copy
+const MODEL_URL = '/assets/models/convnext_sgd_int8.v1.onnx';
 const MODEL_CACHE_NAME = 'simplyigit-detector-onnx-v1';
+
+// Opens the model cache and evicts any older model file so a stale 27 MB copy isn't left behind
+async function openModelCache() {
+    const cache = await caches.open(MODEL_CACHE_NAME);
+    for (const request of await cache.keys()) {
+        if (new URL(request.url).pathname !== MODEL_URL) await cache.delete(request);
+    }
+    return cache;
+}
 
 let ortSessionPromise = null;
 let ortScriptPromise = null;
@@ -381,7 +380,7 @@ function loadOrtRuntime() {
 async function fetchModelBufferWithCache(onProgress) {
     if ('caches' in window) {
         try {
-            const cache = await caches.open(MODEL_CACHE_NAME);
+            const cache = await openModelCache();
             const cachedRes = await cache.match(MODEL_URL);
             if (cachedRes && cachedRes.ok) {
                 if (onProgress) onProgress('Loading cached ConvNeXt-Tiny model...');
@@ -462,24 +461,122 @@ async function getDetectorSession(onProgress) {
     return ortSessionPromise;
 }
 
+// --- Pillow-exact resize ---
+// Training used torchvision's Resize((224, 224)) on PIL images, i.e. Pillow's antialiased bilinear
+// filter. The canvas's own scaling uses a different filter and visibly shifts the model's output, so
+// this reproduces Pillow's Resample.c (fixed-point weights, 8-bit intermediate pass) exactly.
+const PRECISION_BITS = 22; // 32 - 8 - 2, as in Pillow
+
+function bilinearCoefficients(inSize, outSize) {
+    const scale = inSize / outSize;
+    const filterScale = Math.max(scale, 1);
+    const support = filterScale; // the bilinear filter's support is 1
+    const bounds = new Int32Array(outSize);
+    const weights = [];
+    for (let i = 0; i < outSize; i++) {
+        const center = (i + 0.5) * scale;
+        const min = Math.max(Math.trunc(center - support + 0.5), 0);
+        const max = Math.min(Math.trunc(center + support + 0.5), inSize);
+        const raw = [];
+        let total = 0;
+        for (let x = min; x < max; x++) {
+            const w = Math.max(0, 1 - Math.abs((x - center + 0.5) / filterScale));
+            raw.push(w);
+            total += w;
+        }
+        bounds[i] = min;
+        weights.push(Int32Array.from(raw, w => {
+            const v = (total ? w / total : 0) * (1 << PRECISION_BITS);
+            return Math.trunc(v < 0 ? v - 0.5 : v + 0.5);
+        }));
+    }
+    return { bounds, weights };
+}
+
+function clip8(sum) {
+    if (sum >= 255 * (1 << PRECISION_BITS)) return 255;
+    if (sum <= 0) return 0;
+    return Math.floor(sum / (1 << PRECISION_BITS));
+}
+
+// RGBA source pixels (srcW x srcH) -> packed RGB (outW x outH): horizontal pass, then vertical
+function pillowResizeBilinear(src, srcW, srcH, outW, outH) {
+    const horiz = bilinearCoefficients(srcW, outW);
+    const vert = bilinearCoefficients(srcH, outH);
+    const half = 1 << (PRECISION_BITS - 1);
+
+    const tmp = new Uint8Array(outW * srcH * 3);
+    for (let y = 0; y < srcH; y++) {
+        for (let x = 0; x < outW; x++) {
+            const k = horiz.weights[x];
+            let r = half, g = half, b = half;
+            let p = (y * srcW + horiz.bounds[x]) * 4;
+            for (let i = 0; i < k.length; i++, p += 4) {
+                r += src[p] * k[i];
+                g += src[p + 1] * k[i];
+                b += src[p + 2] * k[i];
+            }
+            const o = (y * outW + x) * 3;
+            tmp[o] = clip8(r);
+            tmp[o + 1] = clip8(g);
+            tmp[o + 2] = clip8(b);
+        }
+    }
+
+    const out = new Uint8Array(outW * outH * 3);
+    for (let y = 0; y < outH; y++) {
+        const k = vert.weights[y];
+        const y0 = vert.bounds[y];
+        for (let x = 0; x < outW; x++) {
+            let r = half, g = half, b = half;
+            for (let i = 0; i < k.length; i++) {
+                const p = ((y0 + i) * outW + x) * 3;
+                r += tmp[p] * k[i];
+                g += tmp[p + 1] * k[i];
+                b += tmp[p + 2] * k[i];
+            }
+            const o = (y * outW + x) * 3;
+            out[o] = clip8(r);
+            out[o + 1] = clip8(g);
+            out[o + 2] = clip8(b);
+        }
+    }
+    return out;
+}
+
 async function runRealModelOnCanvas(img, canvas, onProgress) {
-    const ctx = canvas.getContext('2d');
+    const ctx = getPreviewContext(canvas);
     const w = canvas.width;  // 224
     const h = canvas.height; // 224
 
-    // Proportional 5%-margin center-crop + square crop matching crop.py & utils.get_transform()
+    // crop.py's proportional center crop: trim int(5%) from each side
     const natW = img.naturalWidth || img.width;
     const natH = img.naturalHeight || img.height;
-    const marginX = Math.round(natW * 0.05);
-    const marginY = Math.round(natH * 0.05);
+    const marginX = Math.floor(natW * 0.05);
+    const marginY = Math.floor(natH * 0.05);
     const cropW = Math.max(1, natW - marginX * 2);
     const cropH = Math.max(1, natH - marginY * 2);
 
-    ctx.clearRect(0, 0, w, h);
-    ctx.drawImage(img, marginX, marginY, cropW, cropH, 0, 0, w, h);
+    // Copy the cropped region 1:1 (no scaling) to read the decoded pixels
+    const srcCanvas = document.createElement('canvas');
+    srcCanvas.width = cropW;
+    srcCanvas.height = cropH;
+    const srcCtx = srcCanvas.getContext('2d', { willReadFrequently: true });
+    srcCtx.drawImage(img, marginX, marginY, cropW, cropH, 0, 0, cropW, cropH);
+    const srcPixels = srcCtx.getImageData(0, 0, cropW, cropH).data;
 
-    // Extract clean 224x224 RGB pixels BEFORE drawing any HUD brackets
-    const imgData = ctx.getImageData(0, 0, w, h).data;
+    // utils.get_transform(): Resize((224, 224)) — squashes to a square, as in training
+    const rgb = pillowResizeBilinear(srcPixels, cropW, cropH, w, h);
+
+    // Preview exactly what the model sees
+    const preview = ctx.createImageData(w, h);
+    for (let i = 0, j = 0; i < rgb.length; i += 3, j += 4) {
+        preview.data[j] = rgb[i];
+        preview.data[j + 1] = rgb[i + 1];
+        preview.data[j + 2] = rgb[i + 2];
+        preview.data[j + 3] = 255;
+    }
+    ctx.putImageData(preview, 0, 0);
 
     // Draw subtle biometric crop brackets over custom image
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
@@ -497,10 +594,10 @@ async function runRealModelOnCanvas(img, canvas, onProgress) {
     const stdR = 0.229, stdG = 0.224, stdB = 0.225;
 
     for (let i = 0; i < area; i++) {
-        const p = i * 4;
-        const r = imgData[p] / 255.0;
-        const g = imgData[p + 1] / 255.0;
-        const b = imgData[p + 2] / 255.0;
+        const p = i * 3;
+        const r = rgb[p] / 255.0;
+        const g = rgb[p + 1] / 255.0;
+        const b = rgb[p + 2] / 255.0;
 
         tensorData[i] = (r - meanR) / stdR;
         tensorData[area + i] = (g - meanG) / stdG;
@@ -524,7 +621,7 @@ async function runRealModelOnCanvas(img, canvas, onProgress) {
 
     const realPct = Number((probsRaw[0] * 100).toFixed(1));
     const aiPct = Number((probsRaw[1] * 100).toFixed(1));
-    const dfPct = Number(Math.max(0, 100 - realPct - aiPct).toFixed(1));
+    const dfPct = Number((probsRaw[2] * 100).toFixed(1));
 
     let prediction = "REAL";
     let badgeClass = "verdict-real";
@@ -571,7 +668,6 @@ function initDetectorDemo() {
     const uploadText = document.getElementById('detector-upload-text');
 
     let isInferring = false;
-    let cooldownTimer = null;
 
     const setUploadButtonState = (disabled, labelText) => {
         if (uploadLabel) {
@@ -597,26 +693,6 @@ function initDetectorDemo() {
         statusMsg.hidden = false;
         statusMsg.classList.toggle('is-error', isError);
         statusMsg.textContent = message;
-    };
-
-    const startCooldownCountdown = (durationMs, prefix = 'Cooldown') => {
-        if (cooldownTimer) clearInterval(cooldownTimer);
-        const endTs = Date.now() + durationMs;
-        const tick = () => {
-            const remMs = endTs - Date.now();
-            if (remMs <= 0) {
-                clearInterval(cooldownTimer);
-                cooldownTimer = null;
-                if (!isInferring) {
-                    setUploadButtonState(false, 'Test Custom Image');
-                }
-                return;
-            }
-            const sec = Math.ceil(remMs / 1000);
-            setUploadButtonState(true, `${prefix} (${sec}s)`);
-        };
-        tick();
-        cooldownTimer = setInterval(tick, 250);
     };
 
     const updateUI = ({ prediction, badgeClass, probs }) => {
@@ -669,16 +745,7 @@ function initDetectorDemo() {
         // Warm up ONNX Runtime script on hover/focus
         uploadLabel.addEventListener('mouseenter', () => { loadOrtRuntime().catch(() => {}); }, { once: true });
         uploadLabel.addEventListener('click', (e) => {
-            if (isInferring) {
-                e.preventDefault();
-                return;
-            }
-            const rl = checkRateLimit();
-            if (!rl.allowed) {
-                e.preventDefault();
-                showStatus(rl.reason, true);
-                startCooldownCountdown(rl.waitMs, 'Rate Limited');
-            }
+            if (isInferring) e.preventDefault();
         });
     }
 
@@ -689,13 +756,6 @@ function initDetectorDemo() {
             if (!file) return;
 
             if (isInferring) return;
-
-            const rl = checkRateLimit();
-            if (!rl.allowed) {
-                showStatus(rl.reason, true);
-                startCooldownCountdown(rl.waitMs, 'Rate Limited');
-                return;
-            }
 
             const validation = await validateImageFile(file);
             if (!validation.valid) {
@@ -725,9 +785,6 @@ function initDetectorDemo() {
                     return;
                 }
 
-                // Record valid upload against rate limit
-                recordUploadTimestamp();
-
                 sampleBtns.forEach(b => {
                     b.classList.remove('active');
                     b.setAttribute('aria-selected', 'false');
@@ -743,12 +800,7 @@ function initDetectorDemo() {
                     showStatus(err?.message || 'Failed to run ConvNeXt-Tiny ONNX model.', true);
                 } finally {
                     isInferring = false;
-                    const postRl = checkRateLimit();
-                    if (!postRl.allowed) {
-                        startCooldownCountdown(postRl.waitMs, 'Cooldown');
-                    } else {
-                        startCooldownCountdown(RL_COOLDOWN_MS, 'Cooldown');
-                    }
+                    setUploadButtonState(false, 'Test Custom Image');
                 }
             };
 

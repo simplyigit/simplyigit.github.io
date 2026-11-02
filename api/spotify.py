@@ -1,80 +1,12 @@
 from http.server import BaseHTTPRequestHandler
-import json
 import os
-import time
-import urllib.request
+import sys
+
+# Each Vercel function runs on its own; make the shared helper next to it importable
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _supabase import fetch_values, respond, strip_full_lyrics  # noqa: E402
+
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # Cache for 60s in browser, 10 min fresh at edge CDN, 24h stale-while-revalidate
-        cache_header = 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400'
-        
-        try:
-            supabase_url = os.environ.get('SUPABASE_URL', '').rstrip('/')
-            supabase_key = os.environ.get('SUPABASE_ANON_KEY')
-            
-            if not supabase_url or not supabase_key:
-                raise ValueError("Missing SUPABASE credentials")
-
-            # Fetch from Supabase REST API using stdlib urllib
-            req = urllib.request.Request(
-                f"{supabase_url}/rest/v1/portfolio_data?key=eq.spotify&select=value",
-                headers={
-                    "apikey": supabase_key,
-                    "Authorization": f"Bearer {supabase_key}",
-                    "Accept": "application/json"
-                }
-            )
-            with urllib.request.urlopen(req, timeout=5) as res:
-                if res.status != 200:
-                    raise Exception(f"Supabase Error {res.status}")
-                rows = json.loads(res.read().decode('utf-8'))
-            if not rows:
-                # Return empty structure instead of failing
-                spotify_data = {}
-            else:
-                spotify_data = rows[0].get("value", {})
-
-            # Sanitize artist image URLs: replace Last.fm placeholder star with known Spotify images
-            KNOWN_ARTISTS = {
-                "ruel": {
-                    "spotify_id": "5xkAtLTf309LAGZTbvULBn",
-                    "spotify_url": "https://open.spotify.com/artist/5xkAtLTf309LAGZTbvULBn",
-                    "image_url": "https://i.scdn.co/image/ab6761610000e5eb9184ca89cc9c4ecd7487bb5f"
-                }
-            }
-            if isinstance(spotify_data, dict):
-                artists = spotify_data.get("top_artists_last_month", [])
-                if isinstance(artists, list):
-                    for a in artists:
-                        if isinstance(a, dict):
-                            key = a.get("name", "").lower().strip()
-                            img = a.get("image_url") or ""
-                            is_placeholder = "2a96cbd8b46e442fc41c2b86b821562f" in img or not img
-                            if key in KNOWN_ARTISTS:
-                                known = KNOWN_ARTISTS[key]
-                                if is_placeholder:
-                                    a["image_url"] = known["image_url"]
-                                if not a.get("spotify_url"):
-                                    a["spotify_url"] = known["spotify_url"]
-                                if not a.get("spotify_id"):
-                                    a["spotify_id"] = known["spotify_id"]
-                            elif is_placeholder:
-                                a["image_url"] = ""
-            
-            response = {
-                "success": True,
-                "data": spotify_data,
-                "timestamp": time.time()
-            }
-
-        except Exception as e:
-            response = {"success": False, "error": str(e)}
-            cache_header = 'no-store, no-cache, must-revalidate, max-age=0'
-
-        self.send_response(200 if response.get("success") else 500)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Cache-Control', cache_header)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-        self.wfile.write(json.dumps(response).encode('utf-8'))
+        respond(self, lambda: strip_full_lyrics(fetch_values(["spotify"]).get("spotify") or {}))

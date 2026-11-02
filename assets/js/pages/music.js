@@ -1,92 +1,36 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax, observer, smoothMorph, morphText, toTransitionSlug, awaitFastPrefetch } from '../modules/core.js';
+import { initAmbientMesh, initGlobalReveal, initGlassParallax, smoothMorph, morphText, toTransitionSlug, escapeHtml } from '../modules/core.js';
 import { getCachedData, setCachedData } from '../modules/cache.js';
-import { SEED_SPOTIFY } from '../modules/seed-data.js';
-
-const ALBUM_LAYERS = {
-    "purple rain": {
-        bg: "/images/albums/purple-rain-bg.webp",
-        typo: "/images/albums/purple-rain-typo.webp",
-        fallback: "/images/albums/purple-rain-banner.webp",
-        year: "1984",
-        format: "LP"
-    },
-    "angel face": {
-        bg: "/images/albums/angel-face-bg.webp",
-        typo: "/images/albums/angel-face-typo.webp",
-        fallback: "/images/albums/angel-face-banner.webp",
-        year: "2023",
-        format: "LP"
-    },
-    "angel face (club deluxe)": {
-        bg: "/images/albums/angel-face-bg.webp",
-        typo: "/images/albums/angel-face-typo.webp",
-        fallback: "/images/albums/angel-face-banner.webp",
-        year: "2023",
-        format: "LP"
-    },
-    "5sos5": {
-        bg: "/images/albums/5sos5-bg.webp",
-        typo: "/images/albums/5sos5-typo.webp",
-        fallback: "/images/albums/5sos5-banner.webp",
-        year: "2022",
-        format: "LP"
-    },
-    "5sos5 (deluxe)": {
-        bg: "/images/albums/5sos5-bg.webp",
-        typo: "/images/albums/5sos5-typo.webp",
-        fallback: "/images/albums/5sos5-banner.webp",
-        year: "2022",
-        format: "LP"
-    },
-    "fine line": {
-        bg: "/images/albums/fine-line-bg.webp",
-        typo: "/images/albums/fine-line-typo.webp",
-        fallback: "/images/albums/fine-line-banner.webp",
-        year: "2019",
-        format: "LP"
-    },
-    "4th wall": {
-        bg: "/images/albums/4th-wall-bg.webp",
-        typo: "/images/albums/4th-wall-typo.webp",
-        fallback: "/images/albums/4th-wall-banner.webp",
-        year: "2023",
-        format: "LP"
-    }
-};
+import { loadLiveData } from '../modules/live-data.js';
 
 function renderAlbums(container, albumList) {
-    if (!container) return;
-    const list = Array.isArray(albumList) && albumList.length > 0 ? albumList : (SEED_SPOTIFY?.favorite_albums || []);
-    container.innerHTML = list.map((album, idx) => {
-        const coverSrc = album.optimized_cover_url || album.cover_url || "";
+    if (!container || !Array.isArray(albumList)) return;
+    container.innerHTML = albumList.map((album, idx) => {
+        const title = escapeHtml(album.title);
+        const coverSrc = escapeHtml(album.optimized_cover_url || album.cover_url || "");
         const [r, g, b] = album.prominent_color || [255, 255, 255];
-        const titleKey = (album.title || "").toLowerCase().trim();
-        const layerInfo = ALBUM_LAYERS[titleKey] || {};
-        const bgSrc = album.bg_url || layerInfo.bg || album.banner_url || layerInfo.fallback || "";
-        const typoSrc = album.typo_url || layerInfo.typo || "";
-        const fallbackBannerSrc = album.banner_url || layerInfo.fallback || "";
-        const spotifyUrl = album.spotify_url || (album.spotify_id ? `https://open.spotify.com/album/${album.spotify_id}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`);
-        const year = album.year || layerInfo.year || (album.release_date ? album.release_date.slice(0, 4) : "");
-        const formatTag = album.format_tag || (year ? `LP · ${year}` : "LP");
+        const bgSrc = escapeHtml(album.bg_url || album.banner_url || "");
+        const typoSrc = escapeHtml(album.typo_url || "");
+        const fallbackBannerSrc = escapeHtml(album.banner_url || "");
+        const spotifyUrl = escapeHtml(album.spotify_url || (album.spotify_id ? `https://open.spotify.com/album/${album.spotify_id}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`));
 
         const bannerContent = typoSrc ? `
             <div class="album-banner-bg-wrap">
-                <img src="${bgSrc}" alt="${album.title} backdrop" class="album-banner-bg" loading="lazy" fetchpriority="low" decoding="async">
+                <img src="${bgSrc}" alt="${title} backdrop" class="album-banner-bg" loading="lazy" fetchpriority="low" decoding="async">
             </div>
             <div class="album-banner-vignette"></div>
             <div class="album-banner-typo-wrap">
-                <img src="${typoSrc}" alt="${album.title} title" class="album-banner-typo" loading="lazy" fetchpriority="low" decoding="async">
+                <img src="${typoSrc}" alt="${title} title" class="album-banner-typo" loading="lazy" fetchpriority="low" decoding="async">
             </div>
         ` : `
             <div class="album-banner-bg-wrap">
-                <img src="${fallbackBannerSrc}" alt="${album.title} banner" class="album-banner-bg" loading="lazy" fetchpriority="low" decoding="async">
+                <img src="${fallbackBannerSrc}" alt="${title} banner" class="album-banner-bg" loading="lazy" fetchpriority="low" decoding="async">
             </div>
         `;
 
         return `
-            <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="spotify-album-card" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.45); --album-rgb: ${r}, ${g}, ${b}; --stagger-idx: ${idx};" aria-label="${album.title} by ${album.artist}">
+            <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="spotify-album-card" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.45); --album-rgb: ${r}, ${g}, ${b}; --stagger-idx: ${idx};" aria-label="${title} by ${escapeHtml(album.artist)}">
                 <div class="album-cover-slot">
-                    <img src="${coverSrc}" alt="${album.title} cover" class="album-cover-img" loading="lazy" fetchpriority="low" decoding="async">
+                    <img src="${coverSrc}" alt="${title} cover" class="album-cover-img" loading="lazy" fetchpriority="low" decoding="async">
                     <div class="album-cover-gloss" aria-hidden="true"></div>
                 </div>
                 <div class="album-vinyl-disc" aria-hidden="true">
@@ -146,53 +90,18 @@ function initAlbumInteractivity(container) {
     });
 }
 
-const KNOWN_ARTISTS = {
-    "ruel": {
-        spotify_id: "5xkAtLTf309LAGZTbvULBn",
-        spotify_url: "https://open.spotify.com/artist/5xkAtLTf309LAGZTbvULBn",
-        image_url: "https://i.scdn.co/image/ab6761610000e5eb9184ca89cc9c4ecd7487bb5f"
-    }
-};
-
-function sanitizeArtists(artistList) {
-    if (!Array.isArray(artistList)) return [];
-    return artistList.map(a => {
-        if (!a || typeof a !== 'object') return a;
-        const key = (a.name || "").toLowerCase().trim();
-        const img = a.image_url || "";
-        const isPlaceholder = !img || img.includes("2a96cbd8b46e442fc41c2b86b821562f");
-        const known = KNOWN_ARTISTS[key];
-
-        let imageUrl = img;
-        let spotifyUrl = a.spotify_url || (a.spotify_id ? `https://open.spotify.com/artist/${a.spotify_id}` : "");
-        let spotifyId = a.spotify_id;
-
-        if (known) {
-            if (isPlaceholder) imageUrl = known.image_url;
-            if (!spotifyUrl) spotifyUrl = known.spotify_url;
-            if (!spotifyId) spotifyId = known.spotify_id;
-        } else if (isPlaceholder) {
-            imageUrl = "";
-        }
-
-        if (!spotifyUrl && a.name) {
-            spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(a.name)}`;
-        }
-
-        return {
-            ...a,
-            image_url: imageUrl,
-            spotify_url: spotifyUrl,
-            spotify_id: spotifyId
-        };
-    });
+// Fall back to a Spotify search when the sync couldn't resolve the artist's page
+function artistSpotifyUrl(artist) {
+    if (artist.spotify_url) return artist.spotify_url;
+    if (artist.spotify_id) return `https://open.spotify.com/artist/${artist.spotify_id}`;
+    return artist.name ? `https://open.spotify.com/search/${encodeURIComponent(artist.name)}` : "#";
 }
 
 function renderArtists(container, artistList) {
     if (!container) return;
-    const list = sanitizeArtists(artistList);
+    const list = Array.isArray(artistList) ? artistList.filter(a => a && typeof a === 'object') : [];
     if (list.length === 0) {
-        container.innerHTML = `<p style="color: var(--text-secondary);">No top artists recorded.</p>`;
+        container.innerHTML = `<p class="empty-note">No top artists recorded.</p>`;
         return;
     }
     const seenSlugs = new Set();
@@ -200,16 +109,17 @@ function renderArtists(container, artistList) {
         let vtName = toTransitionSlug('artist', artist.name || `idx-${idx}`);
         if (seenSlugs.has(vtName)) vtName = `${vtName}-${idx}`;
         seenSlugs.add(vtName);
+        const name = escapeHtml(artist.name);
         return `
-        <a href="${artist.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item" style="${vtName ? `view-transition-name: ${vtName};` : ''}">
+        <a href="${escapeHtml(artistSpotifyUrl(artist))}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item" style="${vtName ? `view-transition-name: ${vtName};` : ''}">
             <div class="artist-img-wrapper">
-                <img src="${artist.image_url || ""}" alt="${artist.name}" class="spotify-artist-img" decoding="async">
+                <img src="${escapeHtml(artist.image_url || "")}" alt="${name}" class="spotify-artist-img" decoding="async">
                 <div class="artist-playcount-overlay">
                     <span class="artist-playcount-value">${Number(artist.playcount).toLocaleString()}</span>
                     <span class="artist-playcount-label">Plays</span>
                 </div>
             </div>
-            <span class="spotify-artist-name">${artist.name}</span>
+            <span class="spotify-artist-name">${name}</span>
         </a>`;
     }).join('');
 }
@@ -218,42 +128,43 @@ function renderTracks(container, trackList) {
     if (!container) return;
     const list = Array.isArray(trackList) ? trackList : [];
     if (list.length === 0) {
-        container.innerHTML = `<p style="color: var(--text-secondary);">No top tracks recorded.</p>`;
+        container.innerHTML = `<p class="empty-note">No top tracks recorded.</p>`;
         return;
     }
     const seenSlugs = new Set();
     container.innerHTML = list.map((track, index) => {
         const isTopCard = index === 0;
-        const isTopStyle = isTopCard;
         let vtName = toTransitionSlug('track', `${track.title}-${track.artist}`);
         if (seenSlugs.has(vtName)) vtName = `${vtName}-${index}`;
         seenSlugs.add(vtName);
-        
+
+        const title = escapeHtml(track.title);
+        const coverUrl = escapeHtml(track.cover_url || "");
         const rankTag = !isTopCard ? `<span class="stats-badge">#${index + 1}</span>` : `<span class="stats-badge">#1 THIS MONTH</span>`;
         let lyricHtml = '';
-        if (isTopStyle && track.ai_lyrics) {
+        if (isTopCard && track.ai_lyrics) {
             const lyrics = [track.ai_lyrics.lyric1, track.ai_lyrics.lyric2, track.ai_lyrics.lyric3].filter(Boolean);
             if (lyrics.length > 0) {
                 const randomLyric = lyrics[Math.floor(Math.random() * lyrics.length)];
-                lyricHtml = `<div class="track-ai-lyric">"${randomLyric}"</div>`;
+                lyricHtml = `<div class="track-ai-lyric">"${escapeHtml(randomLyric)}"</div>`;
             }
         }
 
         const inlineStyles = [
-            isTopStyle ? `--track-art: url('${track.cover_url}')` : '',
+            isTopCard ? `--track-art: url('${coverUrl}')` : '',
             vtName ? `view-transition-name: ${vtName}` : ''
         ].filter(Boolean).join('; ');
 
         return `
-            <a id="track-card-${index}" href="${track.spotify_url || "#"}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTopStyle ? 'top-track-banner' : 'grid-track'}" style="${inlineStyles}">
-                ${isTopStyle ? `<div class="banner-bg-blur"></div>` : ''}
+            <a id="track-card-${index}" href="${escapeHtml(track.spotify_url || "#")}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTopCard ? 'top-track-banner' : 'grid-track'}" style="${inlineStyles}">
+                ${isTopCard ? `<div class="banner-bg-blur"></div>` : ''}
                 <div class="case-art-wrapper">
-                    <img src="${track.cover_url || ""}" alt="${track.title}" class="spotify-track-img" ${isTopCard ? 'fetchpriority="high"' : 'decoding="async"'}>
+                    <img src="${coverUrl}" alt="${title}" class="spotify-track-img" ${isTopCard ? 'fetchpriority="high"' : 'decoding="async"'}>
                 </div>
                 <div class="case-info">
                     <div class="track-text-stack">
-                        <span class="case-title">${track.title}</span>
-                        <span class="case-artist">${track.artist}</span>
+                        <span class="case-title">${title}</span>
+                        <span class="case-artist">${escapeHtml(track.artist)}</span>
                     </div>
                     ${lyricHtml}
                     <div class="track-stats-pill">${rankTag}<span class="stats-plays">${Number(track.playcount).toLocaleString()} plays</span></div>
@@ -265,12 +176,12 @@ function renderTracks(container, trackList) {
     list.forEach((track, index) => {
         if (track.prominent_color) {
             const [R, G, B] = track.prominent_color;
-            const isTopStyle = index === 0;
+            const isTopCard = index === 0;
             const card = document.getElementById(`track-card-${index}`);
             if (card) {
                 card.style.setProperty('--track-color-rgb', `${R}, ${G}, ${B}`);
-                card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${isTopStyle ? 0.6 : 0.45})`);
-                if (isTopStyle) card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;
+                card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${isTopCard ? 0.6 : 0.45})`);
+                if (isTopCard) card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;
             }
         }
     });
@@ -285,117 +196,81 @@ function initMusic() {
     const artistsContainer = document.getElementById("spotify-artists-container");
     const tracksContainer = document.getElementById("spotify-tracks-container");
     const albumsContainer = document.getElementById("spotify-albums-container");
+    if (!artistsContainer && !tracksContainer && !albumsContainer) return;
 
-    const cached = getCachedData("simplyigit_cache_spotify", SEED_SPOTIFY);
     let renderedAlbumsSig = '';
     let renderedArtistsSig = '';
     let renderedTracksSig = '';
 
-    const applyInitial = (sourceData) => {
-        if (!sourceData) return;
-        if (albumsContainer && Array.isArray(sourceData.favorite_albums) && sourceData.favorite_albums.length > 0) {
-            renderedAlbumsSig = sourceData.favorite_albums.map(a => a.title).join('|');
-            renderAlbums(albumsContainer, sourceData.favorite_albums);
+    // First call paints directly; later calls morph only the sections whose content changed
+    const render = (data) => {
+        const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
+
+        if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
+            const sig = albums.map(a => a.title).join('|');
+            if (sig !== renderedAlbumsSig) {
+                const isUpdate = renderedAlbumsSig !== '';
+                renderedAlbumsSig = sig;
+                if (isUpdate) {
+                    smoothMorph(albumsContainer, () => renderAlbums(albumsContainer, albums), albums.map(a => a.cover_url).filter(Boolean));
+                } else {
+                    renderAlbums(albumsContainer, albums);
+                }
+            }
         }
-        if (artistsContainer && Array.isArray(sourceData.top_artists_last_month) && sourceData.top_artists_last_month.length > 0) {
-            const artists = sanitizeArtists(sourceData.top_artists_last_month);
-            renderedArtistsSig = artists.map(a => a.name).join('|');
-            renderArtists(artistsContainer, artists);
+
+        if (artistsContainer && Array.isArray(artists) && artists.length > 0) {
+            const sig = artists.map(a => a.name).join('|');
+            if (sig !== renderedArtistsSig) {
+                const isUpdate = renderedArtistsSig !== '';
+                renderedArtistsSig = sig;
+                if (isUpdate) {
+                    smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artists.map(a => a.image_url).filter(Boolean));
+                } else {
+                    renderArtists(artistsContainer, artists);
+                }
+            } else {
+                // Same artists in same order: morph playcounts in-place without resetting DOM
+                const valueEls = artistsContainer.querySelectorAll('.artist-playcount-value');
+                artists.forEach((artist, idx) => {
+                    if (valueEls[idx]) {
+                        morphText(valueEls[idx], Number(artist.playcount).toLocaleString());
+                    }
+                });
+            }
         }
-        if (tracksContainer && Array.isArray(sourceData.top_tracks_last_month) && sourceData.top_tracks_last_month.length > 0) {
-            renderedTracksSig = sourceData.top_tracks_last_month.map(t => `${t.title}-${t.artist}`).join('|');
-            renderTracks(tracksContainer, sourceData.top_tracks_last_month);
+
+        if (tracksContainer && Array.isArray(tracks) && tracks.length > 0) {
+            const sig = tracks.map(t => `${t.title}-${t.artist}`).join('|');
+            if (sig !== renderedTracksSig) {
+                const isUpdate = renderedTracksSig !== '';
+                renderedTracksSig = sig;
+                if (isUpdate) {
+                    smoothMorph(tracksContainer, () => renderTracks(tracksContainer, tracks), tracks.map(t => t.cover_url).filter(Boolean));
+                } else {
+                    renderTracks(tracksContainer, tracks);
+                }
+            } else {
+                // Same tracks in same order: morph playcounts in-place without resetting lyrics or DOM
+                const playEls = tracksContainer.querySelectorAll('.stats-plays');
+                tracks.forEach((track, idx) => {
+                    if (playEls[idx]) {
+                        morphText(playEls[idx], `${Number(track.playcount).toLocaleString()} plays`);
+                    }
+                });
+            }
         }
     };
 
-    if (artistsContainer || tracksContainer || albumsContainer) {
-        const fetchSpotifyData = async () => {
-            if (window.__PREFETCH_SPOTIFY__) {
-                try {
-                    const pre = await window.__PREFETCH_SPOTIFY__;
-                    window.__PREFETCH_SPOTIFY__ = null;
-                    if (pre && pre.success && pre.data) return pre.data;
-                } catch {}
-            }
-            try {
-                const res = await fetch("/api/spotify");
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json.success && json.data) return json.data;
-                }
-            } catch {}
-            try {
-                const res = await fetch("/data/spotify.json");
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json.success && json.data) return json.data;
-                }
-            } catch {}
-            return null;
-        };
-
-        const freshPromise = fetchSpotifyData();
-
-        awaitFastPrefetch(freshPromise, 65).then(fastData => {
-            if (fastData) {
-                setCachedData("simplyigit_cache_spotify", fastData);
-                applyInitial(fastData);
-                return;
-            }
-
-            applyInitial(cached);
-
-            freshPromise.then(data => {
-                if (!data) return;
-                setCachedData("simplyigit_cache_spotify", data);
-                const { top_artists_last_month: rawArtists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
-                const artists = sanitizeArtists(rawArtists);
-
-                if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
-                    const newAlbumsSig = albums.map(a => a.title).join('|');
-                    if (newAlbumsSig !== renderedAlbumsSig) {
-                        renderedAlbumsSig = newAlbumsSig;
-                        const albumImgs = albums.map(a => a.cover_url).filter(Boolean);
-                        smoothMorph(albumsContainer, () => renderAlbums(albumsContainer, albums), albumImgs);
-                    }
-                }
-
-                if (artistsContainer && Array.isArray(artists) && artists.length > 0) {
-                    const newArtistsSig = artists.map(a => a.name).join('|');
-                    if (newArtistsSig !== renderedArtistsSig) {
-                        renderedArtistsSig = newArtistsSig;
-                        const artistImgs = artists.map(a => a.image_url).filter(Boolean);
-                        smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artistImgs);
-                    } else {
-                        // Same artists in same order: morph playcounts in-place without resetting DOM
-                        const valueEls = artistsContainer.querySelectorAll('.artist-playcount-value');
-                        artists.forEach((artist, idx) => {
-                            if (valueEls[idx]) {
-                                morphText(valueEls[idx], Number(artist.playcount).toLocaleString());
-                            }
-                        });
-                    }
-                }
-
-                if (tracksContainer && Array.isArray(tracks) && tracks.length > 0) {
-                    const newTracksSig = tracks.map(t => `${t.title}-${t.artist}`).join('|');
-                    if (newTracksSig !== renderedTracksSig) {
-                        renderedTracksSig = newTracksSig;
-                        const trackImgs = tracks.map(t => t.cover_url).filter(Boolean);
-                        smoothMorph(tracksContainer, () => renderTracks(tracksContainer, tracks), trackImgs);
-                    } else {
-                        // Same tracks in same order: morph playcounts in-place without resetting lyrics or DOM
-                        const playEls = tracksContainer.querySelectorAll('.stats-plays');
-                        tracks.forEach((track, idx) => {
-                            if (playEls[idx]) {
-                                morphText(playEls[idx], `${Number(track.playcount).toLocaleString()} plays`);
-                            }
-                        });
-                    }
-                }
-            });
-        });
-    }
+    loadLiveData({
+        prefetch: window.__PREFETCH_SPOTIFY__,
+        api: "/api/spotify",
+        snapshot: "/data/spotify.json",
+        readCache: () => getCachedData("simplyigit_cache_spotify"),
+        saveCache: (data) => setCachedData("simplyigit_cache_spotify", data),
+        loadSeed: () => import('../modules/seed-data.js').then(m => m.SEED_SPOTIFY),
+        render
+    });
 }
 
 function initMusicTabs() {
@@ -417,6 +292,10 @@ function initMusicTabs() {
     const tabOrder = ["tracks", "artists", "albums"];
     let currentTab = "tracks";
     let isTransitioning = false;
+
+    tabButtons.forEach(b => {
+        b.tabIndex = b.getAttribute("data-tab") === currentTab ? 0 : -1;
+    });
 
     tabButtons.forEach(btn => {
         btn.addEventListener("click", () => {
@@ -463,6 +342,7 @@ function initMusicTabs() {
             const isSelected = b.getAttribute("data-tab") === newTab;
             b.classList.toggle("active", isSelected);
             b.setAttribute("aria-selected", isSelected ? "true" : "false");
+            b.tabIndex = isSelected ? 0 : -1;
         });
 
         // Update unified period badges: tracks and artists share 1m, albums is all-time

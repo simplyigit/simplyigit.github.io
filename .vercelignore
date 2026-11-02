@@ -2,3 +2,6 @@ images/albums/raw/
 scripts/
 PROBLEMS.md
 VISION.md
+images/pp.png
+projects/**/*.png
+.github/

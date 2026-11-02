@@ -1,6 +1,6 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax, safeImg, smoothMorph, morphText, awaitFastPrefetch } from '../modules/core.js';
-import { setDashboardCachedData } from '../modules/cache.js';
-import { SEED_SPOTIFY, SEED_MOVIES, SEED_BOOKS } from '../modules/seed-data.js';
+import { initAmbientMesh, initGlobalReveal, initGlassParallax, safeImg, smoothMorph, morphText, escapeHtml } from '../modules/core.js';
+import { getCachedDashboard, setDashboardCachedData } from '../modules/cache.js';
+import { loadLiveData } from '../modules/live-data.js';
 
 const projects = [
     {
@@ -9,7 +9,7 @@ const projects = [
         tags: ["ML & DL", "Image Processing"],
         type: "wide",
         customClass: "project-real",
-        visualHtml: '<img src="projects/real-deepfake-or-ai/real-deepfake-or-ai.webp" style="width: 100%; height: 100%; object-fit: cover;" alt="Real, Deepfake or AI" loading="lazy" decoding="async">',
+        visualHtml: '<img src="projects/real-deepfake-or-ai/real-deepfake-or-ai.webp" class="card-visual-cover" alt="Real, Deepfake or AI" loading="lazy" decoding="async">',
         url: "/projects/real-deepfake-or-ai"
     }
 ];
@@ -76,12 +76,12 @@ function initIndex() {
             const card = document.createElement("a");
             card.href = proj.url || "#";
             card.className = `glass-card ${cardWidthClass} ${proj.customClass || ''}`;
-            const tagsHtml = proj.tags.map(tag => `<span class="tag">${tag}</span>`).join("");
+            const tagsHtml = proj.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("");
             card.innerHTML = `
                 <div class="card-visual">${proj.visualHtml}</div>
                 <div class="card-content">
-                    <h3>${proj.title}</h3>
-                    ${proj.description ? `<p>${proj.description}</p>` : ''}
+                    <h3>${escapeHtml(proj.title)}</h3>
+                    ${proj.description ? `<p>${escapeHtml(proj.description)}</p>` : ''}
                     <div class="tags">${tagsHtml}</div>
                 </div>`;
             container.appendChild(card);
@@ -100,71 +100,22 @@ function initIndex() {
     let renderedMoviesSig = '';
 
     if (indexBooksContainer && indexMoviesContainer) {
-        const CACHE_KEY = 'simplyigit_dashboard_cache';
-        
-        // 1. Instant 0ms render from LocalStorage Cache or Bundled Seed Data
-        let initialData = null;
-        try {
-            const stored = localStorage.getItem(CACHE_KEY);
-            if (stored) initialData = JSON.parse(stored);
-        } catch {}
-
-        if (!initialData || !initialData.spotify || !initialData.movies || !initialData.books) {
-            initialData = {
-                spotify: SEED_SPOTIFY,
-                movies: SEED_MOVIES,
-                books: SEED_BOOKS
-            };
-        }
-
-        async function fetchFreshDashboard() {
-            if (window.__PREFETCH_DASHBOARD__) {
-                try {
-                    const pre = await window.__PREFETCH_DASHBOARD__;
-                    window.__PREFETCH_DASHBOARD__ = null;
-                    if (pre && pre.success && pre.data) return pre.data;
-                } catch {}
+        loadLiveData({
+            prefetch: window.__PREFETCH_DASHBOARD__,
+            api: "/api/dashboard",
+            snapshot: "/data/dashboard.json",
+            readCache: getCachedDashboard,
+            saveCache: setDashboardCachedData,
+            loadSeed: () => import('../modules/seed-data.js').then(m => ({
+                spotify: m.SEED_SPOTIFY,
+                movies: m.SEED_MOVIES,
+                books: m.SEED_BOOKS
+            })),
+            render: (data) => {
+                if (data.spotify) renderSpotify(data.spotify);
+                if (data.books) renderBooks(data.books);
+                if (data.movies) renderMovies(data.movies);
             }
-            try {
-                const res = await fetch("/api/dashboard");
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json.success && json.data) return json.data;
-                }
-            } catch {}
-            try {
-                const res = await fetch("/data/dashboard.json");
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json.data) return json.data;
-                }
-            } catch {}
-            return null;
-        }
-
-        const freshPromise = fetchFreshDashboard();
-
-        awaitFastPrefetch(freshPromise, 65).then(fastFresh => {
-            if (fastFresh) {
-                setDashboardCachedData(fastFresh);
-                if (fastFresh.spotify) renderSpotify(fastFresh.spotify);
-                if (fastFresh.books) renderBooks(fastFresh.books);
-                if (fastFresh.movies) renderMovies(fastFresh.movies);
-                return;
-            }
-
-            // Render cached data immediately if network takes >65ms
-            renderSpotify(initialData.spotify);
-            renderBooks(initialData.books);
-            renderMovies(initialData.movies);
-
-            freshPromise.then(fresh => {
-                if (!fresh) return;
-                setDashboardCachedData(fresh);
-                if (fresh.spotify) renderSpotify(fresh.spotify);
-                if (fresh.books) renderBooks(fresh.books);
-                if (fresh.movies) renderMovies(fresh.movies);
-            });
         });
     }
 
@@ -182,12 +133,13 @@ function initIndex() {
         const cassetteBody = document.getElementById("cassette-body");
         const applySpotifyDom = () => {
             if (cassetteArtistName) {
-                cassetteArtistName.innerHTML = `<span class="fade-in" title="${topTrack.artist}">${topTrack.artist}</span>`;
+                const artist = escapeHtml(topTrack.artist);
+                cassetteArtistName.innerHTML = `<span class="fade-in" title="${artist}">${artist}</span>`;
             }
             if (cassetteSongTitle) {
                 const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
                 if (marquee) {
-                    marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text">${topTrack.title} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
+                    marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text">${escapeHtml(topTrack.title)} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
                     const titleLen = (topTrack.title || "").length;
                     const duration = Math.max(5, Math.min(12, 4 + titleLen * 0.12));
                     marquee.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
@@ -258,8 +210,8 @@ function initIndex() {
         renderedBooksSig = sig;
 
         const heroBook = top3[0];
-        const safeTitle = (heroBook.title || '').replace(/"/g, '&quot;');
-        const safeAuthor = (heroBook.author || '').replace(/"/g, '&quot;');
+        const safeTitle = escapeHtml(heroBook.title);
+        const safeAuthor = escapeHtml(heroBook.author);
         const heroCover = safeImg(heroBook.cover_url, 240);
         const isCurrentlyReading = heroBook.shelf === 'currently-reading';
         const statusLabel = isCurrentlyReading ? 'READING' : 'UP NEXT';
@@ -307,10 +259,10 @@ function initIndex() {
 
             indexBooksContainer.innerHTML = `
                 <div class="book-shelf-item book-shelf-left">
-                    <img src="${leftCover}" alt="${(book3.title || '').replace(/"/g, '&quot;')}" loading="lazy" decoding="async">
+                    <img src="${leftCover}" alt="${escapeHtml(book3.title)}" loading="lazy" decoding="async">
                 </div>
                 <div class="book-shelf-item book-shelf-right">
-                    <img src="${rightCover}" alt="${(book2.title || '').replace(/"/g, '&quot;')}" loading="lazy" decoding="async">
+                    <img src="${rightCover}" alt="${escapeHtml(book2.title)}" loading="lazy" decoding="async">
                 </div>
 
                 <div class="book-shelf-item book-shelf-center" id="hero-book-wrapper">
@@ -338,7 +290,7 @@ function initIndex() {
                                 </div>
                                 <div class="book-page-footer">
                                     <span>${statusLabel}</span>
-                                    <span class="book-page-num">${pageMeta}</span>
+                                    <span class="book-page-num">${escapeHtml(pageMeta)}</span>
                                 </div>
                             </div>
                         </div>
@@ -409,7 +361,7 @@ function initIndex() {
                 <div class="vhs-filmstrip-track">
                     ${duplicated.map((film) => {
                         const imgUrl = safeImg(film.cover_url, 150);
-                        const cleanTitle = (film.title || "").replace(/"/g, '&quot;');
+                        const cleanTitle = escapeHtml(film.title);
                         return `
                             <div class="vhs-filmstrip-item" title="${cleanTitle}">
                                 <img src="${imgUrl}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy" decoding="async">

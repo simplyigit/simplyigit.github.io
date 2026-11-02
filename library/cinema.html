@@ -4,8 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinema | Yigit</title>
-    <meta name="robots" content="noindex, nofollow">
+    <title>Cinema | yiğit</title>
+    <meta name="description" content="Films yiğit has been watching: all-time favorites, recent diary entries and the watchlist, synced from Letterboxd.">
+    <link rel="canonical" href="https://simplyigit.me/library/cinema">
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#020813">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="yiğit">
+    <meta property="og:title" content="Cinema | yiğit">
+    <meta property="og:description" content="Films yiğit has been watching: all-time favorites, recent diary entries and the watchlist, synced from Letterboxd.">
+    <meta property="og:url" content="https://simplyigit.me/library/cinema">
+    <meta property="og:image" content="https://simplyigit.me/images/og/cinema.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://wsrv.nl" crossorigin>
@@ -14,8 +28,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/styles.css?v=6.6">
-    <script>(function(){var d=document.documentElement;try{var n=performance.getEntriesByType("navigation")[0];if("PageRevealEvent" in window&&document.referrer&&new URL(document.referrer).origin===location.origin&&(!n||n.type!=="reload"))d.classList.add("vt-nav")}catch(e){}var done=function(){setTimeout(function(){d.classList.remove("vt-nav")},1000)};addEventListener("pagereveal",function(e){window.__NAV_VT__=e.viewTransition||null;if(e.viewTransition)e.viewTransition.finished.then(done,done);else done()},{once:true})})();</script>
+    <link rel="stylesheet" href="../assets/css/base.css?v=7.0">
+    <link rel="stylesheet" href="../assets/css/cinema.css?v=7.0">
+    <script src="../assets/js/vt-nav.js?v=7.0"></script>
     <script>window.__PREFETCH_MOVIES__ = fetch("/api/movies", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
 </head>
 
@@ -29,39 +44,36 @@
     <div class="cinema-bg-glow"></div>
 
     <div class="container fade-in">
-        <header class="hero" style="font-family: 'Playfair Display', serif; align-items: center; text-align: center;">
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; width: 100%; font-family: 'Inter', sans-serif;">
+        <header class="hero subpage-hero subpage-hero--serif">
+            <div class="subpage-bar">
                 <a href="/" class="glass-card back-btn">
-                    <span class="arrow" style="transform: rotate(180deg); margin-right: 8px;">→</span> Portfolio
+                    <span class="arrow arrow-back">→</span> Portfolio
                 </a>
 
-                <h1 style="font-family: 'Playfair Display', serif; margin: 0;">Cinema.</h1>
+                <h1 class="subpage-title">Cinema.</h1>
 
                 <a href="https://letterboxd.com/oneyigit/" target="_blank" rel="noopener noreferrer"
                     class="glass-card repo-btn">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="margin-right: 8px;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="btn-icon">
                         <circle cx="6" cy="12" r="3" fill="#00e054" />
                         <circle cx="12" cy="12" r="3" fill="#40bcf4" />
                         <circle cx="18" cy="12" r="3" fill="#ff8000" />
                     </svg>
-                    Letterboxd <span class="arrow" style="margin-left: 8px;">→</span>
+                    Letterboxd <span class="arrow arrow-forward">→</span>
                 </a>
             </div>
 
-            <p class="subtitle"
-                style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; line-height: 1.6; margin-top: 8px;">
+            <p class="subtitle">
                 A film is a petrified fountain of thought.<br>
                 Synced from my <a href="https://letterboxd.com/oneyigit/" target="_blank" rel="noopener noreferrer"
-                    style="color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--accent-color);"><strong
-                        style="color: #6883a7;">Letterboxd</strong></a>.
+                    class="source-link source-link--letterboxd"><strong>Letterboxd</strong></a>.
             </p>
         </header>
 
         <!-- All-Time Favorites -->
         <section class="section">
             <div class="section-eyebrow">Curated</div>
-            <div class="section-title">All-Time Favorites</div>
+            <h2 class="section-title">All-Time Favorites</h2>
             <div class="animated-filmstrip-container">
                 <div id="movies-favorites-container" class="animated-filmstrip-track">
                 </div>
@@ -71,7 +83,7 @@
         <!-- Recent Watches -->
         <section class="section">
             <div class="section-eyebrow">Diary</div>
-            <div class="section-title">Recent Watches</div>
+            <h2 class="section-title">Recent Watches</h2>
             <div id="movies-recent-container" class="scroll-strip">
             </div>
         </section>
@@ -79,7 +91,7 @@
         <!-- Watchlist -->
         <section class="section">
             <div class="section-eyebrow">Up Next</div>
-            <div class="section-title">Watchlist</div>
+            <h2 class="section-title">Watchlist</h2>
             <div id="movies-watchlist-container" class="scroll-strip">
             </div>
         </section>
@@ -89,7 +101,7 @@
             <div class="library-nav-pill">
                 <a href="/library/cinema" class="lib-nav-item active">🎬 Cinema</a>
                 <a href="/library/music" class="lib-nav-item">🎵 Music</a>
-                <a href="/library/reading" class="lib-nav-item">📖 Library</a>
+                <a href="/library/reading" class="lib-nav-item">📖 Reading</a>
             </div>
         </nav>
 
@@ -98,7 +110,7 @@
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/cinema.js?v=6.6"></script>
+    <script type="module" src="../assets/js/pages/cinema.js?v=7.0"></script>
 </body>
 
 </html>

@@ -1,0 +1,1034 @@
+/* ======================================================== */
+/*   MUSIC SECTION: TABBED SELECTOR & PANES                */
+/* ======================================================== */
+.music-selector-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 0 32px 0;
+    position: relative;
+    z-index: 10;
+}
+
+.music-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.music-pill-segment {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 4px;
+}
+
+.music-segment-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.58rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.32);
+    margin-bottom: 4px;
+    transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    pointer-events: none;
+}
+
+.music-segment-header.active {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.music-segment-header .music-period-icon {
+    opacity: 0.85;
+}
+
+.music-segment-header.active .music-period-icon {
+    opacity: 1;
+}
+
+.music-pill-btn-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.music-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 26px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.84rem;
+    font-weight: 500;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    outline: none;
+    user-select: none;
+}
+
+.music-tab-btn:hover {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.music-tab-btn.active {
+    color: #ffffff;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.music-pill-divider {
+    width: 1px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.12);
+    margin: 0 2px;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.music-panes-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    will-change: height;
+}
+
+.music-tab-pane {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.music-tab-pane:not(.active):not(.is-animating) {
+    display: none;
+}
+
+/* Spotify Grids */
+.spotify-artists-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    /* Maximum width utilization */
+    gap: 8px;
+    /* Minimal gap to allow largest possible circles */
+    margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px 12px 20px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.spotify-artist-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 155px;
+    /* Increased size to take up max width */
+    flex-shrink: 1;
+}
+
+.artist-img-wrapper {
+    width: 145px;
+    height: 145px;
+    position: relative;
+    border-radius: 50%;
+    padding: 6px;
+    box-sizing: border-box;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.spotify-artist-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05), 0 0 0 6px rgba(255, 255, 255, 0.1);
+    transition: box-shadow 0.4s ease;
+    display: block;
+}
+
+.spotify-artist-item:hover .artist-img-wrapper {
+    transform: scale(1.08);
+    /* Scales both image and overlay */
+}
+
+.spotify-artist-item:hover .spotify-artist-img {
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 0 0 0 6px #1DB954;
+}
+
+.spotify-artist-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+/* Spotify Albums Grid (All-Time Favorites) - Panoramic Editorial Banners */
+/* Spotify Albums Grid (All-Time Favorites) - Fluid Multi-Layered Editorial Experience */
+.spotify-albums-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    position: relative;
+}
+
+/* Cascading fluid entry when Albums tab is active */
+.music-tab-pane.active .spotify-album-card {
+    animation: albumCardCascade 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: calc(var(--stagger-idx, 0) * 45ms);
+}
+
+@keyframes albumCardCascade {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.spotify-album-card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    width: 100%;
+    height: clamp(100px, 24vw, 160px);
+    box-sizing: border-box;
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    background: #0d0d0f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 16px var(--album-glow, rgba(0, 0, 0, 0.1));
+    position: relative;
+    isolation: isolate;
+    cursor: pointer;
+    /* Hardware acceleration & anti-aliased border clipping */
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+    transform: translateZ(0);
+    transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.spotify-album-card:hover {
+    border-color: rgba(var(--album-rgb, 255, 255, 255), 0.45);
+    border-top-color: rgba(var(--album-rgb, 255, 255, 255), 0.6);
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.7), 0 0 32px var(--album-glow, rgba(255, 255, 255, 0.25));
+}
+
+/* Album Gatefold Cover Slot */
+.album-cover-slot {
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 3;
+    background: #000;
+}
+
+.album-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: relative;
+    z-index: 3;
+    box-shadow: 5px 0 18px rgba(0, 0, 0, 0.8), 1px 0 0 rgba(255, 255, 255, 0.06);
+    transition: filter 0.35s ease;
+}
+
+/* Laminated jacket gloss highlight */
+.album-cover-gloss {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background: linear-gradient(
+        125deg,
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(255, 255, 255, 0.04) 20%,
+        transparent 45%
+    );
+    mix-blend-mode: screen;
+}
+
+.spotify-album-card:hover .album-cover-img {
+    filter: brightness(1.05) contrast(1.02);
+}
+
+/* Interactive Vinyl Disc (Resting rim peek, slides out on hover) */
+.album-vinyl-disc {
+    position: absolute;
+    top: 5%;
+    left: 4%;
+    height: 90%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, #0e0e0e 0, #0e0e0e 2px, #1a1a1a 3px, #0e0e0e 4px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    z-index: 2;
+    /* Resting rim peek gives immediate tactile vinyl depth */
+    transform: translateX(16px) rotate(0deg);
+    opacity: 0.88;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.65s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.spotify-album-card:hover .album-vinyl-disc {
+    opacity: 1;
+    transform: translateX(clamp(36px, 7vw, 48px)) rotate(180deg);
+}
+
+.vinyl-sheen {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 30deg,
+        rgba(255, 255, 255, 0.12) 0deg,
+        transparent 45deg,
+        transparent 135deg,
+        rgba(255, 255, 255, 0.12) 180deg,
+        transparent 225deg,
+        transparent 315deg,
+        rgba(255, 255, 255, 0.12) 360deg
+    );
+}
+
+.vinyl-label {
+    width: 34%;
+    height: 34%;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 0 0 2px #0a0a0a, inset 0 0 6px rgba(0, 0, 0, 0.6);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vinyl-hole {
+    width: 20%;
+    height: 20%;
+    border-radius: 50%;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Panoramic Banner Slot with Ambient Color Aura */
+.album-banner-slot {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse 70% 80% at 85% 50%, rgba(var(--album-rgb, 255, 255, 255), 0.14) 0%, transparent 75%), #0d0d0f;
+    z-index: 1;
+}
+
+/* Layer 0: Background Photo with 2.5D Parallax */
+.album-banner-bg-wrap {
+    position: absolute;
+    inset: -6%;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.album-banner-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: translate3d(calc(var(--parallax-x, 0) * -10px), calc(var(--parallax-y, 0) * -6px), 0) scale(1.03);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+    will-change: transform;
+}
+
+.spotify-album-card:hover .album-banner-bg {
+    filter: brightness(1.04);
+}
+
+.album-banner-vignette {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.45) 0%, transparent 16%),
+                linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, transparent 30%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Layer 2: Floating Foreground Typography with Multi-Drop Shadow */
+.album-banner-typo-wrap {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.album-banner-typo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
+    display: block;
+    transform: translate3d(calc(var(--parallax-x, 0) * 8px), calc(var(--parallax-y, 0) * 5px), 0);
+    filter: drop-shadow(calc(var(--parallax-x, 0) * -4px) 3px 8px rgba(0, 0, 0, 0.75))
+            drop-shadow(calc(var(--parallax-x, 0) * -8px) 8px 20px rgba(0, 0, 0, 0.5));
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+    will-change: transform, filter;
+}
+
+
+/* Layer 3: Interactive Glass Specular Spotlight (Tracks Pointer) */
+.album-banner-sheen {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    background: radial-gradient(
+        circle 320px at var(--mouse-x, -500px) var(--mouse-y, -500px),
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(var(--album-rgb, 255, 255, 255), 0.1) 40%,
+        transparent 70%
+    );
+    mix-blend-mode: overlay;
+    transition: opacity 0.35s ease;
+}
+
+.spotify-album-card:hover .album-banner-sheen {
+    opacity: 1;
+}
+
+/* Layer 4: Interactive Floating Spotify Pill with Soundwave Equalizer */
+.album-hover-pill {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 11px;
+    background: rgba(12, 12, 12, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    color: #f0f0f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    z-index: 6;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.spotify-album-card:hover .album-hover-pill {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.album-eq {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 10px;
+}
+
+.album-eq span {
+    width: 2px;
+    border-radius: 1px;
+    background: #1DB954;
+    display: block;
+}
+
+.album-eq span:nth-child(1) { height: 4px; animation: eqBounce1 0.7s infinite alternate ease-in-out; }
+.album-eq span:nth-child(2) { height: 9px; animation: eqBounce2 0.5s infinite alternate ease-in-out 0.15s; }
+.album-eq span:nth-child(3) { height: 6px; animation: eqBounce3 0.8s infinite alternate ease-in-out 0.3s; }
+
+@keyframes eqBounce1 { 0% { height: 3px; } 100% { height: 10px; } }
+@keyframes eqBounce2 { 0% { height: 10px; } 100% { height: 4px; } }
+@keyframes eqBounce3 { 0% { height: 5px; } 100% { height: 10px; } }
+
+.spotify-tracks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+/* Track #1: Banner Style (Full Width) */
+.spotify-track-card.top-track-banner {
+    grid-column: 1 / -1;
+    min-height: auto;
+    height: 240px;
+    /* Content height = art size; 15px padding provides equal spacing on all sides */
+    padding: 15px;
+    background: rgba(18, 18, 18, 0.85);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--track-color-glow, rgba(0, 0, 0, 0.1));
+    /* Reduced default glow further */
+    position: relative;
+    overflow: hidden;
+    /* Bug fix: Force hardware acceleration and perfect clipping to remove sharp corner artifact */
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+    transform: translateZ(0);
+    isolation: isolate;
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.top-track-banner:hover {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, rgba(0, 0, 0, 0.2));
+    /* Reduced hover glow further */
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Blurred background layer for depth */
+.banner-bg-blur {
+    position: absolute;
+    inset: -20px;
+    /* Extend beyond edges but scale down artifacting */
+    background-image: var(--track-art);
+    background-size: cover;
+    background-position: center;
+    filter: blur(60px) brightness(0.12);
+    opacity: 0.7;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    transform: scale(1.4);
+    /* Scale up significantly to hide edges */
+}
+
+.top-track-banner .case-art-wrapper {
+    width: 240px;
+    height: 240px;
+    flex-shrink: 0;
+    z-index: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, transparent);
+    /* Added glow behind art */
+}
+
+.top-track-banner .case-info {
+    z-index: 1;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.top-track-banner .case-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    /* Increased to prevent cut-off */
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    /* Removed tight max-height */
+}
+
+.top-track-banner .case-artist {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+
+.track-ai-lyric {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 12px;
+    /* Reduced from 24px */
+    padding-top: 12px;
+    /* Reduced from 24px */
+    max-width: 90%;
+    line-height: 1.5;
+    position: relative;
+    opacity: 0;
+    animation: lyricSlideIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Faint horizontal line between artist and lyrics */
+.track-ai-lyric::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: min(360px, 100%);
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent);
+}
+
+@keyframes lyricSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 0.9;
+        transform: translateY(0);
+    }
+}
+
+/* Updated Stats Pill to match main page's social-tube aesthetic */
+.track-stats-pill {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 50px;
+    padding: 2px;
+    overflow: hidden;
+    width: fit-content;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.stats-badge {
+    padding: 6px 16px;
+    background: rgba(var(--track-color-rgb, 29, 185, 84), 0.15);
+    color: rgb(var(--track-color-rgb, 29, 185, 84));
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-radius: 50px;
+}
+
+.stats-plays {
+    padding: 0 14px 0 12px;
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+/* Track #2-5: Grid Style Overhaul */
+.spotify-track-card.grid-track {
+    background: rgba(18, 18, 18, 0.7);
+    border-radius: 20px;
+    padding: 0 24px 0 0;
+    /* Remove top/bottom padding, keep right padding */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    /* Reduced gap */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+    height: 120px;
+    overflow: hidden;
+}
+
+.grid-track .case-art-wrapper {
+    width: 120px;
+    /* Match height exactly */
+    height: 120px;
+    flex-shrink: 0;
+    border-radius: 0;
+    /* Let the card's overflow handle the corners */
+    overflow: hidden;
+    box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.grid-track .case-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    /* Significantly reduced gap */
+    height: 100%;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.track-text-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.grid-track .case-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.grid-track .case-artist {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.spotify-track-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.grid-track:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(var(--track-color-rgb, 255, 255, 255), 0.3);
+    border-color: rgba(var(--track-color-rgb, 255, 255, 255), 0.25);
+}
+
+.spotify-track-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Compact overrides for grid track cards (tracks #2-5) */
+.grid-track .track-stats-pill {
+    margin-top: 4px;
+    /* Reduced from 8px */
+    padding: 1px;
+    /* Tighter padding for small cards */
+}
+
+.grid-track .stats-badge {
+    padding: 5px 12px;
+    font-size: 0.65rem;
+}
+
+.grid-track .stats-plays {
+    padding: 0 14px 0 10px;
+    font-size: 0.8rem;
+    /* Slightly smaller for small cards */
+}
+
+/* Artist play count overlay */
+.artist-playcount-overlay {
+    position: absolute;
+    inset: 6px;
+    /* Offset by padding to match img */
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 50%;
+    color: #fff;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.spotify-artist-item:hover .artist-playcount-overlay {
+    opacity: 1;
+}
+
+.artist-playcount-value {
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.artist-playcount-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+    .spotify-artists-grid {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .spotify-tracks-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .spotify-track-card.top-track-banner {
+        height: auto;
+        min-height: 200px;
+        padding: 20px;
+        gap: 24px;
+    }
+
+    .top-track-banner .case-art-wrapper {
+        width: 170px;
+        height: 170px;
+    }
+
+    .top-track-banner .case-title {
+        font-size: 2.1rem;
+    }
+}
+@media (hover: none) {
+
+    .artist-playcount-overlay {
+        opacity: 1;
+        justify-content: flex-end;
+        padding-bottom: 8px;
+        background: linear-gradient(to top, rgba(2, 8, 19, 0.92) 0%, rgba(2, 8, 19, 0.35) 38%, transparent 65%);
+    }
+
+    .artist-playcount-value {
+        font-size: 0.9rem;
+        line-height: 1.1;
+    }
+
+    .artist-playcount-label {
+        font-size: 0.52rem;
+    }
+}
+@media screen and (max-width: 768px) {
+
+    /* Music Tab Selector & Top Track Banner on Mobile */
+    .music-selector-wrapper {
+        margin: 4px 0 20px 0;
+    }
+    .music-nav-pill {
+        width: auto;
+        max-width: 96%;
+        justify-content: center;
+        gap: 4px;
+        padding: 5px 6px;
+    }
+    .music-pill-segment {
+        padding: 0 2px;
+    }
+    .music-segment-header {
+        font-size: 0.54rem;
+        letter-spacing: 0.07em;
+        margin-bottom: 3px;
+    }
+    .music-pill-btn-group {
+        gap: 2px;
+    }
+    .music-tab-btn {
+        padding: 6px 13px;
+        font-size: 0.78rem;
+    }
+    .music-pill-divider {
+        margin: 0 2px;
+        height: 30px;
+    }
+
+    .spotify-track-card.top-track-banner {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        height: auto;
+        min-height: 0;
+        padding: 16px;
+        gap: 16px;
+        border-radius: 20px;
+    }
+
+    .top-track-banner .case-art-wrapper {
+        width: 96px;
+        height: 96px;
+        border-radius: 12px;
+    }
+
+    .top-track-banner .case-info {
+        flex: 1;
+        min-width: 150px;
+        text-align: left;
+    }
+
+    .top-track-banner .case-title {
+        font-size: 1.35rem;
+        margin-bottom: 4px;
+    }
+
+    .top-track-banner .case-artist {
+        font-size: 0.95rem;
+    }
+
+    .top-track-banner .track-ai-lyric {
+        font-size: 0.92rem;
+        margin-top: 10px;
+        padding-top: 10px;
+        max-width: 100%;
+    }
+
+    .top-track-banner .track-stats-pill {
+        margin-top: 10px;
+    }
+
+    .top-track-banner .stats-badge {
+        padding: 4px 10px;
+        font-size: 0.58rem;
+        letter-spacing: 0.9px;
+    }
+
+    .top-track-banner .stats-plays {
+        padding: 0 10px 0 8px;
+        font-size: 0.76rem;
+    }
+
+    /* Horizontal Scroll for Artists */
+    .spotify-artists-grid {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 12px !important;
+        gap: 16px !important;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .spotify-artists-grid::-webkit-scrollbar {
+        display: none;
+    }
+    .spotify-artist-item {
+        scroll-snap-align: start;
+        flex: 0 0 116px !important;
+        width: 116px !important;
+    }
+    .artist-img-wrapper {
+        width: 108px !important;
+        height: 108px !important;
+    }
+
+    /* Mobile Album Banners */
+    .spotify-albums-grid {
+        gap: 12px;
+    }
+    .spotify-album-card {
+        border-radius: 12px;
+        height: clamp(96px, 24vw, 136px);
+    }
+    .spotify-album-card .album-vinyl-disc {
+        transform: translateX(10px) rotate(0deg);
+    }
+    .spotify-album-card:hover .album-vinyl-disc {
+        transform: translateX(20px) rotate(90deg);
+    }
+    .spotify-album-card .album-hover-pill {
+        display: none;
+    }
+    .album-banner-typo {
+        object-fit: contain;
+        object-position: right center;
+    }
+}
+@media screen and (max-width: 480px) {
+
+    /* Compact Track Cards (#1-#5) so song titles & stats pills have ample breathing room */
+    .spotify-track-card.top-track-banner {
+        padding: 14px;
+        gap: 14px;
+    }
+
+    .top-track-banner .case-art-wrapper {
+        width: 88px;
+        height: 88px;
+    }
+
+    .top-track-banner .stats-badge {
+        padding: 4px 8px;
+        font-size: 0.55rem;
+        letter-spacing: 0.7px;
+    }
+
+    .top-track-banner .stats-plays {
+        padding: 0 9px 0 7px;
+        font-size: 0.73rem;
+    }
+
+    .spotify-track-card.grid-track {
+        height: 92px;
+        gap: 14px;
+        padding: 0 14px 0 0;
+        border-radius: 16px;
+    }
+
+    .grid-track .case-art-wrapper {
+        width: 92px;
+        height: 92px;
+    }
+
+    .grid-track .case-title {
+        font-size: 1rem;
+    }
+
+    .grid-track .case-artist {
+        font-size: 0.85rem;
+    }
+
+    .grid-track .stats-badge {
+        padding: 4px 10px;
+        font-size: 0.6rem;
+    }
+
+    .grid-track .stats-plays {
+        padding: 0 10px 0 8px;
+        font-size: 0.75rem;
+    }
+}

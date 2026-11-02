@@ -4,8 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yigit | Portfolio</title>
-    <meta name="robots" content="noindex, nofollow">
+    <title>yiğit | Portfolio</title>
+    <meta name="description" content="yiğit's portfolio: machine learning projects, plus live feeds of the music, films and books I'm into.">
+    <link rel="canonical" href="https://simplyigit.me/">
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#020813">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="yiğit">
+    <meta property="og:title" content="yiğit | Portfolio">
+    <meta property="og:description" content="yiğit's portfolio: machine learning projects, plus live feeds of the music, films and books I'm into.">
+    <meta property="og:url" content="https://simplyigit.me/">
+    <meta property="og:image" content="https://simplyigit.me/images/og/home.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     <!-- Preconnect to Google Fonts & Image CDN -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,8 +27,9 @@
     <link rel="dns-prefetch" href="https://wsrv.nl">
     <!-- Inter, JetBrains Mono & Playfair Display Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=6.6">
-    <script>(function(){var d=document.documentElement;try{var n=performance.getEntriesByType("navigation")[0];if("PageRevealEvent" in window&&document.referrer&&new URL(document.referrer).origin===location.origin&&(!n||n.type!=="reload"))d.classList.add("vt-nav")}catch(e){}var done=function(){setTimeout(function(){d.classList.remove("vt-nav")},1000)};addEventListener("pagereveal",function(e){window.__NAV_VT__=e.viewTransition||null;if(e.viewTransition)e.viewTransition.finished.then(done,done);else done()},{once:true})})();</script>
+    <link rel="stylesheet" href="assets/css/base.css?v=7.0">
+    <link rel="stylesheet" href="assets/css/home.css?v=7.0">
+    <script src="assets/js/vt-nav.js?v=7.0"></script>
     <script>window.__PREFETCH_DASHBOARD__ = fetch("/api/dashboard", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
 </head>
 
@@ -25,20 +40,16 @@
         <div class="orb orb-3"></div>
     </div>
     <div class="container fade-in">
-        <header class="hero fade-in" style="display: flex; flex-direction: column; gap: 20px; position: relative;">
+        <header class="hero home-hero fade-in">
 
-            <div class="social-tube unified-hero-tube"
-                style="padding: 12px 28px 12px 16px; gap: 24px; width: fit-content; align-items: center;">
+            <div class="social-tube unified-hero-tube">
                 <div class="hero-glow-1"></div>
                 <div class="hero-glow-2"></div>
-                <img src="images/pp.webp" alt="Memoji" class="avatar-memoji" fetchpriority="high" width="52" height="52"
-                    style="position: relative; width: 52px; height: 52px; min-width: 52px; z-index: 1; transform: scale(1.15);">
-                <h1 class="gradient-text"
-                    style="position: relative; margin: 0; font-size: 2.5rem; line-height: 1; padding-bottom: 3px; z-index: 1;">
+                <img src="images/pp.webp" alt="Memoji" class="avatar-memoji" fetchpriority="high" width="52" height="52">
+                <h1 class="gradient-text hero-name">
                     yiğit</h1>
 
-                <div class="hero-social-divider"
-                    style="display: flex; gap: 16px; align-items: center; border-left: 1px dashed rgba(255,255,255,0.15); padding-left: 24px; height: 32px;">
+                <div class="hero-social-divider">
                     <a href="https://github.com/simplyigit" target="_blank" rel="noopener noreferrer"
                         class="social-icon github" aria-label="GitHub">
                         <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2"
@@ -63,12 +74,10 @@
         </header>
 
         <section class="section">
-            <div
-                style="display: flex; align-items: center; justify-content: flex-start; gap: 16px; margin-bottom: 24px;">
-                <h2 class="section-title" style="margin-bottom: 0;">Projects</h2>
-                <div class="social-tube tech-tube"
-                    style="margin-bottom: 0; padding: 6px 14px; width: fit-content; gap: 14px;">
-                    <span class="social-icon python" style="display:flex; align-items:center;"
+            <div class="section-header">
+                <h2 class="section-title">Projects</h2>
+                <div class="social-tube tech-tube">
+                    <span class="social-icon python"
                         role="img" aria-label="Python" title="Python">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="tech-icon python"
                             aria-hidden="true">
@@ -78,7 +87,7 @@
                         </svg>
                     </span>
 
-                    <span class="social-icon ai" style="display:flex; align-items:center;"
+                    <span class="social-icon ai"
                         role="img" aria-label="Artificial Intelligence" title="Artificial Intelligence">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="tech-icon ai"
                             aria-hidden="true">
@@ -95,14 +104,13 @@
         </section>
 
         <section class="section">
-            <div
-                style="display: flex; align-items: center; justify-content: flex-start; gap: 16px; margin-bottom: 24px;">
-                <h2 class="section-title" style="margin-bottom: 0;">Library of Interest</h2>
+            <div class="section-header">
+                <h2 class="section-title">Library of Interest</h2>
             </div>
             <div class="library-grid">
 
                 <!-- Books (left) - 3D Book Showcase -->
-                <a href="/library/reading" class="book-link fun-books" id="book-card">
+                <a href="/library/reading" class="book-link fun-books" id="book-card" aria-label="Reading: the books I'm reading and want to read" data-caption="Reading">
                     <div class="hero-book-body">
                         <div class="book-bay">
                             <div class="book-bay-header">
@@ -115,10 +123,10 @@
 
                             <div class="book-shelf-stage" id="index-books-container">
                                 <div class="book-shelf-item book-shelf-left">
-                                    <div class="spine-bounce" style="width: 66px; height: 98px; border-radius: 3px;"></div>
+                                    <div class="spine-bounce sk-book-side"></div>
                                 </div>
                                 <div class="book-shelf-item book-shelf-right">
-                                    <div class="spine-bounce" style="width: 66px; height: 98px; border-radius: 3px;"></div>
+                                    <div class="spine-bounce sk-book-side"></div>
                                 </div>
                                 <div class="book-shelf-item book-shelf-center" id="hero-book-wrapper">
                                     <div class="book-3d-obj" id="hero-book-obj">
@@ -128,7 +136,7 @@
                                         </div>
                                         <div class="book-front-cover-assembly">
                                             <div class="book-cover-outside">
-                                                <div class="spine-bounce" style="width: 78px; height: 116px; border-radius: 3px;"></div>
+                                                <div class="spine-bounce sk-book-hero"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -145,24 +153,22 @@
                 </a>
 
                 <!-- Cassette (center) -->
-                <a href="/library/music" class="cassette-link fun-aoty" id="cassette-card">
+                <a href="/library/music" class="cassette-link fun-aoty" id="cassette-card" aria-label="Music: my most played tracks this month" data-caption="Music">
                     <div class="cassette-body" id="cassette-body">
-                        <div class="cassette-screw" style="top: 10px; left: 14px;"></div>
-                        <div class="cassette-screw" style="top: 10px; right: 14px;"></div>
+                        <div class="cassette-screw screw-tl"></div>
+                        <div class="cassette-screw screw-tr"></div>
 
                         <!-- Top Label: Brand & Artist -->
                         <div class="cassette-label-top">
                             <div class="cassette-label-brand">
-                                <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"
-                                     style="opacity: 0.6;">
+                                <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
                                     <path
                                         d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.54.659.3 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.24 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.239.54-.959.72-1.56.3z" />
                                 </svg>
                                 <span>MONTHLY REPLAY</span>
                             </div>
                             <div class="cassette-label-artist" id="cassette-artist-name">
-                                <div class="spine-bounce"
-                                    style="width: 80px; height: 10px; border-radius: 2px; opacity: 0.3;"></div>
+                                <div class="spine-bounce sk-artist"></div>
                             </div>
                         </div>
 
@@ -182,8 +188,7 @@
 
                             <div class="cassette-song-on-tape" id="cassette-song-title">
                                 <div class="cassette-song-marquee">
-                                    <div class="spine-bounce"
-                                        style="width: 100px; height: 12px; border-radius: 2px; opacity: 0.4;"></div>
+                                    <div class="spine-bounce sk-title"></div>
                                 </div>
                             </div>
 
@@ -208,13 +213,13 @@
                             </div>
                         </div>
 
-                        <div class="cassette-screw" style="bottom: 10px; left: 14px;"></div>
-                        <div class="cassette-screw" style="bottom: 10px; right: 14px;"></div>
+                        <div class="cassette-screw screw-bl"></div>
+                        <div class="cassette-screw screw-br"></div>
                     </div>
                 </a>
 
                 <!-- Movies (right) - Retro VHS Cassette -->
-                <a href="/library/cinema" class="vhs-link fun-movies" id="vhs-card">
+                <a href="/library/cinema" class="vhs-link fun-movies" id="vhs-card" aria-label="Cinema: films I've watched lately" data-caption="Cinema">
                     <div class="vhs-body">
                         <!-- Recessed Acrylic Tape Bay with OSD, Framed Covers, and Spools -->
                         <div class="vhs-tape-bay">
@@ -233,10 +238,10 @@
                             <!-- Horizontal Filmstrip Viewport -->
                             <div class="vhs-filmstrip-viewport" id="index-movies-container">
                                 <div class="vhs-filmstrip-track">
-                                    <div class="vhs-filmstrip-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
-                                    <div class="vhs-filmstrip-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
-                                    <div class="vhs-filmstrip-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
-                                    <div class="vhs-filmstrip-item"><div class="spine-bounce" style="width: 48px; height: 72px; border-radius: 4px;"></div></div>
+                                    <div class="vhs-filmstrip-item"><div class="spine-bounce sk-poster"></div></div>
+                                    <div class="vhs-filmstrip-item"><div class="spine-bounce sk-poster"></div></div>
+                                    <div class="vhs-filmstrip-item"><div class="spine-bounce sk-poster"></div></div>
+                                    <div class="vhs-filmstrip-item"><div class="spine-bounce sk-poster"></div></div>
                                 </div>
                             </div>
 
@@ -257,11 +262,11 @@
         </section>
 
         <footer>
-            <p>&copy; 2026 Yigit.</p>
+            <p>&copy; 2026 yiğit.</p>
         </footer>
     </div>
 
-    <script type="module" src="assets/js/pages/index.js?v=6.6"></script>
+    <script type="module" src="assets/js/pages/index.js?v=7.0"></script>
 </body>
 
 

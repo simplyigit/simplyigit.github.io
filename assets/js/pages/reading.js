@@ -4,12 +4,12 @@ import {
     initGlassParallax,
     safeImg,
     toTransitionSlug,
-    awaitFastPrefetch,
     smoothMorph,
-    morphText
+    morphText,
+    escapeHtml
 } from '../modules/core.js';
 import { getCachedData, setCachedData } from '../modules/cache.js';
-import { SEED_BOOKS } from '../modules/seed-data.js';
+import { loadLiveData } from '../modules/live-data.js';
 
 const SHELF_LABELS = {
     'all': 'All Shelves',
@@ -74,17 +74,17 @@ function renderBooks(container, books, activeShelf = 'all') {
     container.innerHTML = filtered.map((book, index) => {
         const shelfKey = book.shelf || 'to-read';
         const badgeText = SHELF_BADGES[shelfKey] || 'TO READ';
-        const coverUrl = safeImg(book.cover_url || '', 300);
-        const safeTitle = (book.title || '').replace(/"/g, '&quot;');
+        const coverUrl = escapeHtml(safeImg(book.cover_url || '', 300));
+        const safeTitle = escapeHtml(book.title);
         const priorityAttr = index < 4 ? 'fetchpriority="high"' : (index < 16 ? 'decoding="async"' : 'loading="lazy" decoding="async"');
         const userStars = renderBookStars(book.rating);
         const metaParts = [];
-        if (book.num_pages) metaParts.push(`${book.num_pages} pp.`);
-        if (book.year) metaParts.push(book.year);
+        if (book.num_pages) metaParts.push(`${escapeHtml(book.num_pages)} pp.`);
+        if (book.year) metaParts.push(escapeHtml(book.year));
         if (userStars) {
-            metaParts.push(`<span class="classical-book-stars" aria-label="Rated ${book.rating} out of 5">${userStars}</span>`);
+            metaParts.push(`<span class="classical-book-stars" aria-label="Rated ${escapeHtml(book.rating)} out of 5">${userStars}</span>`);
         } else if (book.average_rating) {
-            metaParts.push(`★ ${book.average_rating}`);
+            metaParts.push(`★ ${escapeHtml(book.average_rating)}`);
         }
 
         let vtSlug = toTransitionSlug('book-card', book.title || `idx-${index}`);
@@ -92,119 +92,99 @@ function renderBooks(container, books, activeShelf = 'all') {
         seenSlugs.add(vtSlug);
 
         return `
-        <a href="${book.link || "#"}" target="_blank" rel="noopener noreferrer" class="classical-book-card fade-in delay-${(index % 4) + 1}" data-shelf="${shelfKey}" style="view-transition-name: ${vtSlug}">
+        <a href="${escapeHtml(book.link || "#")}" target="_blank" rel="noopener noreferrer" class="classical-book-card fade-in delay-${(index % 4) + 1}" data-shelf="${escapeHtml(shelfKey)}" style="view-transition-name: ${vtSlug}">
             <div class="classical-book-top-row">
-                <span class="classical-shelf-badge shelf-${shelfKey}">${badgeText}</span>
+                <span class="classical-shelf-badge shelf-${escapeHtml(shelfKey)}">${badgeText}</span>
                 ${metaParts.length ? `<span class="classical-book-meta">${metaParts.join(' · ')}</span>` : ''}
             </div>
             <img src="${coverUrl}" alt="${safeTitle}" class="classical-book-cover" ${priorityAttr}>
             <div class="classical-book-info">
-                <span class="classical-book-title">${book.title}</span>
-                <span class="classical-book-author">${book.author}</span>
+                <span class="classical-book-title">${safeTitle}</span>
+                <span class="classical-book-author">${escapeHtml(book.author)}</span>
             </div>
         </a>`;
     }).join('');
 }
 
-async function initReading() {
+function initReading() {
     initAmbientMesh();
     initGlobalReveal();
     initGlassParallax();
 
     const booksContainer = document.getElementById("goodreads-books-container");
     const shelfHeading = document.getElementById("reading-shelf-heading");
-    const tabButtons = document.querySelectorAll(".reading-shelf-btn");
+    const tabButtons = [...document.querySelectorAll(".reading-shelf-btn")];
     let currentBooks = [];
     let currentShelf = 'all';
 
     if (tabButtons.length && booksContainer) {
-        tabButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const shelf = btn.getAttribute('data-shelf') || 'all';
-                if (shelf === currentShelf) return;
-                currentShelf = shelf;
-                tabButtons.forEach(b => {
-                    const isActive = b.getAttribute('data-shelf') === shelf;
-                    b.classList.toggle('active', isActive);
-                    b.setAttribute('aria-selected', isActive ? 'true' : 'false');
-                });
-                if (shelfHeading) {
-                    morphText(shelfHeading, SHELF_LABELS[shelf] || 'All Shelves');
-                }
-                smoothMorph(booksContainer, () => renderBooks(booksContainer, currentBooks, currentShelf));
+        const selectShelf = (btn) => {
+            const shelf = btn.getAttribute('data-shelf') || 'all';
+            if (shelf === currentShelf) return;
+            currentShelf = shelf;
+            tabButtons.forEach(b => {
+                const isActive = b === btn;
+                b.classList.toggle('active', isActive);
+                b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                b.tabIndex = isActive ? 0 : -1;
+            });
+            booksContainer.setAttribute('aria-labelledby', btn.id);
+            if (shelfHeading) {
+                morphText(shelfHeading, SHELF_LABELS[shelf] || 'All Shelves');
+            }
+            smoothMorph(booksContainer, () => renderBooks(booksContainer, currentBooks, currentShelf));
+        };
+
+        // Roving tabindex: only the selected tab is a Tab stop; arrow keys move between shelves
+        tabButtons.forEach((btn, idx) => {
+            btn.tabIndex = btn.classList.contains('active') ? 0 : -1;
+            btn.addEventListener('click', () => selectShelf(btn));
+            btn.addEventListener('keydown', (e) => {
+                if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+                e.preventDefault();
+                const step = e.key === 'ArrowRight' ? 1 : -1;
+                const next = tabButtons[(idx + step + tabButtons.length) % tabButtons.length];
+                next.focus();
+                selectShelf(next);
             });
         });
     }
 
-    if (booksContainer) {
-        const getBooksSig = (list) => {
-            if (!Array.isArray(list)) return '';
-            return list.map(b => `${b.title || ''}|${b.shelf || ''}|${b.num_pages || ''}|${b.rating || ''}`).join(';;');
-        };
+    if (!booksContainer) return;
 
-        let renderedBooksSig = '';
+    const getBooksSig = (list) => list.map(b => `${b.title || ''}|${b.shelf || ''}|${b.num_pages || ''}|${b.rating || ''}`).join(';;');
+    let renderedBooksSig = '';
 
-        // Edge-cached /api/books (<20ms SWR) or early <head> prefetch
-        const fetchBooksData = async () => {
-            try {
-                if (window.__PREFETCH_BOOKS__) {
-                    const pre = await window.__PREFETCH_BOOKS__;
-                    window.__PREFETCH_BOOKS__ = null;
-                    if (pre?.success && Array.isArray(pre.data)) return pre.data;
-                }
-            } catch {}
-            try {
-                const res = await fetch("/api/books");
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json.success && Array.isArray(json.data)) return json.data;
-                }
-            } catch {}
-            try {
-                const res = await fetch("/data/books.json");
-                if (res.ok) {
-                    const json = await res.json();
-                    if (json.success && Array.isArray(json.data)) return json.data;
-                }
-            } catch {}
-            return null;
-        };
-
-        const fetchPromise = fetchBooksData();
-        const fastBooks = await awaitFastPrefetch(fetchPromise, 65);
-
-        if (fastBooks && fastBooks.length > 0) {
-            setCachedData("simplyigit_cache_books", fastBooks);
-            currentBooks = fastBooks;
-            renderedBooksSig = getBooksSig(fastBooks);
-            updateShelfCounts(fastBooks, false);
-            renderBooks(booksContainer, fastBooks, currentShelf);
-            return;
+    // First call paints directly; a later call with changed books morphs the grid and counts
+    const render = async (books) => {
+        currentBooks = books;
+        const sig = getBooksSig(books);
+        if (sig === renderedBooksSig) return;
+        const isUpdate = renderedBooksSig !== '';
+        renderedBooksSig = sig;
+        updateShelfCounts(books, isUpdate);
+        if (isUpdate) {
+            const urls = books.map(b => safeImg(b.cover_url || '', 300));
+            await smoothMorph(booksContainer, () => renderBooks(booksContainer, books, currentShelf), urls);
+        } else {
+            renderBooks(booksContainer, books, currentShelf);
         }
+    };
 
-        // Instant fallback render from cache or bundled seed data
-        const cached = getCachedData("simplyigit_cache_books", SEED_BOOKS);
-        if (cached && cached.length > 0) {
-            const useList = (cached[0] && !('shelf' in cached[0]) && SEED_BOOKS?.[0]?.shelf) ? SEED_BOOKS : cached;
-            currentBooks = useList;
-            renderedBooksSig = getBooksSig(useList);
-            updateShelfCounts(useList, false);
-            renderBooks(booksContainer, useList, currentShelf);
-        }
-
-        fetchPromise.then(async (books) => {
-            if (!books || books.length === 0) return;
-            setCachedData("simplyigit_cache_books", books);
-            currentBooks = books;
-            const newSig = getBooksSig(books);
-            if (newSig && newSig !== renderedBooksSig) {
-                renderedBooksSig = newSig;
-                updateShelfCounts(books, true);
-                const urls = books.map(b => safeImg(b.cover_url || '', 300));
-                await smoothMorph(booksContainer, () => renderBooks(booksContainer, books, currentShelf), urls);
-            }
-        });
-    }
+    loadLiveData({
+        prefetch: window.__PREFETCH_BOOKS__,
+        api: "/api/books",
+        snapshot: "/data/books.json",
+        isValid: (data) => Array.isArray(data) && data.length > 0,
+        // Caches written before shelves existed can't drive the shelf tabs; fall back to the seed instead
+        readCache: () => {
+            const cached = getCachedData("simplyigit_cache_books");
+            return Array.isArray(cached) && cached.length > 0 && 'shelf' in cached[0] ? cached : null;
+        },
+        saveCache: (data) => setCachedData("simplyigit_cache_books", data),
+        loadSeed: () => import('../modules/seed-data.js').then(m => m.SEED_BOOKS),
+        render
+    });
 }
 
 if (document.readyState === 'loading') {

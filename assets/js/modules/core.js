@@ -24,6 +24,13 @@ export function initGlobalReveal() {
     });
 }
 
+const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+// Escape third-party text (titles, names, links) before interpolating it into innerHTML
+export function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => HTML_ESCAPES[ch]);
+}
+
 export function safeImg(url, width = 0) {
     if (!url) return '';
     if ((url.includes('a.ltrbxd.com') || url.includes('i.gr-assets.com')) && !url.includes('wsrv.nl')) {
@@ -160,7 +167,7 @@ export function initAmbientMesh() {
 let focusPauseInitialized = false;
 
 // Toggles html.page-inactive when the tab is hidden or the window loses focus,
-// which pauses all looping CSS animations (see styles.css).
+// which pauses all looping CSS animations (see base.css).
 export function initFocusPause() {
     if (focusPauseInitialized) return;
     focusPauseInitialized = true;

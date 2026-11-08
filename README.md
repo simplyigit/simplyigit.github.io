@@ -2,8 +2,6 @@
 
 Personal portfolio of yiğit, live at **[simplyigit.me](https://simplyigit.me)**.
 
-![Homepage](.github/screenshot.webp)
-
 - **Projects:** [Real, Deepfake or AI](https://simplyigit.me/projects/real-deepfake-or-ai) classifies face images with ConvNeXt-Tiny features and a linear SVM. The model is exported to int8 ONNX and runs entirely in the visitor's browser with ONNX Runtime Web. Uploaded images are never sent anywhere.
 - **Library of Interest:** live feeds of what I'm listening to (Spotify + Last.fm), watching (Letterboxd) and reading (Goodreads).
 

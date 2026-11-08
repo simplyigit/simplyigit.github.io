@@ -41,12 +41,17 @@
     </div>
     <div class="container fade-in">
         <header class="hero subpage-hero">
+            <h1 class="visually-hidden">Music</h1>
             <div class="subpage-bar">
                 <a href="/" class="glass-card back-btn">
                     <span class="arrow arrow-back">→</span> Portfolio
                 </a>
 
-                <h1 class="subpage-title">Heavy Rotation.</h1>
+                <nav class="library-nav" aria-label="Library">
+                    <a href="/library/cinema" class="lib-nav-item lib-nav-item--cinema"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h16v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="m4 11-.6-3.2a1 1 0 0 1 .8-1.2l13.8-2.5a1 1 0 0 1 1.2.8l.4 2.1z"/><path d="m8.5 6.2 2.2 3.3M13.6 5.3l2.2 3.3"/></svg><span>Cinema</span></a>
+                    <a href="/library/music" class="lib-nav-item lib-nav-item--music active" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Music</span></a>
+                    <a href="/library/reading" class="lib-nav-item lib-nav-item--reading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/></svg><span>Reading</span></a>
+                </nav>
 
                 <a href="https://open.spotify.com/user/tn0gcrn9xffpr0eyx7idcyiwx?si=03a909ce0bcd437e" target="_blank"
                     rel="noopener noreferrer" class="glass-card repo-btn">
@@ -57,14 +62,6 @@
                     Spotify <span class="arrow arrow-forward">→</span>
                 </a>
             </div>
-
-            <p class="subtitle">
-                Synced from my <a href="https://open.spotify.com/user/tn0gcrn9xffpr0eyx7idcyiwx?si=03a909ce0bcd437e"
-                    target="_blank" rel="noopener noreferrer"
-                    class="source-link source-link--spotify"><strong>Spotify</strong></a> & <a href="https://www.last.fm/user/simplyigit"
-                    target="_blank" rel="noopener noreferrer"
-                    class="source-link source-link--lastfm"><strong>Last.fm</strong></a>.<br><span id="music-period-label">My most played this month.</span>
-            </p>
         </header>
 
         <!-- Music Section with Tabbed Selector -->
@@ -123,15 +120,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Library Navigation Dock -->
-        <nav class="library-nav-dock" aria-label="Library Navigation">
-            <div class="library-nav-pill">
-                <a href="/library/cinema" class="lib-nav-item">🎬 Cinema</a>
-                <a href="/library/music" class="lib-nav-item active">🎵 Music</a>
-                <a href="/library/reading" class="lib-nav-item">📖 Reading</a>
-            </div>
-        </nav>
 
         <footer>
             <p>&copy; 2026 yiğit.</p>

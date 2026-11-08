@@ -91,26 +91,18 @@ def fetch_lrclib_lyrics(song_title, artist_name):
     return None
 
 
-LASTFM_GALLERY_IMAGE = re.compile(r'/i/u/avatar170s/([0-9a-f]{32})')
+# Last.fm header photos per artist. Last.fm serves GitHub Actions a bot challenge, so these are
+# fetched from a personal machine by scripts/fetch_artist_banners.py and committed.
+ARTIST_BANNERS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'artist_banners.json')
 
 
-def fetch_lastfm_artist_banner(artist_name):
-    """Top-voted photo from the artist's Last.fm gallery (the image Last.fm uses as the page header)."""
-    page = f"https://www.last.fm/music/{urllib.parse.quote_plus(artist_name)}/+images"
+def load_artist_banners():
     try:
-        res = requests.get(page, headers=SYNC_HEADERS, timeout=10)
-        match = LASTFM_GALLERY_IMAGE.search(res.text) if res.status_code == 200 else None
-    except Exception as e:
-        print(f"Last.fm banner error for {artist_name}: {e}")
-        return None
-    if not match:
-        title = re.search(r'<title>(.*?)</title>', res.text, re.S)
-        print(f"Last.fm banner: no gallery image for {artist_name} "
-              f"(HTTP {res.status_code}, {len(res.text)} bytes, page title: {title.group(1).strip()[:80] if title else 'none'})")
-        return None
-    original = f"https://lastfm.freetls.fastly.net/i/u/ar0/{match.group(1)}"
-    # Originals run up to ~3000px; wsrv.nl serves a 1400px WebP sized for the card backdrop
-    return f"https://wsrv.nl/?url={urllib.parse.quote(original)}&w=1400&output=webp"
+        with open(ARTIST_BANNERS_PATH) as f:
+            return {name.casefold(): url for name, url in json.load(f).items() if url}
+    except (FileNotFoundError, ValueError) as e:
+        print(f"No artist banners loaded: {e}")
+        return {}
 
 
 def fetch_lyrica_lyrics(song_title, artist_name):
@@ -289,7 +281,6 @@ def fetch_spotify_data(url, key):
     # Check existing DB for the top track's curated snippets to avoid unnecessary API calls
     existing_ai_lyrics = None
     existing_top_track_name = None
-    existing_banners = {}
     try:
         res = requests.get(
             f"{url}/rest/v1/portfolio_data?key=eq.spotify&select=value",
@@ -302,11 +293,6 @@ def fetch_spotify_data(url, key):
             if existing_tracks:
                 existing_top_track_name = existing_tracks[0].get("title")
                 existing_ai_lyrics = existing_tracks[0].get("ai_lyrics")
-            existing_banners = {
-                a.get("name"): a["banner_url"]
-                for a in existing_spotify.get("top_artists_last_month", [])
-                if a.get("banner_url")
-            }
     except Exception as e:
         print(f"Failed to check existing lyrics in DB: {e}")
 
@@ -380,10 +366,7 @@ def fetch_spotify_data(url, key):
                 track_search_by_key[key] = executor.submit(safe_search, hit['name'], hit['artist']['name'], "track")
             top_artist_song = (hit, track_search_by_key[key])
     artist_futures = {executor.submit(safe_search, a['name'], None, "artist"): a for a in raw_lfm_artists}
-    banner_futures = {
-        a['name']: executor.submit(fetch_lastfm_artist_banner, a['name'])
-        for a in raw_lfm_artists if a['name'] not in existing_banners
-    }
+    artist_banners = load_artist_banners()
     
     # Start lyric fetching for #1 track early via Lyrica (only if it changed or missing)
     lyric_future = None
@@ -433,7 +416,7 @@ def fetch_spotify_data(url, key):
             "playcount": a['playcount'],
             "spotify_url": s_info['spotify_url'] if s_info else None,
             "image_url": image_url,
-            "banner_url": existing_banners.get(a['name']) or (banner_futures[a['name']].result() if a['name'] in banner_futures else None),
+            "banner_url": artist_banners.get(a['name'].casefold()),
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
         if image_url and image_url not in color_futures:

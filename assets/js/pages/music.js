@@ -308,6 +308,8 @@ function initMusicTabs() {
         btn.addEventListener("keydown", e => {
             if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
                 e.preventDefault();
+                // switchTab ignores presses mid-transition; moving focus anyway would strand it on an unselected tab
+                if (isTransitioning) return;
                 const currentIndex = tabOrder.indexOf(currentTab);
                 const nextIndex = e.key === "ArrowRight"
                     ? (currentIndex + 1) % tabOrder.length

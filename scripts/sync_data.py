@@ -50,23 +50,42 @@ def get_prominent_color(image_url):
     return [29, 185, 84]
 
 LRCLIB_HEADERS = {"User-Agent": "simplyigit-sync/1.0 (https://simplyigit.me)"}
+LRCLIB_TIMEOUT = 8
+LYRICA_TIMEOUT = 15
+# Worst case for get_lyrics: two LRCLIB searches, then Lyrica
+LYRICS_TIMEOUT = 2 * LRCLIB_TIMEOUT + LYRICA_TIMEOUT + 5
+
+
+def strip_title_suffixes(title):
+    """Drops "(feat. X)" / "- Remastered" suffixes, which often break lyric lookups."""
+    return re.sub(r'\s*[\(\[](?:feat|ft|with)\.?[^\)\]]*[\)\]]|\s+-\s+.*$', '', title, flags=re.I).strip()
+
+
+def normalize_name(name):
+    return re.sub(r'[^\w]+', ' ', (name or '').casefold()).strip()
 
 
 def fetch_lrclib_lyrics(song_title, artist_name):
     """LRCLIB: free, keyless lyrics database (https://lrclib.net/docs)."""
-    # "(feat. X)" / "- Remastered" suffixes often break exact matches; retry with the bare title
-    bare_title = re.sub(r'\s*[\(\[](?:feat|ft|with)\.?[^\)\]]*[\)\]]|\s+-\s+.*$', '', song_title, flags=re.I).strip()
+    # /api/get needs album_name and duration for an exact match, so search and verify the hit instead
+    bare_title = strip_title_suffixes(song_title)
+    wanted_title = normalize_name(bare_title)
+    wanted_artist = normalize_name(artist_name)
     for title in dict.fromkeys([song_title, bare_title]):
         params = {"track_name": title, "artist_name": artist_name}
         try:
-            res = requests.get("https://lrclib.net/api/get", params=params, headers=LRCLIB_HEADERS, timeout=10)
-            if res.status_code == 200 and res.json().get("plainLyrics"):
-                return res.json()["plainLyrics"]
-            res = requests.get("https://lrclib.net/api/search", params=params, headers=LRCLIB_HEADERS, timeout=10)
-            if res.status_code == 200:
-                for hit in res.json():
-                    if hit.get("plainLyrics"):
-                        return hit["plainLyrics"]
+            res = requests.get("https://lrclib.net/api/search", params=params, headers=LRCLIB_HEADERS, timeout=LRCLIB_TIMEOUT)
+            if res.status_code != 200:
+                continue
+            for hit in res.json():
+                if not hit.get("plainLyrics"):
+                    continue
+                # Search is fuzzy: only accept the same song by the same artist
+                if normalize_name(strip_title_suffixes(hit.get("trackName", ""))) != wanted_title:
+                    continue
+                if wanted_artist not in normalize_name(hit.get("artistName", "")):
+                    continue
+                return hit["plainLyrics"]
         except Exception as e:
             print(f"LRCLIB Error: {e}")
     return None
@@ -78,7 +97,7 @@ def fetch_lyrica_lyrics(song_title, artist_name):
     params = {"artist": artist_name, "song": song_title}
     headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
     try:
-        res = requests.get(base_url, params=params, headers=headers, timeout=15)
+        res = requests.get(base_url, params=params, headers=headers, timeout=LYRICA_TIMEOUT)
         if res.status_code == 200:
             data = res.json()
             if data.get("status") == "success":
@@ -378,7 +397,7 @@ def fetch_spotify_data(url, key):
             lyrics_text = None
             if lyric_future:
                 try:
-                    lyrics_text = lyric_future.result(timeout=15)
+                    lyrics_text = lyric_future.result(timeout=LYRICS_TIMEOUT)
                 except Exception as e:
                     print(f"Lyric fetching timed out/failed: {str(e)}")
 

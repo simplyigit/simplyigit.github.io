@@ -259,10 +259,10 @@ function initIndex() {
 
             indexBooksContainer.innerHTML = `
                 <div class="book-shelf-item book-shelf-left">
-                    <img src="${leftCover}" alt="${escapeHtml(book3.title)}" loading="lazy" decoding="async">
+                    <img src="${escapeHtml(leftCover)}" alt="${escapeHtml(book3.title)}" loading="lazy" decoding="async">
                 </div>
                 <div class="book-shelf-item book-shelf-right">
-                    <img src="${rightCover}" alt="${escapeHtml(book2.title)}" loading="lazy" decoding="async">
+                    <img src="${escapeHtml(rightCover)}" alt="${escapeHtml(book2.title)}" loading="lazy" decoding="async">
                 </div>
 
                 <div class="book-shelf-item book-shelf-center" id="hero-book-wrapper">
@@ -298,7 +298,7 @@ function initIndex() {
                         <div class="book-front-cover-assembly">
                             <div class="book-cover-outside">
                                 <div class="book-ribbon-tag"></div>
-                                <img src="${heroCover}" class="book-cover-art" alt="${safeTitle}" decoding="async">
+                                <img src="${escapeHtml(heroCover)}" class="book-cover-art" alt="${safeTitle}" decoding="async">
                                 <div class="book-cover-emboss-spine"></div>
                                 <div class="book-cover-glare"></div>
                             </div>
@@ -364,7 +364,7 @@ function initIndex() {
                         const cleanTitle = escapeHtml(film.title);
                         return `
                             <div class="vhs-filmstrip-item" title="${cleanTitle}">
-                                <img src="${imgUrl}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy" decoding="async">
+                                <img src="${escapeHtml(imgUrl)}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy" decoding="async">
                             </div>
                         `;
                     }).join('')}

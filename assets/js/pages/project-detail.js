@@ -35,7 +35,15 @@ const PRESET_SAMPLES = {
 
 function sanitizeProjectHtml(html) {
     if (!html) return '';
-    return html.replace(/src="images\//g, 'src="');
+    return html
+        .replace(/src="images\//g, 'src="')
+        // The README's tables use LaTeX \multicolumn{n}{c}{...} cells, which GitHub leaves as text
+        .replace(
+            /<td[^>]*>\\multicolumn\{(\d+)\}\{[a-z]\}\{(.*?)\}<\/td>(?:\s*<td[^>]*><\/td>){0,4}/gi,
+            '<td colspan="$1" style="text-align: center;">$2</td>'
+        )
+        .replace(/\\multicolumn\{\d+\}\{[a-z]\}\{\*\*(.*?)\*\*\s*(.*?)\}/g, '<strong>$1</strong> $2')
+        .replace(/\\multicolumn\{\d+\}\{[a-z]\}\{(.*?)\}/g, '$1');
 }
 
 const MERMAID_URL = 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
@@ -46,6 +54,7 @@ let mermaidPromise = null;
 async function renderMermaidDiagrams(container) {
     const blocks = container.querySelectorAll('.highlight-source-mermaid');
     if (blocks.length === 0) return;
+    let mermaid;
     try {
         mermaidPromise ??= import(MERMAID_URL).then(({ default: mermaid }) => {
             mermaid.initialize({
@@ -63,17 +72,26 @@ async function renderMermaidDiagrams(container) {
             });
             return mermaid;
         });
-        const mermaid = await mermaidPromise;
-        const nodes = [...blocks].map(block => {
-            const diagram = document.createElement('pre');
-            diagram.className = 'mermaid';
-            diagram.textContent = block.textContent;
-            block.replaceWith(diagram);
-            return diagram;
-        });
+        mermaid = await mermaidPromise;
+    } catch {
+        mermaidPromise = null; // let a later render retry the import
+        return;
+    }
+    // The README may have been re-rendered while mermaid loaded; skip blocks no longer on the page
+    const live = [...blocks].filter(block => block.isConnected);
+    if (live.length === 0) return;
+    const nodes = live.map(block => {
+        const diagram = document.createElement('pre');
+        diagram.className = 'mermaid';
+        diagram.textContent = block.textContent;
+        block.replaceWith(diagram);
+        return diagram;
+    });
+    try {
         await mermaid.run({ nodes });
     } catch {
-        mermaidPromise = null;
+        // Put the highlighted code blocks back rather than leaving raw diagram source
+        nodes.forEach((diagram, i) => diagram.isConnected && diagram.replaceWith(live[i]));
     }
 }
 
@@ -466,6 +484,7 @@ async function getDetectorSession(onProgress) {
 // filter. The canvas's own scaling uses a different filter and visibly shifts the model's output, so
 // this reproduces Pillow's Resample.c (fixed-point weights, 8-bit intermediate pass) exactly.
 const PRECISION_BITS = 22; // 32 - 8 - 2, as in Pillow
+const MAX_CANVAS_PIXELS = 4096 * 4096;
 
 function bilinearCoefficients(inSize, outSize) {
     const scale = inSize / outSize;
@@ -557,16 +576,33 @@ async function runRealModelOnCanvas(img, canvas, onProgress) {
     const cropW = Math.max(1, natW - marginX * 2);
     const cropH = Math.max(1, natH - marginY * 2);
 
-    // Copy the cropped region 1:1 (no scaling) to read the decoded pixels
+    // Copy the cropped region 1:1 (no scaling) to read the decoded pixels. Crops over the canvas
+    // pixel limit (iOS Safari: 4096x4096) are pre-shrunk by the browser first, so only those lose parity.
+    const shrink = Math.min(1, Math.sqrt(MAX_CANVAS_PIXELS / (cropW * cropH)));
+    const srcW = Math.max(1, Math.floor(cropW * shrink));
+    const srcH = Math.max(1, Math.floor(cropH * shrink));
+
+    // Like PIL, ignore the embedded colour profile (e.g. Display P3) where the browser supports it
+    let source = img;
+    let sx = marginX, sy = marginY, sw = cropW, sh = cropH;
+    try {
+        source = await createImageBitmap(img, marginX, marginY, cropW, cropH, {
+            colorSpaceConversion: 'none',
+            ...(shrink < 1 && { resizeWidth: srcW, resizeHeight: srcH, resizeQuality: 'high' })
+        });
+        sx = 0; sy = 0; sw = source.width; sh = source.height;
+    } catch {}
+
     const srcCanvas = document.createElement('canvas');
-    srcCanvas.width = cropW;
-    srcCanvas.height = cropH;
+    srcCanvas.width = srcW;
+    srcCanvas.height = srcH;
     const srcCtx = srcCanvas.getContext('2d', { willReadFrequently: true });
-    srcCtx.drawImage(img, marginX, marginY, cropW, cropH, 0, 0, cropW, cropH);
-    const srcPixels = srcCtx.getImageData(0, 0, cropW, cropH).data;
+    srcCtx.drawImage(source, sx, sy, sw, sh, 0, 0, srcW, srcH);
+    if (source !== img) source.close();
+    const srcPixels = srcCtx.getImageData(0, 0, srcW, srcH).data;
 
     // utils.get_transform(): Resize((224, 224)) — squashes to a square, as in training
-    const rgb = pillowResizeBilinear(srcPixels, cropW, cropH, w, h);
+    const rgb = pillowResizeBilinear(srcPixels, srcW, srcH, w, h);
 
     // Preview exactly what the model sees
     const preview = ctx.createImageData(w, h);

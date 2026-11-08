@@ -23,31 +23,6 @@ function initIndex() {
     // Memoji: depth-map parallax, so the head turns toward the pointer
     initAvatarDepth(document.querySelector('.unified-hero-tube .avatar-memoji'), 'images/pp-depth.webp');
 
-    // Floating Emoji Spawner
-    const emojis = {
-        'fun-aoty': ['🎵', '🎶', '🎸', '🎹', '🎧'],
-        'fun-books': ['📖', '📚', '🔖', '🖋️', '☕'],
-        'fun-movies': ['🎬', '🍿', '🎞️', '⭐', '🎥']
-    };
-    document.querySelectorAll('.fun-aoty, .fun-books, .fun-movies').forEach(card => {
-        let lastSpawnTime = 0;
-        card.addEventListener('mousemove', (e) => {
-            const now = Date.now();
-            if (now - lastSpawnTime < 150) return;
-            lastSpawnTime = now;
-            let classSet = card.classList.contains('fun-aoty') ? emojis['fun-aoty'] :
-                           card.classList.contains('fun-books') ? emojis['fun-books'] : emojis['fun-movies'];
-            const randomEmoji = classSet[Math.floor(Math.random() * classSet.length)];
-            const particle = document.createElement('div');
-            particle.textContent = randomEmoji;
-            particle.className = 'floating-emoji';
-            particle.style.left = `${e.pageX + (Math.random() * 20 - 10)}px`;
-            particle.style.top = `${e.pageY + (Math.random() * 20 - 10)}px`;
-            document.body.appendChild(particle);
-            setTimeout(() => particle.remove(), 1000);
-        });
-    });
-
     // Projects Injection
     const container = document.getElementById("projects-container");
     if (container) {

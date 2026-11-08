@@ -77,6 +77,22 @@
     background: radial-gradient(circle at center, rgba(120, 110, 255, 0.1), transparent);
 }
 
+/* The project image sets the card's height, so the card's padding is the same gap above, below and to
+   its left; the card is a little wider than two columns so the text fits beside it */
+.project-real.wide-card {
+    grid-column: 1 / -1;
+    box-sizing: border-box;
+    width: min(100%, 680px);
+    gap: 28px;
+}
+
+.project-real .card-visual {
+    flex: 0 0 280px;
+    aspect-ratio: 960 / 716;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
 /* AOTY Card */
 .fun-aoty {
     background: linear-gradient(135deg, rgba(20, 50, 60, 0.6), rgba(0, 0, 0, 0.3));
@@ -1299,31 +1315,9 @@
   /* Filmstrip reel decoration */
   .filmstrip { display: flex; align-items: center; gap: 4px; margin-bottom: 14px; }
 
-/* Floating Emoji Animations */
-.floating-emoji {
-    position: absolute;
-    pointer-events: none;
-    z-index: 9999;
-    font-size: 1.5rem;
-    animation: driftUpEmoji 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-
-@keyframes driftUpEmoji {
-    0% {
-        transform: translate(-50%, -50%) scale(0.5);
-        opacity: 0.9;
-    }
-
-    100% {
-        transform: translate(-50%, calc(-50% - 60px)) scale(1.5) rotate(15deg);
-        opacity: 0;
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
     .spool-inner,
-    .cassette-song-marquee,
-    .floating-emoji {
+    .cassette-song-marquee {
         animation: none !important;
     }
 }
@@ -1370,6 +1364,10 @@
     .card-visual img {
         max-height: 220px;
         object-fit: cover;
+    }
+
+    .project-real .card-visual {
+        flex: none;
     }
 
     .card-content {

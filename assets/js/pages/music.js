@@ -151,16 +151,19 @@ function artistTopSongHtml(artist, totalPlays) {
                         ${cover}
                         <span class="artist-song-title">${escapeHtml(displaySongTitle(song.title))}</span>
                         <span class="artist-song-plays">${escapeHtml(plays.toLocaleString())} / ${escapeHtml(playsLabel(total))}</span>
-                        <span class="artist-song-bar" role="img" aria-label="${escapeHtml(displaySongTitle(song.title))}: ${plays} of ${escapeHtml(artist.name)}'s ${total} plays, out of ${totalPlays} across my top 5 artists" style="--share: ${songShare}%; --artist-share: ${artistShare}%"></span>
+                        <span class="artist-song-bar" role="img" aria-label="${escapeHtml(displaySongTitle(song.title))}: ${plays} of ${escapeHtml(artist.name)}'s ${total} plays, out of ${totalPlays} across my top 5 artists" style="--share: ${songShare}%; --artist-share: ${artistShare}%">${BAR_TRACK_HTML}</span>
                     </div>`;
 }
+
+// Bar tracks are two layers under the fills: dark glass, then a light sheen blended (overlay) with the photo
+const BAR_TRACK_HTML = '<span class="bar-glass"></span><span class="bar-sheen"></span>';
 
 // Cards 2-5: plays as a bar showing the artist's share of all top-5 artists' plays combined
 function artistPlaysHtml(artist, totalPlays) {
     const plays = Number(artist.playcount) || 0;
     const share = totalPlays ? Math.round((plays / totalPlays) * 100) : 0;
     return `<div class="artist-plays" style="--share: ${share}%" title="${share}% of my top-5 artists' plays this month">
-                        <span class="artist-plays-bar" aria-hidden="true"></span>
+                        <span class="artist-plays-bar" aria-hidden="true">${BAR_TRACK_HTML}</span>
                         <span class="artist-plays-count">${escapeHtml(playsLabel(plays))}</span>
                     </div>`;
 }

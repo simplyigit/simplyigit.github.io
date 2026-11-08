@@ -498,10 +498,9 @@
 .artist-plays-bar {
     position: relative;
     flex: 1;
-    height: 5px;
+    height: 6px;
     overflow: hidden;
     border-radius: 3px;
-    background: rgba(255, 255, 255, 0.12);
 }
 
 .artist-plays-bar::before {
@@ -595,7 +594,33 @@
     height: 6px;
     overflow: hidden;
     border-radius: 3px;
-    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Bar tracks, half and half: a dark glass layer, then a light sheen in overlay blend mode so the
+   track reads over both dark and bright backdrop photos. The fills sit on top (z-index 1). */
+.bar-glass,
+.bar-sheen {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+}
+
+.bar-glass {
+    background: rgba(0, 0, 0, 0.28);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.bar-sheen {
+    background: rgba(255, 255, 255, 0.32);
+    mix-blend-mode: overlay;
+}
+
+.artist-plays-bar::before,
+.artist-song-bar::before,
+.artist-song-bar::after {
+    z-index: 1;
 }
 
 /* Three parts on the cards' shared scale: the artist's plays (lighter, as long as on cards 2-5),
@@ -611,7 +636,8 @@
 
 .artist-song-bar::before {
     width: var(--artist-share);
-    background: rgba(var(--track-color-rgb, 29, 185, 84), 0.4);
+    /* Solid (not see-through) so it stays distinct from the track over any photo */
+    background: color-mix(in srgb, rgb(var(--track-color-rgb, 29, 185, 84)) 50%, #1c1c20);
 }
 
 .artist-song-bar::after {
@@ -654,8 +680,14 @@
 .banner-backdrop {
     position: absolute;
     inset: 0;
-    z-index: 0;
+    /* Below the in-flow art and text inside the (isolated) card, so the text column needs no layer of
+       its own and the bars' overlay sheen blends with the photo itself */
+    z-index: -1;
     pointer-events: none;
+}
+
+.spotify-track-card.is-artist.has-backdrop .case-info {
+    z-index: auto;
 }
 
 .banner-backdrop img {

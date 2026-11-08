@@ -104,6 +104,9 @@ def fetch_lastfm_artist_banner(artist_name):
         print(f"Last.fm banner error for {artist_name}: {e}")
         return None
     if not match:
+        title = re.search(r'<title>(.*?)</title>', res.text, re.S)
+        print(f"Last.fm banner: no gallery image for {artist_name} "
+              f"(HTTP {res.status_code}, {len(res.text)} bytes, page title: {title.group(1).strip()[:80] if title else 'none'})")
         return None
     original = f"https://lastfm.freetls.fastly.net/i/u/ar0/{match.group(1)}"
     # Originals run up to ~3000px; wsrv.nl serves a 1400px WebP sized for the card backdrop

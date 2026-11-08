@@ -1446,6 +1446,25 @@
     transform: scale(1.15);
 }
 
+/* Memoji depth effect (avatar-depth.js): the WebGL canvas sits exactly over the image,
+   which stays in place for layout and alt text */
+.avatar-3d {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.unified-hero-tube .avatar-memoji.avatar-depth {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.avatar-3d.is-live > img {
+    opacity: 0;
+}
+
 .unified-hero-tube .hero-name {
     position: relative;
     margin: 0;

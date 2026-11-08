@@ -1,4 +1,5 @@
 import { initAmbientMesh, initGlobalReveal, initGlassParallax, safeImg, smoothMorph, morphText, escapeHtml } from '../modules/core.js';
+import { initAvatarDepth } from '../modules/avatar-depth.js';
 import { getCachedDashboard, setDashboardCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
 
@@ -19,29 +20,8 @@ function initIndex() {
     initGlobalReveal();
     initGlassParallax();
 
-    // Avatar 3D Tracking
-    const heroTube = document.querySelector('.unified-hero-tube');
-    const avatar = document.querySelector('.avatar-memoji');
-    if (heroTube && avatar) {
-        let rect = null;
-        heroTube.addEventListener('mouseenter', () => {
-            rect = heroTube.getBoundingClientRect();
-        });
-        heroTube.addEventListener('mousemove', (e) => {
-            if (!rect) rect = heroTube.getBoundingClientRect();
-            const x = e.clientX - rect.left - (rect.width / 2);
-            const y = e.clientY - rect.top - (rect.height / 2);
-            const rotateX = (y / (rect.height / 2)) * -15;
-            const rotateY = (x / (rect.width / 2)) * 15;
-            avatar.style.transform = `scale(1.15) perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            avatar.style.transition = 'none';
-        });
-        heroTube.addEventListener('mouseleave', () => {
-            rect = null;
-            avatar.style.transform = `scale(1.15) perspective(500px) rotateX(0deg) rotateY(0deg)`;
-            avatar.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
-        });
-    }
+    // Memoji: depth-map parallax, so the head turns toward the pointer
+    initAvatarDepth(document.querySelector('.unified-hero-tube .avatar-memoji'), 'images/pp-depth.webp');
 
     // Floating Emoji Spawner
     const emojis = {

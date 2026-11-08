@@ -417,8 +417,9 @@ function initMusicTabs() {
             return;
         }
 
-        // Step 1: Measure current container height
+        // Step 1: Measure current container height; clip while the panes slide and the height morphs
         const startHeight = container.offsetHeight;
+        container.classList.add("is-transitioning");
 
         // Step 2: Prepare outgoing pane (position absolutely over container)
         outgoingPane.classList.add("is-animating");
@@ -512,6 +513,7 @@ function initMusicTabs() {
             // Release container height cleanly
             try { heightAnim.cancel(); } catch (e) {}
             container.style.height = "";
+            container.classList.remove("is-transitioning");
 
             isTransitioning = false;
         };

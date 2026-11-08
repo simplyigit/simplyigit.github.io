@@ -50,13 +50,13 @@ function pillName(name) {
     return words.length >= 3 && full.length > 12 ? words.map(w => [...w][0].toUpperCase()).join('') : full;
 }
 
-// The #1 artist's pill carries their name: "#1 | Name | 175 plays"
+// Artist pills carry the name: "#1 | Name | 175 plays" on the #1 card, "#2 | Name" on the rest (no meta)
 function namePillHtml(badge, name, meta) {
     const shown = pillName(name);
     const nameHtml = shown === String(name || '').trim()
         ? escapeHtml(shown)
         : `<span aria-hidden="true">${escapeHtml(shown)}</span><span class="visually-hidden">${escapeHtml(name)}</span>`;
-    return `<div class="track-stats-pill has-name"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-name" title="${escapeHtml(name)}">${nameHtml}</span><span class="stats-plays">${escapeHtml(meta)}</span></div>`;
+    return `<div class="track-stats-pill has-name"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-name" title="${escapeHtml(name)}">${nameHtml}</span>${meta ? `<span class="stats-plays">${escapeHtml(meta)}</span>` : ''}</div>`;
 }
 
 function playsLabel(count) {
@@ -125,14 +125,23 @@ function displaySongTitle(title) {
         .trim() || title;
 }
 
-// #1 artist: their most played song this month. The bar is the artist's plays this month;
-// the filled part is how many of them went to that song.
-function artistTopSongHtml(artist) {
+// The #1 card's bar uses the same scale as cards 2-5 (all top-5 artists' plays combined), in three parts:
+// the top song, then the rest of the artist's plays, then everyone else (the empty track)
+function topSongShares(songPlays, artistPlays, totalPlays) {
+    if (!totalPlays) return { songShare: 0, artistShare: 0 };
+    return {
+        songShare: Math.min(100, Math.round((songPlays / totalPlays) * 100)),
+        artistShare: Math.min(100, Math.round((artistPlays / totalPlays) * 100))
+    };
+}
+
+// #1 artist: their most played song this month, with the three-part bar above
+function artistTopSongHtml(artist, totalPlays) {
     const song = artist.top_track;
     if (!song || !song.title) return '';
     const total = Number(artist.playcount) || 0;
     const plays = Number(song.playcount) || 0;
-    const share = total ? Math.min(100, Math.round((plays / total) * 100)) : 0;
+    const { songShare, artistShare } = topSongShares(plays, total, totalPlays);
     const cover = song.cover_url
         ? `<img src="${escapeHtml(song.cover_url)}" alt="" class="artist-song-art" decoding="async">`
         : `<span class="artist-song-art" aria-hidden="true"></span>`;
@@ -142,7 +151,17 @@ function artistTopSongHtml(artist) {
                         ${cover}
                         <span class="artist-song-title">${escapeHtml(displaySongTitle(song.title))}</span>
                         <span class="artist-song-plays">${escapeHtml(plays.toLocaleString())} / ${escapeHtml(playsLabel(total))}</span>
-                        <span class="artist-song-bar" role="img" aria-label="${share}% of ${escapeHtml(artist.name)} plays" style="--share: ${share}%"></span>
+                        <span class="artist-song-bar" role="img" aria-label="${escapeHtml(displaySongTitle(song.title))}: ${plays} of ${escapeHtml(artist.name)}'s ${total} plays, out of ${totalPlays} across my top 5 artists" style="--share: ${songShare}%; --artist-share: ${artistShare}%"></span>
+                    </div>`;
+}
+
+// Cards 2-5: plays as a bar showing the artist's share of all top-5 artists' plays combined
+function artistPlaysHtml(artist, totalPlays) {
+    const plays = Number(artist.playcount) || 0;
+    const share = totalPlays ? Math.round((plays / totalPlays) * 100) : 0;
+    return `<div class="artist-plays" style="--share: ${share}%" title="${share}% of my top-5 artists' plays this month">
+                        <span class="artist-plays-bar" aria-hidden="true"></span>
+                        <span class="artist-plays-count">${escapeHtml(playsLabel(plays))}</span>
                     </div>`;
 }
 
@@ -153,6 +172,7 @@ function renderArtists(container, artistList) {
         container.innerHTML = `<p class="empty-note">No top artists recorded.</p>`;
         return;
     }
+    const totalPlays = list.reduce((sum, a) => sum + (Number(a.playcount) || 0), 0);
     const seenSlugs = new Set();
     container.innerHTML = list.map((artist, index) => {
         let vtName = toTransitionSlug('artist', artist.name || `idx-${index}`);
@@ -167,11 +187,12 @@ function renderArtists(container, artistList) {
             // Last.fm's community-picked header photo, else a wide crop of the profile photo
             backdropUrl: artist.banner_url || artist.image_url,
             badge: `#${index + 1}`,
-            meta: playsLabel(artist.playcount),
+            // Cards 2-5 are short: their pill holds just rank and name
+            meta: index === 0 ? playsLabel(artist.playcount) : '',
             rgb: artist.prominent_color,
             vtName,
-            nameInPill: index === 0,
-            footerHtml: index === 0 ? artistTopSongHtml(artist) : ''
+            nameInPill: true,
+            footerHtml: index === 0 ? artistTopSongHtml(artist, totalPlays) : artistPlaysHtml(artist, totalPlays)
         });
     }).join('');
 }
@@ -261,16 +282,23 @@ function initMusic() {
             } else {
                 // Same artists in same order: morph playcounts in-place without resetting DOM
                 const cards = artistsContainer.querySelectorAll('.spotify-track-card');
+                const totalPlays = artists.reduce((sum, a) => sum + (Number(a.playcount) || 0), 0);
                 artists.forEach((artist, idx) => {
-                    const plays = cards[idx]?.querySelector('.stats-plays');
+                    const plays = cards[idx]?.querySelector('.stats-plays, .artist-plays-count');
                     if (plays) morphText(plays, playsLabel(artist.playcount));
+                    const share = cards[idx]?.querySelector('.artist-plays');
+                    if (share && totalPlays) share.style.setProperty('--share', `${Math.round((Number(artist.playcount) || 0) / totalPlays * 100)}%`);
                     const songPlays = cards[idx]?.querySelector('.artist-song-plays');
                     const bar = cards[idx]?.querySelector('.artist-song-bar');
                     if (songPlays && artist.top_track) {
                         const total = Number(artist.playcount) || 0;
                         const trackPlays = Number(artist.top_track.playcount) || 0;
                         morphText(songPlays, `${trackPlays.toLocaleString()} / ${playsLabel(total)}`);
-                        if (bar && total) bar.style.setProperty('--share', `${Math.min(100, Math.round((trackPlays / total) * 100))}%`);
+                        if (bar) {
+                            const { songShare, artistShare } = topSongShares(trackPlays, total, totalPlays);
+                            bar.style.setProperty('--share', `${songShare}%`);
+                            bar.style.setProperty('--artist-share', `${artistShare}%`);
+                        }
                     }
                 });
             }

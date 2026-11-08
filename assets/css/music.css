@@ -429,22 +429,8 @@
     border-radius: 50%;
 }
 
-/* Grid cards (#2-5): a bigger name with the rank pill under it, as on the track cards */
-.grid-track.is-artist .case-title {
-    font-size: 1.45rem;
-    line-height: 1.15;
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-
-.grid-track.is-artist .track-stats-pill {
-    margin-top: 10px;
-}
-
-/* #1: name, rank pill, then a small chart of their top songs this month */
-/* #1: the name rides inside a larger rank pill ("#1 | Name | 175 plays"), top song below */
+/* The name rides inside the rank pill: "#1 | Name | 175 plays" on the #1 card (top song below),
+   a smaller "#2 | Name" on cards 2-5 */
 .track-stats-pill.has-name {
     max-width: 100%;
     box-sizing: border-box;
@@ -484,6 +470,62 @@
 
 .has-name + .artist-song {
     margin-top: 18px;
+}
+
+.grid-track .track-stats-pill.has-name {
+    padding: 3px;
+}
+
+.grid-track .has-name .stats-badge {
+    padding: 7px 13px;
+    font-size: 0.7rem;
+}
+
+.grid-track .stats-name {
+    padding: 0 14px 0 10px;
+    font-size: 1.2rem;
+}
+
+/* Cards 2-5: plays under the pill, the bar filled to the artist's share of all top-5 plays */
+.artist-plays {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 220px;
+    margin: 10px 0 0 4px;
+}
+
+.artist-plays-bar {
+    position: relative;
+    flex: 1;
+    height: 5px;
+    overflow: hidden;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.artist-plays-bar::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--share);
+    border-radius: inherit;
+    background: rgb(var(--track-color-rgb, 29, 185, 84));
+    box-shadow: 0 0 8px rgba(var(--track-color-rgb, 29, 185, 84), 0.5);
+    animation: songShareGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+}
+
+.artist-plays-count {
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+}
+
+/* Tighter spacing leaves the name more of the card's width */
+.spotify-track-card.grid-track.is-artist {
+    gap: 16px;
+    padding-right: 16px;
 }
 
 .visually-hidden {
@@ -556,15 +598,26 @@
     background: rgba(255, 255, 255, 0.12);
 }
 
-.artist-song-bar::before {
+/* Three parts on the cards' shared scale: the artist's plays (lighter, as long as on cards 2-5),
+   the top song's plays inside them (solid), and the empty track for everyone else */
+.artist-song-bar::before,
+.artist-song-bar::after {
     content: '';
     position: absolute;
     inset: 0 auto 0 0;
-    width: var(--share);
     border-radius: inherit;
+    animation: songShareGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+}
+
+.artist-song-bar::before {
+    width: var(--artist-share);
+    background: rgba(var(--track-color-rgb, 29, 185, 84), 0.4);
+}
+
+.artist-song-bar::after {
+    width: var(--share);
     background: rgb(var(--track-color-rgb, 29, 185, 84));
     box-shadow: 0 0 10px rgba(var(--track-color-rgb, 29, 185, 84), 0.5);
-    animation: songShareGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
 }
 
 @keyframes songShareGrow {
@@ -949,16 +1002,12 @@
         font-size: 0.85rem;
     }
 
-    .grid-track.is-artist .case-title {
-        font-size: 1.25rem;
-    }
-
     .spotify-track-card.grid-track.is-artist {
         --card-h: 92px;
     }
 
-    .grid-track.is-artist .track-stats-pill {
-        margin-top: 6px;
+    .grid-track .stats-name {
+        font-size: 1.15rem;
     }
 
     .grid-track .stats-badge {

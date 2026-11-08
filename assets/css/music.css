@@ -123,377 +123,6 @@
     display: none;
 }
 
-/* Spotify Grids */
-.spotify-artists-grid {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    /* Maximum width utilization */
-    gap: 8px;
-    /* Minimal gap to allow largest possible circles */
-    margin-bottom: 0;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 16px 12px 20px 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
-    position: relative;
-}
-
-.spotify-artist-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    width: 155px;
-    /* Increased size to take up max width */
-    flex-shrink: 1;
-}
-
-.artist-img-wrapper {
-    width: 145px;
-    height: 145px;
-    position: relative;
-    border-radius: 50%;
-    padding: 6px;
-    box-sizing: border-box;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.spotify-artist-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05), 0 0 0 6px rgba(255, 255, 255, 0.1);
-    transition: box-shadow 0.4s ease;
-    display: block;
-}
-
-.spotify-artist-item:hover .artist-img-wrapper {
-    transform: scale(1.08);
-    /* Scales both image and overlay */
-}
-
-.spotify-artist-item:hover .spotify-artist-img {
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 0 0 0 6px #1DB954;
-}
-
-.spotify-artist-name {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    text-align: center;
-}
-
-/* Spotify Albums Grid (All-Time Favorites) - Panoramic Editorial Banners */
-/* Spotify Albums Grid (All-Time Favorites) - Fluid Multi-Layered Editorial Experience */
-.spotify-albums-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    position: relative;
-}
-
-/* Cascading fluid entry when Albums tab is active */
-.music-tab-pane.active .spotify-album-card {
-    animation: albumCardCascade 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-    animation-delay: calc(var(--stagger-idx, 0) * 45ms);
-}
-
-@keyframes albumCardCascade {
-    0% {
-        opacity: 0;
-        transform: translateY(12px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.spotify-album-card {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    width: 100%;
-    height: clamp(100px, 24vw, 160px);
-    box-sizing: border-box;
-    border-radius: 16px;
-    overflow: hidden;
-    text-decoration: none;
-    background: #0d0d0f;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-top: 1px solid rgba(255, 255, 255, 0.18);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 16px var(--album-glow, rgba(0, 0, 0, 0.1));
-    position: relative;
-    isolation: isolate;
-    cursor: pointer;
-    /* Hardware acceleration & anti-aliased border clipping */
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
-    mask-image: radial-gradient(white, black);
-    transform: translateZ(0);
-    transition: border-color 0.35s ease, box-shadow 0.35s ease;
-}
-
-.spotify-album-card:hover {
-    border-color: rgba(var(--album-rgb, 255, 255, 255), 0.45);
-    border-top-color: rgba(var(--album-rgb, 255, 255, 255), 0.6);
-    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.7), 0 0 32px var(--album-glow, rgba(255, 255, 255, 0.25));
-}
-
-/* Album Gatefold Cover Slot */
-.album-cover-slot {
-    height: 100%;
-    aspect-ratio: 1 / 1;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 3;
-    background: #000;
-}
-
-.album-cover-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    position: relative;
-    z-index: 3;
-    box-shadow: 5px 0 18px rgba(0, 0, 0, 0.8), 1px 0 0 rgba(255, 255, 255, 0.06);
-    transition: filter 0.35s ease;
-}
-
-/* Laminated jacket gloss highlight */
-.album-cover-gloss {
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-    pointer-events: none;
-    background: linear-gradient(
-        125deg,
-        rgba(255, 255, 255, 0.16) 0%,
-        rgba(255, 255, 255, 0.04) 20%,
-        transparent 45%
-    );
-    mix-blend-mode: screen;
-}
-
-.spotify-album-card:hover .album-cover-img {
-    filter: brightness(1.05) contrast(1.02);
-}
-
-/* Interactive Vinyl Disc (Resting rim peek, slides out on hover) */
-.album-vinyl-disc {
-    position: absolute;
-    top: 5%;
-    left: 4%;
-    height: 90%;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    background: repeating-radial-gradient(circle, #0e0e0e 0, #0e0e0e 2px, #1a1a1a 3px, #0e0e0e 4px);
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-    z-index: 2;
-    /* Resting rim peek gives immediate tactile vinyl depth */
-    transform: translateX(16px) rotate(0deg);
-    opacity: 0.88;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.65s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.35s ease;
-}
-
-.spotify-album-card:hover .album-vinyl-disc {
-    opacity: 1;
-    transform: translateX(clamp(36px, 7vw, 48px)) rotate(180deg);
-}
-
-.vinyl-sheen {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: conic-gradient(
-        from 30deg,
-        rgba(255, 255, 255, 0.12) 0deg,
-        transparent 45deg,
-        transparent 135deg,
-        rgba(255, 255, 255, 0.12) 180deg,
-        transparent 225deg,
-        transparent 315deg,
-        rgba(255, 255, 255, 0.12) 360deg
-    );
-}
-
-.vinyl-label {
-    width: 34%;
-    height: 34%;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: center;
-    box-shadow: 0 0 0 2px #0a0a0a, inset 0 0 6px rgba(0, 0, 0, 0.6);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.vinyl-hole {
-    width: 20%;
-    height: 20%;
-    border-radius: 50%;
-    background: #000;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Panoramic Banner Slot with Ambient Color Aura */
-.album-banner-slot {
-    flex: 1;
-    min-width: 0;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-    background: radial-gradient(ellipse 70% 80% at 85% 50%, rgba(var(--album-rgb, 255, 255, 255), 0.14) 0%, transparent 75%), #0d0d0f;
-    z-index: 1;
-}
-
-/* Layer 0: Background Photo with 2.5D Parallax */
-.album-banner-bg-wrap {
-    position: absolute;
-    inset: -6%;
-    overflow: hidden;
-    z-index: 0;
-}
-
-.album-banner-bg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transform: translate3d(calc(var(--parallax-x, 0) * -10px), calc(var(--parallax-y, 0) * -6px), 0) scale(1.03);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
-    will-change: transform;
-}
-
-.spotify-album-card:hover .album-banner-bg {
-    filter: brightness(1.04);
-}
-
-.album-banner-vignette {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.45) 0%, transparent 16%),
-                linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, transparent 30%);
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* Layer 2: Floating Foreground Typography with Multi-Drop Shadow */
-.album-banner-typo-wrap {
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-    pointer-events: none;
-}
-
-.album-banner-typo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: right center;
-    display: block;
-    transform: translate3d(calc(var(--parallax-x, 0) * 8px), calc(var(--parallax-y, 0) * 5px), 0);
-    filter: drop-shadow(calc(var(--parallax-x, 0) * -4px) 3px 8px rgba(0, 0, 0, 0.75))
-            drop-shadow(calc(var(--parallax-x, 0) * -8px) 8px 20px rgba(0, 0, 0, 0.5));
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
-    will-change: transform, filter;
-}
-
-
-/* Layer 3: Interactive Glass Specular Spotlight (Tracks Pointer) */
-.album-banner-sheen {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 5;
-    opacity: 0;
-    background: radial-gradient(
-        circle 320px at var(--mouse-x, -500px) var(--mouse-y, -500px),
-        rgba(255, 255, 255, 0.16) 0%,
-        rgba(var(--album-rgb, 255, 255, 255), 0.1) 40%,
-        transparent 70%
-    );
-    mix-blend-mode: overlay;
-    transition: opacity 0.35s ease;
-}
-
-.spotify-album-card:hover .album-banner-sheen {
-    opacity: 1;
-}
-
-/* Layer 4: Interactive Floating Spotify Pill with Soundwave Equalizer */
-.album-hover-pill {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 4px 11px;
-    background: rgba(12, 12, 12, 0.75);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.2px;
-    color: #f0f0f0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-    z-index: 6;
-    opacity: 0;
-    transform: translateY(-6px);
-    transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    pointer-events: none;
-}
-
-.spotify-album-card:hover .album-hover-pill {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.album-eq {
-    display: inline-flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 10px;
-}
-
-.album-eq span {
-    width: 2px;
-    border-radius: 1px;
-    background: #1DB954;
-    display: block;
-}
-
-.album-eq span:nth-child(1) { height: 4px; animation: eqBounce1 0.7s infinite alternate ease-in-out; }
-.album-eq span:nth-child(2) { height: 9px; animation: eqBounce2 0.5s infinite alternate ease-in-out 0.15s; }
-.album-eq span:nth-child(3) { height: 6px; animation: eqBounce3 0.8s infinite alternate ease-in-out 0.3s; }
-
-@keyframes eqBounce1 { 0% { height: 3px; } 100% { height: 10px; } }
-@keyframes eqBounce2 { 0% { height: 10px; } 100% { height: 4px; } }
-@keyframes eqBounce3 { 0% { height: 5px; } 100% { height: 10px; } }
-
 .spotify-tracks-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -765,46 +394,76 @@
     /* Slightly smaller for small cards */
 }
 
-/* Artist play count overlay */
-.artist-playcount-overlay {
-    position: absolute;
-    inset: 6px;
-    /* Offset by padding to match img */
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+/* Artists and Albums reuse the track cards; these are the only differences */
+
+/* Artists: round portraits (selectors outrank the per-breakpoint art radius) */
+.spotify-track-card.is-artist .case-art-wrapper {
     border-radius: 50%;
-    color: #fff;
+}
+
+.grid-track.is-artist .case-art-wrapper {
+    width: 88px;
+    height: 88px;
+    margin-left: 16px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+/* Albums: the hero sits on the album's hand-made backdrop, titled with its logo */
+.banner-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
     pointer-events: none;
-    z-index: 2;
 }
 
-.spotify-artist-item:hover .artist-playcount-overlay {
-    opacity: 1;
+.banner-backdrop img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
+    filter: brightness(0.7);
+    /* Slight overscan hides the dark edge columns some backdrop exports have */
+    transform: scale(1.03);
 }
 
-.artist-playcount-value {
-    font-size: 1.1rem;
-    font-weight: 800;
+/* Darken toward the cover and logo so they stay legible over any backdrop */
+.banner-backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(10, 10, 12, 0.88) 0%, rgba(10, 10, 12, 0.5) 50%, rgba(10, 10, 12, 0.1) 100%);
 }
 
-.artist-playcount-label {
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.7;
+.top-track-banner.is-album .case-title {
+    display: block;
+    overflow: visible;
+    margin-bottom: 0;
+}
+
+/* --logo-scale (set in music.js from the logo's aspect ratio) evens out wide vs tall logos */
+.album-logo {
+    display: block;
+    width: auto;
+    height: calc(110px * var(--logo-scale, 1));
+    max-width: 100%;
+    object-fit: contain;
+    object-position: left center;
+    filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.55));
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 @media (max-width: 900px) {
-    .spotify-artists-grid {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
     .spotify-tracks-grid {
         grid-template-columns: 1fr;
     }
@@ -823,24 +482,6 @@
 
     .top-track-banner .case-title {
         font-size: 2.1rem;
-    }
-}
-@media (hover: none) {
-
-    .artist-playcount-overlay {
-        opacity: 1;
-        justify-content: flex-end;
-        padding-bottom: 8px;
-        background: linear-gradient(to top, rgba(2, 8, 19, 0.92) 0%, rgba(2, 8, 19, 0.35) 38%, transparent 65%);
-    }
-
-    .artist-playcount-value {
-        font-size: 0.9rem;
-        line-height: 1.1;
-    }
-
-    .artist-playcount-label {
-        font-size: 0.52rem;
     }
 }
 @media screen and (max-width: 768px) {
@@ -930,52 +571,8 @@
         font-size: 0.76rem;
     }
 
-    /* Horizontal Scroll for Artists */
-    .spotify-artists-grid {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        justify-content: flex-start !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
-        padding-bottom: 12px !important;
-        gap: 16px !important;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    .spotify-artists-grid::-webkit-scrollbar {
-        display: none;
-    }
-    .spotify-artist-item {
-        scroll-snap-align: start;
-        flex: 0 0 116px !important;
-        width: 116px !important;
-    }
-    .artist-img-wrapper {
-        width: 108px !important;
-        height: 108px !important;
-    }
-
-    /* Mobile Album Banners */
-    .spotify-albums-grid {
-        gap: 12px;
-    }
-    .spotify-album-card {
-        border-radius: 12px;
-        height: clamp(96px, 24vw, 136px);
-    }
-    .spotify-album-card .album-vinyl-disc {
-        transform: translateX(10px) rotate(0deg);
-    }
-    .spotify-album-card:hover .album-vinyl-disc {
-        transform: translateX(20px) rotate(90deg);
-    }
-    .spotify-album-card .album-hover-pill {
-        display: none;
-    }
-    .album-banner-typo {
-        object-fit: contain;
-        object-position: right center;
+    .album-logo {
+        height: calc(60px * var(--logo-scale, 1));
     }
 }
 @media screen and (max-width: 480px) {
@@ -989,6 +586,12 @@
     .top-track-banner .case-art-wrapper {
         width: 88px;
         height: 88px;
+    }
+
+    .grid-track.is-artist .case-art-wrapper {
+        width: 68px;
+        height: 68px;
+        margin-left: 12px;
     }
 
     .top-track-banner .stats-badge {

@@ -2,91 +2,87 @@ import { initAmbientMesh, initGlobalReveal, initGlassParallax, smoothMorph, morp
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
 
-function renderAlbums(container, albumList) {
-    if (!container || !Array.isArray(albumList)) return;
-    container.innerHTML = albumList.map((album, idx) => {
-        const title = escapeHtml(album.title);
-        const coverSrc = escapeHtml(album.optimized_cover_url || album.cover_url || "");
-        const [r, g, b] = album.prominent_color || [255, 255, 255];
-        const bgSrc = escapeHtml(album.bg_url || album.banner_url || "");
-        const typoSrc = escapeHtml(album.typo_url || "");
-        const fallbackBannerSrc = escapeHtml(album.banner_url || "");
-        const spotifyUrl = escapeHtml(album.spotify_url || (album.spotify_id ? `https://open.spotify.com/album/${album.spotify_id}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`));
+// Shared card markup for all three tabs: #1 is a full-width hero card, the rest are compact grid cards.
+// Text arguments are raw and escaped here; `titleHtml` and `extraHtml` must already be safe HTML.
+function musicCardHtml({ index, href, title, titleHtml, subtitle, ariaLabel, artUrl, badge, meta, rgb, variant, backdropUrl, vtName, extraHtml = '' }) {
+    const isTop = index === 0;
+    const art = escapeHtml(artUrl || "");
 
-        const bannerContent = typoSrc ? `
-            <div class="album-banner-bg-wrap">
-                <img src="${bgSrc}" alt="${title} backdrop" class="album-banner-bg" loading="lazy" fetchpriority="low" decoding="async">
-            </div>
-            <div class="album-banner-vignette"></div>
-            <div class="album-banner-typo-wrap">
-                <img src="${typoSrc}" alt="${title} title" class="album-banner-typo" loading="lazy" fetchpriority="low" decoding="async">
-            </div>
-        ` : `
-            <div class="album-banner-bg-wrap">
-                <img src="${fallbackBannerSrc}" alt="${title} banner" class="album-banner-bg" loading="lazy" fetchpriority="low" decoding="async">
-            </div>
-        `;
+    const styles = [];
+    if (isTop && !backdropUrl) styles.push(`--track-art: url('${art}')`);
+    if (Array.isArray(rgb) && rgb.length === 3) {
+        const [r, g, b] = rgb;
+        styles.push(`--track-color-rgb: ${r}, ${g}, ${b}`, `--track-color-glow: rgba(${r}, ${g}, ${b}, ${isTop ? 0.6 : 0.45})`);
+        if (isTop) styles.push(`border-color: rgba(${r}, ${g}, ${b}, 0.3)`);
+    }
+    if (vtName) styles.push(`view-transition-name: ${vtName}`);
 
-        return `
-            <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer" class="spotify-album-card" style="--album-glow: rgba(${r}, ${g}, ${b}, 0.45); --album-rgb: ${r}, ${g}, ${b}; --stagger-idx: ${idx};" aria-label="${title} by ${escapeHtml(album.artist)}">
-                <div class="album-cover-slot">
-                    <img src="${coverSrc}" alt="${title} cover" class="album-cover-img" loading="lazy" fetchpriority="low" decoding="async">
-                    <div class="album-cover-gloss" aria-hidden="true"></div>
+    const classes = ['spotify-track-card', isTop ? 'top-track-banner' : 'grid-track', variant && `is-${variant}`].filter(Boolean).join(' ');
+    const backdrop = !isTop ? '' : backdropUrl
+        ? `<div class="banner-backdrop" aria-hidden="true"><img src="${escapeHtml(backdropUrl)}" alt="" decoding="async"></div>`
+        : `<div class="banner-bg-blur"></div>`;
+    // Only the visible tab's hero is above the fold on load
+    const imgAttrs = isTop && variant === 'track' ? 'fetchpriority="high"' : 'decoding="async"';
+
+    return `
+            <a href="${escapeHtml(href || "#")}" target="_blank" rel="noopener noreferrer" class="${classes}" style="${styles.join('; ')}"${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''}>
+                ${backdrop}
+                <div class="case-art-wrapper">
+                    <img src="${art}" alt="${escapeHtml(title)}" class="spotify-track-img" ${imgAttrs}>
                 </div>
-                <div class="album-vinyl-disc" aria-hidden="true">
-                    <div class="vinyl-sheen"></div>
-                    <div class="vinyl-label" style="background-image: url('${coverSrc}');">
-                        <div class="vinyl-hole"></div>
+                <div class="case-info">
+                    <div class="track-text-stack">
+                        <span class="case-title">${titleHtml || escapeHtml(title)}</span>
+                        ${subtitle ? `<span class="case-artist">${escapeHtml(subtitle)}</span>` : ''}
                     </div>
-                </div>
-                <div class="album-banner-slot">
-                    ${bannerContent}
-                    <div class="album-banner-sheen"></div>
-                    <div class="album-hover-pill">
-                        <div class="album-eq"><span></span><span></span><span></span></div>
-                        <span>Spotify</span>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                    </div>
+                    ${extraHtml}
+                    <div class="track-stats-pill"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-plays">${escapeHtml(meta)}</span></div>
                 </div>
             </a>`;
-    }).join('');
-
-    initAlbumInteractivity(container);
 }
 
-function initAlbumInteractivity(container) {
-    if (!container) return;
-    const cards = container.querySelectorAll('.spotify-album-card');
-    cards.forEach(card => {
-        if (card.dataset.interactivityInitialized) return;
-        card.dataset.interactivityInitialized = "true";
+function playsLabel(count) {
+    return `${Number(count).toLocaleString()} plays`;
+}
 
-        let rect = null;
+// "Angel Face (Club Deluxe)" -> "Angel Face": edition suffixes only crowd the compact cards
+function displayAlbumTitle(title) {
+    return String(title || '').replace(/\s*[\(\[][^\)\]]*(?:deluxe|edition|remaster)[^\)\]]*[\)\]]\s*$/i, '') || title;
+}
 
-        card.addEventListener('mouseenter', () => {
-            rect = card.getBoundingClientRect();
+function renderAlbums(container, albumList) {
+    if (!container || !Array.isArray(albumList)) return;
+    container.innerHTML = albumList.map((album, index) => {
+        const isTop = index === 0;
+        const spotifyUrl = album.spotify_url || (album.spotify_id ? `https://open.spotify.com/album/${album.spotify_id}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`);
+        // The hero shows the album's hand-made logo over its backdrop; the logo already carries the artist name
+        const logo = isTop && album.logo_url
+            ? `<img src="${escapeHtml(album.logo_url)}" alt="" class="album-logo" decoding="async"><span class="visually-hidden">${escapeHtml(album.title)}</span>`
+            : '';
+        return musicCardHtml({
+            index,
+            variant: 'album',
+            href: spotifyUrl,
+            title: isTop ? album.title : displayAlbumTitle(album.title),
+            titleHtml: logo,
+            subtitle: logo ? '' : album.artist,
+            ariaLabel: `${album.title} by ${album.artist}`,
+            artUrl: album.optimized_cover_url || album.cover_url,
+            backdropUrl: isTop ? (album.bg_url || album.banner_url) : '',
+            badge: isTop ? 'ALL-TIME #1' : `#${index + 1}`,
+            meta: album.format_tag || album.year || '',
+            rgb: album.prominent_color
         });
+    }).join('');
 
-        card.addEventListener('mousemove', (e) => {
-            if (!rect) rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const px = ((x / rect.width) - 0.5) * 2;
-            const py = ((y / rect.height) - 0.5) * 2;
-
-            card.style.setProperty('--mouse-x', `${x}px`);
-            card.style.setProperty('--mouse-y', `${y}px`);
-            card.style.setProperty('--parallax-x', px.toFixed(3));
-            card.style.setProperty('--parallax-y', py.toFixed(3));
-        });
-
-        card.addEventListener('mouseleave', () => {
-            rect = null;
-            card.style.setProperty('--parallax-x', '0');
-            card.style.setProperty('--parallax-y', '0');
-            card.style.setProperty('--mouse-x', '-500px');
-            card.style.setProperty('--mouse-y', '-500px');
-        });
+    // Logos range from tall (4TH WALL) to wide (FINE LINE): size them to a similar area, not a shared height
+    container.querySelectorAll('.album-logo').forEach(logo => {
+        const fit = () => {
+            const scale = Math.sqrt(2.2 / (logo.naturalWidth / logo.naturalHeight));
+            logo.style.setProperty('--logo-scale', Math.min(1.2, Math.max(0.8, scale)).toFixed(3));
+        };
+        if (logo.complete && logo.naturalWidth) fit();
+        else logo.addEventListener('load', fit, { once: true });
     });
 }
 
@@ -105,22 +101,21 @@ function renderArtists(container, artistList) {
         return;
     }
     const seenSlugs = new Set();
-    container.innerHTML = list.map((artist, idx) => {
-        let vtName = toTransitionSlug('artist', artist.name || `idx-${idx}`);
-        if (seenSlugs.has(vtName)) vtName = `${vtName}-${idx}`;
+    container.innerHTML = list.map((artist, index) => {
+        let vtName = toTransitionSlug('artist', artist.name || `idx-${index}`);
+        if (seenSlugs.has(vtName)) vtName = `${vtName}-${index}`;
         seenSlugs.add(vtName);
-        const name = escapeHtml(artist.name);
-        return `
-        <a href="${escapeHtml(artistSpotifyUrl(artist))}" target="_blank" rel="noopener noreferrer" class="spotify-artist-item" style="${vtName ? `view-transition-name: ${vtName};` : ''}">
-            <div class="artist-img-wrapper">
-                <img src="${escapeHtml(artist.image_url || "")}" alt="${name}" class="spotify-artist-img" decoding="async">
-                <div class="artist-playcount-overlay">
-                    <span class="artist-playcount-value">${Number(artist.playcount).toLocaleString()}</span>
-                    <span class="artist-playcount-label">Plays</span>
-                </div>
-            </div>
-            <span class="spotify-artist-name">${name}</span>
-        </a>`;
+        return musicCardHtml({
+            index,
+            variant: 'artist',
+            href: artistSpotifyUrl(artist),
+            title: artist.name,
+            artUrl: artist.image_url,
+            badge: index === 0 ? '#1 THIS MONTH' : `#${index + 1}`,
+            meta: playsLabel(artist.playcount),
+            rgb: artist.prominent_color,
+            vtName
+        });
     }).join('');
 }
 
@@ -133,16 +128,12 @@ function renderTracks(container, trackList) {
     }
     const seenSlugs = new Set();
     container.innerHTML = list.map((track, index) => {
-        const isTopCard = index === 0;
         let vtName = toTransitionSlug('track', `${track.title}-${track.artist}`);
         if (seenSlugs.has(vtName)) vtName = `${vtName}-${index}`;
         seenSlugs.add(vtName);
 
-        const title = escapeHtml(track.title);
-        const coverUrl = escapeHtml(track.cover_url || "");
-        const rankTag = !isTopCard ? `<span class="stats-badge">#${index + 1}</span>` : `<span class="stats-badge">#1 THIS MONTH</span>`;
         let lyricHtml = '';
-        if (isTopCard && track.ai_lyrics) {
+        if (index === 0 && track.ai_lyrics) {
             const lyrics = [track.ai_lyrics.lyric1, track.ai_lyrics.lyric2, track.ai_lyrics.lyric3].filter(Boolean);
             if (lyrics.length > 0) {
                 const randomLyric = lyrics[Math.floor(Math.random() * lyrics.length)];
@@ -150,41 +141,20 @@ function renderTracks(container, trackList) {
             }
         }
 
-        const inlineStyles = [
-            isTopCard ? `--track-art: url('${coverUrl}')` : '',
-            vtName ? `view-transition-name: ${vtName}` : ''
-        ].filter(Boolean).join('; ');
-
-        return `
-            <a id="track-card-${index}" href="${escapeHtml(track.spotify_url || "#")}" target="_blank" rel="noopener noreferrer" class="spotify-track-card ${isTopCard ? 'top-track-banner' : 'grid-track'}" style="${inlineStyles}">
-                ${isTopCard ? `<div class="banner-bg-blur"></div>` : ''}
-                <div class="case-art-wrapper">
-                    <img src="${coverUrl}" alt="${title}" class="spotify-track-img" ${isTopCard ? 'fetchpriority="high"' : 'decoding="async"'}>
-                </div>
-                <div class="case-info">
-                    <div class="track-text-stack">
-                        <span class="case-title">${title}</span>
-                        <span class="case-artist">${escapeHtml(track.artist)}</span>
-                    </div>
-                    ${lyricHtml}
-                    <div class="track-stats-pill">${rankTag}<span class="stats-plays">${Number(track.playcount).toLocaleString()} plays</span></div>
-                </div>
-            </a>`;
+        return musicCardHtml({
+            index,
+            variant: 'track',
+            href: track.spotify_url,
+            title: track.title,
+            subtitle: track.artist,
+            artUrl: track.cover_url,
+            badge: index === 0 ? '#1 THIS MONTH' : `#${index + 1}`,
+            meta: playsLabel(track.playcount),
+            rgb: track.prominent_color,
+            vtName,
+            extraHtml: lyricHtml
+        });
     }).join('');
-
-    // Re-apply prominent colors from data
-    list.forEach((track, index) => {
-        if (track.prominent_color) {
-            const [R, G, B] = track.prominent_color;
-            const isTopCard = index === 0;
-            const card = document.getElementById(`track-card-${index}`);
-            if (card) {
-                card.style.setProperty('--track-color-rgb', `${R}, ${G}, ${B}`);
-                card.style.setProperty('--track-color-glow', `rgba(${R}, ${G}, ${B}, ${isTopCard ? 0.6 : 0.45})`);
-                if (isTopCard) card.style.borderColor = `rgba(${R}, ${G}, ${B}, 0.3)`;
-            }
-        }
-    });
 }
 
 function initMusic() {
@@ -207,12 +177,14 @@ function initMusic() {
         const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
 
         if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
-            const sig = albums.map(a => a.title).join('|');
+            // logo_url is part of the signature so the hero picks up its logo once a sync adds it
+            const sig = albums.map(a => `${a.title}-${a.logo_url || ''}`).join('|');
             if (sig !== renderedAlbumsSig) {
                 const isUpdate = renderedAlbumsSig !== '';
                 renderedAlbumsSig = sig;
                 if (isUpdate) {
-                    smoothMorph(albumsContainer, () => renderAlbums(albumsContainer, albums), albums.map(a => a.cover_url).filter(Boolean));
+                    const heroImages = [albums[0].bg_url || albums[0].banner_url, albums[0].logo_url];
+                    smoothMorph(albumsContainer, () => renderAlbums(albumsContainer, albums), [...albums.map(a => a.optimized_cover_url || a.cover_url), ...heroImages].filter(Boolean));
                 } else {
                     renderAlbums(albumsContainer, albums);
                 }
@@ -231,10 +203,10 @@ function initMusic() {
                 }
             } else {
                 // Same artists in same order: morph playcounts in-place without resetting DOM
-                const valueEls = artistsContainer.querySelectorAll('.artist-playcount-value');
+                const playEls = artistsContainer.querySelectorAll('.stats-plays');
                 artists.forEach((artist, idx) => {
-                    if (valueEls[idx]) {
-                        morphText(valueEls[idx], Number(artist.playcount).toLocaleString());
+                    if (playEls[idx]) {
+                        morphText(playEls[idx], playsLabel(artist.playcount));
                     }
                 });
             }
@@ -255,7 +227,7 @@ function initMusic() {
                 const playEls = tracksContainer.querySelectorAll('.stats-plays');
                 tracks.forEach((track, idx) => {
                     if (playEls[idx]) {
-                        morphText(playEls[idx], `${Number(track.playcount).toLocaleString()} plays`);
+                        morphText(playEls[idx], playsLabel(track.playcount));
                     }
                 });
             }

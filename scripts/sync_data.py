@@ -380,11 +380,16 @@ def fetch_spotify_data(url, key):
             "image_url": image_url,
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
+        if image_url and image_url not in color_futures:
+            color_futures[image_url] = executor.submit(get_prominent_color, image_url)
     
-    # Assign colors back to tracks
+    # Assign colors back to tracks and artists
     for track in final_tracks:
         if track['cover_url'] in color_futures:
             track['prominent_color'] = color_futures[track['cover_url']].result()
+    for artist in final_artists:
+        if artist['image_url'] in color_futures:
+            artist['prominent_color'] = color_futures[artist['image_url']].result()
     
     # 6. Process AI Lyrics
     if final_tracks:
@@ -428,6 +433,8 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/purple-rain-banner.webp",
         "bg_url": "/images/albums/purple-rain-bg.webp",
         "typo_url": "/images/albums/purple-rain-typo.webp",
+
+        "logo_url": "/images/albums/purple-rain-logo.webp",
         "prominent_color": [120, 95, 106]
     },
     {
@@ -438,6 +445,8 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/angel-face-banner.webp",
         "bg_url": "/images/albums/angel-face-bg.webp",
         "typo_url": "/images/albums/angel-face-typo.webp",
+
+        "logo_url": "/images/albums/angel-face-logo.webp",
         "prominent_color": [213, 86, 69]
     },
     {
@@ -448,6 +457,8 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/5sos5-banner.webp",
         "bg_url": "/images/albums/5sos5-bg.webp",
         "typo_url": "/images/albums/5sos5-typo.webp",
+
+        "logo_url": "/images/albums/5sos5-logo.webp",
         "prominent_color": [247, 221, 207]
     },
     {
@@ -458,6 +469,8 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/fine-line-banner.webp",
         "bg_url": "/images/albums/fine-line-bg.webp",
         "typo_url": "/images/albums/fine-line-typo.webp",
+
+        "logo_url": "/images/albums/fine-line-logo.webp",
         "prominent_color": [115, 194, 214]
     },
     {
@@ -468,6 +481,8 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/4th-wall-banner.webp",
         "bg_url": "/images/albums/4th-wall-bg.webp",
         "typo_url": "/images/albums/4th-wall-typo.webp",
+
+        "logo_url": "/images/albums/4th-wall-logo.webp",
         "prominent_color": [74, 78, 88]
     }
 ]

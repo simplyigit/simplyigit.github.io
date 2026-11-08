@@ -49,7 +49,7 @@ def get_prominent_color(image_url):
         print(f"Color extraction error: {e}")
     return [29, 185, 84]
 
-LRCLIB_HEADERS = {"User-Agent": "simplyigit-sync/1.0 (https://simplyigit.me)"}
+SYNC_HEADERS = {"User-Agent": "simplyigit-sync/1.0 (https://simplyigit.me)"}
 LRCLIB_TIMEOUT = 8
 LYRICA_TIMEOUT = 15
 # Worst case for get_lyrics: two LRCLIB searches, then Lyrica
@@ -74,7 +74,7 @@ def fetch_lrclib_lyrics(song_title, artist_name):
     for title in dict.fromkeys([song_title, bare_title]):
         params = {"track_name": title, "artist_name": artist_name}
         try:
-            res = requests.get("https://lrclib.net/api/search", params=params, headers=LRCLIB_HEADERS, timeout=LRCLIB_TIMEOUT)
+            res = requests.get("https://lrclib.net/api/search", params=params, headers=SYNC_HEADERS, timeout=LRCLIB_TIMEOUT)
             if res.status_code != 200:
                 continue
             for hit in res.json():
@@ -89,6 +89,25 @@ def fetch_lrclib_lyrics(song_title, artist_name):
         except Exception as e:
             print(f"LRCLIB Error: {e}")
     return None
+
+
+LASTFM_GALLERY_IMAGE = re.compile(r'/i/u/avatar170s/([0-9a-f]{32})')
+
+
+def fetch_lastfm_artist_banner(artist_name):
+    """Top-voted photo from the artist's Last.fm gallery (the image Last.fm uses as the page header)."""
+    page = f"https://www.last.fm/music/{urllib.parse.quote_plus(artist_name)}/+images"
+    try:
+        res = requests.get(page, headers=SYNC_HEADERS, timeout=10)
+        match = LASTFM_GALLERY_IMAGE.search(res.text) if res.status_code == 200 else None
+    except Exception as e:
+        print(f"Last.fm banner error for {artist_name}: {e}")
+        return None
+    if not match:
+        return None
+    original = f"https://lastfm.freetls.fastly.net/i/u/ar0/{match.group(1)}"
+    # Originals run up to ~3000px; wsrv.nl serves a 1400px WebP sized for the card backdrop
+    return f"https://wsrv.nl/?url={urllib.parse.quote(original)}&w=1400&output=webp"
 
 
 def fetch_lyrica_lyrics(song_title, artist_name):
@@ -256,15 +275,18 @@ def fetch_spotify_data(url, key):
     lfm_headers = {"User-Agent": f"simplyigit-api/1.0 ({lfm_user})"}
     lfm_params = {"api_key": lfm_key, "user": lfm_user, "format": "json", "period": "1month", "limit": 5}
 
-    lfm_tracks_res = requests.get(lfm_base, params={**lfm_params, "method": "user.getTopTracks"}, headers=lfm_headers)
+    # A deeper track list (one request) also yields each top artist's most played song of the month
+    lfm_tracks_res = requests.get(lfm_base, params={**lfm_params, "method": "user.getTopTracks", "limit": 200}, headers=lfm_headers)
     lfm_artists_res = requests.get(lfm_base, params={**lfm_params, "method": "user.getTopArtists"}, headers=lfm_headers)
 
-    raw_lfm_tracks = lfm_tracks_res.json().get("toptracks", {}).get("track", [])
+    raw_lfm_tracks_all = lfm_tracks_res.json().get("toptracks", {}).get("track", [])
+    raw_lfm_tracks = raw_lfm_tracks_all[:5]
     raw_lfm_artists = lfm_artists_res.json().get("topartists", {}).get("artist", [])
 
     # Check existing DB for the top track's curated snippets to avoid unnecessary API calls
     existing_ai_lyrics = None
     existing_top_track_name = None
+    existing_banners = {}
     try:
         res = requests.get(
             f"{url}/rest/v1/portfolio_data?key=eq.spotify&select=value",
@@ -277,6 +299,11 @@ def fetch_spotify_data(url, key):
             if existing_tracks:
                 existing_top_track_name = existing_tracks[0].get("title")
                 existing_ai_lyrics = existing_tracks[0].get("ai_lyrics")
+            existing_banners = {
+                a.get("name"): a["banner_url"]
+                for a in existing_spotify.get("top_artists_last_month", [])
+                if a.get("banner_url")
+            }
     except Exception as e:
         print(f"Failed to check existing lyrics in DB: {e}")
 
@@ -337,7 +364,23 @@ def fetch_spotify_data(url, key):
     final_artists = []
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=15)
     track_futures = {executor.submit(safe_search, t['name'], t['artist']['name'], "track"): t for t in raw_lfm_tracks}
+    track_search_by_key = {(t['name'].casefold(), t['artist']['name'].casefold()): fut for fut, t in track_futures.items()}
+
+    # The #1 artist's most played song this month (the list is ranked); reuse the top-5 search if it's there
+    top_artist_song = None
+    if raw_lfm_artists:
+        top_name = raw_lfm_artists[0]['name'].casefold()
+        hit = next((t for t in raw_lfm_tracks_all if t['artist']['name'].casefold() == top_name), None)
+        if hit:
+            key = (hit['name'].casefold(), hit['artist']['name'].casefold())
+            if key not in track_search_by_key:
+                track_search_by_key[key] = executor.submit(safe_search, hit['name'], hit['artist']['name'], "track")
+            top_artist_song = (hit, track_search_by_key[key])
     artist_futures = {executor.submit(safe_search, a['name'], None, "artist"): a for a in raw_lfm_artists}
+    banner_futures = {
+        a['name']: executor.submit(fetch_lastfm_artist_banner, a['name'])
+        for a in raw_lfm_artists if a['name'] not in existing_banners
+    }
     
     # Start lyric fetching for #1 track early via Lyrica (only if it changed or missing)
     lyric_future = None
@@ -365,6 +408,15 @@ def fetch_spotify_data(url, key):
         if cover_url:
             color_futures[cover_url] = executor.submit(get_prominent_color, cover_url)
 
+    def artist_song(lfm_track, search_future):
+        t_info = search_future.result()
+        return {
+            "title": lfm_track['name'],
+            "playcount": lfm_track['playcount'],
+            "cover_url": t_info['cover_url'] if t_info else None,
+            "spotify_url": t_info['spotify_url'] if t_info else None
+        }
+
     for fut, a in artist_futures.items():
         s_info = fut.result()
         raw_lfm_img = a.get('image', [{}])[-1].get('#text')
@@ -378,11 +430,15 @@ def fetch_spotify_data(url, key):
             "playcount": a['playcount'],
             "spotify_url": s_info['spotify_url'] if s_info else None,
             "image_url": image_url,
+            "banner_url": existing_banners.get(a['name']) or (banner_futures[a['name']].result() if a['name'] in banner_futures else None),
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
         if image_url and image_url not in color_futures:
             color_futures[image_url] = executor.submit(get_prominent_color, image_url)
     
+    if final_artists and top_artist_song:
+        final_artists[0]["top_track"] = artist_song(*top_artist_song)
+
     # Assign colors back to tracks and artists
     for track in final_tracks:
         if track['cover_url'] in color_futures:
@@ -433,9 +489,7 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/purple-rain-banner.webp",
         "bg_url": "/images/albums/purple-rain-bg.webp",
         "typo_url": "/images/albums/purple-rain-typo.webp",
-
-        "logo_url": "/images/albums/purple-rain-logo.webp",
-        "prominent_color": [120, 95, 106]
+        "prominent_color": [196, 170, 250]
     },
     {
         "title": "Angel Face (Club Deluxe)",
@@ -445,8 +499,6 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/angel-face-banner.webp",
         "bg_url": "/images/albums/angel-face-bg.webp",
         "typo_url": "/images/albums/angel-face-typo.webp",
-
-        "logo_url": "/images/albums/angel-face-logo.webp",
         "prominent_color": [213, 86, 69]
     },
     {
@@ -457,8 +509,6 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/5sos5-banner.webp",
         "bg_url": "/images/albums/5sos5-bg.webp",
         "typo_url": "/images/albums/5sos5-typo.webp",
-
-        "logo_url": "/images/albums/5sos5-logo.webp",
         "prominent_color": [247, 221, 207]
     },
     {
@@ -469,8 +519,6 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/fine-line-banner.webp",
         "bg_url": "/images/albums/fine-line-bg.webp",
         "typo_url": "/images/albums/fine-line-typo.webp",
-
-        "logo_url": "/images/albums/fine-line-logo.webp",
         "prominent_color": [115, 194, 214]
     },
     {
@@ -481,9 +529,7 @@ FAVORITE_ALBUMS_RAW = [
         "banner_url": "/images/albums/4th-wall-banner.webp",
         "bg_url": "/images/albums/4th-wall-bg.webp",
         "typo_url": "/images/albums/4th-wall-typo.webp",
-
-        "logo_url": "/images/albums/4th-wall-logo.webp",
-        "prominent_color": [74, 78, 88]
+        "prominent_color": [226, 108, 34]
     }
 ]
 

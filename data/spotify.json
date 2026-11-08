@@ -79,35 +79,40 @@
         "playcount": "175",
         "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
-        "spotify_id": "19YsBPYDyAmKbcFoor4W4e"
+        "spotify_id": "19YsBPYDyAmKbcFoor4W4e",
+        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/386c6a3f616ce1755055b9fea745c3e2&w=1400&output=webp"
       },
       {
         "name": "Shawn Mendes",
         "playcount": "174",
         "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
-        "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr"
+        "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr",
+        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/c66be0c4163f2ae54b228b82c2d374d2&w=1400&output=webp"
       },
       {
         "name": "Ryan Beatty",
         "playcount": "111",
         "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
-        "spotify_id": "60NNvDqsif0u40CXMV6jDQ"
+        "spotify_id": "60NNvDqsif0u40CXMV6jDQ",
+        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/7871e4ae2afc385e967074af63c2efd7&w=1400&output=webp"
       },
       {
         "name": "5 Seconds of Summer",
         "playcount": "74",
         "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
-        "spotify_id": "5Rl15oVamLq7FbSb0NNBNy"
+        "spotify_id": "5Rl15oVamLq7FbSb0NNBNy",
+        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/0a63bcc6bd0fa1934fd8a2a1976a9841&w=1400&output=webp"
       },
       {
         "name": "Ruel",
         "playcount": "70",
         "spotify_url": "https://open.spotify.com/artist/5xkAtLTf309LAGZTbvULBn",
         "image_url": "https://i.scdn.co/image/ab6761610000e5eb9184ca89cc9c4ecd7487bb5f",
-        "spotify_id": "5xkAtLTf309LAGZTbvULBn"
+        "spotify_id": "5xkAtLTf309LAGZTbvULBn",
+        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/7b2c3a8ed906eaccb82cb9997d6ef2df&w=1400&output=webp"
       }
     ],
     "favorite_albums": [
@@ -119,15 +124,14 @@
         "bg_url": "/images/albums/purple-rain-bg.webp",
         "typo_url": "/images/albums/purple-rain-typo.webp",
         "prominent_color": [
-          120,
-          95,
-          106
+          196,
+          170,
+          250
         ],
         "cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
         "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp",
         "year": "1984",
-        "format_tag": "LP \u00b7 1984",
-        "logo_url": "/images/albums/purple-rain-logo.webp"
+        "format_tag": "LP \u00b7 1984"
       },
       {
         "title": "Angel Face (Club Deluxe)",
@@ -146,8 +150,7 @@
         "spotify_url": "https://open.spotify.com/album/3fD6ZQKymy2oP1t6c8NEOc",
         "spotify_id": "3fD6ZQKymy2oP1t6c8NEOc",
         "year": "2023",
-        "format_tag": "LP \u00b7 2023",
-        "logo_url": "/images/albums/angel-face-logo.webp"
+        "format_tag": "LP \u00b7 2023"
       },
       {
         "title": "5SOS5 (Deluxe)",
@@ -164,8 +167,7 @@
         "cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
         "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp",
         "year": "2022",
-        "format_tag": "LP \u00b7 2022",
-        "logo_url": "/images/albums/5sos5-logo.webp"
+        "format_tag": "LP \u00b7 2022"
       },
       {
         "title": "Fine Line",
@@ -184,8 +186,7 @@
         "spotify_url": "https://open.spotify.com/album/7xV2TzoaVc0ycW7fwBwAml",
         "spotify_id": "7xV2TzoaVc0ycW7fwBwAml",
         "year": "2019",
-        "format_tag": "LP \u00b7 2019",
-        "logo_url": "/images/albums/fine-line-logo.webp"
+        "format_tag": "LP \u00b7 2019"
       },
       {
         "title": "4TH WALL",
@@ -195,17 +196,16 @@
         "bg_url": "/images/albums/4th-wall-bg.webp",
         "typo_url": "/images/albums/4th-wall-typo.webp",
         "prominent_color": [
-          74,
-          78,
-          88
+          226,
+          108,
+          34
         ],
         "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
         "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
         "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
         "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
         "year": "2023",
-        "format_tag": "LP \u00b7 2023",
-        "logo_url": "/images/albums/4th-wall-logo.webp"
+        "format_tag": "LP \u00b7 2023"
       }
     ]
   }

@@ -2,27 +2,27 @@ import { initAmbientMesh, initGlobalReveal, initGlassParallax, smoothMorph, morp
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
 
-// Shared card markup for all three tabs: #1 is a full-width hero card, the rest are compact grid cards.
-// Text arguments are raw and escaped here; `titleHtml` and `extraHtml` must already be safe HTML.
-function musicCardHtml({ index, href, title, titleHtml, subtitle, ariaLabel, artUrl, badge, meta, rgb, variant, backdropUrl, vtName, extraHtml = '' }) {
-    const isTop = index === 0;
+// Shared card markup for Tracks and Artists: #1 is a full-width hero card, the rest are compact grid cards.
+// Text arguments are raw and escaped here; `titleHtml`, `extraHtml` and `footerHtml` must already be safe HTML.
+function musicCardHtml({ index, href, title, titleHtml, subtitle, ariaLabel, artUrl, badge, meta, rgb, variant, backdropUrl, vtName, nameInPill = false, extraHtml = '', footerHtml = '' }) {
+    const hero = index === 0;
     const art = escapeHtml(artUrl || "");
 
     const styles = [];
-    if (isTop && !backdropUrl) styles.push(`--track-art: url('${art}')`);
+    if (hero && !backdropUrl) styles.push(`--track-art: url('${art}')`);
     if (Array.isArray(rgb) && rgb.length === 3) {
         const [r, g, b] = rgb;
-        styles.push(`--track-color-rgb: ${r}, ${g}, ${b}`, `--track-color-glow: rgba(${r}, ${g}, ${b}, ${isTop ? 0.6 : 0.45})`);
-        if (isTop) styles.push(`border-color: rgba(${r}, ${g}, ${b}, 0.3)`);
+        styles.push(`--track-color-rgb: ${r}, ${g}, ${b}`, `--track-color-glow: rgba(${r}, ${g}, ${b}, ${hero ? 0.6 : 0.45})`);
+        if (hero) styles.push(`border-color: rgba(${r}, ${g}, ${b}, 0.3)`);
     }
     if (vtName) styles.push(`view-transition-name: ${vtName}`);
 
-    const classes = ['spotify-track-card', isTop ? 'top-track-banner' : 'grid-track', variant && `is-${variant}`].filter(Boolean).join(' ');
-    const backdrop = !isTop ? '' : backdropUrl
+    const classes = ['spotify-track-card', hero ? 'top-track-banner' : 'grid-track', variant && `is-${variant}`, backdropUrl && 'has-backdrop'].filter(Boolean).join(' ');
+    const backdrop = backdropUrl
         ? `<div class="banner-backdrop" aria-hidden="true"><img src="${escapeHtml(backdropUrl)}" alt="" decoding="async"></div>`
-        : `<div class="banner-bg-blur"></div>`;
+        : hero ? `<div class="banner-bg-blur"></div>` : '';
     // Only the visible tab's hero is above the fold on load
-    const imgAttrs = isTop && variant === 'track' ? 'fetchpriority="high"' : 'decoding="async"';
+    const imgAttrs = index === 0 && variant === 'track' ? 'fetchpriority="high"' : 'decoding="async"';
 
     return `
             <a href="${escapeHtml(href || "#")}" target="_blank" rel="noopener noreferrer" class="${classes}" style="${styles.join('; ')}"${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''}>
@@ -31,58 +31,81 @@ function musicCardHtml({ index, href, title, titleHtml, subtitle, ariaLabel, art
                     <img src="${art}" alt="${escapeHtml(title)}" class="spotify-track-img" ${imgAttrs}>
                 </div>
                 <div class="case-info">
-                    <div class="track-text-stack">
+                    ${nameInPill ? '' : `<div class="track-text-stack">
                         <span class="case-title">${titleHtml || escapeHtml(title)}</span>
                         ${subtitle ? `<span class="case-artist">${escapeHtml(subtitle)}</span>` : ''}
-                    </div>
+                    </div>`}
                     ${extraHtml}
-                    <div class="track-stats-pill"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-plays">${escapeHtml(meta)}</span></div>
+                    ${nameInPill ? namePillHtml(badge, title, meta) : `<div class="track-stats-pill"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-plays">${escapeHtml(meta)}</span></div>`}
+                    ${footerHtml}
                 </div>
             </a>`;
+}
+
+// "5 Seconds of Summer" -> "5SOS": long names of three or more words go by their initials in the pill.
+// Two-word names keep their full name (initials like "SM" wouldn't be recognisable).
+function pillName(name) {
+    const full = String(name || '').trim();
+    const words = full.split(/\s+/);
+    return words.length >= 3 && full.length > 12 ? words.map(w => [...w][0].toUpperCase()).join('') : full;
+}
+
+// The #1 artist's pill carries their name: "#1 | Name | 175 plays"
+function namePillHtml(badge, name, meta) {
+    const shown = pillName(name);
+    const nameHtml = shown === String(name || '').trim()
+        ? escapeHtml(shown)
+        : `<span aria-hidden="true">${escapeHtml(shown)}</span><span class="visually-hidden">${escapeHtml(name)}</span>`;
+    return `<div class="track-stats-pill has-name"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-name" title="${escapeHtml(name)}">${nameHtml}</span><span class="stats-plays">${escapeHtml(meta)}</span></div>`;
 }
 
 function playsLabel(count) {
     return `${Number(count).toLocaleString()} plays`;
 }
 
-// "Angel Face (Club Deluxe)" -> "Angel Face": edition suffixes only crowd the compact cards
-function displayAlbumTitle(title) {
-    return String(title || '').replace(/\s*[\(\[][^\)\]]*(?:deluxe|edition|remaster)[^\)\]]*[\)\]]\s*$/i, '') || title;
-}
-
+// Favourites, not a ranking: every album gets the same card, its cover beside the hand-made banner.
+// The typography file is a full-size overlay drawn to line up with its backdrop, so both share one box.
 function renderAlbums(container, albumList) {
     if (!container || !Array.isArray(albumList)) return;
-    container.innerHTML = albumList.map((album, index) => {
-        const isTop = index === 0;
+    container.innerHTML = albumList.map(album => {
         const spotifyUrl = album.spotify_url || (album.spotify_id ? `https://open.spotify.com/album/${album.spotify_id}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`);
-        // The hero shows the album's hand-made logo over its backdrop; the logo already carries the artist name
-        const logo = isTop && album.logo_url
-            ? `<img src="${escapeHtml(album.logo_url)}" alt="" class="album-logo" decoding="async"><span class="visually-hidden">${escapeHtml(album.title)}</span>`
-            : '';
-        return musicCardHtml({
-            index,
-            variant: 'album',
-            href: spotifyUrl,
-            title: isTop ? album.title : displayAlbumTitle(album.title),
-            titleHtml: logo,
-            subtitle: logo ? '' : album.artist,
-            ariaLabel: `${album.title} by ${album.artist}`,
-            artUrl: album.optimized_cover_url || album.cover_url,
-            backdropUrl: isTop ? (album.bg_url || album.banner_url) : '',
-            badge: isTop ? 'ALL-TIME #1' : `#${index + 1}`,
-            meta: album.format_tag || album.year || '',
-            rgb: album.prominent_color
-        });
+        const [r, g, b] = album.prominent_color || [255, 255, 255];
+        const backdrop = album.typo_url ? album.bg_url : album.banner_url;
+        return `
+            <a href="${escapeHtml(spotifyUrl)}" target="_blank" rel="noopener noreferrer" class="spotify-track-card album-card" style="--track-color-rgb: ${r}, ${g}, ${b}; --track-color-glow: rgba(${r}, ${g}, ${b}, 0.45)" aria-label="${escapeHtml(`${album.title} by ${album.artist}`)}">
+                <div class="album-cover">
+                    <img src="${escapeHtml(album.optimized_cover_url || album.cover_url || "")}" alt="" decoding="async">
+                </div>
+                <div class="album-banner" aria-hidden="true">
+                    ${backdrop ? `<img src="${escapeHtml(backdrop)}" alt="" class="album-banner-layer album-banner-bg" decoding="async">` : ''}
+                    ${album.typo_url ? `<img src="${escapeHtml(album.typo_url)}" alt="" class="album-banner-layer album-banner-typo" decoding="async">` : ''}
+                </div>
+            </a>`;
     }).join('');
 
-    // Logos range from tall (4TH WALL) to wide (FINE LINE): size them to a similar area, not a shared height
-    container.querySelectorAll('.album-logo').forEach(logo => {
-        const fit = () => {
-            const scale = Math.sqrt(2.2 / (logo.naturalWidth / logo.naturalHeight));
-            logo.style.setProperty('--logo-scale', Math.min(1.2, Math.max(0.8, scale)).toFixed(3));
-        };
-        if (logo.complete && logo.naturalWidth) fit();
-        else logo.addEventListener('load', fit, { once: true });
+    initAlbumParallax(container);
+}
+
+// Pointer position on each album card (-1..1) drives the banner layers' parallax in CSS
+function initAlbumParallax(container) {
+    if (!window.matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) return;
+    container.querySelectorAll('.album-card').forEach(card => {
+        let frame = 0;
+        card.addEventListener('pointermove', e => {
+            if (frame) return;
+            frame = requestAnimationFrame(() => {
+                frame = 0;
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--px', (((e.clientX - rect.left) / rect.width) * 2 - 1).toFixed(3));
+                card.style.setProperty('--py', (((e.clientY - rect.top) / rect.height) * 2 - 1).toFixed(3));
+            });
+        });
+        card.addEventListener('pointerleave', () => {
+            cancelAnimationFrame(frame);
+            frame = 0;
+            card.style.setProperty('--px', '0');
+            card.style.setProperty('--py', '0');
+        });
     });
 }
 
@@ -91,6 +114,36 @@ function artistSpotifyUrl(artist) {
     if (artist.spotify_url) return artist.spotify_url;
     if (artist.spotify_id) return `https://open.spotify.com/artist/${artist.spotify_id}`;
     return artist.name ? `https://open.spotify.com/search/${encodeURIComponent(artist.name)}` : "#";
+}
+
+// "Another You (feat. Sadie Jean)" -> "Another You": the artist is already on the card
+function displaySongTitle(title) {
+    return String(title || '')
+        .replace(/\s*[\(\[](?:feat|ft|with)\.?[^\)\]]*[\)\]]/gi, '')
+        .replace(/\s*[\(\[][^\)\]]*\b(?:demo|remaster(?:ed)?|version|edit|mix|live|acoustic|deluxe)\b[^\)\]]*[\)\]]\s*$/i, '')
+        .replace(/\s+-\s+.*\b(?:remaster(?:ed)?|version|edit|mix|live|demo)\b.*$/i, '')
+        .trim() || title;
+}
+
+// #1 artist: their most played song this month. The bar is the artist's plays this month;
+// the filled part is how many of them went to that song.
+function artistTopSongHtml(artist) {
+    const song = artist.top_track;
+    if (!song || !song.title) return '';
+    const total = Number(artist.playcount) || 0;
+    const plays = Number(song.playcount) || 0;
+    const share = total ? Math.min(100, Math.round((plays / total) * 100)) : 0;
+    const cover = song.cover_url
+        ? `<img src="${escapeHtml(song.cover_url)}" alt="" class="artist-song-art" decoding="async">`
+        : `<span class="artist-song-art" aria-hidden="true"></span>`;
+    return `
+                    <div class="artist-song">
+                        <span class="artist-song-label">Top song</span>
+                        ${cover}
+                        <span class="artist-song-title">${escapeHtml(displaySongTitle(song.title))}</span>
+                        <span class="artist-song-plays">${escapeHtml(plays.toLocaleString())} / ${escapeHtml(playsLabel(total))}</span>
+                        <span class="artist-song-bar" role="img" aria-label="${share}% of ${escapeHtml(artist.name)} plays" style="--share: ${share}%"></span>
+                    </div>`;
 }
 
 function renderArtists(container, artistList) {
@@ -111,10 +164,14 @@ function renderArtists(container, artistList) {
             href: artistSpotifyUrl(artist),
             title: artist.name,
             artUrl: artist.image_url,
-            badge: index === 0 ? '#1 THIS MONTH' : `#${index + 1}`,
+            // Last.fm's community-picked header photo, else a wide crop of the profile photo
+            backdropUrl: artist.banner_url || artist.image_url,
+            badge: `#${index + 1}`,
             meta: playsLabel(artist.playcount),
             rgb: artist.prominent_color,
-            vtName
+            vtName,
+            nameInPill: index === 0,
+            footerHtml: index === 0 ? artistTopSongHtml(artist) : ''
         });
     }).join('');
 }
@@ -177,14 +234,13 @@ function initMusic() {
         const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
 
         if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
-            // logo_url is part of the signature so the hero picks up its logo once a sync adds it
-            const sig = albums.map(a => `${a.title}-${a.logo_url || ''}`).join('|');
+            const sig = albums.map(a => a.title).join('|');
             if (sig !== renderedAlbumsSig) {
                 const isUpdate = renderedAlbumsSig !== '';
                 renderedAlbumsSig = sig;
                 if (isUpdate) {
-                    const heroImages = [albums[0].bg_url || albums[0].banner_url, albums[0].logo_url];
-                    smoothMorph(albumsContainer, () => renderAlbums(albumsContainer, albums), [...albums.map(a => a.optimized_cover_url || a.cover_url), ...heroImages].filter(Boolean));
+                    const images = albums.flatMap(a => [a.optimized_cover_url || a.cover_url, a.typo_url ? a.bg_url : a.banner_url, a.typo_url]);
+                    smoothMorph(albumsContainer, () => renderAlbums(albumsContainer, albums), images.filter(Boolean));
                 } else {
                     renderAlbums(albumsContainer, albums);
                 }
@@ -192,21 +248,29 @@ function initMusic() {
         }
 
         if (artistsContainer && Array.isArray(artists) && artists.length > 0) {
-            const sig = artists.map(a => a.name).join('|');
+            // banner_url and the #1's top song too, so they appear as soon as a sync adds them
+            const sig = artists.map(a => `${a.name}-${a.banner_url || ''}-${a.top_track?.title || ''}`).join('|');
             if (sig !== renderedArtistsSig) {
                 const isUpdate = renderedArtistsSig !== '';
                 renderedArtistsSig = sig;
                 if (isUpdate) {
-                    smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artists.map(a => a.image_url).filter(Boolean));
+                    smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artists.flatMap(a => [a.image_url, a.banner_url, a.top_track?.cover_url]).filter(Boolean));
                 } else {
                     renderArtists(artistsContainer, artists);
                 }
             } else {
                 // Same artists in same order: morph playcounts in-place without resetting DOM
-                const playEls = artistsContainer.querySelectorAll('.stats-plays');
+                const cards = artistsContainer.querySelectorAll('.spotify-track-card');
                 artists.forEach((artist, idx) => {
-                    if (playEls[idx]) {
-                        morphText(playEls[idx], playsLabel(artist.playcount));
+                    const plays = cards[idx]?.querySelector('.stats-plays');
+                    if (plays) morphText(plays, playsLabel(artist.playcount));
+                    const songPlays = cards[idx]?.querySelector('.artist-song-plays');
+                    const bar = cards[idx]?.querySelector('.artist-song-bar');
+                    if (songPlays && artist.top_track) {
+                        const total = Number(artist.playcount) || 0;
+                        const trackPlays = Number(artist.top_track.playcount) || 0;
+                        morphText(songPlays, `${trackPlays.toLocaleString()} / ${playsLabel(total)}`);
+                        if (bar && total) bar.style.setProperty('--share', `${Math.min(100, Math.round((trackPlays / total) * 100))}%`);
                     }
                 });
             }

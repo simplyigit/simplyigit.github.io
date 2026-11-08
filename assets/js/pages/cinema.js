@@ -126,10 +126,11 @@ function renderFavorites(favContainer, favList) {
             return;
         }
 
-        position -= currentSpeed;
+        // Left to right: wrap back one copy as soon as the strip's left edge comes into view
+        position += currentSpeed;
 
-        if (halfWidth > 0 && Math.abs(position) >= halfWidth) {
-            position += halfWidth;
+        if (halfWidth > 0 && position > 0) {
+            position -= halfWidth;
         }
 
         favContainer.style.transform = `translate3d(${position}px, 0, 0)`;

@@ -1055,13 +1055,14 @@
     padding: 0 5px;
 }
 
+/* Left to right, matching the VHS filmstrip: -1/7 (one title copy) -> 0 */
 @keyframes tapeMarquee {
     0% {
-        transform: translateX(0);
+        transform: translateX(calc(-100% / 7));
     }
 
     100% {
-        transform: translateX(calc(-100% / 7));
+        transform: translateX(0);
     }
 }
 
@@ -1164,8 +1165,9 @@
         transform: rotate(0deg);
     }
 
+    /* Clockwise: tape winds left to right */
     to {
-        transform: rotate(-360deg);
+        transform: rotate(360deg);
     }
 }
 

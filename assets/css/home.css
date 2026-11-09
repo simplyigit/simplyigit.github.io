@@ -141,7 +141,8 @@
     height: 100%;
 }
 
-.book-link:hover {
+.book-link:hover,
+.book-link:focus-visible {
     transform: translateY(-4px);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
@@ -280,13 +281,15 @@
 }
 
 /* Hover: Side books tuck back into deep background shadows within card boundaries */
-.book-link:hover .book-shelf-left {
+.book-link:hover .book-shelf-left,
+.book-link:focus-visible .book-shelf-left {
     transform: translateX(-42px) translateY(6px) translateZ(-30px) rotate(-9deg) scale(0.85);
     opacity: 0.25;
     filter: blur(0.4px);
 }
 
-.book-link:hover .book-shelf-right {
+.book-link:hover .book-shelf-right,
+.book-link:focus-visible .book-shelf-right {
     transform: translateX(42px) translateY(6px) translateZ(-30px) rotate(9deg) scale(0.85);
     opacity: 0.25;
     filter: blur(0.4px);
@@ -313,11 +316,14 @@
 
 /* On hover: opens gracefully with authentic 3D perspective */
 .book-link:hover .book-shelf-center,
-.book-link:hover .book-3d-wrapper {
+.book-link:focus-visible .book-shelf-center,
+.book-link:hover .book-3d-wrapper,
+.book-link:focus-visible .book-3d-wrapper {
     transform: translateX(36px) translateY(-3px) translateZ(28px) scale(1.04) rotateX(4deg) rotateY(-6deg);
 }
 
-.book-link:hover .book-obj-base {
+.book-link:hover .book-obj-base,
+.book-link:focus-visible .book-obj-base {
     box-shadow: -10px 18px 26px rgba(0, 0, 0, 0.8), 0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
@@ -356,7 +362,8 @@
     box-shadow: 1px 0 2px rgba(0, 0, 0, 0.3);
 }
 
-.book-link:hover .book-pages-edge-right {
+.book-link:hover .book-pages-edge-right,
+.book-link:focus-visible .book-pages-edge-right {
     display: block;
 }
 
@@ -467,7 +474,8 @@
     cursor: pointer;
 }
 
-.book-link:hover .book-front-cover-assembly {
+.book-link:hover .book-front-cover-assembly,
+.book-link:focus-visible .book-front-cover-assembly {
     transform: rotateY(-147deg);
 }
 
@@ -607,7 +615,8 @@
     height: 100%;
 }
 
-.vhs-link:hover {
+.vhs-link:hover,
+.vhs-link:focus-visible {
     transform: translateY(-4px);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
@@ -682,36 +691,33 @@
     pointer-events: none;
 }
 
+/* The OSD matches the tape: PAUSE while the reel and counter are still, PLAY while they run */
 .state-play {
     color: #00ff88;
     text-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
-    opacity: 1;
-    transform: translateY(0);
+    opacity: 0;
+    transform: translateY(3px);
 }
 
 .state-pause {
     color: #fbbf24;
     text-shadow: 0 0 6px rgba(251, 191, 36, 0.7);
-    opacity: 0;
-    transform: translateY(3px);
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .vhs-link:hover .state-play,
-.vhs-link.is-paused .state-play {
-    opacity: 0;
-    transform: translateY(-3px);
+.vhs-link:focus-visible .state-play,
+.vhs-link.is-playing .state-play {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .vhs-link:hover .state-pause,
-.vhs-link.is-paused .state-pause {
-    opacity: 1;
-    transform: translateY(0);
-    animation: vhsPausePulse 1.2s infinite alternate;
-}
-
-@keyframes vhsPausePulse {
-    from { text-shadow: 0 0 4px rgba(251, 191, 36, 0.5); }
-    to { text-shadow: 0 0 10px rgba(251, 191, 36, 0.9); }
+.vhs-link:focus-visible .state-pause,
+.vhs-link.is-playing .state-pause {
+    opacity: 0;
+    transform: translateY(-3px);
 }
 
 .vhs-osd-icon {
@@ -729,7 +735,8 @@
 }
 
 .vhs-link:hover .vhs-tape-counter,
-.vhs-link.is-paused .vhs-tape-counter {
+.vhs-link:focus-visible .vhs-tape-counter,
+.vhs-link.is-playing .vhs-tape-counter {
     color: rgba(255, 255, 255, 0.65);
 }
 
@@ -765,7 +772,8 @@
 .vhs-link {
     --movie-play-state: paused;
 }
-.vhs-link:hover {
+.vhs-link:hover,
+.vhs-link:focus-visible {
     --movie-play-state: running;
 }
 
@@ -826,7 +834,8 @@
 }
 
 .vhs-link:hover .vhs-filmstrip-track,
-.vhs-link.is-paused .vhs-filmstrip-track {
+.vhs-link:focus-visible .vhs-filmstrip-track,
+.vhs-link.is-playing .vhs-filmstrip-track {
     animation-play-state: running;
 }
 
@@ -873,7 +882,8 @@
     will-change: transform;
 }
 
-.cassette-link:hover {
+.cassette-link:hover,
+.cassette-link:focus-visible {
     transform: translateY(-4px);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
 }
@@ -1056,7 +1066,8 @@
     --tape-play-state: paused;
 }
 
-.cassette-link:hover {
+.cassette-link:hover,
+.cassette-link:focus-visible {
     --tape-play-state: running;
 }
 
@@ -1337,6 +1348,16 @@
 
     .vhs-link .vhs-filmstrip-track {
         animation-play-state: running;
+    }
+
+    /* The tape always rolls on touch screens, so the OSD always reads PLAY */
+    .vhs-link .state-play {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .vhs-link .state-pause {
+        opacity: 0;
     }
 }
 @media screen and (max-width: 768px) {

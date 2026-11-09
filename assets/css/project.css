@@ -187,10 +187,21 @@
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.detector-upload-btn:hover {
+.detector-upload-btn {
+    position: relative; /* anchors the visually hidden file input */
+}
+
+.detector-upload-btn:hover,
+.detector-upload-btn:focus-within {
     color: var(--text-primary);
     background: rgba(255, 255, 255, 0.07);
     border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* The real control is the visually hidden file input: show its keyboard focus on the button */
+.detector-upload-btn:has(input:focus-visible) {
+    outline: 2px solid rgba(255, 255, 255, 0.4);
+    outline-offset: 3px;
 }
 
 .detector-upload-btn.is-disabled,

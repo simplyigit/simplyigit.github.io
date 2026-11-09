@@ -37,7 +37,5 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_USER: ${{ secrets.LASTFM_USER }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GENIUS_CLIENT_ID: ${{ secrets.GENIUS_CLIENT_ID }}
-          GENIUS_CLIENT_SECRET: ${{ secrets.GENIUS_CLIENT_SECRET }}
         run: python scripts/sync_data.py
 

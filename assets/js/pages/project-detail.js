@@ -1,4 +1,5 @@
 import { initAmbientMesh, initGlobalReveal, initGlassParallax } from '../modules/core.js';
+import { pillowResizeBilinear, normalizeToTensor } from '../modules/pillow-resize.js';
 
 const PRESET_SAMPLES = {
     real: {
@@ -33,10 +34,18 @@ const PRESET_SAMPLES = {
     }
 };
 
-function sanitizeProjectHtml(html) {
+// README images use repo-relative paths ("images/x.png", "./x.png", "/x.png"), which would resolve
+// against this page's URL; point them at the file in the repo instead
+function absolutizeReadmeImages(html, repoPath, branch) {
+    return html.replace(
+        /(<img\b[^>]*?\ssrc=")(?![a-z][a-z0-9+.-]*:|\/\/|#)([^"]+)"/gi,
+        (_, prefix, path) => `${prefix}https://raw.githubusercontent.com/${repoPath}/${branch}/${path.replace(/^\.?\//, '')}"`
+    );
+}
+
+function sanitizeProjectHtml(html, repoPath, branch = 'main') {
     if (!html) return '';
-    return html
-        .replace(/src="images\//g, 'src="')
+    return absolutizeReadmeImages(html, repoPath, branch)
         // The README's tables use LaTeX \multicolumn{n}{c}{...} cells, which GitHub leaves as text
         .replace(
             /<td[^>]*>\\multicolumn\{(\d+)\}\{[a-z]\}\{(.*?)\}<\/td>(?:\s*<td[^>]*><\/td>){0,4}/gi,
@@ -118,7 +127,7 @@ function loadProjectReadme() {
     } catch {}
 
     const applyContent = (rawContent) => {
-        const clean = sanitizeProjectHtml(rawContent);
+        const clean = sanitizeProjectHtml(rawContent, repoPath);
         if (!clean) return false;
         // Unchanged since the cached render: keep the DOM (and any rendered diagrams) as is
         if (clean !== appliedHtml) showReadme(clean);
@@ -419,7 +428,7 @@ async function fetchModelBufferWithCache(onProgress) {
         if ('caches' in window) {
             try {
                 const cache = await caches.open(MODEL_CACHE_NAME);
-                await cache.put(MODEL_URL, new Response(buf.slice(0), { headers: { 'Content-Type': 'application/octet-stream' } }));
+                await cache.put(MODEL_URL, new Response(buf, { headers: { 'Content-Type': 'application/octet-stream' } }));
             } catch {}
         }
         return buf;
@@ -440,17 +449,21 @@ async function fetchModelBufferWithCache(onProgress) {
         }
     }
 
+    // Release each chunk once copied, so the model isn't held twice (~27 MB) on memory-tight phones
     const fullBuffer = new Uint8Array(received);
     let offset = 0;
-    for (const chunk of chunks) {
-        fullBuffer.set(chunk, offset);
-        offset += chunk.byteLength;
+    for (let i = 0; i < chunks.length; i++) {
+        fullBuffer.set(chunks[i], offset);
+        offset += chunks[i].byteLength;
+        chunks[i] = null;
     }
+    chunks.length = 0;
 
     if ('caches' in window) {
         try {
             const cache = await caches.open(MODEL_CACHE_NAME);
-            await cache.put(MODEL_URL, new Response(fullBuffer.buffer.slice(0), { headers: { 'Content-Type': 'application/octet-stream' } }));
+            // The Response copies the bytes itself; an extra .slice() would add a third copy
+            await cache.put(MODEL_URL, new Response(fullBuffer, { headers: { 'Content-Type': 'application/octet-stream' } }));
         } catch {}
     }
 
@@ -479,88 +492,44 @@ async function getDetectorSession(onProgress) {
     return ortSessionPromise;
 }
 
-// --- Pillow-exact resize ---
-// Training used torchvision's Resize((224, 224)) on PIL images, i.e. Pillow's antialiased bilinear
-// filter. The canvas's own scaling uses a different filter and visibly shifts the model's output, so
-// this reproduces Pillow's Resample.c (fixed-point weights, 8-bit intermediate pass) exactly.
-const PRECISION_BITS = 22; // 32 - 8 - 2, as in Pillow
 const MAX_CANVAS_PIXELS = 4096 * 4096;
 
-function bilinearCoefficients(inSize, outSize) {
-    const scale = inSize / outSize;
-    const filterScale = Math.max(scale, 1);
-    const support = filterScale; // the bilinear filter's support is 1
-    const bounds = new Int32Array(outSize);
-    const weights = [];
-    for (let i = 0; i < outSize; i++) {
-        const center = (i + 0.5) * scale;
-        const min = Math.max(Math.trunc(center - support + 0.5), 0);
-        const max = Math.min(Math.trunc(center + support + 0.5), inSize);
-        const raw = [];
-        let total = 0;
-        for (let x = min; x < max; x++) {
-            const w = Math.max(0, 1 - Math.abs((x - center + 0.5) / filterScale));
-            raw.push(w);
-            total += w;
+// null = not created yet, false = unavailable (no module workers, or it failed once)
+let preprocessWorker = null;
+
+function getPreprocessWorker() {
+    if (preprocessWorker === null) {
+        try {
+            preprocessWorker = new Worker(new URL('../workers/detector-preprocess.js', import.meta.url), { type: 'module' });
+        } catch {
+            preprocessWorker = false;
         }
-        bounds[i] = min;
-        weights.push(Int32Array.from(raw, w => {
-            const v = (total ? w / total : 0) * (1 << PRECISION_BITS);
-            return Math.trunc(v < 0 ? v - 0.5 : v + 0.5);
-        }));
     }
-    return { bounds, weights };
+    return preprocessWorker || null;
 }
 
-function clip8(sum) {
-    if (sum >= 255 * (1 << PRECISION_BITS)) return 255;
-    if (sum <= 0) return 0;
-    return Math.floor(sum / (1 << PRECISION_BITS));
-}
-
-// RGBA source pixels (srcW x srcH) -> packed RGB (outW x outH): horizontal pass, then vertical
-function pillowResizeBilinear(src, srcW, srcH, outW, outH) {
-    const horiz = bilinearCoefficients(srcW, outW);
-    const vert = bilinearCoefficients(srcH, outH);
-    const half = 1 << (PRECISION_BITS - 1);
-
-    const tmp = new Uint8Array(outW * srcH * 3);
-    for (let y = 0; y < srcH; y++) {
-        for (let x = 0; x < outW; x++) {
-            const k = horiz.weights[x];
-            let r = half, g = half, b = half;
-            let p = (y * srcW + horiz.bounds[x]) * 4;
-            for (let i = 0; i < k.length; i++, p += 4) {
-                r += src[p] * k[i];
-                g += src[p + 1] * k[i];
-                b += src[p + 2] * k[i];
-            }
-            const o = (y * outW + x) * 3;
-            tmp[o] = clip8(r);
-            tmp[o + 1] = clip8(g);
-            tmp[o + 2] = clip8(b);
+// Pillow resize + normalization in a worker, so a 12 MP upload doesn't block the main thread.
+// readPixels() is called again for the main-thread fallback, since the worker takes ownership of its copy.
+async function preprocessPixels(readPixels, srcW, srcH, outW, outH) {
+    const worker = getPreprocessWorker();
+    if (worker) {
+        try {
+            return await new Promise((resolve, reject) => {
+                const pixels = readPixels();
+                worker.onmessage = (e) => resolve(e.data);
+                worker.onerror = (e) => {
+                    e.preventDefault();
+                    reject(new Error(e.message || 'Preprocessing worker failed'));
+                };
+                worker.postMessage({ pixels, srcW, srcH, outW, outH }, [pixels.buffer]);
+            });
+        } catch {
+            worker.terminate();
+            preprocessWorker = false;
         }
     }
-
-    const out = new Uint8Array(outW * outH * 3);
-    for (let y = 0; y < outH; y++) {
-        const k = vert.weights[y];
-        const y0 = vert.bounds[y];
-        for (let x = 0; x < outW; x++) {
-            let r = half, g = half, b = half;
-            for (let i = 0; i < k.length; i++) {
-                const p = ((y0 + i) * outW + x) * 3;
-                r += tmp[p] * k[i];
-                g += tmp[p + 1] * k[i];
-                b += tmp[p + 2] * k[i];
-            }
-            const o = (y * outW + x) * 3;
-            out[o] = clip8(r);
-            out[o + 1] = clip8(g);
-            out[o + 2] = clip8(b);
-        }
-    }
-    return out;
+    const rgb = pillowResizeBilinear(readPixels(), srcW, srcH, outW, outH);
+    return { rgb, tensor: normalizeToTensor(rgb, outW, outH) };
 }
 
 async function runRealModelOnCanvas(img, canvas, onProgress) {
@@ -599,10 +568,10 @@ async function runRealModelOnCanvas(img, canvas, onProgress) {
     const srcCtx = srcCanvas.getContext('2d', { willReadFrequently: true });
     srcCtx.drawImage(source, sx, sy, sw, sh, 0, 0, srcW, srcH);
     if (source !== img) source.close();
-    const srcPixels = srcCtx.getImageData(0, 0, srcW, srcH).data;
 
-    // utils.get_transform(): Resize((224, 224)) — squashes to a square, as in training
-    const rgb = pillowResizeBilinear(srcPixels, srcW, srcH, w, h);
+    // utils.get_transform(): Resize((224, 224)) — squashes to a square, as in training — then
+    // NCHW Float32Array [1, 3, 224, 224] with ImageNet normalization
+    const { rgb, tensor: tensorData } = await preprocessPixels(() => srcCtx.getImageData(0, 0, srcW, srcH).data, srcW, srcH, w, h);
 
     // Preview exactly what the model sees
     const preview = ctx.createImageData(w, h);
@@ -623,22 +592,6 @@ async function runRealModelOnCanvas(img, canvas, onProgress) {
     ctx.beginPath(); ctx.moveTo(m, h - m - len); ctx.lineTo(m, h - m); ctx.lineTo(m + len, h - m); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(w - m - len, h - m); ctx.lineTo(w - m, h - m); ctx.lineTo(w - m, h - m - len); ctx.stroke();
 
-    // Build NCHW Float32Array [1, 3, 224, 224] with ImageNet normalization
-    const area = w * h;
-    const tensorData = new Float32Array(3 * area);
-    const meanR = 0.485, meanG = 0.456, meanB = 0.406;
-    const stdR = 0.229, stdG = 0.224, stdB = 0.225;
-
-    for (let i = 0; i < area; i++) {
-        const p = i * 3;
-        const r = rgb[p] / 255.0;
-        const g = rgb[p + 1] / 255.0;
-        const b = rgb[p + 2] / 255.0;
-
-        tensorData[i] = (r - meanR) / stdR;
-        tensorData[area + i] = (g - meanG) / stdG;
-        tensorData[2 * area + i] = (b - meanB) / stdB;
-    }
 
     const { ort, session } = await getDetectorSession(onProgress);
     if (onProgress) onProgress('Running ConvNeXt-Tiny + SGD inference...');
@@ -761,7 +714,7 @@ function initDetectorDemo() {
         sampleBtns.forEach(btn => {
             const active = btn.getAttribute('data-sample') === key;
             btn.classList.toggle('active', active);
-            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
         drawPresetSample(canvas, key, preset);
         updateUI({
@@ -779,7 +732,9 @@ function initDetectorDemo() {
 
     if (uploadLabel) {
         // Warm up ONNX Runtime script on hover/focus
-        uploadLabel.addEventListener('mouseenter', () => { loadOrtRuntime().catch(() => {}); }, { once: true });
+        const warmUp = () => { loadOrtRuntime().catch(() => {}); };
+        uploadLabel.addEventListener('mouseenter', warmUp, { once: true });
+        uploadLabel.addEventListener('focusin', warmUp, { once: true });
         uploadLabel.addEventListener('click', (e) => {
             if (isInferring) e.preventDefault();
         });
@@ -823,7 +778,7 @@ function initDetectorDemo() {
 
                 sampleBtns.forEach(b => {
                     b.classList.remove('active');
-                    b.setAttribute('aria-selected', 'false');
+                    b.setAttribute('aria-pressed', 'false');
                 });
 
                 try {

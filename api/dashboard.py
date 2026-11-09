@@ -4,7 +4,7 @@ import sys
 
 # Each Vercel function runs on its own; make the shared helper next to it importable
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _supabase import fetch_values, proxy_letterboxd_images, respond, strip_full_lyrics  # noqa: E402
+from _supabase import fetch_values, respond, strip_full_lyrics  # noqa: E402
 
 
 def load_dashboard():
@@ -13,7 +13,8 @@ def load_dashboard():
     return {
         "spotify": strip_full_lyrics(values.get("spotify") or {}),
         "books": values.get("books") or [],
-        "movies": proxy_letterboxd_images(values.get("movies") or {})
+        # Raw Letterboxd URLs: the frontend's safeImg() routes them through wsrv.nl, resized and as WebP
+        "movies": values.get("movies") or {}
     }
 
 

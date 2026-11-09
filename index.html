@@ -23,13 +23,14 @@
     <!-- Preconnect to Google Fonts & Image CDN -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://wsrv.nl" crossorigin>
+    <link rel="preconnect" href="https://wsrv.nl">
+    <link rel="preconnect" href="https://i.scdn.co">
     <link rel="dns-prefetch" href="https://wsrv.nl">
     <!-- Inter, JetBrains Mono & Playfair Display Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/base.css?v=7.1">
-    <link rel="stylesheet" href="assets/css/home.css?v=7.1">
-    <script src="assets/js/vt-nav.js?v=7.0"></script>
+    <link rel="stylesheet" href="/assets/css/base.css?v=7.2">
+    <link rel="stylesheet" href="/assets/css/home.css?v=7.2">
+    <script src="/assets/js/vt-nav.js?v=7.0"></script>
     <script>window.__PREFETCH_DASHBOARD__ = fetch("/api/dashboard", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
 </head>
 
@@ -45,7 +46,7 @@
             <div class="social-tube unified-hero-tube">
                 <div class="hero-glow-1"></div>
                 <div class="hero-glow-2"></div>
-                <img src="images/pp.webp" alt="Memoji" class="avatar-memoji" fetchpriority="high" width="52" height="52">
+                <img src="/images/pp.webp" alt="Memoji" class="avatar-memoji" fetchpriority="high" width="52" height="52">
                 <h1 class="gradient-text hero-name">yiğit</h1>
 
                 <div class="hero-social-divider">
@@ -72,6 +73,7 @@
             </div>
         </header>
 
+        <main>
         <section class="section">
             <div class="section-header">
                 <h2 class="section-title">Projects</h2>
@@ -260,12 +262,14 @@
             </div>
         </section>
 
+        </main>
+
         <footer>
             <p>&copy; 2026 yiğit.</p>
         </footer>
     </div>
 
-    <script type="module" src="assets/js/pages/index.js?v=7.1"></script>
+    <script type="module" src="/assets/js/pages/index.js?v=7.2"></script>
 </body>
 
 

@@ -1,4 +1,5 @@
 // Client-side persistent cache utility (Stale-While-Revalidate + Cross-Page Sync)
+// Every section lives in one entry: the homepage writes all three, each subpage updates its own slice.
 const DASHBOARD_KEY = "simplyigit_dashboard_cache";
 const KEY_MAP = {
     simplyigit_cache_spotify: "spotify",
@@ -6,75 +7,46 @@ const KEY_MAP = {
     simplyigit_cache_books: "books"
 };
 
-export function getCachedData(key, fallback = null) {
+function readDashboard() {
     try {
-        const item = localStorage.getItem(key);
-        let parsed = item ? JSON.parse(item) : null;
+        return JSON.parse(localStorage.getItem(DASHBOARD_KEY));
+    } catch (e) {
+        // LocalStorage disabled or corrupt entry
+        return null;
+    }
+}
 
-        // Also check if dashboard cache has newer synced data for this section
-        const dashField = KEY_MAP[key];
-        if (dashField) {
-            const dashRaw = localStorage.getItem(DASHBOARD_KEY);
-            if (dashRaw) {
-                const dash = JSON.parse(dashRaw);
-                const sectionData = dash?.[dashField]?.data || dash?.[dashField];
-                if (sectionData && (!parsed || dash?._ts > (parsed?._ts || 0))) {
-                    return sectionData;
-                }
-            }
-        }
-
-        if (parsed) return parsed;
+function writeDashboard(dash) {
+    try {
+        localStorage.setItem(DASHBOARD_KEY, JSON.stringify(dash));
+        // Older versions also kept a separate copy of each section; drop those duplicates
+        Object.keys(KEY_MAP).forEach(key => localStorage.removeItem(key));
     } catch (e) {
         // LocalStorage disabled or quota exceeded
     }
-    return fallback;
+}
+
+export function getCachedData(key, fallback = null) {
+    const section = readDashboard()?.[KEY_MAP[key]];
+    return section?.data || section || fallback;
 }
 
 // Unified homepage cache; only usable once it holds every section
 export function getCachedDashboard() {
-    try {
-        const dash = JSON.parse(localStorage.getItem(DASHBOARD_KEY));
-        if (dash?.spotify && dash?.movies && dash?.books) return dash;
-    } catch (e) {
-        // LocalStorage disabled or corrupt entry
-    }
-    return null;
+    const dash = readDashboard();
+    return dash?.spotify && dash?.movies && dash?.books ? dash : null;
 }
 
 export function setCachedData(key, data) {
-    try {
-        localStorage.setItem(key, JSON.stringify(data));
-
-        // Keep unified dashboard cache in sync when a subpage updates its slice
-        const dashField = KEY_MAP[key];
-        if (dashField && data) {
-            const dashRaw = localStorage.getItem(DASHBOARD_KEY);
-            const dash = dashRaw ? JSON.parse(dashRaw) : {};
-            dash[dashField] = data;
-            dash._ts = Date.now();
-            localStorage.setItem(DASHBOARD_KEY, JSON.stringify(dash));
-        }
-    } catch (e) {
-        // LocalStorage disabled or quota exceeded
-    }
+    const field = KEY_MAP[key];
+    if (!field || !data) return;
+    const dash = readDashboard() || {};
+    dash[field] = data;
+    dash._ts = Date.now();
+    writeDashboard(dash);
 }
 
 export function setDashboardCachedData(fresh) {
     if (!fresh) return;
-    try {
-        const payload = { ...fresh, _ts: Date.now() };
-        localStorage.setItem(DASHBOARD_KEY, JSON.stringify(payload));
-        if (fresh.spotify) {
-            localStorage.setItem("simplyigit_cache_spotify", JSON.stringify(fresh.spotify.data || fresh.spotify));
-        }
-        if (fresh.movies) {
-            localStorage.setItem("simplyigit_cache_movies", JSON.stringify(fresh.movies.data || fresh.movies));
-        }
-        if (fresh.books) {
-            localStorage.setItem("simplyigit_cache_books", JSON.stringify(fresh.books.data || fresh.books));
-        }
-    } catch (e) {
-        // LocalStorage disabled or quota exceeded
-    }
+    writeDashboard({ ...fresh, _ts: Date.now() });
 }

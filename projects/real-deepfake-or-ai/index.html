@@ -24,9 +24,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/base.css?v=7.1">
-    <link rel="stylesheet" href="../../assets/css/project.css?v=7.1">
-    <script src="../../assets/js/vt-nav.js?v=7.0"></script>
+    <link rel="stylesheet" href="/assets/css/base.css?v=7.2">
+    <link rel="stylesheet" href="/assets/css/project.css?v=7.2">
+    <script src="/assets/js/vt-nav.js?v=7.0"></script>
 </head>
 
 <body>
@@ -54,6 +54,7 @@
             </a>
         </section>
 
+        <main>
         <header class="hero subpage-hero project-header">
             <h1 class="subpage-title">Real, Deepfake or AI</h1>
             <p class="subtitle">Classifies face images as real, AI-generated or deepfake using ConvNeXt-Tiny features and a linear SVM, running right in your browser.</p>
@@ -72,20 +73,20 @@
                     <div class="detector-demo-card" id="detector-demo">
                         <div class="detector-demo-header">
                             <h2 class="detector-demo-title">Interactive Sandbox</h2>
-                            <div class="detector-controls" role="tablist" aria-label="Sample Presets">
-                                <button type="button" class="detector-sample-btn sample-btn-real active" data-sample="real" role="tab" aria-selected="true">
+                            <div class="detector-controls" role="group" aria-label="Sample presets and custom image">
+                                <button type="button" class="detector-sample-btn sample-btn-real active" data-sample="real" aria-pressed="true">
                                     Real
                                 </button>
-                                <button type="button" class="detector-sample-btn sample-btn-ai" data-sample="ai" role="tab" aria-selected="false">
+                                <button type="button" class="detector-sample-btn sample-btn-ai" data-sample="ai" aria-pressed="false">
                                     AI Synth
                                 </button>
-                                <button type="button" class="detector-sample-btn sample-btn-df" data-sample="deepfake" role="tab" aria-selected="false">
+                                <button type="button" class="detector-sample-btn sample-btn-df" data-sample="deepfake" aria-pressed="false">
                                     Deepfake
                                 </button>
                                 <label class="detector-upload-btn" id="detector-upload-label" for="detector-file-input" title="Analyze a local image in your browser (.jpg, .jpeg, .png, .webp)">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     <span id="detector-upload-text">Test Custom Image</span>
-                                    <input type="file" id="detector-file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden>
+                                    <input type="file" id="detector-file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="visually-hidden">
                                 </label>
                             </div>
                         </div>
@@ -151,12 +152,14 @@
             </div>
         </section>
 
+        </main>
+
         <footer>
             <p>&copy; 2026 yiğit.</p>
         </footer>
     </div>
 
-    <script type="module" src="../../assets/js/pages/project-detail.js?v=7.1"></script>
+    <script type="module" src="/assets/js/pages/project-detail.js?v=7.2"></script>
 </body>
 
 </html>

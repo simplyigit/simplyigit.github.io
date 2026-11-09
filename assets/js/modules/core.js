@@ -31,9 +31,19 @@ export function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, ch => HTML_ESCAPES[ch]);
 }
 
+const PROXIED_IMAGE_HOSTS = ['a.ltrbxd.com', 'i.gr-assets.com'];
+
+// Letterboxd/Goodreads covers go through wsrv.nl (resized WebP; also dodges ISP blocks on their CDNs)
 export function safeImg(url, width = 0) {
     if (!url) return '';
-    if ((url.includes('a.ltrbxd.com') || url.includes('i.gr-assets.com')) && !url.includes('wsrv.nl')) {
+    // Cached data from older API responses holds bare "wsrv.nl/?url=..." wrappers: unwrap and size them
+    if (url.startsWith('https://wsrv.nl/')) {
+        let inner = null;
+        try { inner = new URL(url).searchParams.get('url'); } catch {}
+        if (!inner || !PROXIED_IMAGE_HOSTS.some(host => inner.includes(host))) return url;
+        url = inner;
+    }
+    if (PROXIED_IMAGE_HOSTS.some(host => url.includes(host))) {
         const wParam = width > 0 ? `&w=${width}` : '';
         return `https://wsrv.nl/?url=${encodeURIComponent(url)}${wParam}&output=webp`;
     }
@@ -185,9 +195,20 @@ export function initFocusPause() {
     sync();
 }
 
+// Bumped on scroll/resize so each card re-measures itself on its next mousemove
+let parallaxLayoutEpoch = 0;
+let parallaxLayoutListening = false;
+
 export function initGlassParallax() {
     // Only apply 3D cursor tilt on devices with hover and a fine pointer
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    if (!parallaxLayoutListening) {
+        parallaxLayoutListening = true;
+        const invalidate = () => { parallaxLayoutEpoch++; };
+        window.addEventListener('scroll', invalidate, { passive: true });
+        window.addEventListener('resize', invalidate, { passive: true });
+    }
 
     const cards = document.querySelectorAll('.glass-card:not(.list-card)');
     cards.forEach(card => {
@@ -195,13 +216,24 @@ export function initGlassParallax() {
         card.dataset.parallaxInitialized = "true";
 
         let rect = null;
+        let rectEpoch = -1;
+        // The card may already be tilted and scaled: keep its centre but use its untransformed size
+        const measure = () => {
+            const box = card.getBoundingClientRect();
+            const width = card.offsetWidth, height = card.offsetHeight;
+            rect = {
+                left: box.left + box.width / 2 - width / 2,
+                top: box.top + box.height / 2 - height / 2,
+                width,
+                height
+            };
+            rectEpoch = parallaxLayoutEpoch;
+        };
 
-        card.addEventListener('mouseenter', () => {
-            rect = card.getBoundingClientRect();
-        });
+        card.addEventListener('mouseenter', measure);
 
         card.addEventListener('mousemove', e => {
-            if (!rect) rect = card.getBoundingClientRect();
+            if (!rect || rectEpoch !== parallaxLayoutEpoch) measure();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
@@ -277,7 +309,9 @@ export async function awaitFastPrefetch(fetchPromise, maxWaitMs = 65) {
 let activeViewTransition = false;
 
 export async function smoothMorph(targetEl, updateFn, imageUrls = []) {
-    if (!targetEl) {
+    // Missing or hidden (e.g. an inactive tab pane): nothing to animate, so update at once without
+    // pre-decoding its images or taking the view transition from a visible section
+    if (!targetEl || !targetEl.isConnected || targetEl.getClientRects().length === 0) {
         updateFn();
         return;
     }

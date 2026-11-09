@@ -43,23 +43,6 @@ def strip_full_lyrics(spotify):
     return spotify
 
 
-def proxy_letterboxd_images(movies):
-    """Proxy Letterboxd CDN images through wsrv.nl to avoid ISP/DNS blocks (e.g. in Turkey)."""
-    def proxy_img(u):
-        if u and isinstance(u, str) and "a.ltrbxd.com" in u and "wsrv.nl" not in u:
-            return f"https://wsrv.nl/?url={u}"
-        return u
-
-    if isinstance(movies, dict):
-        for cat in ["favorite_films", "recent_activity", "watchlist"]:
-            for item in movies.get(cat) or []:
-                if isinstance(item, dict):
-                    for field in ("cover_url", "backdrop_url"):
-                        if field in item:
-                            item[field] = proxy_img(item[field])
-    return movies
-
-
 def respond(handler, load):
     """Sends {"success", "data", "timestamp"} from load(), or a generic 500 with details in the function log."""
     try:

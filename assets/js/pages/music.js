@@ -142,8 +142,10 @@ function artistTopSongHtml(artist, totalPlays) {
     const total = Number(artist.playcount) || 0;
     const plays = Number(song.playcount) || 0;
     const { songShare, artistShare } = topSongShares(plays, total, totalPlays);
-    const cover = song.cover_url
-        ? `<img src="${escapeHtml(song.cover_url)}" alt="" class="artist-song-art" decoding="async">`
+    // A 44px thumbnail: the 300px copy is plenty
+    const coverUrl = song.cover_url_small || song.cover_url;
+    const cover = coverUrl
+        ? `<img src="${escapeHtml(coverUrl)}" alt="" class="artist-song-art" decoding="async">`
         : `<span class="artist-song-art" aria-hidden="true"></span>`;
     return `
                     <div class="artist-song">
@@ -200,6 +202,11 @@ function renderArtists(container, artistList) {
     }).join('');
 }
 
+// The #1 hero card shows the 640px cover; grid cards are ~120px, so the 300px copy is enough
+function trackArtUrl(track, index) {
+    return index === 0 ? track.cover_url : (track.cover_url_small || track.cover_url);
+}
+
 function renderTracks(container, trackList) {
     if (!container) return;
     const list = Array.isArray(trackList) ? trackList : [];
@@ -228,7 +235,7 @@ function renderTracks(container, trackList) {
             href: track.spotify_url,
             title: track.title,
             subtitle: track.artist,
-            artUrl: track.cover_url,
+            artUrl: trackArtUrl(track, index),
             badge: index === 0 ? '#1 THIS MONTH' : `#${index + 1}`,
             meta: playsLabel(track.playcount),
             rgb: track.prominent_color,
@@ -253,8 +260,8 @@ function initMusic() {
     let renderedArtistsSig = '';
     let renderedTracksSig = '';
 
-    // First call paints directly; later calls morph only the sections whose content changed
-    const render = (data) => {
+    // First call paints directly; later calls morph only the sections whose content changed, one at a time
+    const render = async (data) => {
         const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
 
         if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
@@ -264,7 +271,7 @@ function initMusic() {
                 renderedAlbumsSig = sig;
                 if (isUpdate) {
                     const images = albums.flatMap(a => [a.optimized_cover_url || a.cover_url, a.typo_url ? a.bg_url : a.banner_url, a.typo_url]);
-                    smoothMorph(albumsContainer, () => renderAlbums(albumsContainer, albums), images.filter(Boolean));
+                    await smoothMorph(albumsContainer, () => renderAlbums(albumsContainer, albums), images.filter(Boolean));
                 } else {
                     renderAlbums(albumsContainer, albums);
                 }
@@ -278,7 +285,7 @@ function initMusic() {
                 const isUpdate = renderedArtistsSig !== '';
                 renderedArtistsSig = sig;
                 if (isUpdate) {
-                    smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artists.flatMap(a => [a.image_url, a.banner_url, a.top_track?.cover_url]).filter(Boolean));
+                    await smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artists.flatMap(a => [a.image_url, a.banner_url, a.top_track?.cover_url_small || a.top_track?.cover_url]).filter(Boolean));
                 } else {
                     renderArtists(artistsContainer, artists);
                 }
@@ -313,7 +320,7 @@ function initMusic() {
                 const isUpdate = renderedTracksSig !== '';
                 renderedTracksSig = sig;
                 if (isUpdate) {
-                    smoothMorph(tracksContainer, () => renderTracks(tracksContainer, tracks), tracks.map(t => t.cover_url).filter(Boolean));
+                    await smoothMorph(tracksContainer, () => renderTracks(tracksContainer, tracks), tracks.map(trackArtUrl).filter(Boolean));
                 } else {
                     renderTracks(tracksContainer, tracks);
                 }
@@ -346,7 +353,6 @@ function initMusicTabs() {
     const tracksPane = document.getElementById("music-pane-tracks");
     const artistsPane = document.getElementById("music-pane-artists");
     const albumsPane = document.getElementById("music-pane-albums");
-    const periodLabel = document.getElementById("music-period-label");
 
     if (!tabButtons.length || !container || !tracksPane || !artistsPane || !albumsPane) return;
 
@@ -424,14 +430,6 @@ function initMusicTabs() {
             } else {
                 monthlyBadge.classList.add("active");
                 alltimeBadge.classList.remove("active");
-            }
-        }
-
-        if (periodLabel) {
-            if (newTab === "albums") {
-                periodLabel.textContent = "All-time favorite albums.";
-            } else {
-                periodLabel.textContent = "My most played this month.";
             }
         }
 

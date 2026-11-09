@@ -10,18 +10,17 @@ const projects = [
         tags: ["ML & DL", "Image Processing"],
         type: "wide",
         customClass: "project-real",
-        visualHtml: '<img src="projects/real-deepfake-or-ai/real-deepfake-or-ai.webp" class="card-visual-cover" alt="Real, Deepfake or AI" loading="lazy" decoding="async">',
+        // Above the fold: load eagerly, with intrinsic size so the card doesn't shift when it arrives
+        visualHtml: '<img src="/projects/real-deepfake-or-ai/real-deepfake-or-ai.webp" class="card-visual-cover" alt="Real, Deepfake or AI" width="960" height="716" decoding="async">',
         url: "/projects/real-deepfake-or-ai"
     }
 ];
 
 function initIndex() {
     initAmbientMesh();
-    initGlobalReveal();
-    initGlassParallax();
 
     // Memoji: depth-map parallax, so the head turns toward the pointer
-    initAvatarDepth(document.querySelector('.unified-hero-tube .avatar-memoji'), 'images/pp-depth.webp');
+    initAvatarDepth(document.querySelector('.unified-hero-tube .avatar-memoji'), '/images/pp-depth.webp');
 
     // Projects Injection
     const container = document.getElementById("projects-container");
@@ -40,9 +39,12 @@ function initIndex() {
                     <div class="tags">${tagsHtml}</div>
                 </div>`;
             container.appendChild(card);
-            initGlassParallax(); // Re-init for injected cards
         });
     }
+
+    // After injection, so the project cards get the reveal and the tilt too
+    initGlobalReveal();
+    initGlassParallax();
 
 
     // Index Data Sync with LocalStorage Cache (Instant Load Pattern)
@@ -66,10 +68,11 @@ function initIndex() {
                 movies: m.SEED_MOVIES,
                 books: m.SEED_BOOKS
             })),
-            render: (data) => {
-                if (data.spotify) renderSpotify(data.spotify);
-                if (data.books) renderBooks(data.books);
-                if (data.movies) renderMovies(data.movies);
+            // One section at a time: concurrent morphs would fight over the single view transition
+            render: async (data) => {
+                if (data.spotify) await renderSpotify(data.spotify);
+                if (data.books) await renderBooks(data.books);
+                if (data.movies) await renderMovies(data.movies);
             }
         });
     }
@@ -80,7 +83,9 @@ function initIndex() {
         const topTrack = data.top_tracks_last_month?.[0];
         if (!topTrack) return;
 
-        const sig = `${topTrack.title}|${topTrack.artist}|${topTrack.cover_url}`;
+        // The cassette label is ~100px wide: the 300px cover is plenty
+        const artUrl = topTrack.cover_url_small || topTrack.cover_url;
+        const sig = `${topTrack.title}|${topTrack.artist}|${artUrl}`;
         if (sig === renderedSpotifySig) return;
         const isUpdate = renderedSpotifySig !== '';
         renderedSpotifySig = sig;
@@ -100,8 +105,8 @@ function initIndex() {
                     marquee.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
                 }
             }
-            if (cassetteBody && topTrack.cover_url) {
-                cassetteBody.style.setProperty('--cassette-art', `url(${topTrack.cover_url})`);
+            if (cassetteBody && artUrl) {
+                cassetteBody.style.setProperty('--cassette-art', `url(${artUrl})`);
                 if (topTrack.prominent_color && Array.isArray(topTrack.prominent_color)) {
                     const [r, g, b] = topTrack.prominent_color;
                     cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
@@ -109,7 +114,7 @@ function initIndex() {
                 } else {
                     const img = new Image();
                     img.crossOrigin = "Anonymous";
-                    img.src = topTrack.cover_url;
+                    img.src = artUrl;
                     img.onload = () => {
                         try {
                             const canvas = document.createElement('canvas');
@@ -126,7 +131,7 @@ function initIndex() {
         };
 
         if (isUpdate && cassetteBody) {
-            smoothMorph(cassetteBody, applySpotifyDom, [topTrack.cover_url]);
+            return smoothMorph(cassetteBody, applySpotifyDom, [artUrl]);
         } else {
             applySpotifyDom();
         }
@@ -273,7 +278,7 @@ function initIndex() {
         };
 
         if (isUpdate) {
-            smoothMorph(indexBooksContainer, applyBooksDom, [heroCover, leftCover, rightCover]);
+            return smoothMorph(indexBooksContainer, applyBooksDom, [heroCover, leftCover, rightCover]);
         } else {
             applyBooksDom();
         }
@@ -286,13 +291,14 @@ function initIndex() {
         if (recent.length === 0) return;
 
         const list = recent.slice(0, 10);
-        const sig = list.map(f => `${f.title}|${f.cover_url}`).join(';;');
+        // Compare the final image URLs, so raw and already-proxied copies of the same poster match
+        const imgUrls = list.map(f => safeImg(f.cover_url, 150));
+        const sig = list.map((f, i) => `${f.title}|${imgUrls[i]}`).join(';;');
         if (sig === renderedMoviesSig) return;
         const isUpdate = renderedMoviesSig !== '';
         renderedMoviesSig = sig;
 
         const duplicated = list.length >= 4 ? [...list, ...list] : [...list, ...list, ...list, ...list];
-        const imgUrls = list.map(f => safeImg(f.cover_url, 150));
 
         const applyMoviesDom = () => {
             // Update existing filmstrip items in-place if count matches so VHS marquee never resets
@@ -328,7 +334,7 @@ function initIndex() {
         };
 
         if (isUpdate) {
-            smoothMorph(indexMoviesContainer, applyMoviesDom, imgUrls);
+            return smoothMorph(indexMoviesContainer, applyMoviesDom, imgUrls);
         } else {
             applyMoviesDom();
         }
@@ -351,21 +357,28 @@ function initIndex() {
             vhsTimer.textContent = `SP ${h}:${pad(m)}:${pad(s)}`;
         };
 
-        vhsCard.addEventListener('mouseenter', () => {
+        // Hover or keyboard focus plays the tape: the reel rolls, the OSD reads PLAY and the counter runs
+        const play = () => {
+            if (vhsInterval) return;
             hoverStartTime = Date.now();
-            vhsCard.classList.add('is-paused');
+            vhsCard.classList.add('is-playing');
             if (vhsTimer) vhsTimer.textContent = 'SP 0:00:00';
-            clearInterval(vhsInterval);
             vhsInterval = setInterval(updateTimer, 200);
-        });
+        };
 
-        vhsCard.addEventListener('mouseleave', () => {
+        const stop = () => {
+            if (vhsCard.matches(':hover, :focus-visible')) return;
             clearInterval(vhsInterval);
             vhsInterval = null;
             hoverStartTime = null;
-            vhsCard.classList.remove('is-paused');
+            vhsCard.classList.remove('is-playing');
             if (vhsTimer) vhsTimer.textContent = 'SP 0:00:00';
-        });
+        };
+
+        vhsCard.addEventListener('mouseenter', play);
+        vhsCard.addEventListener('focusin', play);
+        vhsCard.addEventListener('mouseleave', stop);
+        vhsCard.addEventListener('focusout', stop);
     }
 }
 

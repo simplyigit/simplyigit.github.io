@@ -5,3 +5,5 @@ VISION.md
 images/pp.png
 projects/**/*.png
 .github/
+.claude/
+.DS_Store

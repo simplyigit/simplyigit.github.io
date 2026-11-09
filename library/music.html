@@ -22,14 +22,13 @@
     <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://i.scdn.co" crossorigin>
-    <link rel="preconnect" href="https://wsrv.nl" crossorigin>
+    <link rel="preconnect" href="https://i.scdn.co">
+    <link rel="preconnect" href="https://wsrv.nl">
     <link rel="dns-prefetch" href="https://wsrv.nl">
-    <link rel="preconnect" href="https://coverartarchive.org">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/base.css?v=7.1">
-    <link rel="stylesheet" href="../assets/css/music.css?v=7.1">
-    <script src="../assets/js/vt-nav.js?v=7.0"></script>
+    <link rel="stylesheet" href="/assets/css/base.css?v=7.2">
+    <link rel="stylesheet" href="/assets/css/music.css?v=7.2">
+    <script src="/assets/js/vt-nav.js?v=7.0"></script>
     <script>window.__PREFETCH_SPOTIFY__ = fetch("/api/spotify", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
 </head>
 
@@ -65,6 +64,7 @@
         </header>
 
         <!-- Music Section with Tabbed Selector -->
+        <main>
         <section class="section music-section">
             <div class="music-selector-wrapper">
                 <div class="music-nav-pill" role="tablist" aria-label="Music View Selector">
@@ -121,12 +121,14 @@
             </div>
         </section>
 
+        </main>
+
         <footer>
             <p>&copy; 2026 yiğit.</p>
         </footer>
     </div>
 
-    <script type="module" src="../assets/js/pages/music.js?v=7.1"></script>
+    <script type="module" src="/assets/js/pages/music.js?v=7.2"></script>
 </body>
 
 

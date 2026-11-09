@@ -100,6 +100,9 @@ export async function initAvatarDepth(img, depthSrc) {
     const current = { x: 0, y: 0 };
     const target = { x: 0, y: 0 };
     let frame = 0;
+    // Latest pointer position not yet turned into a target; read in tick() so layout is measured once per frame
+    let pointer = null;
+    const clamp = v => Math.max(-1, Math.min(1, v));
 
     const draw = () => {
         gl.viewport(0, 0, canvas.width, canvas.height);
@@ -111,6 +114,12 @@ export async function initAvatarDepth(img, depthSrc) {
 
     // Ease toward the pointer and stop the loop once settled
     const tick = () => {
+        if (pointer) {
+            const rect = canvas.getBoundingClientRect();
+            target.x = clamp((pointer.x - (rect.left + rect.width / 2)) / 400);
+            target.y = clamp(-(pointer.y - (rect.top + rect.height / 2)) / 400);
+            pointer = null;
+        }
         current.x += (target.x - current.x) * 0.12;
         current.y += (target.y - current.y) * 0.12;
         draw();
@@ -130,15 +139,20 @@ export async function initAvatarDepth(img, depthSrc) {
     draw();
     wrap.classList.add('is-live');
 
+    // Skip the work entirely while the hero is scrolled out of view
+    let onScreen = true;
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; }).observe(canvas);
+    }
+
     // Anywhere on the page: the head turns toward the pointer, fully at ~400px away
     window.addEventListener('pointermove', e => {
-        if (e.pointerType !== 'mouse') return;
-        const rect = canvas.getBoundingClientRect();
-        target.x = Math.max(-1, Math.min(1, (e.clientX - (rect.left + rect.width / 2)) / 400));
-        target.y = Math.max(-1, Math.min(1, -(e.clientY - (rect.top + rect.height / 2)) / 400));
+        if (e.pointerType !== 'mouse' || !onScreen) return;
+        pointer = { x: e.clientX, y: e.clientY };
         follow();
     }, { passive: true });
     document.documentElement.addEventListener('pointerleave', () => {
+        pointer = null;
         target.x = 0;
         target.y = 0;
         follow();

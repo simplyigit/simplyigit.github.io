@@ -326,9 +326,7 @@ footer p {
 }
 
 .spotify-track-card,
-.classical-book-card,
-.movie-fav-card,
-.movie-watchlist-card {
+.classical-book-card {
     text-decoration: none !important;
     color: inherit !important;
 }
@@ -528,14 +526,6 @@ footer p {
         grid-column: 1 / -1;
         order: 2;
     }
-
-    .hero > div:not(.unified-hero-tube) > h1 {
-        grid-column: 1 / -1;
-        order: 2;
-        text-align: center;
-        font-size: 2rem !important;
-        margin-top: 2px !important;
-    }
 }
 
 /* Compact Phones (<= 480px) */
@@ -639,15 +629,13 @@ html.vt-data-morph::view-transition-new(*) {
 /* Pause all looping decorative animations while the page is hidden or the window is unfocused,
    so the browser can go fully idle (one-shot entrance animations are intentionally left alone). */
 html.page-inactive :is(
-    .vhs-link.is-paused .state-pause,
     .vhs-mini-spool-inner,
     .vhs-filmstrip-track,
     .cassette-song-marquee,
     .spine-bounce,
     .spool-inner,
     .hero-glow-1,
-    .hero-glow-2,
-    .album-eq span
+    .hero-glow-2
 ) {
     animation-play-state: paused !important;
 }
@@ -702,17 +690,6 @@ html.page-inactive :is(
     font-style: italic;
     font-size: 1.1rem;
 }
-
-.source-link {
-    color: var(--text-primary);
-    text-decoration: none;
-    border-bottom: 1px solid var(--accent-color);
-}
-
-.source-link--spotify strong { color: #96aa9f; }
-.source-link--lastfm strong { color: #a49292; }
-.source-link--letterboxd strong { color: #6883a7; }
-.source-link--goodreads strong { color: #a7a7a7; }
 
 .arrow-back {
     transform: rotate(180deg);

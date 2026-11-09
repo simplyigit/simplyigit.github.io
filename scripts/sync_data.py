@@ -65,6 +65,27 @@ def normalize_name(name):
     return re.sub(r'[^\w]+', ' ', (name or '').casefold()).strip()
 
 
+def title_key(title):
+    return normalize_name(strip_title_suffixes(title or ''))
+
+
+def find_spotify_match(results, item_name, artist_name, search_type):
+    """Picks the Spotify search result that is really the Last.fm item, or None."""
+    target = (artist_name if artist_name else item_name).lower().strip()
+    if search_type == "artist":
+        return next((r for r in results if r['name'].lower().strip() == target), None)
+
+    # Tracks: the artist may be billed anywhere in the credits, and the title must match too
+    if artist_name:
+        results = [r for r in results if any(a['name'].lower().strip() == target for a in r.get('artists', []))]
+    want = title_key(item_name)
+    exact = next((r for r in results if title_key(r['name']) == want), None)
+    if exact or not want:
+        return exact
+    # "Song" vs "Song - Live at X" / "Song (Demo)" style differences
+    return next((r for r in results if (got := title_key(r['name'])) and (got.startswith(want) or want.startswith(got))), None)
+
+
 def fetch_lrclib_lyrics(song_title, artist_name):
     """LRCLIB: free, keyless lyrics database (https://lrclib.net/docs)."""
     # /api/get needs album_name and duration for an exact match, so search and verify the hit instead
@@ -223,7 +244,13 @@ def fetch_spotify_data(url, key):
             print("Retrieved refresh token from Supabase.")
     except Exception as e:
         print(f"Supabase token read error: {e}")
-    
+
+    # Last resort: the GitHub secret, which may be stale once Spotify has rotated the token
+    if not refresh_token:
+        refresh_token = os.environ.get('SPOTIFY_REFRESH_TOKEN')
+        if refresh_token:
+            print("Falling back to the SPOTIFY_REFRESH_TOKEN secret.")
+
     if not refresh_token:
         print("Error: No Spotify refresh token found in Supabase.")
         return {"success": False, "error": "No refresh token found"}
@@ -270,13 +297,20 @@ def fetch_spotify_data(url, key):
     lfm_headers = {"User-Agent": f"simplyigit-api/1.0 ({lfm_user})"}
     lfm_params = {"api_key": lfm_key, "user": lfm_user, "format": "json", "period": "1month", "limit": 5}
 
-    # A deeper track list (one request) also yields each top artist's most played song of the month
-    lfm_tracks_res = requests.get(lfm_base, params={**lfm_params, "method": "user.getTopTracks", "limit": 200}, headers=lfm_headers)
-    lfm_artists_res = requests.get(lfm_base, params={**lfm_params, "method": "user.getTopArtists"}, headers=lfm_headers)
+    def lfm_get(method, **params):
+        res = requests.get(lfm_base, params={**lfm_params, "method": method, **params}, headers=lfm_headers, timeout=10)
+        res.raise_for_status()
+        return res.json()
 
-    raw_lfm_tracks_all = lfm_tracks_res.json().get("toptracks", {}).get("track", [])
+    # A deeper track list (one request) also yields each top artist's most played song of the month.
+    # Last.fm often answers 5xx with an HTML page; fail this section only, not the whole sync.
+    try:
+        raw_lfm_tracks_all = lfm_get("user.getTopTracks", limit=200).get("toptracks", {}).get("track", [])
+        raw_lfm_artists = lfm_get("user.getTopArtists").get("topartists", {}).get("artist", [])
+    except (requests.RequestException, ValueError) as e:
+        print(f"Last.fm request failed: {e}")
+        return {"success": False, "error": f"Last.fm request failed: {e}"}
     raw_lfm_tracks = raw_lfm_tracks_all[:5]
-    raw_lfm_artists = lfm_artists_res.json().get("topartists", {}).get("artist", [])
 
     # Check existing DB for the top track's curated snippets to avoid unnecessary API calls
     existing_ai_lyrics = None
@@ -299,7 +333,7 @@ def fetch_spotify_data(url, key):
     def safe_search(item_name, artist_name, search_type):
         s_headers = {"Authorization": f"Bearer {access_token}"}
         target = (artist_name if artist_name else item_name).lower().strip()
-        
+
         # Build candidate queries:
         queries = []
         if search_type == "artist":
@@ -323,15 +357,16 @@ def fetch_spotify_data(url, key):
                     continue
                 s_data = s_res.json()
                 results = s_data.get(f"{search_type}s", {}).get("items", [])
-                for res_item in results:
-                    res_name = res_item['artists'][0]['name'].lower().strip() if search_type == "track" else res_item['name'].lower().strip()
-                    if res_name == target:
-                        imgs = res_item.get("images", []) if search_type == "artist" else res_item.get("album", {}).get("images", [])
-                        return {
-                            "spotify_url": res_item['external_urls']['spotify'],
-                            "cover_url": imgs[0]['url'] if imgs else None,
-                            "spotify_id": res_item['id']
-                        }
+                res_item = find_spotify_match(results, item_name, artist_name, search_type)
+                if res_item:
+                    # Largest first (640, 300, 64); the ~300px copy serves the small cards
+                    imgs = res_item.get("images", []) if search_type == "artist" else res_item.get("album", {}).get("images", [])
+                    return {
+                        "spotify_url": res_item['external_urls']['spotify'],
+                        "cover_url": imgs[0]['url'] if imgs else None,
+                        "cover_url_small": imgs[1]['url'] if len(imgs) > 1 else (imgs[0]['url'] if imgs else None),
+                        "spotify_id": res_item['id']
+                    }
             except Exception as e:
                 print(f"safe_search error for {item_name} (query={q}): {e}")
 
@@ -389,6 +424,7 @@ def fetch_spotify_data(url, key):
             "playcount": t['playcount'],
             "spotify_url": s_info['spotify_url'] if s_info else None,
             "cover_url": cover_url,
+            "cover_url_small": (s_info.get('cover_url_small') if s_info else None) or cover_url,
             "spotify_id": s_info['spotify_id'] if s_info else None
         })
         if cover_url:
@@ -400,6 +436,7 @@ def fetch_spotify_data(url, key):
             "title": lfm_track['name'],
             "playcount": lfm_track['playcount'],
             "cover_url": t_info['cover_url'] if t_info else None,
+            "cover_url_small": t_info.get('cover_url_small') if t_info else None,
             "spotify_url": t_info['spotify_url'] if t_info else None
         }
 
@@ -907,6 +944,46 @@ def fetch_projects_data(github_token):
 
 # --- MAIN SYNC ---
 
+SYNC_CATEGORIES = ["spotify", "favorite_albums", "movies", "books", "projects"]
+
+
+def is_valid_payload(category, value):
+    """False for error dicts and empty results, which must never replace a stored row."""
+    if category == "spotify":
+        return isinstance(value, dict) and bool(value.get("top_tracks_last_month"))
+    if category == "movies":
+        return isinstance(value, dict) and any(value.get(k) for k in ("recent_activity", "favorite_films", "watchlist"))
+    if category in ("favorite_albums", "books"):
+        return isinstance(value, list) and bool(value)
+    if category == "projects":
+        return isinstance(value, dict) and bool(value)
+    return False
+
+
+def safe_fetch(name, fetch, *args):
+    """Runs one section's fetch; an unexpected error fails that section instead of the whole sync."""
+    try:
+        return fetch(*args)
+    except Exception as e:
+        print(f"{name} fetch failed: {e!r}")
+        return None
+
+
+def fetch_existing_rows(url, key, categories):
+    """Returns the currently stored {category: value} rows, or {} if Supabase can't be read."""
+    try:
+        res = requests.get(
+            f"{url}/rest/v1/portfolio_data?key=in.({','.join(categories)})&select=key,value",
+            headers={"apikey": key, "Authorization": f"Bearer {key}"},
+            timeout=10
+        )
+        if res.status_code == 200:
+            return {row.get("key"): row.get("value") for row in res.json()}
+    except Exception as e:
+        print(f"Failed to read existing rows: {e}")
+    return {}
+
+
 def main():
     print("Starting sync...")
     github_token = os.environ.get('GITHUB_TOKEN')
@@ -918,21 +995,29 @@ def main():
         print("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY. Outputting to console.")
         return
 
-    spotify_data = fetch_spotify_data(url, key)
+    spotify_data = safe_fetch("spotify", fetch_spotify_data, url, key)
     favorite_albums = spotify_data.get("favorite_albums") if isinstance(spotify_data, dict) else None
     if not favorite_albums:
-        favorite_albums = fetch_favorite_albums()
-        if isinstance(spotify_data, dict):
+        favorite_albums = safe_fetch("favorite_albums", fetch_favorite_albums)
+        if is_valid_payload("spotify", spotify_data):
             spotify_data["favorite_albums"] = favorite_albums
 
     data = {
         "spotify": spotify_data,
         "favorite_albums": favorite_albums,
-        "movies": fetch_movies_data(url, key),
-        "books": fetch_books_data(url, key),
-        "projects": fetch_projects_data(github_token),
+        "movies": safe_fetch("movies", fetch_movies_data, url, key),
+        "books": safe_fetch("books", fetch_books_data, url, key),
+        "projects": safe_fetch("projects", fetch_projects_data, github_token),
         "last_updated": time.time()
     }
+
+    # A failed section keeps its stored row: skip its upsert and export the stored copy instead
+    failed = [c for c in SYNC_CATEGORIES if not is_valid_payload(c, data[c])]
+    if failed:
+        print(f"Keeping stored data for failed sections: {', '.join(failed)}")
+        existing = fetch_existing_rows(url, key, failed)
+        for category in failed:
+            data[category] = existing.get(category)
 
     if os.environ.get("EXPORT_STATIC") == "1" or os.environ.get("GITHUB_ACTIONS") != "true":
         print("Exporting static snapshots...")
@@ -940,7 +1025,9 @@ def main():
 
     print("Uploading to Supabase...")
     # Upsert each section into its own row for better organization
-    for category in ["spotify", "favorite_albums", "movies", "books", "projects"]:
+    for category in SYNC_CATEGORIES:
+        if category in failed:
+            continue
         try:
             # We still use requests for the main data payload to avoid conflicts, 
             # but we use the client for the refresh token rotation since it's cleaner.
@@ -975,23 +1062,20 @@ def export_static_snapshots(data):
         data_dir = os.path.join(base_dir, "data")
         os.makedirs(data_dir, exist_ok=True)
 
-        spotify = data.get("spotify", {})
-        movies = data.get("movies", {})
-        books = data.get("books", [])
-        projects = data.get("projects", {})
+        spotify = data.get("spotify")
+        movies = data.get("movies")
+        books = data.get("books")
+        projects = data.get("projects")
 
-        with open(os.path.join(data_dir, "spotify.json"), "w") as f:
-            json.dump({"success": True, "data": spotify}, f, indent=2)
+        # A section that failed with nothing stored to fall back on keeps its previous snapshot
+        for name, value in (("spotify", spotify), ("movies", movies), ("books", books), ("projects", projects)):
+            if value:
+                with open(os.path.join(data_dir, f"{name}.json"), "w") as f:
+                    json.dump({"success": True, "data": value}, f, indent=2)
 
-        with open(os.path.join(data_dir, "movies.json"), "w") as f:
-            json.dump({"success": True, "data": movies}, f, indent=2)
-
-        with open(os.path.join(data_dir, "books.json"), "w") as f:
-            json.dump({"success": True, "data": books}, f, indent=2)
-
-        if projects:
-            with open(os.path.join(data_dir, "projects.json"), "w") as f:
-                json.dump({"success": True, "data": projects}, f, indent=2)
+        if not (spotify and movies and books):
+            print("Skipping dashboard.json and seed-data.js: a section is missing.")
+            return
 
         dashboard = {
             "spotify": spotify,

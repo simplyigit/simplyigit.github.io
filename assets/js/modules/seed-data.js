@@ -8,6 +8,7 @@ export const SEED_SPOTIFY = {
       "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b2739bad87d43779793e11240cf5",
       "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
+      "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9b/5a/ec/9b5aec77-2478-06b9-5e5a-ec5a156bd3ce/mzaf_10802144937482874535.plus.aac.p.m4a",
       "prominent_color": [
         149,
         165,
@@ -26,6 +27,7 @@ export const SEED_SPOTIFY = {
       "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
       "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
+      "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/66/52/d3/6652d3b8-4ade-5d87-6fba-5e4c836b6e94/mzaf_2646949060939086074.plus.aac.p.m4a",
       "prominent_color": [
         182,
         146,
@@ -39,6 +41,7 @@ export const SEED_SPOTIFY = {
       "spotify_url": "https://open.spotify.com/track/1FvjDYcfKpSM9OPQ9zxXfm",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b273dd0d95a73f3b48cb2e28b4ca",
       "spotify_id": "1FvjDYcfKpSM9OPQ9zxXfm",
+      "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/dc/5c/4c/dc5c4c51-f19b-3ff4-46ac-340f6363babd/mzaf_2533392602781921041.plus.aac.p.m4a",
       "prominent_color": [
         72,
         92,
@@ -52,6 +55,7 @@ export const SEED_SPOTIFY = {
       "spotify_url": "https://open.spotify.com/track/0UUnMVRHGJKFq4mlsld8GV",
       "cover_url": "https://i.scdn.co/image/ab67616d0000b2738e9fe55db9bf2f866d047034",
       "spotify_id": "0UUnMVRHGJKFq4mlsld8GV",
+      "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2c/07/12/2c071233-7e16-018a-b71e-9d2f252c4dd9/mzaf_3026791300147301404.plus.aac.p.m4a",
       "prominent_color": [
         162,
         41,

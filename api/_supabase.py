@@ -10,6 +10,8 @@ import urllib.request
 # Cache for 60s in browser, 10 min fresh at edge CDN, 24h stale-while-revalidate
 CACHE_HEADER = 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400'
 NO_CACHE_HEADER = 'no-store, no-cache, must-revalidate, max-age=0'
+# Row written by scripts/sync_data.py: {"last_updated": <epoch seconds>} of the last sync
+SYNC_META_KEY = 'sync_meta'
 
 
 def fetch_values(keys):
@@ -43,10 +45,16 @@ def strip_full_lyrics(spotify):
     return spotify
 
 
-def respond(handler, load):
-    """Sends {"success", "data", "timestamp"} from load(), or a generic 500 with details in the function log."""
+def respond(handler, keys, build):
+    """Sends {"success", "data", "timestamp", "synced_at"} for the rows `keys`, shaped by build(values),
+    or a generic 500 with details in the function log. "synced_at" (when the data was last synced, for
+    the site footer) is left out if the sync_meta row isn't there."""
     try:
-        body = {"success": True, "data": load(), "timestamp": time.time()}
+        values = fetch_values([*keys, SYNC_META_KEY])
+        body = {"success": True, "data": build(values), "timestamp": time.time()}
+        synced_at = (values.get(SYNC_META_KEY) or {}).get("last_updated")
+        if synced_at:
+            body["synced_at"] = synced_at
         status, cache_header = 200, CACHE_HEADER
     except Exception as e:
         print(f"{handler.path} failed: {e!r}")

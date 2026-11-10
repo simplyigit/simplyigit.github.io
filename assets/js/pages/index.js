@@ -1,7 +1,84 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax, safeImg, smoothMorph, morphText, escapeHtml } from '../modules/core.js';
+import { initAmbientMesh, setAmbientTint, glowColor, imageColor, initGlobalReveal, initGlassParallax, initLibraryKeys, safeImg, smoothMorph, morphText, escapeHtml } from '../modules/core.js';
 import { initAvatarDepth } from '../modules/avatar-depth.js';
 import { getCachedDashboard, setDashboardCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
+import { displaySongTitle } from '../modules/music-text.js';
+import { togglePreview, stopPreview } from '../modules/preview-player.js';
+
+// The project card's picture: a small fully connected network, drawn as SVG so it can animate.
+// On hover (always, on touch screens) a signal crosses it and the output node cycles through the
+// three verdicts; the motion itself is CSS (home.css). Same 960x716 frame as the image it replaced.
+const NN_LAYERS = [
+    { x: 127, ys: [161, 260, 360, 459, 562], color: '#c8f1df' },
+    { x: 309, ys: [161, 260, 360, 459, 562], color: '#ccd3fb' },
+    { x: 490, ys: [161, 260, 360, 459, 562], color: '#dccbf0' },
+    { x: 672, ys: [260, 360, 459], color: '#fddfb6' },
+    { x: 833, ys: [360], color: '#ff9c92' }
+];
+
+function neuralNetSvg() {
+    let edges = '', pulses = '', nodes = '';
+    NN_LAYERS.forEach((layer, l) => {
+        const next = NN_LAYERS[l + 1];
+        if (next) {
+            layer.ys.forEach(y1 => next.ys.forEach(y2 => {
+                const line = `x1="${layer.x}" y1="${y1}" x2="${next.x}" y2="${y2}"`;
+                edges += `<line ${line}/>`;
+                pulses += `<line ${line} pathLength="1" style="--l: ${l}"/>`;
+            }));
+        }
+        layer.ys.forEach(y => {
+            nodes += `<circle cx="${layer.x}" cy="${y}" r="30" fill="${layer.color}" style="--l: ${l}"${next ? '' : ' class="nn-output"'}/>`;
+        });
+    });
+    const live = window.matchMedia('(hover: none)').matches ? ' is-live' : '';
+    return `
+        <svg class="card-visual-cover nn-art${live}" viewBox="0 0 960 716" preserveAspectRatio="xMidYMid slice" role="img" aria-label="A neural network classifying an image as real, AI-generated or deepfake">
+            <defs>
+                <linearGradient id="nn-backdrop" x1="0" y1="1" x2="1" y2="0">
+                    <stop offset="0" stop-color="#262b40"/>
+                    <stop offset="0.5" stop-color="#25222a"/>
+                    <stop offset="1" stop-color="#2b2e25"/>
+                </linearGradient>
+            </defs>
+            <rect width="960" height="716" fill="url(#nn-backdrop)"/>
+            <g class="nn-edges">${edges}</g>
+            <g class="nn-pulses">${pulses}</g>
+            <g class="nn-nodes">${nodes}</g>
+            <g aria-hidden="true">
+                <text class="nn-verdict nn-verdict-real" x="833" y="448" style="--v: 0">REAL</text>
+                <text class="nn-verdict nn-verdict-ai" x="833" y="448" style="--v: 1">AI FAKE</text>
+                <text class="nn-verdict nn-verdict-df" x="833" y="448" style="--v: 2">DEEPFAKE</text>
+            </g>
+        </svg>`;
+}
+
+// A wide project card hugs its text: the text column narrows to its longest line, so the gap to
+// the right of the text equals the card's padding, like the gap to the left of the picture
+function fitCardToText(card) {
+    const content = card.querySelector('.card-content');
+    if (!content) return;
+    const fit = () => {
+        // Back to the stylesheet's column width, where the text wraps as designed
+        content.style.width = '';
+        // Stacked layout (phones): the text is centred across the full width
+        if (getComputedStyle(card).flexDirection !== 'row') return;
+        const left = content.getBoundingClientRect().left;
+        const range = document.createRange();
+        let longest = 0;
+        content.querySelectorAll('h3, p, .tags').forEach(el => {
+            range.selectNodeContents(el);
+            for (const line of range.getClientRects()) longest = Math.max(longest, line.right - left);
+        });
+        if (longest > 0) content.style.width = `${Math.ceil(longest)}px`;
+    };
+    fit();
+    // Line breaks move when the web font replaces the fallback: fit again after every font load
+    // ("ready" alone can resolve before the stylesheet has even asked for the font)
+    document.fonts?.ready.then(fit);
+    document.fonts?.addEventListener?.('loadingdone', fit);
+    window.addEventListener('resize', fit, { passive: true });
+}
 
 const projects = [
     {
@@ -10,14 +87,15 @@ const projects = [
         tags: ["ML & DL", "Image Processing"],
         type: "wide",
         customClass: "project-real",
-        // Above the fold: load eagerly, with intrinsic size so the card doesn't shift when it arrives
-        visualHtml: '<img src="/projects/real-deepfake-or-ai/real-deepfake-or-ai.webp" class="card-visual-cover" alt="Real, Deepfake or AI" width="960" height="716" decoding="async">',
+        visualHtml: neuralNetSvg(),
         url: "/projects/real-deepfake-or-ai"
     }
 ];
 
 function initIndex() {
-    initAmbientMesh();
+    // One glow per library object, tinted by its cover once the data is in (showCardColor)
+    initAmbientMesh({ layout: 'library', tinted: true });
+    initLibraryKeys();
 
     // Memoji: depth-map parallax, so the head turns toward the pointer
     initAvatarDepth(document.querySelector('.unified-hero-tube .avatar-memoji'), '/images/pp-depth.webp');
@@ -39,6 +117,7 @@ function initIndex() {
                     <div class="tags">${tagsHtml}</div>
                 </div>`;
             container.appendChild(card);
+            if (proj.type === 'wide') fitCardToText(card);
         });
     }
 
@@ -52,6 +131,30 @@ function initIndex() {
     const indexMoviesContainer = document.getElementById("index-movies-container");
     const cassetteArtistName = document.getElementById("cassette-artist-name");
     const cassetteSongTitle = document.getElementById("cassette-song-title");
+    const cassetteSlot = document.getElementById("cassette-slot");
+    const cassettePlay = document.getElementById("cassette-play");
+    const cassettePlayTime = document.getElementById("cassette-play-time");
+    let cassettePreviewUrl = '';
+
+    // Each library object lends its cover's colour to the page: a glow in the background mesh
+    // (`slot`: book left, music middle, cinema right) and a faint wash over its own card.
+    // The colour is the sync's prominent_color, else worked out from the cover image.
+    const colorRequests = {};
+    async function showCardColor(slot, card, item, imageUrl) {
+        const request = colorRequests[slot] = {};
+        const known = Array.isArray(item.prominent_color) && item.prominent_color.length === 3;
+        const color = known ? item.prominent_color : await imageColor(imageUrl);
+        // A newer render of this card has asked since: its colour wins
+        if (!color || colorRequests[slot] !== request) return;
+        setAmbientTint(color, { slot });
+        if (card) {
+            card.style.setProperty('--card-art-color', `rgb(${color.join(', ')})`);
+            const glow = glowColor(color);
+            if (glow) card.style.setProperty('--card-glow-color', `rgb(${glow.join(', ')})`);
+            else card.style.removeProperty('--card-glow-color');
+        }
+    }
+
     let renderedSpotifySig = '';
     let renderedBooksSig = '';
     let renderedMoviesSig = '';
@@ -85,13 +188,23 @@ function initIndex() {
 
         // The cassette label is ~100px wide: the 300px cover is plenty
         const artUrl = topTrack.cover_url_small || topTrack.cover_url;
-        const sig = `${topTrack.title}|${topTrack.artist}|${artUrl}`;
+        const songTitle = displaySongTitle(topTrack.title);
+        const sig = `${topTrack.title}|${topTrack.artist}|${artUrl}|${topTrack.preview_url || ''}`;
         if (sig === renderedSpotifySig) return;
         const isUpdate = renderedSpotifySig !== '';
         renderedSpotifySig = sig;
 
         const cassetteBody = document.getElementById("cassette-body");
+        showCardColor('music', cassetteBody, topTrack, artUrl);
+
         const applySpotifyDom = () => {
+            // The deck key appears only when the sync found a preview for this track
+            stopPreview();
+            cassettePreviewUrl = topTrack.preview_url || '';
+            if (cassettePlay) {
+                cassettePlay.hidden = !cassettePreviewUrl;
+                cassettePlay.setAttribute('aria-label', `Play a 30-second preview of ${songTitle} by ${topTrack.artist}`);
+            }
             if (cassetteArtistName) {
                 const artist = escapeHtml(topTrack.artist);
                 cassetteArtistName.innerHTML = `<span class="fade-in" title="${artist}">${artist}</span>`;
@@ -99,34 +212,15 @@ function initIndex() {
             if (cassetteSongTitle) {
                 const marquee = cassetteSongTitle.querySelector('.cassette-song-marquee');
                 if (marquee) {
-                    marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text">${escapeHtml(topTrack.title)} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
-                    const titleLen = (topTrack.title || "").length;
+                    marquee.innerHTML = Array(7).fill(`<span class="cassette-song-title-text">${escapeHtml(songTitle)} &nbsp;&nbsp; • &nbsp;&nbsp; </span>`).join('');
+                    const titleLen = songTitle.length;
                     const duration = Math.max(5, Math.min(12, 4 + titleLen * 0.12));
                     marquee.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
                 }
             }
             if (cassetteBody && artUrl) {
                 cassetteBody.style.setProperty('--cassette-art', `url(${artUrl})`);
-                if (topTrack.prominent_color && Array.isArray(topTrack.prominent_color)) {
-                    const [r, g, b] = topTrack.prominent_color;
-                    cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
-                    cassetteBody.classList.add('has-art');
-                } else {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.src = artUrl;
-                    img.onload = () => {
-                        try {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            canvas.width = 1; canvas.height = 1;
-                            ctx.drawImage(img, 0, 0, 1, 1);
-                            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-                            cassetteBody.style.setProperty('--cassette-art-color', `rgb(${r}, ${g}, ${b})`);
-                        } catch {}
-                        cassetteBody.classList.add('has-art');
-                    };
-                }
+                cassetteBody.classList.add('has-art');
             }
         };
 
@@ -170,6 +264,7 @@ function initIndex() {
         renderedBooksSig = sig;
 
         const heroBook = top3[0];
+        showCardColor('book', document.querySelector('#book-card .hero-book-body'), heroBook, safeImg(heroBook.cover_url, 240));
         const safeTitle = escapeHtml(heroBook.title);
         const safeAuthor = escapeHtml(heroBook.author);
         const heroCover = safeImg(heroBook.cover_url, 240);
@@ -298,7 +393,13 @@ function initIndex() {
         const isUpdate = renderedMoviesSig !== '';
         renderedMoviesSig = sig;
 
+        // The latest watch colours the card
+        showCardColor('cinema', document.querySelector('#vhs-card .vhs-body'), list[0], imgUrls[0]);
+
         const duplicated = list.length >= 4 ? [...list, ...list] : [...list, ...list, ...list, ...list];
+
+        // Films the cinema page lists too (its first 7 recent watches) can morph into their poster there
+        const onCinemaPage = (idx) => idx % list.length < 7;
 
         const applyMoviesDom = () => {
             // Update existing filmstrip items in-place if count matches so VHS marquee never resets
@@ -310,6 +411,7 @@ function initIndex() {
                     const imgUrl = safeImg(film.cover_url, 150);
                     const cleanTitle = film.title || "";
                     item.title = cleanTitle;
+                    item.toggleAttribute('data-morph', onCinemaPage(idx));
                     if (img) {
                         img.src = imgUrl;
                         img.alt = cleanTitle;
@@ -320,11 +422,11 @@ function initIndex() {
 
             indexMoviesContainer.innerHTML = `
                 <div class="vhs-filmstrip-track">
-                    ${duplicated.map((film) => {
+                    ${duplicated.map((film, idx) => {
                         const imgUrl = safeImg(film.cover_url, 150);
                         const cleanTitle = escapeHtml(film.title);
                         return `
-                            <div class="vhs-filmstrip-item" title="${cleanTitle}">
+                            <div class="vhs-filmstrip-item" title="${cleanTitle}"${onCinemaPage(idx) ? ' data-morph' : ''}>
                                 <img src="${escapeHtml(imgUrl)}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy" decoding="async">
                             </div>
                         `;
@@ -340,12 +442,87 @@ function initIndex() {
         }
     }
 
+    // Deck key: play or stop the #1 track's 30-second preview; the tape runs while it plays
+    if (cassettePlay && cassetteSlot) {
+        cassettePlay.addEventListener('click', () => {
+            togglePreview(cassettePlay, cassettePreviewUrl, ({ playing, remaining }) => {
+                cassettePlay.setAttribute('aria-pressed', playing ? 'true' : 'false');
+                cassetteSlot.classList.toggle('is-playing', playing);
+                if (cassettePlayTime) cassettePlayTime.textContent = `0:${String(playing ? remaining : 30).padStart(2, '0')}`;
+            });
+        });
+    }
+
+    // Touch screens have no hover: the book opens while it is on screen, and the tape (which always
+    // runs there) gets its tracking glitch as it scrolls into view
+    const touchOnly = window.matchMedia('(hover: none)').matches && 'IntersectionObserver' in window;
+    const bookCard = document.getElementById('book-card');
+    if (touchOnly && bookCard) {
+        new IntersectionObserver(([entry]) => {
+            bookCard.classList.toggle('is-open', entry.isIntersecting);
+        }, { threshold: 0.7, rootMargin: '-12% 0px -12% 0px' }).observe(bookCard);
+    }
+
+    // Page transitions (vt-nav.js): which element of a library object flies to its page, or lands
+    // back from it. `key` names the film or book, so the other page can find the same one.
+    const morphElement = (library, key) => {
+        if (library === 'music') {
+            const el = document.querySelector('.has-art .cassette-cover-art-wrapper');
+            return el ? { el, key: '' } : null;
+        }
+        if (library === 'cinema' && indexMoviesContainer) {
+            // The poster nearest the middle of the VHS window: of film `key` when landing,
+            // of any film the cinema page also lists when leaving
+            const bay = indexMoviesContainer.getBoundingClientRect();
+            const middle = (bay.left + bay.right) / 2;
+            let best = null;
+            indexMoviesContainer.querySelectorAll('.vhs-filmstrip-item[data-morph]').forEach(item => {
+                const img = item.querySelector('img');
+                if (!img || (key && item.title !== key)) return;
+                const box = item.getBoundingClientRect();
+                const centre = (box.left + box.right) / 2;
+                if (centre < bay.left || centre > bay.right) return;
+                const distance = Math.abs(centre - middle);
+                if (!best || distance < best.distance) best = { el: img, key: item.title, distance };
+            });
+            return best;
+        }
+        if (library === 'reading' && indexBooksContainer) {
+            const el = indexBooksContainer.querySelector('.book-shelf-center');
+            const title = el?.querySelector('.book-cover-art')?.alt;
+            return title && (!key || key === title) ? { el, key: title } : null;
+        }
+        return null;
+    };
+    window.__vtMorph = {
+        source: (library) => morphElement(library),
+        target: (library, key) => morphElement(library, key)?.el
+    };
+
     // VHS Cassette Hover Interaction: Live SP timer and state toggle
     const vhsCard = document.getElementById('vhs-card');
     if (vhsCard) {
         const vhsTimer = vhsCard.querySelector('.vhs-tape-counter');
         let hoverStartTime = null;
         let vhsInterval = null;
+
+        // Tracking glitch as the tape starts (CSS, home.css); the class restarts it on every play
+        const glitch = () => {
+            vhsCard.classList.remove('is-glitching');
+            void vhsCard.offsetWidth;
+            vhsCard.classList.add('is-glitching');
+        };
+        vhsCard.addEventListener('animationend', (e) => {
+            if (e.animationName === 'vhsTrackingTear') vhsCard.classList.remove('is-glitching');
+        });
+        if (touchOnly) {
+            const seen = new IntersectionObserver(([entry]) => {
+                if (!entry.isIntersecting) return;
+                seen.disconnect();
+                glitch();
+            }, { threshold: 0.7 });
+            seen.observe(vhsCard);
+        }
 
         const updateTimer = () => {
             if (!hoverStartTime || !vhsTimer) return;
@@ -362,6 +539,7 @@ function initIndex() {
             if (vhsInterval) return;
             hoverStartTime = Date.now();
             vhsCard.classList.add('is-playing');
+            glitch();
             if (vhsTimer) vhsTimer.textContent = 'SP 0:00:00';
             vhsInterval = setInterval(updateTimer, 200);
         };
@@ -379,6 +557,10 @@ function initIndex() {
         vhsCard.addEventListener('focusin', play);
         vhsCard.addEventListener('mouseleave', stop);
         vhsCard.addEventListener('focusout', stop);
+        // Back from another page (back/forward cache): the pointer may no longer be over the tape
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) stop();
+        });
     }
 }
 

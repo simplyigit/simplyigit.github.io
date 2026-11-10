@@ -2,6 +2,7 @@ import {
     initAmbientMesh,
     initGlobalReveal,
     initGlassParallax,
+    initLibraryKeys,
     safeImg,
     toTransitionSlug,
     smoothMorph,
@@ -97,7 +98,7 @@ function renderBooks(container, books, activeShelf = 'all') {
                 <span class="classical-shelf-badge shelf-${escapeHtml(shelfKey)}">${badgeText}</span>
                 ${metaParts.length ? `<span class="classical-book-meta">${metaParts.join(' · ')}</span>` : ''}
             </div>
-            <img src="${coverUrl}" alt="${safeTitle}" class="classical-book-cover" ${priorityAttr}>
+            <img src="${coverUrl}" alt="${safeTitle}" class="classical-book-cover" data-thumb="${escapeHtml(safeImg(book.cover_url || '', 240))}" ${priorityAttr}>
             <div class="classical-book-info">
                 <span class="classical-book-title">${safeTitle}</span>
                 <span class="classical-book-author">${escapeHtml(book.author)}</span>
@@ -110,8 +111,32 @@ function initReading() {
     initAmbientMesh();
     initGlobalReveal();
     initGlassParallax();
+    initLibraryKeys();
 
     const booksContainer = document.getElementById("goodreads-books-container");
+
+    // Page transitions (vt-nav.js): the homepage's book morphs into its cover here, and back.
+    // Leaving, it's the book that flew in (else the first cover on the shelf).
+    let morphedBook = '';
+    const bookCover = (title) => {
+        const covers = [...(booksContainer?.querySelectorAll('.classical-book-cover') || [])];
+        return (title && covers.find(cover => cover.alt === title)) || null;
+    };
+    window.__vtMorph = {
+        source: (library) => {
+            if (library !== 'reading') return null;
+            const el = bookCover(morphedBook) || booksContainer?.querySelector('.classical-book-cover');
+            return el ? { el, key: el.alt } : null;
+        },
+        target: (library, key) => {
+            const el = library === 'reading' ? bookCover(key) : null;
+            if (!el) return null;
+            morphedBook = key;
+            // The cover may still be loading: show the smaller copy the homepage already has
+            if (el.dataset.thumb) el.style.background = `url("${el.dataset.thumb}") center / cover`;
+            return el;
+        }
+    };
     const shelfHeading = document.getElementById("reading-shelf-heading");
     const tabButtons = [...document.querySelectorAll(".reading-shelf-btn")];
     let currentBooks = [];

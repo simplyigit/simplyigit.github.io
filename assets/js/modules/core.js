@@ -50,7 +50,153 @@ export function safeImg(url, width = 0) {
     return url;
 }
 
-export function initAmbientMesh() {
+// The mesh's orbs per layout, as fractions of the canvas: centre, radius, strength and resting
+// colour over #020813. An orb with a `slot` takes that tint's hue (setAmbientTint) at its own
+// `lightness`, optionally turned by `hueShift` degrees.
+const MESH_LAYOUTS = {
+    // Every page: blue top-left, purple bottom-right, teal centre. The page's one tint ("music":
+    // the music page's first cover) recolours the last two.
+    default: [
+        { x: 0.20, y: 0.22, r: 0.38, a: 0.40, color: [3, 26, 57] },
+        { x: 0.80, y: 0.78, r: 0.34, a: 0.35, color: [43, 5, 73], slot: 'music', lightness: 0.15 },
+        { x: 0.50, y: 0.50, r: 0.42, a: 0.20, color: [1, 65, 65], slot: 'music', lightness: 0.12, hueShift: 30 }
+    ],
+    // Homepage: one glow per library object, where the objects sit: the book's cover colour
+    // bottom-left, the #1 track's in the middle, the latest film's bottom-right
+    library: [
+        { x: 0.14, y: 0.80, r: 0.36, a: 0.38, color: [3, 26, 57], slot: 'book', lightness: 0.15 },
+        { x: 0.50, y: 0.56, r: 0.40, a: 0.24, color: [1, 65, 65], slot: 'music', lightness: 0.13 },
+        { x: 0.86, y: 0.80, r: 0.36, a: 0.38, color: [43, 5, 73], slot: 'cinema', lightness: 0.15 }
+    ]
+};
+const MESH_TINTS_KEY = 'simplyigit_mesh_tints';
+
+function isRgb(color) {
+    return Array.isArray(color) && color.length === 3 && color.every(c => Number.isFinite(Number(c)));
+}
+
+function hslToRgb(h, s, l) {
+    const a = s * Math.min(l, 1 - l);
+    const channel = (n) => {
+        const k = (n + h / 30) % 12;
+        return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))));
+    };
+    return [channel(0), channel(8), channel(4)];
+}
+
+// Hue (degrees) and saturation of a colour, or null for greys, which have no usable hue
+function hueOf(rgb) {
+    if (!isRgb(rgb)) return null;
+    const [r, g, b] = rgb.map(c => Math.max(0, Math.min(255, Number(c))) / 255);
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), delta = max - min;
+    if (delta < 0.04) return null;
+    const hue = max === r ? ((g - b) / delta) % 6 : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+    const lightness = (max + min) / 2;
+    return { hue: (hue * 60 + 360) % 360, saturation: delta / (1 - Math.abs(2 * lightness - 1)) };
+}
+
+// A cover's dominant colour at the mesh's own depth: its hue, deeply saturated and dark.
+// Null for greys, so the orb keeps its resting colour.
+function meshTint(rgb, lightness, hueShift = 0) {
+    const source = hueOf(rgb);
+    if (!source) return null;
+    const depth = 0.55 + 0.35 * Math.min(1, source.saturation / 0.5);
+    const color = hslToRgb((source.hue + hueShift) % 360, depth, lightness);
+    // Yellows and greens are far brighter than purple at the same lightness: cap their luma
+    const luma = 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2];
+    return luma > 40 ? color.map(c => Math.round(c * 40 / luma)) : color;
+}
+
+// A brighter take on the same hue, for the faint glow inside the homepage's library cards
+export function glowColor(rgb) {
+    const source = hueOf(rgb);
+    return source ? hslToRgb(source.hue, Math.max(0.45, Math.min(0.85, source.saturation)), 0.55) : null;
+}
+
+function meshOrbColors(layout, tints) {
+    return MESH_LAYOUTS[layout].map(orb => (orb.slot && meshTint(tints[orb.slot], orb.lightness, orb.hueShift)) || orb.color);
+}
+
+function readStoredTints() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(MESH_TINTS_KEY));
+        return stored && typeof stored === 'object' ? stored : {};
+    } catch {
+        return {};
+    }
+}
+
+// A single floating-point, triangular-dithered canvas (no 8-bit banding) of a layout's orbs
+function paintMeshCanvas(layout, colors) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'ambient-mesh-canvas';
+    const W = 540, H = 360;
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) return null;
+
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    const orbs = MESH_LAYOUTS[layout];
+    const count = orbs.length;
+    // Gaussian falloff per orb, separable into a row and a column profile
+    const gx = orbs.map(o => {
+        const arr = new Float32Array(W);
+        for (let x = 0; x < W; x++) {
+            const d = (x - o.x * W) / (o.r * W);
+            arr[x] = o.a * Math.exp(-d * d * 1.35);
+        }
+        return arr;
+    });
+    const gy = orbs.map(o => {
+        const arr = new Float32Array(H);
+        for (let y = 0; y < H; y++) {
+            const d = (y - o.y * H) / (o.r * H);
+            arr[y] = Math.exp(-d * d * 1.35);
+        }
+        return arr;
+    });
+
+    let seed = 2463534242, idx = 0;
+
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            // Floating-point blend of each orb in turn over #020813 (2, 8, 19)
+            let R = 2.0, G = 8.0, B = 19.0;
+            for (let i = 0; i < count; i++) {
+                const w = gx[i][x] * gy[i][y];
+                const color = colors[i];
+                R = R * (1 - w) + color[0] * w;
+                G = G * (1 - w) + color[1] * w;
+                B = B * (1 - w) + color[2] * w;
+            }
+
+            // Triangular PDF dither in [-0.95, +0.95] LSB before 8-bit quantization
+            seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+            const u1 = (seed >>> 0) * 2.3283064365386963e-10;
+            seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+            const u2 = (seed >>> 0) * 2.3283064365386963e-10;
+            const dither = (u1 - u2) * 0.95;
+
+            data[idx]     = R + dither + 0.5;
+            data[idx + 1] = G + dither + 0.5;
+            data[idx + 2] = B + dither + 0.5;
+            data[idx + 3] = 255;
+            idx += 4;
+        }
+    }
+    ctx.putImageData(img, 0, 0);
+    return canvas;
+}
+
+// The live mesh: its container and layout, the canvas on show (and the colours it was painted
+// with), and the tints asked for so far
+let mesh = null;
+
+// `layout` picks the orbs (MESH_LAYOUTS). `tinted` pages (home, music) start from the tints the
+// last visit applied, so the mesh doesn't flash back to its resting colours on every navigation.
+export function initAmbientMesh({ layout = 'default', tinted = false } = {}) {
     if (!document.getElementById('ambient-mesh')) {
         document.body.insertAdjacentHTML('afterbegin', `
             <div id="ambient-mesh">
@@ -62,81 +208,15 @@ export function initAmbientMesh() {
     }
 
     const ambientMesh = document.getElementById('ambient-mesh');
-    let meshCanvas = ambientMesh ? ambientMesh.querySelector('.ambient-mesh-canvas') : null;
 
-    if (ambientMesh && !meshCanvas) {
-        meshCanvas = document.createElement('canvas');
-        meshCanvas.className = 'ambient-mesh-canvas';
-        const W = 540, H = 360;
-        meshCanvas.width = W;
-        meshCanvas.height = H;
-        const ctx = meshCanvas.getContext('2d', { alpha: false });
-        if (ctx) {
-            const img = ctx.createImageData(W, H);
-            const data = img.data;
-            const orbs = [
-                { cx: 0.20 * W, cy: 0.22 * H, rx: 0.38 * W, ry: 0.38 * H, a: 0.40 },
-                { cx: 0.80 * W, cy: 0.78 * H, rx: 0.34 * W, ry: 0.34 * H, a: 0.35 },
-                { cx: 0.50 * W, cy: 0.50 * H, rx: 0.42 * W, ry: 0.42 * H, a: 0.20 }
-            ];
-            const gx = orbs.map(o => {
-                const arr = new Float32Array(W);
-                for (let x = 0; x < W; x++) {
-                    const d = (x - o.cx) / o.rx;
-                    arr[x] = o.a * Math.exp(-d * d * 1.35);
-                }
-                return arr;
-            });
-            const gy = orbs.map(o => {
-                const arr = new Float32Array(H);
-                for (let y = 0; y < H; y++) {
-                    const d = (y - o.cy) / o.ry;
-                    arr[y] = Math.exp(-d * d * 1.35);
-                }
-                return arr;
-            });
-
-            const gx0 = gx[0], gx1 = gx[1], gx2 = gx[2];
-            const gy0 = gy[0], gy1 = gy[1], gy2 = gy[2];
-            let seed = 2463534242, idx = 0;
-
-            for (let y = 0; y < H; y++) {
-                const wy0 = gy0[y], wy1 = gy1[y], wy2 = gy2[y];
-                for (let x = 0; x < W; x++) {
-                    const w0 = gx0[x] * wy0;
-                    const w1 = gx1[x] * wy1;
-                    const w2 = gx2[x] * wy2;
-
-                    // Floating-point blend over #020813 (2, 8, 19)
-                    let R = 2.0  * (1 - w0) + 3.0  * w0;
-                    let G = 8.0  * (1 - w0) + 26.0 * w0;
-                    let B = 19.0 * (1 - w0) + 57.0 * w0;
-
-                    R = R * (1 - w1) + 43.0 * w1;
-                    G = G * (1 - w1) + 5.0  * w1;
-                    B = B * (1 - w1) + 73.0 * w1;
-
-                    R = R * (1 - w2) + 1.0  * w2;
-                    G = G * (1 - w2) + 65.0 * w2;
-                    B = B * (1 - w2) + 65.0 * w2;
-
-                    // Triangular PDF dither in [-0.95, +0.95] LSB before 8-bit quantization
-                    seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
-                    const u1 = (seed >>> 0) * 2.3283064365386963e-10;
-                    seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
-                    const u2 = (seed >>> 0) * 2.3283064365386963e-10;
-                    const dither = (u1 - u2) * 0.95;
-
-                    data[idx]     = R + dither + 0.5;
-                    data[idx + 1] = G + dither + 0.5;
-                    data[idx + 2] = B + dither + 0.5;
-                    data[idx + 3] = 255;
-                    idx += 4;
-                }
-            }
-            ctx.putImageData(img, 0, 0);
-            ambientMesh.appendChild(meshCanvas);
+    if (ambientMesh && !mesh) {
+        const tints = tinted ? readStoredTints() : {};
+        const colors = meshOrbColors(layout, tints);
+        const canvas = paintMeshCanvas(layout, colors);
+        if (canvas) {
+            ambientMesh.appendChild(canvas);
             ambientMesh.classList.add('canvas-ready');
+            mesh = { container: ambientMesh, layout, canvas, paintedKey: colors.join('|'), tints, repaintQueued: false };
         }
     }
 
@@ -150,9 +230,9 @@ export function initAmbientMesh() {
             ticking = false;
             return;
         }
-        if (meshCanvas) {
+        if (mesh) {
             const shiftVh = (0.5 - scrollPercent) * 18;
-            meshCanvas.style.transform = `translate3d(0, ${shiftVh.toFixed(2)}vh, 0)`;
+            mesh.canvas.style.transform = `translate3d(0, ${shiftVh.toFixed(2)}vh, 0)`;
         }
         ticking = false;
     };
@@ -172,6 +252,89 @@ export function initAmbientMesh() {
     }, { passive: true });
 
     initFocusPause();
+}
+
+// Repaints the mesh with the tints asked for and crossfades to it
+function repaintMesh() {
+    mesh.repaintQueued = false;
+    const colors = meshOrbColors(mesh.layout, mesh.tints);
+    const key = colors.join('|');
+    if (key === mesh.paintedKey) return;
+
+    const next = paintMeshCanvas(mesh.layout, colors);
+    if (!next) return;
+    const previous = mesh.canvas;
+    next.style.transform = previous.style.transform;
+    mesh.canvas = next;
+    mesh.paintedKey = key;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        previous.replaceWith(next);
+        return;
+    }
+    // The canvas is opaque: fade the new one in over the old, then drop the old
+    next.classList.add('is-entering');
+    mesh.container.appendChild(next);
+    void next.offsetWidth;
+    next.classList.remove('is-entering');
+    setTimeout(() => previous.remove(), 1000);
+}
+
+// Tints the mesh orbs of `slot` ("music", and on the homepage "book" and "cinema") with the hue of
+// `rgb`, a cover's dominant colour. `persist` remembers it for the next tinted page; pass false for
+// passing states (a tab). Calls in the same frame share one repaint.
+export function setAmbientTint(rgb, { slot = 'music', persist = true } = {}) {
+    const tint = isRgb(rgb) ? rgb.map(Number) : null;
+    if (persist) {
+        try {
+            const stored = readStoredTints();
+            if (tint) stored[slot] = tint;
+            else delete stored[slot];
+            localStorage.setItem(MESH_TINTS_KEY, JSON.stringify(stored));
+        } catch {}
+    }
+    if (!mesh) return;
+    mesh.tints[slot] = tint;
+    if (mesh.repaintQueued) return;
+    mesh.repaintQueued = true;
+    requestAnimationFrame(repaintMesh);
+}
+
+// The colour of an image, for covers the sync hasn't given a prominent_color: the average of its
+// pixels weighted by their saturation, so a colourful subject outweighs a grey backdrop.
+// Resolves to null if the image can't be read (it must be served with CORS headers).
+export function imageColor(url) {
+    return new Promise((resolve) => {
+        if (!url) return resolve(null);
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onerror = () => resolve(null);
+        img.onload = () => {
+            try {
+                const size = 32;
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(img, 0, 0, size, size);
+                const { data } = ctx.getImageData(0, 0, size, size);
+                let r = 0, g = 0, b = 0, total = 0;
+                for (let i = 0; i < data.length; i += 4) {
+                    const max = Math.max(data[i], data[i + 1], data[i + 2]);
+                    const min = Math.min(data[i], data[i + 1], data[i + 2]);
+                    const weight = 0.05 + (max ? (max - min) / max : 0);
+                    r += data[i] * weight;
+                    g += data[i + 1] * weight;
+                    b += data[i + 2] * weight;
+                    total += weight;
+                }
+                resolve([Math.round(r / total), Math.round(g / total), Math.round(b / total)]);
+            } catch {
+                resolve(null);
+            }
+        };
+        img.src = url;
+    });
 }
 
 let focusPauseInitialized = false;
@@ -387,3 +550,61 @@ export function morphText(el, newText) {
     }, 140);
 }
 
+// --- Footer sync time ---
+
+function relativeTime(elapsedMs) {
+    const minutes = Math.floor(elapsedMs / 60000);
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+}
+
+let syncedAtTimer = 0;
+
+// Footer: "Synced 12 min ago", from the sync time (epoch seconds) an API response or snapshot carries
+export function showSyncedAt(epochSeconds) {
+    const wrap = document.getElementById('footer-sync');
+    const timeEl = wrap?.querySelector('time');
+    const syncedMs = Number(epochSeconds) * 1000;
+    if (!timeEl || !Number.isFinite(syncedMs) || syncedMs <= 0) return;
+
+    const date = new Date(syncedMs);
+    timeEl.dateTime = date.toISOString();
+    timeEl.title = date.toLocaleString();
+    const update = () => {
+        timeEl.textContent = `Synced ${relativeTime(Math.max(0, Date.now() - syncedMs))}`;
+    };
+    update();
+    wrap.hidden = false;
+    clearInterval(syncedAtTimer);
+    syncedAtTimer = setInterval(update, 60000);
+}
+
+// --- Keyboard: 1 / 2 / 3 open the library pages, in the order of the library navigation ---
+
+const LIBRARY_KEYS = { '1': '/library/reading', '2': '/library/music', '3': '/library/cinema' };
+const LIBRARY_KEY_COOLDOWN_MS = 500;
+const LIBRARY_KEY_STAMP = 'simplyigit_key_nav';
+let libraryKeysInitialized = false;
+
+export function initLibraryKeys() {
+    if (libraryKeysInitialized) return;
+    libraryKeysInitialized = true;
+
+    document.addEventListener('keydown', (e) => {
+        if (e.defaultPrevented || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+        if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
+        const href = LIBRARY_KEYS[e.key];
+        if (!href || location.pathname.replace(/\.html$/, '') === href) return;
+        // Cooldown, kept across the page change, so mashing the keys can't cut a transition short
+        try {
+            const now = Date.now();
+            if (now - Number(sessionStorage.getItem(LIBRARY_KEY_STAMP)) < LIBRARY_KEY_COOLDOWN_MS) return;
+            sessionStorage.setItem(LIBRARY_KEY_STAMP, String(now));
+        } catch {}
+        location.href = href;
+    });
+}

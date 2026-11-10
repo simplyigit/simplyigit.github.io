@@ -1,4 +1,4 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax } from '../modules/core.js';
+import { initAmbientMesh, initGlobalReveal, initGlassParallax, showSyncedAt } from '../modules/core.js';
 import { pillowResizeBilinear, normalizeToTensor } from '../modules/pillow-resize.js';
 
 const PRESET_SAMPLES = {
@@ -116,6 +116,11 @@ function loadProjectReadme() {
     const showReadme = (html) => {
         appliedHtml = html;
         container.innerHTML = html;
+        // The README opens with its own title, which the page header already shows
+        const title = container.querySelector('h1');
+        if (title && !title.closest('.markdown-heading, h1')?.previousElementSibling) {
+            (title.closest('.markdown-heading') || title).remove();
+        }
         renderMermaidDiagrams(container);
     };
 
@@ -145,7 +150,10 @@ function loadProjectReadme() {
                 const json = await apiRes.json();
                 if (json.success && json.data) {
                     const content = json.data[repoPath] || json.data[repoName];
-                    if (content) return content;
+                    if (content) {
+                        if (json.synced_at) showSyncedAt(json.synced_at);
+                        return content;
+                    }
                 }
             }
         } catch {}
@@ -157,7 +165,10 @@ function loadProjectReadme() {
                 const json = await staticRes.json();
                 if (json.success && json.data) {
                     const content = json.data[repoPath] || json.data[repoName];
-                    if (content) return content;
+                    if (content) {
+                        if (json.synced_at) showSyncedAt(json.synced_at);
+                        return content;
+                    }
                 }
             }
         } catch {}
@@ -307,6 +318,15 @@ const ALLOWED_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_DIMENSION = 8192;
 const MIN_DIMENSION = 16;
+const MIME_EXTENSIONS = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+
+// Pasted or dragged images can arrive without a usable file name: name them after their type,
+// so validateImageFile() checks them like any picked file
+function withImageName(file) {
+    const ext = MIME_EXTENSIONS[(file.type || '').toLowerCase()];
+    if (ALLOWED_EXTENSIONS.test(file.name || '') || !ext) return file;
+    return new File([file], `image.${ext}`, { type: file.type });
+}
 
 async function validateImageFile(file) {
     if (!file) return { valid: false, error: 'No file selected.' };
@@ -655,8 +675,13 @@ function initDetectorDemo() {
     const fileInput = document.getElementById('detector-file-input');
     const uploadLabel = document.getElementById('detector-upload-label');
     const uploadText = document.getElementById('detector-upload-text');
+    const cameraBtn = document.getElementById('detector-camera-btn');
+    const cameraText = document.getElementById('detector-camera-text');
+    const cameraView = document.getElementById('detector-camera-view');
 
     let isInferring = false;
+    let cameraStream = null;
+    let cameraStarting = false;
 
     const setUploadButtonState = (disabled, labelText) => {
         if (uploadLabel) {
@@ -665,6 +690,9 @@ function initDetectorDemo() {
         }
         if (fileInput) {
             fileInput.disabled = disabled;
+        }
+        if (cameraBtn) {
+            cameraBtn.disabled = disabled;
         }
         if (uploadText && labelText) {
             uploadText.textContent = labelText;
@@ -707,9 +735,29 @@ function initDetectorDemo() {
         if (probBarDf) probBarDf.style.width = `${probs.df}%`;
     };
 
+    const clearPresetSelection = () => {
+        sampleBtns.forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-pressed', 'false');
+        });
+    };
+
+    const stopCamera = () => {
+        if (!cameraStream) return;
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+        if (cameraView) {
+            cameraView.srcObject = null;
+            cameraView.hidden = true;
+        }
+        if (cameraBtn) cameraBtn.classList.remove('is-live');
+        if (cameraText) cameraText.textContent = 'Camera';
+    };
+
     const selectPreset = (key) => {
         const preset = PRESET_SAMPLES[key];
         if (!preset) return;
+        stopCamera();
         showStatus('');
         sampleBtns.forEach(btn => {
             const active = btn.getAttribute('data-sample') === key;
@@ -740,69 +788,164 @@ function initDetectorDemo() {
         });
     }
 
-    if (fileInput) {
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files?.[0];
-            fileInput.value = '';
-            if (!file) return;
+    // Runs one image through the model: picked, dropped, pasted or a camera snapshot
+    const analyzeFile = async (rawFile) => {
+        if (!rawFile || isInferring) return;
+        stopCamera();
 
-            if (isInferring) return;
+        const file = withImageName(rawFile);
+        const validation = await validateImageFile(file);
+        if (!validation.valid) {
+            showStatus(validation.error, true);
+            return;
+        }
 
-            const validation = await validateImageFile(file);
-            if (!validation.valid) {
-                showStatus(validation.error, true);
+        isInferring = true;
+        setUploadButtonState(true, 'Analyzing...');
+        showStatus('Preparing image...');
+
+        const objUrl = URL.createObjectURL(file);
+        const img = new Image();
+
+        img.onload = async () => {
+            URL.revokeObjectURL(objUrl);
+
+            const natW = img.naturalWidth || img.width;
+            const natH = img.naturalHeight || img.height;
+            if (natW > MAX_DIMENSION || natH > MAX_DIMENSION || natW < MIN_DIMENSION || natH < MIN_DIMENSION) {
+                isInferring = false;
+                setUploadButtonState(false, 'Test Custom Image');
+                showStatus(
+                    `Image dimensions (${natW}×${natH}) outside allowed range (${MIN_DIMENSION}px–${MAX_DIMENSION}px).`,
+                    true
+                );
                 return;
             }
 
-            isInferring = true;
-            setUploadButtonState(true, 'Analyzing...');
-            showStatus('Preparing image...');
+            clearPresetSelection();
 
-            const objUrl = URL.createObjectURL(file);
-            const img = new Image();
-
-            img.onload = async () => {
-                URL.revokeObjectURL(objUrl);
-
-                const natW = img.naturalWidth || img.width;
-                const natH = img.naturalHeight || img.height;
-                if (natW > MAX_DIMENSION || natH > MAX_DIMENSION || natW < MIN_DIMENSION || natH < MIN_DIMENSION) {
-                    isInferring = false;
-                    setUploadButtonState(false, 'Test Custom Image');
-                    showStatus(
-                        `Image dimensions (${natW}×${natH}) outside allowed range (${MIN_DIMENSION}px–${MAX_DIMENSION}px).`,
-                        true
-                    );
-                    return;
-                }
-
-                sampleBtns.forEach(b => {
-                    b.classList.remove('active');
-                    b.setAttribute('aria-pressed', 'false');
+            try {
+                const res = await runRealModelOnCanvas(img, canvas, (statusText) => {
+                    showStatus(statusText, false);
                 });
-
-                try {
-                    const res = await runRealModelOnCanvas(img, canvas, (statusText) => {
-                        showStatus(statusText, false);
-                    });
-                    showStatus('');
-                    updateUI(res);
-                } catch (err) {
-                    showStatus(err?.message || 'Failed to run ConvNeXt-Tiny ONNX model.', true);
-                } finally {
-                    isInferring = false;
-                    setUploadButtonState(false, 'Test Custom Image');
-                }
-            };
-
-            img.onerror = () => {
-                URL.revokeObjectURL(objUrl);
+                showStatus('');
+                updateUI(res);
+            } catch (err) {
+                showStatus(err?.message || 'Failed to run ConvNeXt-Tiny ONNX model.', true);
+            } finally {
                 isInferring = false;
                 setUploadButtonState(false, 'Test Custom Image');
-                showStatus('Browser failed to decode image payload.', true);
-            };
+            }
+        };
 
-            img.src = objUrl;
+        img.onerror = () => {
+            URL.revokeObjectURL(objUrl);
+            isInferring = false;
+            setUploadButtonState(false, 'Test Custom Image');
+            showStatus('Browser failed to decode image payload.', true);
+        };
+
+        img.src = objUrl;
+    };
+
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files?.[0];
+            fileInput.value = '';
+            analyzeFile(file);
+        });
+    }
+
+    // Drop an image file anywhere on the sandbox
+    const carriesFiles = (e) => [...(e.dataTransfer?.types || [])].includes('Files');
+    let dragDepth = 0;
+    demoCard.addEventListener('dragenter', (e) => {
+        if (!carriesFiles(e)) return;
+        e.preventDefault();
+        dragDepth++;
+        demoCard.classList.add('is-dragover');
+    });
+    demoCard.addEventListener('dragover', (e) => {
+        if (!carriesFiles(e)) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    });
+    demoCard.addEventListener('dragleave', () => {
+        dragDepth = Math.max(0, dragDepth - 1);
+        if (dragDepth === 0) demoCard.classList.remove('is-dragover');
+    });
+    demoCard.addEventListener('drop', (e) => {
+        if (!carriesFiles(e)) return;
+        e.preventDefault();
+        dragDepth = 0;
+        demoCard.classList.remove('is-dragover');
+        const files = [...e.dataTransfer.files];
+        analyzeFile(files.find(f => f.type.startsWith('image/')) || files[0]);
+    });
+
+    // Paste an image (a screenshot, "Copy image" in another tab) anywhere on the page
+    document.addEventListener('paste', (e) => {
+        if (e.target instanceof Element && e.target.closest('input, textarea, [contenteditable]')) return;
+        const file = [...(e.clipboardData?.files || [])].find(f => f.type.startsWith('image/'));
+        if (!file) return;
+        e.preventDefault();
+        analyzeFile(file);
+    });
+
+    // Camera: the first click opens a live view over the canvas, the second takes the snapshot
+    const startCamera = async () => {
+        if (cameraStarting) return;
+        cameraStarting = true;
+        showStatus('Waiting for camera access...');
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                audio: false
+            });
+        } catch (err) {
+            showStatus(err?.name === 'NotAllowedError'
+                ? 'Camera access was blocked. Allow it in your browser to take a snapshot.'
+                : 'No camera available.', true);
+            return;
+        } finally {
+            cameraStarting = false;
+        }
+        loadOrtRuntime().catch(() => {});
+        cameraView.srcObject = cameraStream;
+        cameraView.hidden = false;
+        cameraView.play().catch(() => {});
+        clearPresetSelection();
+        cameraBtn.classList.add('is-live');
+        cameraText.textContent = 'Take Snapshot';
+        showStatus('Frame a face, then take the snapshot. Nothing leaves your browser.');
+    };
+
+    const takeSnapshot = () => {
+        const vw = cameraView.videoWidth;
+        const vh = cameraView.videoHeight;
+        if (!vw || !vh) return;
+        // The centre square the live view shows (object-fit: cover), unmirrored
+        const side = Math.min(vw, vh);
+        const frame = document.createElement('canvas');
+        frame.width = side;
+        frame.height = side;
+        frame.getContext('2d').drawImage(cameraView, (vw - side) / 2, (vh - side) / 2, side, side, 0, 0, side, side);
+        frame.toBlob((blob) => {
+            if (blob) analyzeFile(new File([blob], 'snapshot.png', { type: 'image/png' }));
+        }, 'image/png');
+    };
+
+    if (cameraBtn && cameraText && cameraView && navigator.mediaDevices?.getUserMedia) {
+        cameraBtn.hidden = false;
+        cameraBtn.addEventListener('click', () => {
+            if (isInferring) return;
+            if (cameraStream) takeSnapshot();
+            else startCamera();
+        });
+        // Never leave the camera on behind a hidden or closed page
+        window.addEventListener('pagehide', stopCamera);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopCamera();
         });
     }
 

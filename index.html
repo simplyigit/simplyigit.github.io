@@ -28,10 +28,19 @@
     <link rel="dns-prefetch" href="https://wsrv.nl">
     <!-- Inter, JetBrains Mono & Playfair Display Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/base.css?v=7.2">
-    <link rel="stylesheet" href="/assets/css/home.css?v=7.2">
-    <script src="/assets/js/vt-nav.js?v=7.0"></script>
+    <link rel="stylesheet" href="/assets/css/base.css?v=7.3">
+    <link rel="stylesheet" href="/assets/css/home.css?v=7.3">
+    <script src="/assets/js/vt-nav.js?v=7.3"></script>
     <script>window.__PREFETCH_DASHBOARD__ = fetch("/api/dashboard", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
+    <!-- In <head> and render-blocking: the first frame already holds the content that page
+         transitions morph into (deferred like every module script, so it still runs after parsing) -->
+    <link rel="modulepreload" href="/assets/js/modules/core.js">
+    <link rel="modulepreload" href="/assets/js/modules/avatar-depth.js">
+    <link rel="modulepreload" href="/assets/js/modules/cache.js">
+    <link rel="modulepreload" href="/assets/js/modules/live-data.js">
+    <link rel="modulepreload" href="/assets/js/modules/music-text.js">
+    <link rel="modulepreload" href="/assets/js/modules/preview-player.js">
+    <script type="module" src="/assets/js/pages/index.js?v=7.3" blocking="render"></script>
 </head>
 
 <body>
@@ -153,7 +162,8 @@
                     </div>
                 </a>
 
-                <!-- Cassette (center) -->
+                <!-- Cassette (center). The slot also holds the preview button, which can't live inside the link -->
+                <div class="cassette-slot" id="cassette-slot">
                 <a href="/library/music" class="cassette-link fun-aoty" id="cassette-card" aria-label="Music: my most played tracks this month" data-caption="Music">
                     <div class="cassette-body" id="cassette-body">
                         <div class="cassette-screw screw-tl"></div>
@@ -218,6 +228,13 @@
                         <div class="cassette-screw screw-br"></div>
                     </div>
                 </a>
+                <!-- Deck key: plays a 30-second preview of the #1 track (shown once the data has one) -->
+                <button type="button" class="cassette-play" id="cassette-play" aria-pressed="false" hidden>
+                    <svg class="cassette-play-icon icon-play" viewBox="0 0 10 10" width="8" height="8" aria-hidden="true"><path d="M1.5 .5v9L9 5z" fill="currentColor"/></svg>
+                    <svg class="cassette-play-icon icon-pause" viewBox="0 0 10 10" width="8" height="8" aria-hidden="true"><path d="M1.5 1H4v8H1.5zM6 1h2.5v8H6z" fill="currentColor"/></svg>
+                    <span class="cassette-play-time" id="cassette-play-time">0:30</span>
+                </button>
+                </div>
 
                 <!-- Movies (right) - Retro VHS Cassette -->
                 <a href="/library/cinema" class="vhs-link" id="vhs-card" aria-label="Cinema: films I've watched lately" data-caption="Cinema">
@@ -266,10 +283,9 @@
 
         <footer>
             <p>&copy; 2026 yiğit.</p>
+            <p class="footer-sync" id="footer-sync" hidden><span class="footer-sync-dot" aria-hidden="true"></span><time></time></p>
         </footer>
     </div>
-
-    <script type="module" src="/assets/js/pages/index.js?v=7.2"></script>
 </body>
 
 

@@ -18,15 +18,20 @@ import html
 
 # --- HELPERS: SPOTIFY ---
 
-def get_prominent_color(image_url):
-    """Fetches image and extracts the dominant color using ColorThief with luminance boosting."""
-    if not image_url: return [29, 185, 84] # Spotify Green fallback
+SPOTIFY_GREEN = [29, 185, 84]
+
+
+def get_prominent_color(image_url, fallback=SPOTIFY_GREEN):
+    """Fetches image and extracts the dominant color using ColorThief with luminance boosting.
+    Returns `fallback` (Spotify green; pass None for covers that aren't Spotify's) if that fails."""
+    if not image_url: return fallback
     try:
         res = requests.get(image_url, timeout=5)
         if res.status_code == 200:
             img_file = io.BytesIO(res.content)
             color_thief = ColorThief(img_file)
-            dominant_color = list(color_thief.get_color(quality=7))
+            # quality=1 samples every pixel (the most accurate setting; ~0.3s for a 640px cover)
+            dominant_color = list(color_thief.get_color(quality=1))
             
             # Boost luminance if the color is too dark for the UI
             # Relative luminance formula: 0.299R + 0.587G + 0.114B
@@ -47,7 +52,18 @@ def get_prominent_color(image_url):
             return dominant_color
     except Exception as e:
         print(f"Color extraction error: {e}")
-    return [29, 185, 84]
+    return fallback
+
+
+def add_prominent_colors(items, executor):
+    """Adds each item's cover colour as "prominent_color" (the homepage glow and card wash use it).
+    A cover that can't be read just goes without; the site then works the colour out itself."""
+    futures = [(item, executor.submit(get_prominent_color, item["cover_url"], None))
+               for item in items if isinstance(item, dict) and item.get("cover_url")]
+    for item, future in futures:
+        color = future.result()
+        if color:
+            item["prominent_color"] = color
 
 SYNC_HEADERS = {"User-Agent": "simplyigit-sync/1.0 (https://simplyigit.me)"}
 LRCLIB_TIMEOUT = 8
@@ -84,6 +100,35 @@ def find_spotify_match(results, item_name, artist_name, search_type):
         return exact
     # "Song" vs "Song - Live at X" / "Song (Demo)" style differences
     return next((r for r in results if (got := title_key(r['name'])) and (got.startswith(want) or want.startswith(got))), None)
+
+
+def fetch_preview_url(song_title, artist_name):
+    """30-second preview clip from the iTunes Search API (keyless). Spotify's API no longer returns
+    preview URLs, so the site's play buttons use these instead."""
+    wanted_artist = normalize_name(artist_name)
+    want = title_key(song_title)
+    for term in dict.fromkeys([f"{artist_name} {song_title}", f"{artist_name} {strip_title_suffixes(song_title)}"]):
+        try:
+            res = requests.get(
+                "https://itunes.apple.com/search",
+                params={"term": term, "media": "music", "entity": "song", "limit": 15},
+                headers=SYNC_HEADERS,
+                timeout=8
+            )
+            if res.status_code != 200:
+                continue
+            # Search is fuzzy: only accept the same song by the same artist
+            hits = [
+                h for h in res.json().get("results", [])
+                if h.get("previewUrl") and wanted_artist and wanted_artist in normalize_name(h.get("artistName", ""))
+            ]
+            exact = next((h for h in hits if normalize_name(h.get("trackName", "")) == normalize_name(song_title)), None)
+            same_song = exact or next((h for h in hits if title_key(h.get("trackName", "")) == want), None)
+            if same_song:
+                return same_song["previewUrl"]
+        except Exception as e:
+            print(f"iTunes preview lookup error for {song_title}: {e}")
+    return None
 
 
 def fetch_lrclib_lyrics(song_title, artist_name):
@@ -315,6 +360,8 @@ def fetch_spotify_data(url, key):
     # Check existing DB for the top track's curated snippets to avoid unnecessary API calls
     existing_ai_lyrics = None
     existing_top_track_name = None
+    # Stored previews, kept when a lookup fails so a play button doesn't come and go
+    existing_previews = {}
     try:
         res = requests.get(
             f"{url}/rest/v1/portfolio_data?key=eq.spotify&select=value",
@@ -327,6 +374,10 @@ def fetch_spotify_data(url, key):
             if existing_tracks:
                 existing_top_track_name = existing_tracks[0].get("title")
                 existing_ai_lyrics = existing_tracks[0].get("ai_lyrics")
+            existing_previews = {
+                (t.get("title"), t.get("artist")): t["preview_url"]
+                for t in existing_tracks if isinstance(t, dict) and t.get("preview_url")
+            }
     except Exception as e:
         print(f"Failed to check existing lyrics in DB: {e}")
 
@@ -389,6 +440,10 @@ def fetch_spotify_data(url, key):
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=15)
     track_futures = {executor.submit(safe_search, t['name'], t['artist']['name'], "track"): t for t in raw_lfm_tracks}
     track_search_by_key = {(t['name'].casefold(), t['artist']['name'].casefold()): fut for fut, t in track_futures.items()}
+    preview_futures = {
+        (t['name'], t['artist']['name']): executor.submit(fetch_preview_url, t['name'], t['artist']['name'])
+        for t in raw_lfm_tracks
+    }
 
     # The #1 artist's most played song this month (the list is ranked); reuse the top-5 search if it's there
     top_artist_song = None
@@ -462,10 +517,14 @@ def fetch_spotify_data(url, key):
     if final_artists and top_artist_song:
         final_artists[0]["top_track"] = artist_song(*top_artist_song)
 
-    # Assign colors back to tracks and artists
+    # Assign colors (and 30-second previews) back to tracks and artists
     for track in final_tracks:
         if track['cover_url'] in color_futures:
             track['prominent_color'] = color_futures[track['cover_url']].result()
+        track_id = (track['title'], track['artist'])
+        preview_url = preview_futures[track_id].result() or existing_previews.get(track_id)
+        if preview_url:
+            track['preview_url'] = preview_url
     for artist in final_artists:
         if artist['image_url'] in color_futures:
             artist['prominent_color'] = color_futures[artist['image_url']].result()
@@ -797,6 +856,7 @@ def fetch_movies_data(url=None, key=None):
         print("Using cached watchlist from Supabase.")
         watchlist_films = existing_movies["watchlist"]
 
+    add_prominent_colors(recent_activity, executor)
     executor.shutdown(wait=False)
     return {"recent_activity": recent_activity, "favorite_films": favorite_films, "watchlist": watchlist_films}
 
@@ -879,6 +939,8 @@ def fetch_books_data(url=None, key=None):
 
         shelf_order = {'currently-reading': 0, 'to-read': 1, 'read': 2}
         books_data.sort(key=lambda b: shelf_order.get(b.get('shelf', 'to-read'), 1))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as color_executor:
+            add_prominent_colors(books_data, color_executor)
     except Exception as e:
         print(f"Error fetching Goodreads books: {e}")
 
@@ -945,6 +1007,8 @@ def fetch_projects_data(github_token):
 # --- MAIN SYNC ---
 
 SYNC_CATEGORIES = ["spotify", "favorite_albums", "movies", "books", "projects"]
+# Row holding {"last_updated": <epoch seconds>} for the last sync that stored anything
+SYNC_META_KEY = "sync_meta"
 
 
 def is_valid_payload(category, value):
@@ -1053,6 +1117,25 @@ def main():
         except Exception as e:
             print(f"Failed to update {category}: {str(e)}")
 
+    # When this sync ran, for the site footer ("Synced 12 min ago"); the /api functions pass it on
+    if len(failed) < len(SYNC_CATEGORIES):
+        try:
+            res = requests.post(
+                f"{url}/rest/v1/portfolio_data?on_conflict=key",
+                headers={
+                    "apikey": key,
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                    "Prefer": "resolution=merge-duplicates"
+                },
+                json={"key": SYNC_META_KEY, "value": {"last_updated": data["last_updated"]}},
+                timeout=15
+            )
+            if res.status_code not in [200, 201]:
+                print(f"Failed to update {SYNC_META_KEY}: {res.status_code} - {res.text}")
+        except Exception as e:
+            print(f"Failed to update {SYNC_META_KEY}: {str(e)}")
+
     print("Sync complete!")
 
 def export_static_snapshots(data):
@@ -1066,12 +1149,13 @@ def export_static_snapshots(data):
         movies = data.get("movies")
         books = data.get("books")
         projects = data.get("projects")
+        synced_at = data.get("last_updated")
 
         # A section that failed with nothing stored to fall back on keeps its previous snapshot
         for name, value in (("spotify", spotify), ("movies", movies), ("books", books), ("projects", projects)):
             if value:
                 with open(os.path.join(data_dir, f"{name}.json"), "w") as f:
-                    json.dump({"success": True, "data": value}, f, indent=2)
+                    json.dump({"success": True, "data": value, "synced_at": synced_at}, f, indent=2)
 
         if not (spotify and movies and books):
             print("Skipping dashboard.json and seed-data.js: a section is missing.")
@@ -1083,7 +1167,7 @@ def export_static_snapshots(data):
             "movies": movies
         }
         with open(os.path.join(data_dir, "dashboard.json"), "w") as f:
-            json.dump({"success": True, "data": dashboard}, f, indent=2)
+            json.dump({"success": True, "data": dashboard, "synced_at": synced_at}, f, indent=2)
 
         seed_path = os.path.join(base_dir, "assets", "js", "modules", "seed-data.js")
         seed_content = f"""// Seed data for instantaneous 0ms first-paint (Synchronized with live data)

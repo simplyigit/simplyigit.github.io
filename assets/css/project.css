@@ -164,13 +164,14 @@
 
 .detector-controls {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: 8px;
     flex-wrap: wrap;
 }
 
 .detector-sample-btn,
-.detector-upload-btn {
+.detector-upload-btn,
+.detector-camera-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -192,10 +193,28 @@
 }
 
 .detector-upload-btn:hover,
-.detector-upload-btn:focus-within {
+.detector-upload-btn:focus-within,
+.detector-camera-btn:hover {
     color: var(--text-primary);
     background: rgba(255, 255, 255, 0.07);
     border-color: rgba(255, 255, 255, 0.25);
+}
+
+.detector-camera-btn[hidden] {
+    display: none;
+}
+
+/* Camera open: the button becomes the shutter */
+.detector-camera-btn.is-live {
+    color: #e0f2fe;
+    background: rgba(56, 189, 248, 0.16);
+    border-color: #38bdf8;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.28);
+}
+
+.detector-camera-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 /* The real control is the visually hidden file input: show its keyboard focus on the button */
@@ -303,6 +322,20 @@
     width: 100%;
     height: 100%;
     display: block;
+}
+
+/* Live camera view: fills the square like the snapshot will, mirrored like a mirror */
+.detector-camera-view {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+.detector-camera-view[hidden] {
+    display: none;
 }
 
 .detector-scan-line {
@@ -491,12 +524,19 @@
         text-align: center;
     }
 
-    .detector-upload-btn {
-        flex: 1 1 100%;
+    /* One row when both fit; the camera button wraps under the upload button when they don't */
+    .detector-upload-btn,
+    .detector-camera-btn {
+        flex: 1 1 auto;
         justify-content: center;
         font-size: 0.78rem;
         padding: 8px 10px;
         text-align: center;
+        white-space: nowrap;
+    }
+
+    .detector-upload-btn {
+        flex-grow: 2;
     }
 
     #github-content h1 {
@@ -527,12 +567,6 @@
     #github-content th,
     #github-content td {
         padding: 8px 10px;
-    }
-}
-@media screen and (max-width: 480px) {
-
-    .detector-upload-btn {
-        flex: 1 1 100%;
     }
 }
 
@@ -599,4 +633,59 @@
 /* Keep wide left-to-right diagrams legible on phones: scroll sideways instead of shrinking */
 #github-content pre.mermaid svg {
     min-width: 720px;
+}
+
+/* Key figures under the title */
+.project-stats {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.project-stats li {
+    padding: 5px 12px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.project-stats strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Dragging an image over the sandbox */
+.detector-demo-card {
+    position: relative;
+    transition: border-color 0.2s ease;
+}
+
+.detector-drop-hint {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: inherit;
+    border: 2px dashed rgba(56, 189, 248, 0.7);
+    background: rgba(5, 10, 20, 0.82);
+    color: #e0f2fe;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.detector-demo-card.is-dragover .detector-drop-hint {
+    display: flex;
 }

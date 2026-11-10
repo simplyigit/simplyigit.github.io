@@ -1040,3 +1040,148 @@
         font-size: 0.75rem;
     }
 }
+
+/* ======================================================== */
+/*   TRACK PREVIEWS (30 seconds, preview-player.js)         */
+/* ======================================================== */
+
+/* A track card and its preview button share a slot: the card is a link, and a button can't live
+   inside one. --art and --art-left say where the cover sits in the card (it is vertically centred
+   at every breakpoint), so the button lands on its bottom-right corner. */
+.track-slot {
+    position: relative;
+    min-width: 0;
+    --art: 120px;
+    --art-left: 0px;
+    --btn: 34px;
+}
+
+.track-slot.is-hero {
+    grid-column: 1 / -1;
+    --art: 240px;
+    --art-left: 15px;
+    --btn: 44px;
+}
+
+.preview-btn {
+    position: absolute;
+    top: calc(50% + var(--art) / 2 - var(--btn) - 8px);
+    left: calc(var(--art-left) + var(--art) - var(--btn) - 8px);
+    z-index: 3;
+    width: var(--btn);
+    height: var(--btn);
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(8, 8, 10, 0.62);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    color: #fff;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.88);
+    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+}
+
+/* Shown on hover or focus, and for as long as its preview plays */
+.track-slot:hover .preview-btn,
+.track-slot:focus-within .preview-btn,
+.preview-btn[aria-pressed="true"] {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.preview-btn:hover {
+    background: rgba(var(--track-color-rgb, 255, 255, 255), 0.4);
+}
+
+.preview-icon {
+    grid-area: 1 / 1;
+    width: 36%;
+    height: 36%;
+    fill: currentColor;
+}
+
+.preview-btn .icon-pause,
+.preview-btn[aria-pressed="true"] .icon-play {
+    display: none;
+}
+
+.preview-btn[aria-pressed="true"] .icon-pause {
+    display: block;
+}
+
+/* Progress ring: pathLength="1", so --dash (1 -> 0, set while playing) is the share still to play */
+.preview-ring {
+    position: absolute;
+    inset: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    transform: rotate(-90deg);
+    pointer-events: none;
+}
+
+.preview-ring circle {
+    fill: none;
+    stroke: rgb(var(--track-color-rgb, 29, 185, 84));
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: var(--dash, 1);
+    opacity: 0;
+    transition: stroke-dashoffset 0.3s linear, opacity 0.2s ease;
+}
+
+.preview-btn[aria-pressed="true"] .preview-ring circle {
+    opacity: 1;
+}
+
+/* Touch screens have no hover: the buttons are always there */
+@media (hover: none) {
+    .preview-btn {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .track-slot.is-hero {
+        --art: 170px;
+        --art-left: 20px;
+        --btn: 40px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .track-slot.is-hero {
+        --art: 96px;
+        --art-left: 16px;
+        --btn: 32px;
+    }
+
+    .track-slot.is-hero .preview-btn {
+        top: calc(50% + var(--art) / 2 - var(--btn) - 5px);
+        left: calc(var(--art-left) + var(--art) - var(--btn) - 5px);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .track-slot {
+        --art: 92px;
+        --btn: 30px;
+    }
+
+    .track-slot.is-hero {
+        --art: 88px;
+        --art-left: 14px;
+        --btn: 30px;
+    }
+
+    .track-slot .preview-btn {
+        top: calc(50% + var(--art) / 2 - var(--btn) - 5px);
+        left: calc(var(--art-left) + var(--art) - var(--btn) - 5px);
+    }
+}

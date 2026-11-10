@@ -1,12 +1,30 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax, smoothMorph, morphText, toTransitionSlug, escapeHtml } from '../modules/core.js';
+import { initAmbientMesh, setAmbientTint, initGlobalReveal, initGlassParallax, initLibraryKeys, smoothMorph, morphText, toTransitionSlug, escapeHtml } from '../modules/core.js';
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
+import { displaySongTitle, shortArtistNameHtml } from '../modules/music-text.js';
+import { togglePreview, stopPreview } from '../modules/preview-player.js';
+
+// The tab on show, and each tab's mesh tint: the dominant colour of its first cover or portrait
+let activeTab = 'tracks';
+const tabTints = {};
+
+// Only the Tracks tint is remembered: the homepage uses the same one (the #1 track), so going
+// back and forth keeps the background still
+function applyTabTint() {
+    if (activeTab in tabTints) setAmbientTint(tabTints[activeTab], { persist: activeTab === 'tracks' });
+}
 
 // Shared card markup for Tracks and Artists: #1 is a full-width hero card, the rest are compact grid cards.
 // Text arguments are raw and escaped here; `titleHtml`, `extraHtml` and `footerHtml` must already be safe HTML.
-function musicCardHtml({ index, href, title, titleHtml, subtitle, ariaLabel, artUrl, badge, meta, rgb, variant, backdropUrl, vtName, nameInPill = false, extraHtml = '', footerHtml = '' }) {
+// `fullTitle` is the tooltip when `title` is a shortened form; `placeholderUrl` is a smaller copy of the
+// art shown until the full-size image has loaded.
+function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ariaLabel, artUrl, placeholderUrl, badge, meta, rgb, variant, backdropUrl, vtName, nameInPill = false, extraHtml = '', footerHtml = '' }) {
     const hero = index === 0;
     const art = escapeHtml(artUrl || "");
+    const placeholder = placeholderUrl && placeholderUrl !== artUrl
+        ? ` style="background: url('${escapeHtml(placeholderUrl)}') center / cover"`
+        : '';
+    const tooltip = fullTitle && fullTitle !== title ? ` title="${escapeHtml(fullTitle)}"` : '';
 
     const styles = [];
     if (hero && !backdropUrl) styles.push(`--track-art: url('${art}')`);
@@ -27,13 +45,13 @@ function musicCardHtml({ index, href, title, titleHtml, subtitle, ariaLabel, art
     return `
             <a href="${escapeHtml(href || "#")}" target="_blank" rel="noopener noreferrer" class="${classes}" style="${styles.join('; ')}"${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''}>
                 ${backdrop}
-                <div class="case-art-wrapper">
+                <div class="case-art-wrapper"${placeholder}>
                     <img src="${art}" alt="${escapeHtml(title)}" class="spotify-track-img" ${imgAttrs}>
                 </div>
                 <div class="case-info">
                     ${nameInPill ? '' : `<div class="track-text-stack">
-                        <span class="case-title">${titleHtml || escapeHtml(title)}</span>
-                        ${subtitle ? `<span class="case-artist">${escapeHtml(subtitle)}</span>` : ''}
+                        <span class="case-title"${tooltip}>${titleHtml || escapeHtml(title)}</span>
+                        ${subtitle ? `<span class="case-artist" title="${escapeHtml(subtitle)}">${shortArtistNameHtml(subtitle)}</span>` : ''}
                     </div>`}
                     ${extraHtml}
                     ${nameInPill ? namePillHtml(badge, title, meta) : `<div class="track-stats-pill"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-plays">${escapeHtml(meta)}</span></div>`}
@@ -42,21 +60,10 @@ function musicCardHtml({ index, href, title, titleHtml, subtitle, ariaLabel, art
             </a>`;
 }
 
-// "5 Seconds of Summer" -> "5SOS": long names of three or more words go by their initials in the pill.
-// Two-word names keep their full name (initials like "SM" wouldn't be recognisable).
-function pillName(name) {
-    const full = String(name || '').trim();
-    const words = full.split(/\s+/);
-    return words.length >= 3 && full.length > 12 ? words.map(w => [...w][0].toUpperCase()).join('') : full;
-}
-
-// Artist pills carry the name: "#1 | Name | 175 plays" on the #1 card, "#2 | Name" on the rest (no meta)
+// Artist pills carry the name (long ones by their initials, see shortArtistName):
+// "#1 | Name | 175 plays" on the #1 card, "#2 | Name" on the rest (no meta)
 function namePillHtml(badge, name, meta) {
-    const shown = pillName(name);
-    const nameHtml = shown === String(name || '').trim()
-        ? escapeHtml(shown)
-        : `<span aria-hidden="true">${escapeHtml(shown)}</span><span class="visually-hidden">${escapeHtml(name)}</span>`;
-    return `<div class="track-stats-pill has-name"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-name" title="${escapeHtml(name)}">${nameHtml}</span>${meta ? `<span class="stats-plays">${escapeHtml(meta)}</span>` : ''}</div>`;
+    return `<div class="track-stats-pill has-name"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-name" title="${escapeHtml(name)}">${shortArtistNameHtml(name)}</span>${meta ? `<span class="stats-plays">${escapeHtml(meta)}</span>` : ''}</div>`;
 }
 
 function playsLabel(count) {
@@ -114,15 +121,6 @@ function artistSpotifyUrl(artist) {
     if (artist.spotify_url) return artist.spotify_url;
     if (artist.spotify_id) return `https://open.spotify.com/artist/${artist.spotify_id}`;
     return artist.name ? `https://open.spotify.com/search/${encodeURIComponent(artist.name)}` : "#";
-}
-
-// "Another You (feat. Sadie Jean)" -> "Another You": the artist is already on the card
-function displaySongTitle(title) {
-    return String(title || '')
-        .replace(/\s*[\(\[](?:feat|ft|with)\.?[^\)\]]*[\)\]]/gi, '')
-        .replace(/\s*[\(\[][^\)\]]*\b(?:demo|remaster(?:ed)?|version|edit|mix|live|acoustic|deluxe)\b[^\)\]]*[\)\]]\s*$/i, '')
-        .replace(/\s+-\s+.*\b(?:remaster(?:ed)?|version|edit|mix|live|demo)\b.*$/i, '')
-        .trim() || title;
 }
 
 // The #1 card's bar uses the same scale as cards 2-5 (all top-5 artists' plays combined), in three parts:
@@ -207,6 +205,35 @@ function trackArtUrl(track, index) {
     return index === 0 ? track.cover_url : (track.cover_url_small || track.cover_url);
 }
 
+// 30-second preview control, on the corner of the track's cover. It sits beside the card rather
+// than inside it: the card is a link, and a button can't live inside one.
+function previewButtonHtml(track, shownTitle) {
+    if (!track.preview_url) return '';
+    return `
+            <button type="button" class="preview-btn" data-preview="${escapeHtml(track.preview_url)}" aria-pressed="false" aria-label="${escapeHtml(`Play a 30-second preview of ${shownTitle} by ${track.artist}`)}">
+                <svg class="preview-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16.5" pathLength="1"/></svg>
+                <svg class="preview-icon icon-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.2 .8v8.4L9.2 5z"/></svg>
+                <svg class="preview-icon icon-pause" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1H4v8H1.5zM6 1h2.5v8H6z"/></svg>
+            </button>`;
+}
+
+// One click handler for every preview button in the Tracks tab
+function initTrackPreviews(container) {
+    container.addEventListener('click', (e) => {
+        const btn = e.target.closest('.preview-btn');
+        if (!btn) return;
+        const url = btn.dataset.preview;
+        togglePreview(url, url, ({ playing, progress }) => {
+            // Look the button up again: a data refresh may have re-rendered the cards meanwhile
+            const live = [...container.querySelectorAll('.preview-btn')].find(b => b.dataset.preview === url);
+            if (!live) return;
+            live.setAttribute('aria-pressed', playing ? 'true' : 'false');
+            live.style.setProperty('--dash', (1 - progress).toFixed(3));
+            live.closest('.track-slot')?.classList.toggle('is-playing', playing);
+        });
+    });
+}
+
 function renderTracks(container, trackList) {
     if (!container) return;
     const list = Array.isArray(trackList) ? trackList : [];
@@ -229,32 +256,55 @@ function renderTracks(container, trackList) {
             }
         }
 
-        return musicCardHtml({
+        const shownTitle = displaySongTitle(track.title);
+        const card = musicCardHtml({
             index,
             variant: 'track',
             href: track.spotify_url,
-            title: track.title,
+            title: shownTitle,
+            fullTitle: track.title,
             subtitle: track.artist,
             artUrl: trackArtUrl(track, index),
+            // The #1 card's 640px cover takes a moment: start from the 300px copy the homepage cassette used
+            placeholderUrl: index === 0 ? track.cover_url_small : '',
             badge: index === 0 ? '#1 THIS MONTH' : `#${index + 1}`,
             meta: playsLabel(track.playcount),
             rgb: track.prominent_color,
             vtName,
             extraHtml: lyricHtml
         });
+        const rgb = Array.isArray(track.prominent_color) && track.prominent_color.length === 3 ? track.prominent_color : null;
+        return `
+            <div class="track-slot${index === 0 ? ' is-hero' : ''}"${rgb ? ` style="--track-color-rgb: ${rgb.join(', ')}"` : ''}>${card}${previewButtonHtml(track, shownTitle)}
+            </div>`;
     }).join('');
 }
 
 function initMusic() {
-    initAmbientMesh();
+    // Tinted by the visible tab's first cover once the data is in (applyTabTint)
+    initAmbientMesh({ tinted: true });
     initGlobalReveal();
     initGlassParallax();
+    initLibraryKeys();
     initMusicTabs();
 
     const artistsContainer = document.getElementById("spotify-artists-container");
     const tracksContainer = document.getElementById("spotify-tracks-container");
     const albumsContainer = document.getElementById("spotify-albums-container");
     if (!artistsContainer && !tracksContainer && !albumsContainer) return;
+
+    if (tracksContainer) initTrackPreviews(tracksContainer);
+
+    // Page transitions (vt-nav.js): the homepage cassette's cover art morphs into the #1 track's art
+    // and back, as long as the Tracks tab is the one on show
+    const topTrackArt = () => {
+        const el = activeTab === 'tracks' && tracksContainer?.querySelector('.top-track-banner .case-art-wrapper');
+        return el || null;
+    };
+    window.__vtMorph = {
+        source: (library) => (library === 'music' && topTrackArt() ? { el: topTrackArt(), key: '' } : null),
+        target: (library) => (library === 'music' ? topTrackArt() : null)
+    };
 
     let renderedAlbumsSig = '';
     let renderedArtistsSig = '';
@@ -263,6 +313,11 @@ function initMusic() {
     // First call paints directly; later calls morph only the sections whose content changed, one at a time
     const render = async (data) => {
         const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
+
+        tabTints.tracks = tracks?.[0]?.prominent_color;
+        tabTints.artists = artists?.[0]?.prominent_color;
+        tabTints.albums = albums?.[0]?.prominent_color;
+        applyTabTint();
 
         if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
             const sig = albums.map(a => a.title).join('|');
@@ -315,7 +370,8 @@ function initMusic() {
         }
 
         if (tracksContainer && Array.isArray(tracks) && tracks.length > 0) {
-            const sig = tracks.map(t => `${t.title}-${t.artist}`).join('|');
+            // preview_url too, so the play buttons appear as soon as a sync adds them
+            const sig = tracks.map(t => `${t.title}-${t.artist}-${t.preview_url || ''}`).join('|');
             if (sig !== renderedTracksSig) {
                 const isUpdate = renderedTracksSig !== '';
                 renderedTracksSig = sig;
@@ -434,6 +490,10 @@ function initMusicTabs() {
         }
 
         currentTab = newTab;
+        activeTab = newTab;
+        applyTabTint();
+        // A preview belongs to the Tracks tab: don't leave it playing behind another tab
+        if (newTab !== 'tracks') stopPreview();
 
         // Check prefers-reduced-motion
         const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

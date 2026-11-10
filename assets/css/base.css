@@ -69,6 +69,12 @@ body {
     pointer-events: none;
     will-change: transform;
     transform: translate3d(0, 0, 0);
+    transition: opacity 0.9s ease;
+}
+
+/* A retinted mesh (setAmbientTint) fades in over the previous one */
+.ambient-mesh-canvas.is-entering {
+    opacity: 0;
 }
 
 #ambient-mesh.canvas-ready .orb {
@@ -262,12 +268,40 @@ p {
 
 footer {
     border-top: 1px solid var(--card-border);
-    padding-top: 40px;
-    text-align: center;
+    padding-top: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
 }
 
 footer p {
-    font-size: 0.85rem;
+    font-size: inherit;
+}
+
+/* "Synced 12 min ago": when the hourly data sync last ran (core.js showSyncedAt) */
+.footer-sync {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.4px;
+}
+
+.footer-sync[hidden] {
+    display: none;
+}
+
+.footer-sync-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
 }
 
 /* Animations */
@@ -393,8 +427,48 @@ footer p {
 .lib-nav-item.active {
     color: rgba(255, 255, 255, 0.92);
     font-weight: 600;
+}
+
+/* The lift is its own element with its own transition name, so it slides from tab to tab as the
+   library pages change instead of crossfading with the labels */
+.lib-nav-item {
+    position: relative;
+}
+
+.lib-nav-item > :not(.lib-nav-highlight) {
+    position: relative;
+}
+
+.lib-nav-highlight {
+    position: absolute;
+    inset: 0;
+    border-radius: 50px;
     background: rgba(255, 255, 255, 0.07);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    view-transition-name: lib-nav-highlight;
+}
+
+::view-transition-group(lib-nav-highlight) {
+    animation-duration: 380ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Keyboard shortcut hint (1 / 2 / 3, see core.js initLibraryKeys) */
+.lib-nav-key {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.6rem;
+    font-weight: 500;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.4);
+}
+
+@media (hover: none), (max-width: 768px) {
+    .lib-nav-key {
+        display: none;
+    }
 }
 
 /* Muted section tints, only on the current page's icon */
@@ -508,6 +582,12 @@ footer p {
     .list-card {
         padding: 16px !important;
     }
+
+    footer {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+    }
 }
 
 /* Narrow Tablets & Phones (<= 600px) */
@@ -550,6 +630,26 @@ footer p {
    During cross-document page navigation they are disabled so the page crossfades as one clean layer. */
 html:not(.vt-data-morph) [style*="view-transition-name"] {
     view-transition-name: none !important;
+}
+
+/* The one element that morphs between a homepage library object and its page (vt-nav.js) */
+html:root .vt-morph.vt-morph {
+    view-transition-name: page-morph !important;
+}
+
+::view-transition-group(page-morph) {
+    animation-duration: 460ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The two ends differ in shape (a wide cassette label and a square cover): crop, don't stretch */
+::view-transition-old(page-morph),
+::view-transition-new(page-morph) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    overflow: clip; /* snapshots may paint past their box (that's how shadows travel): not these */
+    animation-duration: 460ms;
 }
 
 html.vt-data-morph::view-transition-group(*) {
@@ -618,6 +718,14 @@ html.vt-data-morph::view-transition-new(*) {
     }
 }
 
+/* Reduced motion: pages still crossfade, but nothing flies or slides between them */
+@media (prefers-reduced-motion: reduce) {
+    html:root .vt-morph.vt-morph,
+    .lib-nav-highlight {
+        view-transition-name: none !important;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     html.vt-data-morph::view-transition-group(*),
     html.vt-data-morph::view-transition-old(*),
@@ -629,6 +737,9 @@ html.vt-data-morph::view-transition-new(*) {
 /* Pause all looping decorative animations while the page is hidden or the window is unfocused,
    so the browser can go fully idle (one-shot entrance animations are intentionally left alone). */
 html.page-inactive :is(
+    .nn-art line,
+    .nn-art circle,
+    .nn-art text,
     .vhs-mini-spool-inner,
     .vhs-filmstrip-track,
     .cassette-song-marquee,
@@ -669,9 +780,11 @@ html.page-inactive :is(
     margin: 0;
 }
 
-/* Serif pages set Playfair on the header; keep the button bar in Inter */
+/* Serif pages set Playfair on the header; keep the button bar in the body's font stack. The whole
+   stack matters: Inter's web subset has no arrow glyphs, so the → in the buttons comes from the
+   first fallback, which must be the same font as on the other pages */
 .subpage-hero--serif .subpage-bar {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .subpage-hero--serif .subpage-title {

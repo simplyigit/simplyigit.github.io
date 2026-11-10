@@ -2,6 +2,7 @@ import {
     initAmbientMesh,
     initGlobalReveal,
     initGlassParallax,
+    initLibraryKeys,
     safeImg,
     toTransitionSlug,
     smoothMorph,
@@ -162,8 +163,9 @@ function renderRecent(recentContainer, recList) {
         if (seenSlugs.has(vtSlug)) vtSlug = `${vtSlug}-${index}`;
         seenSlugs.add(vtSlug);
 
+        // data-film / data-thumb: the homepage VHS poster of this film morphs into this card (initCinema)
         return `
-            <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${film.rating ? ` (${escapeHtml(film.rating)})` : ''}">
+            <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" data-film="${escapeHtml(film.title)}" data-thumb="${escapeHtml(safeImg(film.cover_url, 150))}" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${film.rating ? ` (${escapeHtml(film.rating)})` : ''}">
                 ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" decoding="async">` : posterPlaceholder('recent', safeTitle)}
                 <div class="poster-overlay">
                     <div class="overlay-title">${safeTitle}</div>
@@ -203,11 +205,35 @@ function initCinema() {
     initAmbientMesh();
     initGlobalReveal();
     initGlassParallax();
+    initLibraryKeys();
 
     const favContainer = document.getElementById("movies-favorites-container");
     const recentContainer = document.getElementById("movies-recent-container");
     const watchlistContainer = document.getElementById("movies-watchlist-container");
     if (!favContainer && !recentContainer && !watchlistContainer) return;
+
+    // Page transitions (vt-nav.js): a poster on the homepage VHS morphs into the same film's card in
+    // Recent Watches, and back. Leaving, it's the film that flew in (else the first card).
+    let morphedFilm = '';
+    const recentCard = (title) => {
+        const cards = [...(recentContainer?.querySelectorAll('.strip-card[data-film]') || [])];
+        return (title && cards.find(card => card.dataset.film === title)) || null;
+    };
+    window.__vtMorph = {
+        source: (library) => {
+            if (library !== 'cinema') return null;
+            const el = recentCard(morphedFilm) || recentContainer?.querySelector('.strip-card[data-film]');
+            return el ? { el, key: el.dataset.film } : null;
+        },
+        target: (library, key) => {
+            const el = library === 'cinema' ? recentCard(key) : null;
+            if (!el) return null;
+            morphedFilm = key;
+            // The poster may still be loading: show the small copy the homepage already has
+            if (el.dataset.thumb) el.style.background = `url("${el.dataset.thumb}") center / cover`;
+            return el;
+        }
+    };
 
     const sections = [
         {

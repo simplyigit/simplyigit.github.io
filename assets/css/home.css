@@ -78,12 +78,19 @@
 }
 
 /* The project image sets the card's height, so the card's padding is the same gap above, below and to
-   its left; the card is a little wider than two columns so the text fits beside it */
+   its left. The card hugs its text, so the gap to its right is that same padding too: the text column
+   starts at this width and index.js (fitCardToText) narrows it to the longest line. */
 .project-real.wide-card {
     grid-column: 1 / -1;
     box-sizing: border-box;
-    width: min(100%, 680px);
+    width: fit-content;
+    max-width: 100%;
     gap: 28px;
+}
+
+.project-real.wide-card .card-content {
+    flex: 0 1 auto;
+    width: 322px;
 }
 
 .project-real .card-visual {
@@ -282,6 +289,7 @@
 
 /* Hover: Side books tuck back into deep background shadows within card boundaries */
 .book-link:hover .book-shelf-left,
+.book-link.is-open .book-shelf-left,
 .book-link:focus-visible .book-shelf-left {
     transform: translateX(-42px) translateY(6px) translateZ(-30px) rotate(-9deg) scale(0.85);
     opacity: 0.25;
@@ -289,6 +297,7 @@
 }
 
 .book-link:hover .book-shelf-right,
+.book-link.is-open .book-shelf-right,
 .book-link:focus-visible .book-shelf-right {
     transform: translateX(42px) translateY(6px) translateZ(-30px) rotate(9deg) scale(0.85);
     opacity: 0.25;
@@ -316,13 +325,16 @@
 
 /* On hover: opens gracefully with authentic 3D perspective */
 .book-link:hover .book-shelf-center,
+.book-link.is-open .book-shelf-center,
 .book-link:focus-visible .book-shelf-center,
 .book-link:hover .book-3d-wrapper,
+.book-link.is-open .book-3d-wrapper,
 .book-link:focus-visible .book-3d-wrapper {
     transform: translateX(36px) translateY(-3px) translateZ(28px) scale(1.04) rotateX(4deg) rotateY(-6deg);
 }
 
 .book-link:hover .book-obj-base,
+.book-link.is-open .book-obj-base,
 .book-link:focus-visible .book-obj-base {
     box-shadow: -10px 18px 26px rgba(0, 0, 0, 0.8), 0 6px 14px rgba(0, 0, 0, 0.5);
 }
@@ -363,6 +375,7 @@
 }
 
 .book-link:hover .book-pages-edge-right,
+.book-link.is-open .book-pages-edge-right,
 .book-link:focus-visible .book-pages-edge-right {
     display: block;
 }
@@ -475,6 +488,7 @@
 }
 
 .book-link:hover .book-front-cover-assembly,
+.book-link.is-open .book-front-cover-assembly,
 .book-link:focus-visible .book-front-cover-assembly {
     transform: rotateY(-147deg);
 }
@@ -656,6 +670,102 @@
     height: 100%;
     flex: 1;
     box-sizing: border-box;
+    overflow: hidden; /* clips the tracking band */
+}
+
+/* Tracking glitch as the tape starts: index.js sets .is-glitching for the length of the animation.
+   A band of noise rolls down the bay while the picture tears sideways and its colours split. */
+.vhs-tape-bay::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 28%;
+    background:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.2) 0 1px, transparent 1px 3px),
+        linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.16) 45%, rgba(255, 255, 255, 0.04) 70%, transparent 100%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.vhs-link.is-glitching .vhs-tape-bay::after {
+    animation: vhsTrackingBand 0.7s steps(12) both;
+}
+
+.vhs-link.is-glitching .vhs-filmstrip-viewport {
+    animation: vhsTrackingTear 0.7s steps(1) both;
+}
+
+.vhs-link.is-glitching .vhs-osd,
+.vhs-link.is-glitching .vhs-tape-counter {
+    animation: vhsOsdFlicker 0.7s steps(1) both;
+}
+
+@keyframes vhsTrackingBand {
+    0% {
+        transform: translateY(-60%);
+        opacity: 1;
+    }
+
+    75% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translateY(380%);
+        opacity: 0;
+    }
+}
+
+@keyframes vhsTrackingTear {
+    0% {
+        transform: translateX(-6px) skewX(-7deg);
+        filter: drop-shadow(3px 0 0 rgba(255, 0, 70, 0.75)) drop-shadow(-3px 0 0 rgba(0, 220, 255, 0.75)) saturate(1.7);
+    }
+
+    14% {
+        transform: translateX(5px) skewX(4deg);
+        filter: drop-shadow(-3px 0 0 rgba(255, 0, 70, 0.7)) drop-shadow(3px 0 0 rgba(0, 220, 255, 0.7)) saturate(1.5);
+    }
+
+    28% {
+        transform: translate(-3px, 1px) skewX(-2deg);
+        filter: drop-shadow(2px 0 0 rgba(255, 0, 70, 0.6)) drop-shadow(-2px 0 0 rgba(0, 220, 255, 0.6)) saturate(1.4);
+    }
+
+    44% {
+        transform: translateX(3px) skewX(2deg);
+        filter: drop-shadow(-2px 0 0 rgba(255, 0, 70, 0.5)) drop-shadow(2px 0 0 rgba(0, 220, 255, 0.5));
+    }
+
+    60% {
+        transform: translateX(-1px);
+        filter: drop-shadow(1px 0 0 rgba(255, 0, 70, 0.4)) drop-shadow(-1px 0 0 rgba(0, 220, 255, 0.4));
+    }
+
+    78%,
+    100% {
+        transform: none;
+        filter: none;
+    }
+}
+
+@keyframes vhsOsdFlicker {
+    0%,
+    24%,
+    52% {
+        opacity: 0.25;
+    }
+
+    12%,
+    38%,
+    66%,
+    100% {
+        opacity: 1;
+    }
 }
 
 .vhs-bay-header {
@@ -872,19 +982,34 @@
 /*     CASSETTE TAPE        */
 /* ======================== */
 
-.cassette-link {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    border-radius: 14px;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+/* The cassette link and its preview button share a slot (a <button> can't live inside an <a>);
+   the slot lifts on hover so the two move together */
+.cassette-slot {
+    position: relative;
+    display: flex;
     min-width: 0;
+    border-radius: 14px;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     will-change: transform;
 }
 
-.cassette-link:hover,
-.cassette-link:focus-visible {
+.cassette-slot:hover,
+.cassette-slot:has(:focus-visible) {
     transform: translateY(-4px);
+}
+
+.cassette-link {
+    display: block;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    transition: box-shadow 0.4s ease;
+    min-width: 0;
+}
+
+.cassette-slot:hover .cassette-link,
+.cassette-link:focus-visible {
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
 }
 
@@ -935,16 +1060,33 @@
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Subtly tint the background with the cover art color */
-.cassette-body::after {
+/* Each library card takes a faint wash of its cover's colour (--card-art-color, set by index.js) */
+.cassette-body::after,
+.hero-book-body::after,
+.vhs-body::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: var(--cassette-art-color, transparent);
+    background-color: var(--card-art-color, transparent);
     opacity: 0.1;
     mix-blend-mode: color;
     pointer-events: none;
     z-index: 1;
+    transition: background-color 0.6s ease;
+}
+
+/* The book and VHS cards are mostly a near-black bay, which a colour blend can't tint:
+   their bays get a low glow of the same hue instead (--card-glow-color) */
+.book-bay::before,
+.vhs-tape-bay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(120% 85% at 50% 100%, var(--card-glow-color, transparent), transparent 75%);
+    opacity: 0.2;
+    pointer-events: none;
+    z-index: -1;
 }
 
 /* Top Label: Dymo / Handwritten style */
@@ -1066,9 +1208,73 @@
     --tape-play-state: paused;
 }
 
-.cassette-link:hover,
+/* The tape runs on hover or focus, and for as long as the preview plays */
+.cassette-slot:hover .cassette-link,
+.cassette-slot.is-playing .cassette-link,
 .cassette-link:focus-visible {
     --tape-play-state: running;
+}
+
+/* Deck key: 30-second preview of the #1 track */
+.cassette-play {
+    position: absolute;
+    right: 38px;
+    bottom: 16px;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 9px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #2c2a32 0%, #1a181e 100%);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.65);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.cassette-play[hidden] {
+    display: none;
+}
+
+.cassette-play:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Pressed in while it plays, lit amber like the VHS display */
+.cassette-play:active,
+.cassette-play[aria-pressed="true"] {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.65), inset 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.cassette-play[aria-pressed="true"] {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.45);
+    text-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+}
+
+.cassette-play .icon-pause,
+.cassette-play[aria-pressed="true"] .icon-play {
+    display: none;
+}
+
+.cassette-play[aria-pressed="true"] .icon-pause {
+    display: block;
+}
+
+/* Narrow phones: the key shrinks to its icon so it clears the cover art */
+@media (max-width: 360px) {
+    .cassette-play-time {
+        display: none;
+    }
 }
 
 .cassette-song-title-text {
@@ -1278,7 +1484,7 @@
         grid-template-columns: 1fr;
     }
 
-    .cassette-link {
+    .cassette-slot {
         grid-column: span 1;
         order: -1;
     }
@@ -1389,6 +1595,12 @@
 
     .project-real .card-visual {
         flex: none;
+    }
+
+    /* Stacked: the card and its text take the full width again */
+    .project-real.wide-card,
+    .project-real.wide-card .card-content {
+        width: auto;
     }
 
     .card-content {
@@ -1592,5 +1804,126 @@
 @media (max-width: 768px) {
     .library-grid {
         row-gap: 46px;
+    }
+}
+
+/* Arriving via a page transition, the cover art is the morph's landing spot: show it at once */
+html.vt-nav .cassette-cover-art {
+    transition: none;
+}
+
+/* ======================================================== */
+/*   PROJECT CARD: ANIMATED NEURAL NETWORK (index.js)       */
+/* ======================================================== */
+.card-visual .nn-art {
+    display: block;
+}
+
+.nn-edges line {
+    stroke: rgba(255, 255, 255, 0.42);
+    stroke-width: 2.5;
+}
+
+/* One bright dash per edge; pathLength="1" makes the dash values fractions of the edge */
+.nn-pulses line {
+    stroke: #fff;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 0.16 1;
+    stroke-dashoffset: 0.16;
+    opacity: 0;
+}
+
+.nn-nodes circle {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.nn-verdict {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-anchor: middle;
+    opacity: 0;
+}
+
+.nn-verdict-real { fill: #10b981; }
+.nn-verdict-ai { fill: #f59e0b; }
+.nn-verdict-df { fill: #ef4444; }
+
+/* Running on hover or focus, and always on touch screens (.is-live). Each layer (--l) starts
+   0.45s after the one before it, so a signal crosses the network in 1.8s of a 2.4s cycle; the
+   output node then holds one verdict per cycle, in the sandbox's class colours. */
+:is(.project-real:hover, .project-real:focus-visible) .nn-pulses line,
+.nn-art.is-live .nn-pulses line {
+    animation: nnPulse 2.4s linear infinite;
+    animation-delay: calc(var(--l) * 0.45s);
+}
+
+:is(.project-real:hover, .project-real:focus-visible) .nn-nodes circle,
+.nn-art.is-live .nn-nodes circle {
+    animation: nnFire 2.4s ease-out infinite;
+    animation-delay: calc(var(--l) * 0.45s);
+}
+
+:is(.project-real:hover, .project-real:focus-visible) .nn-nodes .nn-output,
+.nn-art.is-live .nn-nodes .nn-output {
+    animation: nnFire 2.4s ease-out 1.8s infinite, nnVerdictFill 7.2s steps(1) 1.8s infinite;
+}
+
+:is(.project-real:hover, .project-real:focus-visible) .nn-verdict,
+.nn-art.is-live .nn-verdict {
+    animation: nnVerdictShow 7.2s steps(1) infinite;
+    animation-delay: calc(1.8s + var(--v) * 2.4s);
+}
+
+@keyframes nnPulse {
+    0% {
+        stroke-dashoffset: 0.16;
+        opacity: 0.9;
+    }
+
+    18.75% {
+        stroke-dashoffset: -1;
+        opacity: 0.9;
+    }
+
+    18.76%,
+    100% {
+        stroke-dashoffset: -1;
+        opacity: 0;
+    }
+}
+
+@keyframes nnFire {
+    0% {
+        transform: scale(1.14);
+        filter: brightness(1.25);
+    }
+
+    22%,
+    100% {
+        transform: scale(1);
+        filter: none;
+    }
+}
+
+@keyframes nnVerdictFill {
+    0% { fill: #10b981; }
+    33.33% { fill: #f59e0b; }
+    66.66% { fill: #ef4444; }
+}
+
+@keyframes nnVerdictShow {
+    0% { opacity: 1; }
+    33.33%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nn-pulses line,
+    .nn-nodes circle,
+    .nn-verdict {
+        animation: none !important;
     }
 }

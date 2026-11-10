@@ -24,9 +24,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/base.css?v=7.2">
-    <link rel="stylesheet" href="/assets/css/project.css?v=7.2">
-    <script src="/assets/js/vt-nav.js?v=7.0"></script>
+    <link rel="stylesheet" href="/assets/css/base.css?v=7.3">
+    <link rel="stylesheet" href="/assets/css/project.css?v=7.3">
+    <script src="/assets/js/vt-nav.js?v=7.3"></script>
 </head>
 
 <body>
@@ -58,17 +58,18 @@
         <header class="hero subpage-hero project-header">
             <h1 class="subpage-title">Real, Deepfake or AI</h1>
             <p class="subtitle">Classifies face images as real, AI-generated or deepfake using ConvNeXt-Tiny features and a linear SVM, running right in your browser.</p>
+            <!-- Figures from the benchmark table in the project README -->
+            <ul class="project-stats" aria-label="Key figures">
+                <li><strong>98.66%</strong> test accuracy</li>
+                <li><strong>11,493</strong> test images</li>
+                <li><strong>3</strong> classes</li>
+                <li><strong>27&nbsp;MB</strong> model, runs locally</li>
+            </ul>
         </header>
 
         <section class="section">
             <div class="list-grid">
                 <div class="glass-card list-card project-card fade-in delay-1">
-                    <img src="/projects/real-deepfake-or-ai/real-deepfake-or-ai-thumb.webp"
-                        fetchpriority="high"
-                        width="1440" height="810"
-                        class="project-hero-img"
-                        alt="Real, Deepfake or AI">
-
                     <!-- Interactive Sandbox -->
                     <div class="detector-demo-card" id="detector-demo">
                         <div class="detector-demo-header">
@@ -83,11 +84,16 @@
                                 <button type="button" class="detector-sample-btn sample-btn-df" data-sample="deepfake" aria-pressed="false">
                                     Deepfake
                                 </button>
-                                <label class="detector-upload-btn" id="detector-upload-label" for="detector-file-input" title="Analyze a local image in your browser (.jpg, .jpeg, .png, .webp)">
+                                <label class="detector-upload-btn" id="detector-upload-label" for="detector-file-input" title="Analyze a local image in your browser (.jpg, .jpeg, .png, .webp). You can also drop or paste one.">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     <span id="detector-upload-text">Test Custom Image</span>
                                     <input type="file" id="detector-file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="visually-hidden">
                                 </label>
+                                <!-- Shown by project-detail.js when the browser can open a camera -->
+                                <button type="button" class="detector-camera-btn" id="detector-camera-btn" title="Take a snapshot with your camera; it stays in your browser" hidden>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                    <span id="detector-camera-text">Camera</span>
+                                </button>
                             </div>
                         </div>
 
@@ -96,6 +102,8 @@
                             <div class="detector-visual-pane">
                                 <div class="detector-canvas-wrap" id="detector-canvas-wrap">
                                     <canvas id="detector-preview-canvas" width="224" height="224"></canvas>
+                                    <!-- Live camera view, over the canvas until a snapshot is taken -->
+                                    <video class="detector-camera-view" id="detector-camera-view" playsinline muted hidden></video>
                                     <div class="detector-scan-line"></div>
                                 </div>
                             </div>
@@ -140,8 +148,16 @@
                             </div>
                         </div>
 
-                        <p class="detector-note">Custom images are analyzed locally and never uploaded. The first one downloads the 27&nbsp;MB model, which your browser then caches.</p>
+                        <p class="detector-note">Pick, drop or paste an image, or take a snapshot. Custom images are analyzed locally and never uploaded. The first one downloads the 27&nbsp;MB model, which your browser then caches.</p>
+                        <!-- Shown while an image is dragged over the sandbox -->
+                        <div class="detector-drop-hint" aria-hidden="true">Drop the image to analyze it</div>
                     </div>
+
+                    <img src="/projects/real-deepfake-or-ai/real-deepfake-or-ai-thumb.webp"
+                        loading="lazy" decoding="async"
+                        width="1440" height="810"
+                        class="project-hero-img"
+                        alt="Real, Deepfake or AI">
 
                     <div id="github-content">
                         <p class="readme-loading">Loading project data from GitHub
@@ -156,10 +172,11 @@
 
         <footer>
             <p>&copy; 2026 yiğit.</p>
+            <p class="footer-sync" id="footer-sync" hidden><span class="footer-sync-dot" aria-hidden="true"></span><time></time></p>
         </footer>
     </div>
 
-    <script type="module" src="/assets/js/pages/project-detail.js?v=7.2"></script>
+    <script type="module" src="/assets/js/pages/project-detail.js?v=7.3"></script>
 </body>
 
 </html>

@@ -2,7 +2,8 @@ name: Sync Supabase Database
 
 on:
   schedule:
-    - cron: '0 * * * *' # Hourly
+    # Hourly at :37: GitHub delays or drops scheduled runs at the busy top of the hour
+    - cron: '37 * * * *'
   workflow_dispatch: # Allow manual triggering
 
 permissions:

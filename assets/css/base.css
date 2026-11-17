@@ -423,6 +423,16 @@ footer p {
     background: rgba(255, 255, 255, 0.05);
 }
 
+/* A deprecated page (Reading): shown in place, not a link */
+.lib-nav-item.is-disabled,
+.lib-nav-item.is-disabled:hover {
+    color: rgba(255, 255, 255, 0.25);
+    background: none;
+    cursor: default;
+    text-decoration: line-through;
+    text-decoration-color: rgba(255, 255, 255, 0.2);
+}
+
 /* The current page: lifted, with its icon in the section's colour */
 .lib-nav-item.active {
     color: rgba(255, 255, 255, 0.92);
@@ -453,7 +463,7 @@ footer p {
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Keyboard shortcut hint (1 / 2 / 3, see core.js initLibraryKeys) */
+/* Keyboard shortcut hint (2 / 3, see core.js initLibraryKeys) */
 .lib-nav-key {
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.6rem;

@@ -576,9 +576,10 @@ export function showSyncedAt(epochSeconds) {
     syncedAtTimer = setInterval(update, 60000);
 }
 
-// --- Keyboard: 1 / 2 / 3 open the library pages, in the order of the library navigation ---
+// --- Keyboard: 2 / 3 open the library pages, in the order of the library navigation ---
+// (1 was Reading, deprecated since Goodreads closed its feeds)
 
-const LIBRARY_KEYS = { '1': '/library/reading', '2': '/library/music', '3': '/library/cinema' };
+const LIBRARY_KEYS = { '2': '/library/music', '3': '/library/cinema' };
 const LIBRARY_KEY_COOLDOWN_MS = 500;
 const LIBRARY_KEY_STAMP = 'simplyigit_key_nav';
 let libraryKeysInitialized = false;

@@ -3,7 +3,7 @@
 Personal portfolio of yiğit, live at **[simplyigit.me](https://simplyigit.me)**.
 
 - **Projects:** [Real, Deepfake or AI](https://simplyigit.me/projects/real-deepfake-or-ai) classifies face images with ConvNeXt-Tiny features and a linear SVM. The model is exported to int8 ONNX and runs entirely in the visitor's browser with ONNX Runtime Web. Uploaded images are never sent anywhere.
-- **Library of Interest:** live feeds of what I'm listening to (Spotify + Last.fm), watching (Letterboxd) and reading (Goodreads).
+- **Library of Interest:** live feeds of what I'm listening to (Spotify + Last.fm) and watching (Letterboxd). Reading (Goodreads) is deprecated: Goodreads closed its RSS feeds and put shelves behind sign-in in November 2026, so the homepage book card shows the last stored books with a "Deprecated" label, isn't a link, and `/library/reading` redirects home (`vercel.json`).
 
 Plain HTML, CSS and JavaScript (ES modules), no framework or build step, deployed on Vercel.
 
@@ -15,7 +15,7 @@ GitHub Action (hourly) ── scripts/sync_data.py ──▶ Supabase (portfolio
 Browser ◀── /api/* (Vercel Python functions, edge-cached 10 min + 24 h stale-while-revalidate)
 ```
 
-- `scripts/sync_data.py` collects Last.fm top tracks and artists (matched to Spotify for links and artwork), Letterboxd favorites, diary and watchlist, Goodreads shelves, and the project READMEs (rendered by GitHub's markdown API). For the #1 track, Gemini picks three short lyric lines. Full lyrics (LRCLIB, with a Lyrica fallback) are only used as input and are never stored or served. Each top track also gets a 30-second preview URL from the iTunes Search API (Spotify's API no longer returns previews); tracks Apple doesn't carry simply have no play button.
+- `scripts/sync_data.py` collects Last.fm top tracks and artists (matched to Spotify for links and artwork), Letterboxd diary and watchlist (the four favourite films are listed in `FAVORITE_FILMS`, since Letterboxd's profile page sits behind a Cloudflare challenge; their posters still come from each film's page), and the project READMEs (rendered by GitHub's markdown API). For the #1 track, Gemini picks three short lyric lines. Full lyrics (LRCLIB, with a Lyrica fallback) are only used as input and are never stored or served. Each top track also gets a 30-second preview URL from the iTunes Search API (Spotify's API no longer returns previews); tracks Apple doesn't carry simply have no play button.
 - Each sync also writes a `sync_meta` row with its time and, per section, when that section last synced without problems. The `/api` functions pass on the oldest of the sections a page shows as `synced_at`, which the footer shows as "Synced 12 min ago".
 - The anon key can read only the public rows (`spotify`, `books`, `movies`, `projects`, `sync_meta`; a Supabase select policy). A new public row has to be added to that policy; everything else, like the Spotify refresh token, stays private.
 - When any section fails, reuses stored data, or doesn't upload, the sync still stores what it can and then exits with an error, so the Action fails and GitHub emails the repo owner.

@@ -53,10 +53,12 @@ def respond(handler, keys, build):
     try:
         values = fetch_values([*keys, SYNC_META_KEY])
         body = {"success": True, "data": build(values), "timestamp": time.time()}
-        # The oldest of these sections' last clean syncs; rows from before per-section times only have last_updated
+        # The oldest last clean sync among these sections. Sections that aren't synced any more (books)
+        # have no time and are left out; with none of them timed, fall back to the last sync
         meta = values.get(SYNC_META_KEY) or {}
         sections = meta.get("sections") or {}
-        synced_at = min(sections[k] for k in keys) if all(k in sections for k in keys) else meta.get("last_updated")
+        times = [sections[k] for k in keys if k in sections]
+        synced_at = min(times) if times else meta.get("last_updated")
         if synced_at:
             body["synced_at"] = synced_at
         status, cache_header = 200, CACHE_HEADER

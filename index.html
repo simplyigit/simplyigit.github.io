@@ -120,7 +120,8 @@
             <div class="library-grid">
 
                 <!-- Books (left) - 3D Book Showcase -->
-                <a href="/library/reading" class="book-link" id="book-card" aria-label="Reading: the books I'm reading and want to read" data-caption="Reading">
+                <div class="book-link is-deprecated" id="book-card" role="group" aria-label="Reading, deprecated: Goodreads no longer shares reading data" data-caption="Reading">
+                    <span class="deprecated-badge" aria-hidden="true">Deprecated</span>
                     <div class="hero-book-body">
                         <div class="book-bay">
                             <div class="book-bay-header">
@@ -160,7 +161,7 @@
                             </div>
                         </div>
                     </div>
-                </a>
+                </div>
 
                 <!-- Cassette (center). The slot also holds the preview button, which can't live inside the link -->
                 <div class="cassette-slot" id="cassette-slot">

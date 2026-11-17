@@ -1,4 +1,5 @@
 """Tests for the pure helpers in sync_data.py (no network). Run: pytest scripts/"""
+import concurrent.futures
 import xml.etree.ElementTree as ET
 
 import pytest
@@ -138,7 +139,8 @@ def test_is_valid_payload_rejects_errors_and_empty_results():
     assert not is_valid_payload("spotify", None)
     assert is_valid_payload("spotify", {"top_tracks_last_month": [{}]})
     assert not is_valid_payload("movies", {"recent_activity": [], "favorite_films": [], "watchlist": []})
-    assert is_valid_payload("books", [{}]) and not is_valid_payload("books", [])
+    assert not is_valid_payload("books", [{}])  # no longer synced
+    assert sync_data.SYNC_CATEGORIES == ["spotify", "movies", "projects"]
     assert not is_valid_payload("favorite_albums", [{}])
 
 
@@ -148,6 +150,34 @@ def test_fall_back_reports_reused_and_missing_data():
     assert fall_back("movies", "watchlist", [], [2]) == [2]
     assert fall_back("books", "books", [], None) == []
     assert [section for section, _ in sync_data.SYNC_PROBLEMS] == ["movies", "books"]
+
+
+class InlineExecutor:
+    """Runs submitted work at once (stands in for the thread pool)."""
+    def submit(self, fn, *args):
+        future = concurrent.futures.Future()
+        future.set_result(fn(*args))
+        return future
+
+
+def test_favorite_films_keep_order_and_look_up_images(monkeypatch):
+    monkeypatch.setattr(sync_data, "get_both_images", lambda link: (f"backdrop{link}", f"poster{link}"))
+    films = sync_data.fetch_favorite_films(InlineExecutor())
+    assert [f["title"] for f in films] == [f["title"] for f in sync_data.FAVORITE_FILMS]
+    assert films[0] == {
+        "title": "Interstellar", "link": "https://letterboxd.com/oneyigit/film/interstellar/",
+        "cover_url": "poster/film/interstellar/", "backdrop_url": "backdrop/film/interstellar/",
+    }
+    assert sync_data.SYNC_PROBLEMS == []
+
+
+def test_favorite_film_without_poster_keeps_stored_images(monkeypatch):
+    monkeypatch.setattr(sync_data, "get_both_images", lambda link: ("", "") if "interstellar" in link else ("b", "p"))
+    stored = [{"title": "Interstellar", "cover_url": "old-poster", "backdrop_url": "old-backdrop"}]
+    films = sync_data.fetch_favorite_films(InlineExecutor(), stored)
+    assert (films[0]["cover_url"], films[0]["backdrop_url"]) == ("old-poster", "old-backdrop")
+    assert films[1]["cover_url"] == "p"
+    assert [section for section, _ in sync_data.SYNC_PROBLEMS] == ["movies"]
 
 
 def test_favorite_albums_need_no_network():

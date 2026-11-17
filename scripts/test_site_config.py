@@ -56,3 +56,14 @@ def test_rewrite_destinations_exist():
     for rule in json.loads(read("vercel.json"))["rewrites"]:
         if "$" not in rule["destination"]:
             assert os.path.isfile(os.path.join(ROOT, rule["destination"].lstrip("/"))), rule
+
+
+@pytest.mark.parametrize("page", [p for p in PAGES if p != "library/reading.html"])
+def test_retired_reading_page_is_not_linked(page):
+    # vercel.json redirects /library/reading home: nothing should link there
+    assert 'href="/library/reading"' not in read(page), page
+
+
+def test_reading_page_redirects_home():
+    redirects = json.loads(read("vercel.json")).get("redirects", [])
+    assert {"source": "/library/reading", "destination": "/", "permanent": False} in redirects

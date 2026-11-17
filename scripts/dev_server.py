@@ -1,5 +1,5 @@
-"""Local preview server that behaves like Vercel for this site: clean URLs, the rewrites and headers
-in vercel.json, and the Python /api functions.
+"""Local preview server that behaves like Vercel for this site: clean URLs, the redirects, rewrites and
+headers in vercel.json, and the Python /api functions.
 
     python3 scripts/dev_server.py [port]        # default port 8000
 
@@ -48,6 +48,12 @@ def load_rewrites(config):
     return {r["source"]: r["destination"] for r in config.get("rewrites", []) if "(" not in r["source"]}
 
 
+def load_redirects(config):
+    """Exact-path redirects from vercel.json, as {source: (destination, status)}."""
+    return {r["source"]: (r["destination"], 308 if r.get("permanent", True) else 307)
+            for r in config.get("redirects", []) if "(" not in r["source"] and ":" not in r["source"]}
+
+
 def load_headers(config):
     """vercel.json's custom headers as (source pattern, [(key, value)]). Its sources are plain regexes.
     Cache-Control is left out: everything here is no-store (see end_headers)."""
@@ -59,6 +65,7 @@ def load_headers(config):
 
 VERCEL_CONFIG = load_vercel_config()
 REWRITES = load_rewrites(VERCEL_CONFIG)
+REDIRECTS = load_redirects(VERCEL_CONFIG)
 HEADERS = load_headers(VERCEL_CONFIG)
 
 
@@ -99,6 +106,15 @@ class DevHandler(http.server.SimpleHTTPRequestHandler):
 
         if path.startswith("/api/"):
             return self.run_api_function(path[len("/api/"):].strip("/"))
+
+        # cleanUrls: /foo.html is /foo for redirects too
+        redirect = REDIRECTS.get(path) or REDIRECTS.get(path[:-len(".html")] if path.endswith(".html") else None)
+        if redirect:
+            self.send_response(redirect[1])
+            self.send_header("Location", redirect[0])
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
 
         if path in REWRITES:
             self.path = REWRITES[path] + query

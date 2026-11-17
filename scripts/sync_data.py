@@ -787,6 +787,34 @@ def parse_letterboxd_item(item):
     }
 
 
+# All-time favourite films, in profile order. The profile page, the only place Letterboxd lists them,
+# sits behind a Cloudflare challenge (since 2026-11), so they live here: update by hand when they change.
+# film: the slug of letterboxd.com/film/<film>/ (posters and backdrops come from there);
+# link: the page the card opens
+FAVORITE_FILMS = [
+    {"title": "Interstellar", "film": "interstellar", "link": "/oneyigit/film/interstellar/"},
+    {"title": "The Perks of Being a Wallflower", "film": "the-perks-of-being-a-wallflower", "link": "/oneyigit/film/the-perks-of-being-a-wallflower/1/"},
+    {"title": "Before Sunrise", "film": "before-sunrise", "link": "/oneyigit/film/before-sunrise/"},
+    {"title": "A.I. Artificial Intelligence", "film": "ai-artificial-intelligence", "link": "/oneyigit/film/ai-artificial-intelligence/"},
+]
+
+
+def fetch_favorite_films(executor, stored=None):
+    """FAVORITE_FILMS with their poster and backdrop. A film whose page can't be read keeps its
+    stored images (reported as a problem)."""
+    stored_by_title = {f.get("title"): f for f in stored or [] if isinstance(f, dict)}
+    lookups = [(film, executor.submit(get_both_images, f"/film/{film['film']}/")) for film in FAVORITE_FILMS]
+    films = []
+    for film, lookup in lookups:
+        backdrop, poster = lookup.result()
+        if not poster:
+            old = stored_by_title.get(film["title"], {})
+            report_problem("movies", f"no poster for {film['title']}; " + ("reusing the stored one" if old.get("cover_url") else "none stored"))
+            backdrop, poster = old.get("backdrop_url", ""), old.get("cover_url", "")
+        films.append({"title": film["title"], "link": "https://letterboxd.com" + film["link"], "cover_url": poster, "backdrop_url": backdrop})
+    return films
+
+
 def fetch_movies_data(url=None, key=None):
     username = "oneyigit"
     base_url = "https://letterboxd.com"
@@ -809,43 +837,7 @@ def fetch_movies_data(url=None, key=None):
 
     # 2. Favorites & Watchlist (Parallel posters)
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        favorite_films = []
-        try:
-            prof_html = fetch_letterboxd_html(f"{base_url}/{username}/", timeout=10)
-            fav_idx = prof_html.find('id="favourites"')
-            if fav_idx == -1:
-                fav_idx = prof_html.find('favourites')
-            
-            if fav_idx != -1:
-                fav_section_html = prof_html[fav_idx:prof_html.find('</section>', fav_idx)]
-                fav_items = []
-                for m in re.finditer(r'<div\s+class="react-component"[^>]+>', fav_section_html):
-                    tag = m.group(0)
-                    name_m = re.search(r'data-item-full-display-name="([^"]+)"', tag)
-                    link_m = re.search(r'data-item-link="([^"]+)"', tag)
-                    target_m = re.search(r'data-target-link="([^"]+)"', tag)
-                
-                    fav_title = re.sub(r'\s\(\d{4}\)$', '', name_m.group(1)) if name_m else ""
-                    fav_title = html.unescape(fav_title)
-                    film_link = link_m.group(1) if link_m else ""
-                    target_link = target_m.group(1) if target_m else film_link
-                    if fav_title:
-                        fav_items.append((fav_title, film_link, target_link))
-                    
-                poster_futures = {executor.submit(get_both_images, item[1]): item for item in fav_items}
-                concurrent.futures.wait(poster_futures)
-                for itm in fav_items:
-                    for fut, f_itm in poster_futures.items():
-                        if f_itm == itm:
-                            backdrop, poster = fut.result()
-                            favorite_films.append({"title": itm[0], "link": base_url + itm[2] if itm[2] else "", "cover_url": poster, "backdrop_url": backdrop})
-                            break
-            else:
-                print("Could not find 'favourites' section in Letterboxd profile.")
-        except Exception as e:
-            print(f"Error fetching favorite films: {e}")
-
-        favorite_films = fall_back("movies", "favorite films", favorite_films, existing_movies.get("favorite_films"))
+        favorite_films = fetch_favorite_films(executor, existing_movies.get("favorite_films"))
 
         # 3. Watchlist
         watchlist_films = []
@@ -881,94 +873,9 @@ def fetch_movies_data(url=None, key=None):
         add_prominent_colors(recent_activity, executor)
     return {"recent_activity": recent_activity, "favorite_films": favorite_films, "watchlist": watchlist_films}
 
-# --- HELPERS: BOOKS ---
-
-def fetch_books_data(url=None, key=None):
-    goodreads_url = 'https://www.goodreads.com/review/list_rss/199124060'
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-    }
-    books_data = []
-    try:
-        req = urllib.request.Request(goodreads_url, headers=headers)
-        with urllib.request.urlopen(req, timeout=10) as rss_response:
-            root = ET.fromstring(rss_response.read())
-            items = root.findall('./channel/item')
-            for item in items:
-                title = item.find('title').text if item.find('title') is not None and item.find('title').text else "Unknown Title"
-                title = html.unescape(title).strip()
-                author = item.find('author_name').text if item.find('author_name') is not None and item.find('author_name').text else "Unknown Author"
-                author = html.unescape(author).strip()
-
-                cover_url = item.find('book_large_image_url').text if item.find('book_large_image_url') is not None and item.find('book_large_image_url').text else ""
-                if not cover_url and item.find('book_image_url') is not None and item.find('book_image_url').text:
-                    cover_url = item.find('book_image_url').text
-                if cover_url:
-                    cover_url = re.sub(r'\._[A-Za-z0-9]+_\.', '.', cover_url.strip())
-
-                raw_shelves = (item.find('user_shelves').text or "").strip() if item.find('user_shelves') is not None else ""
-                shelf_tokens = [s.strip() for s in raw_shelves.split(',') if s.strip()]
-                if 'currently-reading' in shelf_tokens:
-                    shelf = 'currently-reading'
-                elif 'to-read' in shelf_tokens:
-                    shelf = 'to-read'
-                else:
-                    shelf = 'read'
-
-                book_node = item.find('book')
-                num_pages = None
-                if book_node is not None and book_node.find('num_pages') is not None and book_node.find('num_pages').text:
-                    raw_pages = book_node.find('num_pages').text.strip()
-                    if raw_pages.isdigit():
-                        num_pages = int(raw_pages)
-
-                rating = 0
-                if item.find('user_rating') is not None and item.find('user_rating').text:
-                    raw_rating = item.find('user_rating').text.strip()
-                    if raw_rating.isdigit():
-                        rating = int(raw_rating)
-
-                avg_rating = ""
-                if item.find('average_rating') is not None and item.find('average_rating').text:
-                    avg_rating = item.find('average_rating').text.strip()
-
-                year = ""
-                if item.find('book_published') is not None and item.find('book_published').text:
-                    year = item.find('book_published').text.strip()
-
-                link_el = item.find('link')
-                link = link_el.text.strip() if link_el is not None and link_el.text else "#"
-
-                entry = {
-                    "title": title,
-                    "author": author,
-                    "cover_url": cover_url,
-                    "link": link,
-                    "shelf": shelf
-                }
-                if num_pages:
-                    entry["num_pages"] = num_pages
-                if rating > 0:
-                    entry["rating"] = rating
-                if avg_rating:
-                    entry["average_rating"] = avg_rating
-                if year:
-                    entry["year"] = year
-
-                books_data.append(entry)
-
-        shelf_order = {'currently-reading': 0, 'to-read': 1, 'read': 2}
-        books_data.sort(key=lambda b: shelf_order.get(b.get('shelf', 'to-read'), 1))
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as color_executor:
-            add_prominent_colors(books_data, color_executor)
-    except Exception as e:
-        print(f"Error fetching Goodreads books: {e}")
-
-    if not books_data:
-        stored = read_row(url, key, "books") if url and key else None
-        books_data = fall_back("books", "books", books_data, stored)
-    return books_data
+# --- BOOKS ---
+# Goodreads closed its RSS feeds and put shelves behind sign-in (2026-11), so books are no longer synced:
+# the stored "books" row is kept as it is, and the Reading page is retired (vercel.json redirects it home).
 
 # --- HELPERS: PROJECTS ---
 
@@ -1015,7 +922,7 @@ def fetch_projects_data(github_token):
 
 # --- MAIN SYNC ---
 
-SYNC_CATEGORIES = ["spotify", "movies", "books", "projects"]
+SYNC_CATEGORIES = ["spotify", "movies", "projects"]
 # Row holding {"last_updated": <epoch seconds>, "sections": {<category>: <epoch seconds>}}: the last sync
 # that stored anything, and when each section last synced without problems
 SYNC_META_KEY = "sync_meta"
@@ -1027,8 +934,6 @@ def is_valid_payload(category, value):
         return isinstance(value, dict) and bool(value.get("top_tracks_last_month"))
     if category == "movies":
         return isinstance(value, dict) and any(value.get(k) for k in ("recent_activity", "favorite_films", "watchlist"))
-    if category == "books":
-        return isinstance(value, list) and bool(value)
     if category == "projects":
         return isinstance(value, dict) and bool(value)
     return False
@@ -1077,7 +982,6 @@ def main():
     data = {
         "spotify": spotify_data,
         "movies": safe_fetch("movies", fetch_movies_data, url, key),
-        "books": safe_fetch("books", fetch_books_data, url, key),
         "projects": safe_fetch("projects", fetch_projects_data, github_token),
         "last_updated": time.time()
     }
@@ -1093,7 +997,8 @@ def main():
 
     if os.environ.get("EXPORT_STATIC") == "1" or os.environ.get("GITHUB_ACTIONS") != "true":
         print("Exporting static snapshots...")
-        export_static_snapshots(data)
+        # Books aren't synced any more: the snapshots carry the stored copy
+        export_static_snapshots({**data, "books": read_row(url, key, "books")})
 
     print("Uploading to Supabase...")
     for category in SYNC_CATEGORIES:
@@ -1110,7 +1015,9 @@ def main():
     clean = [c for c in SYNC_CATEGORIES if c not in with_problems]
     if clean:
         meta = existing.get(SYNC_META_KEY)
-        sections = dict(meta.get("sections") or {}) if isinstance(meta, dict) else {}
+        sections = meta.get("sections") or {} if isinstance(meta, dict) else {}
+        # Only sections that are still synced (books stopped in 2026-11)
+        sections = {c: t for c, t in sections.items() if c in SYNC_CATEGORIES}
         sections.update({c: data["last_updated"] for c in clean})
         if not upsert_row(url, key, SYNC_META_KEY, {"last_updated": data["last_updated"], "sections": sections}):
             report_problem(SYNC_META_KEY, "upload to Supabase failed")

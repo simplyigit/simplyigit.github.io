@@ -422,6 +422,14 @@ function initMusicTabs() {
     let currentTab = "tracks";
     let isTransitioning = false;
 
+    // Deep links: /library/music#artists opens on that tab. An empty hash is the default tab;
+    // any other hash is left alone.
+    const tabFromHash = () => {
+        const hash = location.hash.slice(1).toLowerCase();
+        if (!hash) return "tracks";
+        return tabOrder.includes(hash) ? hash : null;
+    };
+
     tabButtons.forEach(b => {
         b.tabIndex = b.getAttribute("data-tab") === currentTab ? 0 : -1;
     });
@@ -453,7 +461,9 @@ function initMusicTabs() {
         });
     });
 
-    function switchTab(newTab) {
+    // instant: swap the panes without the slide (first paint from a deep link)
+    // updateHash: false when the hash is what asked for the switch
+    function switchTab(newTab, { instant = false, updateHash = true } = {}) {
         if (newTab === currentTab || isTransitioning) return;
         isTransitioning = true;
 
@@ -492,12 +502,16 @@ function initMusicTabs() {
         currentTab = newTab;
         activeTab = newTab;
         applyTabTint();
+        // replaceState: switching tabs shouldn't pile up history entries. The default tab has no hash.
+        if (updateHash) {
+            history.replaceState(history.state, '', newTab === tabOrder[0] ? location.pathname + location.search : `#${newTab}`);
+        }
         // A preview belongs to the Tracks tab: don't leave it playing behind another tab
         if (newTab !== 'tracks') stopPreview();
 
         // Check prefers-reduced-motion
         const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (prefersReducedMotion) {
+        if (instant || prefersReducedMotion) {
             outgoingPane.style.display = "none";
             outgoingPane.classList.remove("active");
             incomingPane.style.display = "block";
@@ -605,8 +619,22 @@ function initMusicTabs() {
             container.classList.remove("is-transitioning");
 
             isTransitioning = false;
+            // The hash changed while the panes were sliding: catch up with it
+            syncTabToHash();
         };
     }
+
+    function syncTabToHash() {
+        const tab = tabFromHash();
+        if (tab && tab !== currentTab) switchTab(tab, { updateHash: false });
+    }
+
+    // Opened on a deep link: show that tab straight away, before the first paint
+    const initialTab = tabFromHash();
+    if (initialTab && initialTab !== currentTab) switchTab(initialTab, { instant: true, updateHash: false });
+
+    // Hash edited by hand, or an in-page link
+    window.addEventListener("hashchange", syncTabToHash);
 }
 
 if (document.readyState === 'loading') {

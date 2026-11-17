@@ -10,7 +10,8 @@ import urllib.request
 # Cache for 60s in browser, 10 min fresh at edge CDN, 24h stale-while-revalidate
 CACHE_HEADER = 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400'
 NO_CACHE_HEADER = 'no-store, no-cache, must-revalidate, max-age=0'
-# Row written by scripts/sync_data.py: {"last_updated": <epoch seconds>} of the last sync
+# Row written by scripts/sync_data.py: {"last_updated": <epoch seconds>, "sections": {<key>: <epoch seconds>}},
+# the last sync and when each section last synced without problems
 SYNC_META_KEY = 'sync_meta'
 
 
@@ -52,7 +53,10 @@ def respond(handler, keys, build):
     try:
         values = fetch_values([*keys, SYNC_META_KEY])
         body = {"success": True, "data": build(values), "timestamp": time.time()}
-        synced_at = (values.get(SYNC_META_KEY) or {}).get("last_updated")
+        # The oldest of these sections' last clean syncs; rows from before per-section times only have last_updated
+        meta = values.get(SYNC_META_KEY) or {}
+        sections = meta.get("sections") or {}
+        synced_at = min(sections[k] for k in keys) if all(k in sections for k in keys) else meta.get("last_updated")
         if synced_at:
             body["synced_at"] = synced_at
         status, cache_header = 200, CACHE_HEADER

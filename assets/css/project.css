@@ -349,7 +349,6 @@
     pointer-events: none;
 }
 
-.detector-scan-line.scanning,
 .detector-canvas-wrap.is-scanning .detector-scan-line {
     animation: scanSweep 0.65s ease-in-out;
 }
@@ -446,7 +445,6 @@
     gap: 4px;
 }
 
-.prob-header,
 .prob-label-row {
     display: flex;
     justify-content: space-between;

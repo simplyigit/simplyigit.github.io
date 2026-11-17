@@ -159,7 +159,7 @@
     transition: box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
-.top-track-banner:hover {
+.top-track-banner:hover, .top-track-banner:focus-visible {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px var(--track-color-glow, rgba(0, 0, 0, 0.2));
     /* Reduced hover glow further */
     border-color: rgba(255, 255, 255, 0.3);
@@ -364,11 +364,11 @@
     text-overflow: ellipsis;
 }
 
-.spotify-track-card:hover {
+.spotify-track-card:hover, .spotify-track-card:focus-visible {
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-.grid-track:hover {
+.grid-track:hover, .grid-track:focus-visible {
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(var(--track-color-rgb, 255, 255, 255), 0.3);
     border-color: rgba(var(--track-color-rgb, 255, 255, 255), 0.25);
 }
@@ -660,7 +660,7 @@
     pointer-events: none;
 }
 
-.spotify-track-card.is-artist:not(:hover) {
+.spotify-track-card.is-artist:not(:hover):not(:focus-visible) {
     border-color: rgba(255, 255, 255, 0.16);
 }
 
@@ -721,7 +721,7 @@
     transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
-.album-card:hover {
+.album-card:hover, .album-card:focus-visible {
     transform: translateY(-3px);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(var(--track-color-rgb, 255, 255, 255), 0.3), 0 0 32px var(--track-color-glow, transparent);
     border-color: rgba(var(--track-color-rgb, 255, 255, 255), 0.3);
@@ -762,16 +762,16 @@
 
 /* On hover the layers separate: the photo drifts against the pointer, the typography with it
    (--px/--py come from music.js) */
-.album-card:hover .album-banner-layer {
+.album-card:hover .album-banner-layer, .album-card:focus-visible .album-banner-layer {
     transition-duration: 0.35s;
 }
 
-.album-card:hover .album-banner-bg {
+.album-card:hover .album-banner-bg, .album-card:focus-visible .album-banner-bg {
     transform: translate(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -5px)) scale(1.08);
 }
 
 /* Typography keeps its resting scale and drifts only a little: some logos sit ~17px from the edge */
-.album-card:hover .album-banner-typo {
+.album-card:hover .album-banner-typo, .album-card:focus-visible .album-banner-typo {
     transform: translate(calc(var(--px, 0) * 4px), calc(var(--py, 0) * 3px)) scale(1.015);
 }
 
@@ -785,18 +785,19 @@
     pointer-events: none;
 }
 
-.album-card:hover .album-banner::after {
+.album-card:hover .album-banner::after, .album-card:focus-visible .album-banner::after {
     transform: translateX(120%);
     transition: transform 1.1s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
     .album-card,
-    .album-card:hover {
+    .album-card:hover,
+    .album-card:focus-visible {
         transform: none;
     }
 
-    .album-card:hover .album-banner-layer {
+    .album-card:hover .album-banner-layer, .album-card:focus-visible .album-banner-layer {
         transform: scale(1.015);
     }
 

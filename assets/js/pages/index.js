@@ -180,9 +180,8 @@ function initIndex() {
         });
     }
 
-    function renderSpotify(spotify) {
-        if (!spotify) return;
-        const data = spotify.data || spotify;
+    function renderSpotify(data) {
+        if (!data) return;
         const topTrack = data.top_tracks_last_month?.[0];
         if (!topTrack) return;
 
@@ -245,11 +244,8 @@ function initIndex() {
         }).join('').slice(0, 5);
     }
 
-    function renderBooks(books) {
-        if (!books || !indexBooksContainer) return;
-        const data = books.data || books;
-        const bookList = Array.isArray(data) ? data : (Array.isArray(data.books) ? data.books : []);
-        if (bookList.length === 0) return;
+    function renderBooks(bookList) {
+        if (!Array.isArray(bookList) || bookList.length === 0 || !indexBooksContainer) return;
 
         // Prioritize 'currently-reading' books first, then 'to-read', then 'read'
         const sorted = [...bookList].sort((a, b) => {
@@ -381,8 +377,7 @@ function initIndex() {
 
     function renderMovies(movies) {
         if (!movies || !indexMoviesContainer) return;
-        const data = movies.data || movies;
-        const recent = Array.isArray(data.recent_activity) ? data.recent_activity : (Array.isArray(data) ? data : []);
+        const recent = Array.isArray(movies.recent_activity) ? movies.recent_activity : [];
         if (recent.length === 0) return;
 
         const list = recent.slice(0, 10);

@@ -155,7 +155,11 @@ function renderRecent(recentContainer, recList) {
     if (!recentContainer || !Array.isArray(recList) || recList.length === 0) return;
     const seenSlugs = new Set();
     recentContainer.innerHTML = recList.slice(0, 7).map((film, index) => {
-        const stars = film.rating ? `<div class="overlay-rating" aria-label="Rated ${escapeHtml(film.rating)}">${renderStars(film.rating)}</div>` : '';
+        // Liked and rewatch marks sit after the stars (U+FE0E keeps the heart a text glyph, not an emoji)
+        const marks = (film.is_favorite ? '<span class="overlay-mark mark-liked" title="Liked">♥\uFE0E</span>' : '')
+            + (film.is_rewatch ? '<span class="overlay-mark mark-rewatch" title="Rewatch">↺</span>' : '');
+        const stars = (film.rating || marks) ? `<div class="overlay-rating">${renderStars(film.rating)}${marks}</div>` : '';
+        const labelNotes = [film.rating, film.is_favorite && 'liked', film.is_rewatch && 'rewatch'].filter(Boolean).join(', ');
         const cTitle = cleanFilmTitle(film.title);
         const safeTitle = escapeHtml(cTitle);
         const imgUrl = safeImg(film.cover_url, 240);
@@ -165,7 +169,7 @@ function renderRecent(recentContainer, recList) {
 
         // data-film / data-thumb: the homepage VHS poster of this film morphs into this card (initCinema)
         return `
-            <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" data-film="${escapeHtml(film.title)}" data-thumb="${escapeHtml(safeImg(film.cover_url, 150))}" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${film.rating ? ` (${escapeHtml(film.rating)})` : ''}">
+            <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" data-film="${escapeHtml(film.title)}" data-thumb="${escapeHtml(safeImg(film.cover_url, 150))}" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${labelNotes ? ` (${escapeHtml(labelNotes)})` : ''}">
                 ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" decoding="async">` : posterPlaceholder('recent', safeTitle)}
                 <div class="poster-overlay">
                     <div class="overlay-title">${safeTitle}</div>
@@ -244,7 +248,7 @@ function initCinema() {
         },
         {
             container: recentContainer,
-            sig: (d) => (d?.recent_activity || []).slice(0, 7).map(m => `${m.title}|${m.rating || ''}`).join('|'),
+            sig: (d) => (d?.recent_activity || []).slice(0, 7).map(m => `${m.title}|${m.rating || ''}|${m.is_favorite ? 'l' : ''}${m.is_rewatch ? 'r' : ''}`).join('|'),
             images: (d) => (d.recent_activity || []).slice(0, 7).map(f => safeImg(f.cover_url, 240)),
             render: (d) => renderRecent(recentContainer, d.recent_activity)
         },

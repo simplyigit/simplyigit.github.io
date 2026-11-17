@@ -1,62 +1,41 @@
 {
   "success": true,
   "data": {
-    "recent_activity": [
+    "watchlist": [
       {
-        "title": "Avengers: Endgame",
-        "rating": "\u2605\u2605\u2605\u2605",
-        "is_rewatch": false,
-        "is_favorite": false,
-        "link": "https://letterboxd.com/oneyigit/film/avengers-endgame/1/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/2/6/6/6/0/226660-avengers-endgame-0-600-0-900-crop.jpg?v=d4006bfd5e"
+        "link": "https://letterboxd.com/film/crimson-peak/",
+        "title": "Crimson Peak",
+        "cover_url": "https://a.ltrbxd.com/resized/sm/upload/ab/6v/2r/jl/pCj8zem1NDAODdtvha9WFEB6iWR-0-600-0-900-crop.jpg?v=b019ae9643"
       },
       {
-        "title": "Green Lantern: First Flight",
-        "rating": "\u2605\u2605\u2605\u2605",
-        "is_rewatch": false,
-        "is_favorite": false,
-        "link": "https://letterboxd.com/oneyigit/film/green-lantern-first-flight/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/1/0/0/4/41004-green-lantern-first-flight-0-600-0-900-crop.jpg?v=5b5e85f566"
+        "link": "https://letterboxd.com/film/miss-peregrines-home-for-peculiar-children/",
+        "title": "Miss Peregrine's Home for Peculiar Children",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/0/8/6/6/4/208664-miss-peregrine-s-home-for-peculiar-children-0-600-0-900-crop.jpg?v=d0835b2f50"
       },
       {
-        "title": "Green Lantern",
-        "rating": "\u2605\u2605\u00bd",
-        "is_rewatch": false,
-        "is_favorite": false,
-        "link": "https://letterboxd.com/oneyigit/film/green-lantern/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/0/2/9/3/20293-green-lantern-0-600-0-900-crop.jpg?v=e17d7cdcdb"
+        "link": "https://letterboxd.com/film/21/",
+        "title": "21",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/7/9/0/0/47900-21-0-600-0-900-crop.jpg?v=733647ac0d"
       },
       {
-        "title": "Catch Me If You Can",
-        "rating": "\u2605\u2605\u2605\u2605\u00bd",
-        "is_rewatch": false,
-        "is_favorite": false,
-        "link": "https://letterboxd.com/oneyigit/film/catch-me-if-you-can-2002/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/5/1/4/8/4/51484-catch-me-if-you-can-0-600-0-900-crop.jpg?v=942d676423"
+        "link": "https://letterboxd.com/film/alvin-and-the-chipmunks/",
+        "title": "Alvin and the Chipmunks",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/8/2/9/8/48298-alvin-and-the-chipmunks-0-600-0-900-crop.jpg?v=5ad5d3b4e2"
       },
       {
-        "title": "Everything Everywhere All at Once",
-        "rating": "\u2605\u2605\u2605\u2605\u2605",
-        "is_rewatch": false,
-        "is_favorite": false,
-        "link": "https://letterboxd.com/oneyigit/film/everything-everywhere-all-at-once/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/7/4/4/7/4/474474-everything-everywhere-all-at-once-0-600-0-900-crop.jpg?v=281f1a041e"
+        "link": "https://letterboxd.com/film/primetime-2026/",
+        "title": "Primetime",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/2/6/2/0/1/9/1262019-primetime-2026-0-600-0-900-crop.jpg?v=41640d6988"
       },
       {
-        "title": "Spider-Man: Brand New Day",
-        "rating": "\u2605\u2605\u2605\u2605",
-        "is_rewatch": false,
-        "is_favorite": false,
-        "link": "https://letterboxd.com/oneyigit/film/spider-man-brand-new-day/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/8/7/2/8/7/1/872871-spider-man-brand-new-day-0-600-0-900-crop.jpg?v=ebe6beb4fc"
+        "link": "https://letterboxd.com/film/purple-rain/",
+        "title": "Purple Rain",
+        "cover_url": "https://a.ltrbxd.com/resized/sm/upload/3u/yq/fn/hr/epUyAfIgsrpIcY0qi6dhnay5rpl-0-600-0-900-crop.jpg?v=af040301f2"
       },
       {
-        "title": "Aladdin",
-        "rating": "\u2605\u2605\u2605\u2605\u2605",
-        "is_rewatch": false,
-        "is_favorite": false,
-        "link": "https://letterboxd.com/oneyigit/film/aladdin/",
-        "cover_url": "https://a.ltrbxd.com/resized/sm/upload/n3/26/lb/e2/trm94WPjW5ApKulhFvuRm5cT8KQ-0-600-0-900-crop.jpg?v=7aa7423779"
+        "link": "https://letterboxd.com/film/caught-stealing/",
+        "title": "Caught Stealing",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/1/2/9/1/9/9/1129199-caught-stealing-0-600-0-900-crop.jpg?v=d3b8da3722"
       }
     ],
     "favorite_films": [
@@ -85,42 +64,99 @@
         "backdrop_url": "https://a.ltrbxd.com/resized/sm/upload/1t/9w/t3/lv/ai-1200-1200-675-675-crop-000000.jpg?v=6b300098c9"
       }
     ],
-    "watchlist": [
+    "recent_activity": [
       {
-        "title": "Crimson Peak",
-        "link": "https://letterboxd.com/film/crimson-peak/",
-        "cover_url": "https://a.ltrbxd.com/resized/sm/upload/ab/6v/2r/jl/pCj8zem1NDAODdtvha9WFEB6iWR-0-600-0-900-crop.jpg?v=b019ae9643"
-      },
-      {
-        "title": "Miss Peregrine's Home for Peculiar Children",
-        "link": "https://letterboxd.com/film/miss-peregrines-home-for-peculiar-children/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/0/8/6/6/4/208664-miss-peregrine-s-home-for-peculiar-children-0-600-0-900-crop.jpg?v=d0835b2f50"
-      },
-      {
-        "title": "21",
-        "link": "https://letterboxd.com/film/21/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/7/9/0/0/47900-21-0-600-0-900-crop.jpg?v=733647ac0d"
-      },
-      {
-        "title": "Alvin and the Chipmunks",
-        "link": "https://letterboxd.com/film/alvin-and-the-chipmunks/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/8/2/9/8/48298-alvin-and-the-chipmunks-0-600-0-900-crop.jpg?v=5ad5d3b4e2"
-      },
-      {
-        "title": "Primetime",
-        "link": "https://letterboxd.com/film/primetime-2026/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/2/6/2/0/1/9/1262019-primetime-2026-0-600-0-900-crop.jpg?v=41640d6988"
-      },
-      {
-        "title": "Purple Rain",
-        "link": "https://letterboxd.com/film/purple-rain/",
-        "cover_url": "https://a.ltrbxd.com/resized/sm/upload/3u/yq/fn/hr/epUyAfIgsrpIcY0qi6dhnay5rpl-0-600-0-900-crop.jpg?v=af040301f2"
-      },
-      {
+        "link": "https://letterboxd.com/oneyigit/film/minions-monsters-2026/",
         "title": "Minions & Monsters",
-        "link": "https://letterboxd.com/film/minions-monsters-2026/",
-        "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/1/9/6/8/0/8/1196808-minions-monsters-2026-0-600-0-900-crop.jpg?v=8ff282e996"
+        "rating": "\u2605\u2605\u2605\u00bd",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/1/9/6/8/0/8/1196808-minions-monsters-2026-0-600-0-900-crop.jpg?v=8ff282e996",
+        "is_rewatch": false,
+        "is_favorite": false,
+        "prominent_color": [
+          238,
+          105,
+          37
+        ]
+      },
+      {
+        "link": "https://letterboxd.com/oneyigit/film/avengers-endgame/1/",
+        "title": "Avengers: Endgame",
+        "rating": "\u2605\u2605\u2605\u2605",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/2/6/6/6/0/226660-avengers-endgame-0-600-0-900-crop.jpg?v=d4006bfd5e",
+        "is_rewatch": false,
+        "is_favorite": false,
+        "prominent_color": [
+          115,
+          45,
+          143
+        ]
+      },
+      {
+        "link": "https://letterboxd.com/oneyigit/film/green-lantern-first-flight/",
+        "title": "Green Lantern: First Flight",
+        "rating": "\u2605\u2605\u2605\u2605",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/1/0/0/4/41004-green-lantern-first-flight-0-600-0-900-crop.jpg?v=5b5e85f566",
+        "is_rewatch": false,
+        "is_favorite": false,
+        "prominent_color": [
+          193,
+          200,
+          95
+        ]
+      },
+      {
+        "link": "https://letterboxd.com/oneyigit/film/green-lantern/",
+        "title": "Green Lantern",
+        "rating": "\u2605\u2605\u00bd",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/0/2/9/3/20293-green-lantern-0-600-0-900-crop.jpg?v=e17d7cdcdb",
+        "is_rewatch": false,
+        "is_favorite": false,
+        "prominent_color": [
+          53,
+          90,
+          73
+        ]
+      },
+      {
+        "link": "https://letterboxd.com/oneyigit/film/catch-me-if-you-can-2002/",
+        "title": "Catch Me If You Can",
+        "rating": "\u2605\u2605\u2605\u2605\u00bd",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/5/1/4/8/4/51484-catch-me-if-you-can-0-600-0-900-crop.jpg?v=942d676423",
+        "is_rewatch": false,
+        "is_favorite": false,
+        "prominent_color": [
+          42,
+          86,
+          128
+        ]
+      },
+      {
+        "link": "https://letterboxd.com/oneyigit/film/everything-everywhere-all-at-once/",
+        "title": "Everything Everywhere All at Once",
+        "rating": "\u2605\u2605\u2605\u2605\u2605",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/7/4/4/7/4/474474-everything-everywhere-all-at-once-0-600-0-900-crop.jpg?v=281f1a041e",
+        "is_rewatch": false,
+        "is_favorite": false,
+        "prominent_color": [
+          132,
+          81,
+          73
+        ]
+      },
+      {
+        "link": "https://letterboxd.com/oneyigit/film/spider-man-brand-new-day/",
+        "title": "Spider-Man: Brand New Day",
+        "rating": "\u2605\u2605\u2605\u2605",
+        "cover_url": "https://a.ltrbxd.com/resized/film-poster/8/7/2/8/7/1/872871-spider-man-brand-new-day-0-600-0-900-crop.jpg?v=ebe6beb4fc",
+        "is_rewatch": false,
+        "is_favorite": false,
+        "prominent_color": [
+          105,
+          62,
+          74
+        ]
       }
     ]
-  }
+  },
+  "synced_at": 1794942831.754251
 }

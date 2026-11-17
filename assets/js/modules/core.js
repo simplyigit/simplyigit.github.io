@@ -36,13 +36,6 @@ const PROXIED_IMAGE_HOSTS = ['a.ltrbxd.com', 'i.gr-assets.com'];
 // Letterboxd/Goodreads covers go through wsrv.nl (resized WebP; also dodges ISP blocks on their CDNs)
 export function safeImg(url, width = 0) {
     if (!url) return '';
-    // Cached data from older API responses holds bare "wsrv.nl/?url=..." wrappers: unwrap and size them
-    if (url.startsWith('https://wsrv.nl/')) {
-        let inner = null;
-        try { inner = new URL(url).searchParams.get('url'); } catch {}
-        if (!inner || !PROXIED_IMAGE_HOSTS.some(host => inner.includes(host))) return url;
-        url = inner;
-    }
     if (PROXIED_IMAGE_HOSTS.some(host => url.includes(host))) {
         const wParam = width > 0 ? `&w=${width}` : '';
         return `https://wsrv.nl/?url=${encodeURIComponent(url)}${wParam}&output=webp`;

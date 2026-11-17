@@ -3,34 +3,22 @@ import { pillowResizeBilinear, normalizeToTensor } from '../modules/pillow-resiz
 
 const PRESET_SAMPLES = {
     real: {
-        file: "dataset/t_images/celeba_real_042.jpg",
         prediction: "REAL",
         badgeClass: "verdict-real",
         probs: { real: 96.4, ai: 3.4, df: 0.2 },
-        l2Norm: "18.42",
-        freqNote: "Natural sensor noise · isotropic high-freq decay",
-        seed: 11,
-        palette: ["#10b981", "#059669", "#34d399"]
+        color: "#10b981"
     },
     ai: {
-        file: "dataset/t_images/nano_banana_synth.jpg",
         prediction: "AI FAKE",
         badgeClass: "verdict-ai",
         probs: { real: 4.9, ai: 94.8, df: 0.3 },
-        l2Norm: "23.17",
-        freqNote: "Diffusion spectral roll-off · periodic grid peaks",
-        seed: 42,
-        palette: ["#f59e0b", "#d97706", "#fbbf24"]
+        color: "#f59e0b"
     },
     deepfake: {
-        file: "dataset/t_images/ffpp_face2face_19.jpg",
         prediction: "DEEPFAKE",
         badgeClass: "verdict-df",
         probs: { real: 0.3, ai: 0.6, df: 99.1 },
-        l2Norm: "26.85",
-        freqNote: "Blending boundary discontinuity · H.264 warp",
-        seed: 77,
-        palette: ["#ef4444", "#dc2626", "#f87171"]
+        color: "#ef4444"
     }
 };
 
@@ -43,7 +31,9 @@ function absolutizeReadmeImages(html, repoPath, branch) {
     );
 }
 
-function sanitizeProjectHtml(html, repoPath, branch = 'main') {
+// Fixes up the README HTML for this page. It does not sanitize: the README, the Supabase row and the repo
+// are all the site owner's, and GitHub's markdown API (the sync's first choice) strips scripts
+function prepareReadmeHtml(html, repoPath, branch = 'main') {
     if (!html) return '';
     return absolutizeReadmeImages(html, repoPath, branch)
         // The README's tables use LaTeX \multicolumn{n}{c}{...} cells, which GitHub leaves as text
@@ -132,7 +122,7 @@ function loadProjectReadme() {
     } catch {}
 
     const applyContent = (rawContent) => {
-        const clean = sanitizeProjectHtml(rawContent, repoPath);
+        const clean = prepareReadmeHtml(rawContent, repoPath);
         if (!clean) return false;
         // Unchanged since the cached render: keep the DOM (and any rendered diagrams) as is
         if (clean !== appliedHtml) showReadme(clean);
@@ -241,7 +231,7 @@ function drawPresetSample(canvas, type, preset) {
     ctx.ellipse(cx, cy, 42, 54, 0, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.07)';
     ctx.fill();
-    ctx.strokeStyle = preset.palette[0];
+    ctx.strokeStyle = preset.color;
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
@@ -380,6 +370,9 @@ async function validateImageFile(file) {
 
 // --- Real In-Browser Model Inference via ONNX Runtime Web ---
 const ORT_CDN_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js';
+// Subresource integrity for ORT_CDN_URL: recompute when the version changes
+// (curl -s <url> | openssl dgst -sha384 -binary | base64)
+const ORT_CDN_INTEGRITY = 'sha384-RPL/K8tc0JVaNWsunkEmCzLeieefvFX2UCRLKLmLVChCI6P+CTKhzqF7VIeCc3Zp';
 const ORT_WASM_DIR = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
 // Bump the file version whenever the model is retrained so visitors never get a stale cached copy
 const MODEL_URL = '/assets/models/convnext_sgd_int8.v1.onnx';
@@ -404,6 +397,7 @@ function loadOrtRuntime() {
     ortScriptPromise = new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = ORT_CDN_URL;
+        script.integrity = ORT_CDN_INTEGRITY;
         script.async = true;
         script.crossOrigin = 'anonymous';
         script.onload = () => {
@@ -619,14 +613,7 @@ async function runRealModelOnCanvas(img, canvas, onProgress) {
     const inputTensor = new ort.Tensor('float32', tensorData, [1, 3, h, w]);
     const outputs = await session.run({ input: inputTensor });
 
-    const embedding = outputs.embedding.data; // Float32Array(768)
     const probsRaw = outputs.probs.data;      // Float32Array(3) [Real, AI Fake, Deepfake]
-
-    let sumSq = 0;
-    for (let i = 0; i < embedding.length; i++) {
-        sumSq += embedding[i] * embedding[i];
-    }
-    const l2Norm = Math.sqrt(sumSq).toFixed(2);
 
     const realPct = Number((probsRaw[0] * 100).toFixed(1));
     const aiPct = Number((probsRaw[1] * 100).toFixed(1));
@@ -634,25 +621,18 @@ async function runRealModelOnCanvas(img, canvas, onProgress) {
 
     let prediction = "REAL";
     let badgeClass = "verdict-real";
-    let color = "#10b981";
     if (aiPct >= realPct && aiPct >= dfPct) {
         prediction = "AI FAKE";
         badgeClass = "verdict-ai";
-        color = "#f59e0b";
     } else if (dfPct >= realPct && dfPct >= aiPct) {
         prediction = "DEEPFAKE";
         badgeClass = "verdict-df";
-        color = "#ef4444";
     }
 
     return {
         prediction,
         badgeClass,
-        probs: { real: realPct, ai: aiPct, df: dfPct },
-        l2Norm,
-        seed: 1,
-        color,
-        embedding
+        probs: { real: realPct, ai: aiPct, df: dfPct }
     };
 }
 

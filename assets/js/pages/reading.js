@@ -143,7 +143,9 @@ function initReading() {
     let currentShelf = 'all';
 
     if (tabButtons.length && booksContainer) {
-        const selectShelf = (btn) => {
+        // instant: set the shelf without animating (first paint from a deep link)
+        // updateHash: false when the hash is what asked for the switch
+        const selectShelf = (btn, { instant = false, updateHash = true } = {}) => {
             const shelf = btn.getAttribute('data-shelf') || 'all';
             if (shelf === currentShelf) return;
             currentShelf = shelf;
@@ -154,11 +156,32 @@ function initReading() {
                 b.tabIndex = isActive ? 0 : -1;
             });
             booksContainer.setAttribute('aria-labelledby', btn.id);
-            if (shelfHeading) {
-                morphText(shelfHeading, SHELF_LABELS[shelf] || 'All Shelves');
+            // replaceState: switching shelves shouldn't pile up history entries. "All" has no hash.
+            if (updateHash) {
+                history.replaceState(history.state, '', shelf === 'all' ? location.pathname + location.search : `#${shelf}`);
             }
+            const label = SHELF_LABELS[shelf] || 'All Shelves';
+            if (instant) {
+                // The books aren't rendered yet; the first render picks up currentShelf
+                if (shelfHeading) shelfHeading.textContent = label;
+                return;
+            }
+            if (shelfHeading) morphText(shelfHeading, label);
             smoothMorph(booksContainer, () => renderBooks(booksContainer, currentBooks, currentShelf));
         };
+
+        // Deep links: /library/reading#to-read opens on that shelf. An empty hash is "All";
+        // any other hash is left alone.
+        const shelfBtnFromHash = () => {
+            const shelf = location.hash.slice(1).toLowerCase() || 'all';
+            return tabButtons.find(b => b.getAttribute('data-shelf') === shelf) || null;
+        };
+        const initialBtn = shelfBtnFromHash();
+        if (initialBtn) selectShelf(initialBtn, { instant: true, updateHash: false });
+        window.addEventListener('hashchange', () => {
+            const btn = shelfBtnFromHash();
+            if (btn) selectShelf(btn, { updateHash: false });
+        });
 
         // Roving tabindex: only the selected tab is a Tab stop; arrow keys move between shelves
         tabButtons.forEach((btn, idx) => {
@@ -201,11 +224,7 @@ function initReading() {
         api: "/api/books",
         snapshot: "/data/books.json",
         isValid: (data) => Array.isArray(data) && data.length > 0,
-        // Caches written before shelves existed can't drive the shelf tabs; fall back to the seed instead
-        readCache: () => {
-            const cached = getCachedData("simplyigit_cache_books");
-            return Array.isArray(cached) && cached.length > 0 && 'shelf' in cached[0] ? cached : null;
-        },
+        readCache: () => getCachedData("simplyigit_cache_books"),
         saveCache: (data) => setCachedData("simplyigit_cache_books", data),
         loadSeed: () => import('../modules/seed-data.js').then(m => m.SEED_BOOKS),
         render

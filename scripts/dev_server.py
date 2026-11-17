@@ -1,5 +1,5 @@
-"""Local preview server that behaves like Vercel for this site: clean URLs, the rewrites in
-vercel.json, and the Python /api functions.
+"""Local preview server that behaves like Vercel for this site: clean URLs, the rewrites and headers
+in vercel.json, and the Python /api functions.
 
     python3 scripts/dev_server.py [port]        # default port 8000
 
@@ -13,6 +13,7 @@ import http.server
 import importlib.util
 import json
 import os
+import re
 import sys
 import threading
 from urllib.parse import urlsplit
@@ -37,14 +38,28 @@ def load_env_file(path):
             os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
-def load_rewrites():
-    """Exact-path rewrites from vercel.json (the /api catch-all is handled separately)."""
+def load_vercel_config():
     with open(os.path.join(ROOT, "vercel.json")) as f:
-        config = json.load(f)
+        return json.load(f)
+
+
+def load_rewrites(config):
+    """Exact-path rewrites from vercel.json (the /api catch-all is handled separately)."""
     return {r["source"]: r["destination"] for r in config.get("rewrites", []) if "(" not in r["source"]}
 
 
-REWRITES = load_rewrites()
+def load_headers(config):
+    """vercel.json's custom headers as (source pattern, [(key, value)]). Its sources are plain regexes.
+    Cache-Control is left out: everything here is no-store (see end_headers)."""
+    return [
+        (re.compile(rule["source"]), [(h["key"], h["value"]) for h in rule["headers"] if h["key"].lower() != "cache-control"])
+        for rule in config.get("headers", [])
+    ]
+
+
+VERCEL_CONFIG = load_vercel_config()
+REWRITES = load_rewrites(VERCEL_CONFIG)
+HEADERS = load_headers(VERCEL_CONFIG)
 
 
 class DevHandler(http.server.SimpleHTTPRequestHandler):
@@ -53,9 +68,31 @@ class DevHandler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-store")
+        # Vercel matches header sources against the requested path, before rewrites
+        path = urlsplit(getattr(self, "request_path", self.path)).path
+        for pattern, headers in HEADERS:
+            if pattern.fullmatch(path):
+                for key, value in headers:
+                    self.send_header(key, value)
         super().end_headers()
 
+    def send_error(self, code, message=None, explain=None):
+        # Like Vercel: an unknown URL gets the site's own 404.html (the /api functions keep plain errors)
+        page = os.path.join(ROOT, "404.html")
+        if code == 404 and not self.path.startswith("/api/") and os.path.isfile(page):
+            with open(page, "rb") as f:
+                body = f.read()
+            self.send_response(404)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if self.command != "HEAD":
+                self.wfile.write(body)
+            return
+        super().send_error(code, message, explain)
+
     def do_GET(self):
+        self.request_path = self.path
         parts = urlsplit(self.path)
         path = parts.path
         query = f"?{parts.query}" if parts.query else ""

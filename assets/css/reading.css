@@ -142,7 +142,7 @@
     pointer-events: none;
 }
 
-.classical-book-card:hover {
+.classical-book-card:hover, .classical-book-card:focus-visible {
     transform: translateY(-5px);
     border-color: rgba(212, 175, 55, 0.4);
     /* Gold leaf glow on hover */
@@ -163,7 +163,7 @@
     transition: transform 0.5s ease;
 }
 
-.classical-book-card:hover .classical-book-cover {
+.classical-book-card:hover .classical-book-cover, .classical-book-card:focus-visible .classical-book-cover {
     transform: perspective(600px) rotateY(0deg) translateZ(10px);
 }
 

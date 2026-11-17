@@ -1,216 +1,258 @@
 {
   "success": true,
   "data": {
-    "top_tracks_last_month": [
-      {
-        "title": "Chain Reaction",
-        "artist": "Matilda Mann",
-        "playcount": "60",
-        "spotify_url": "https://open.spotify.com/track/02kiA7m6xx7F7KC1ukLpTq",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b2739bad87d43779793e11240cf5",
-        "spotify_id": "02kiA7m6xx7F7KC1ukLpTq",
-        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9b/5a/ec/9b5aec77-2478-06b9-5e5a-ec5a156bd3ce/mzaf_10802144937482874535.plus.aac.p.m4a",
-        "prominent_color": [
-          149,
-          165,
-          163
-        ],
-        "ai_lyrics": {
-          "lyric1": "You've given me something to lose",
-          "lyric2": "There's a force of nature pulling you to me",
-          "lyric3": "In every life, I'm always next to you"
-        }
-      },
-      {
-        "title": "Flowers",
-        "artist": "Andrew Lucier",
-        "playcount": "57",
-        "spotify_url": "https://open.spotify.com/track/1A7lq53k1V1JTTDXCbwFST",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b273688c752121747e03c965f095",
-        "spotify_id": "1A7lq53k1V1JTTDXCbwFST",
-        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/66/52/d3/6652d3b8-4ade-5d87-6fba-5e4c836b6e94/mzaf_2646949060939086074.plus.aac.p.m4a",
-        "prominent_color": [
-          182,
-          146,
-          110
-        ]
-      },
-      {
-        "title": "She\u2019ll Be The One (2016 Demo)",
-        "artist": "Shawn Mendes",
-        "playcount": "53",
-        "spotify_url": "https://open.spotify.com/track/1FvjDYcfKpSM9OPQ9zxXfm",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b273dd0d95a73f3b48cb2e28b4ca",
-        "spotify_id": "1FvjDYcfKpSM9OPQ9zxXfm",
-        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/dc/5c/4c/dc5c4c51-f19b-3ff4-46ac-340f6363babd/mzaf_2533392602781921041.plus.aac.p.m4a",
-        "prominent_color": [
-          72,
-          92,
-          80
-        ]
-      },
-      {
-        "title": "Keep It To Yourself",
-        "artist": "Love Spells",
-        "playcount": "47",
-        "spotify_url": "https://open.spotify.com/track/0UUnMVRHGJKFq4mlsld8GV",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b2738e9fe55db9bf2f866d047034",
-        "spotify_id": "0UUnMVRHGJKFq4mlsld8GV",
-        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2c/07/12/2c071233-7e16-018a-b71e-9d2f252c4dd9/mzaf_3026791300147301404.plus.aac.p.m4a",
-        "prominent_color": [
-          162,
-          41,
-          48
-        ]
-      },
-      {
-        "title": "X10",
-        "artist": "Baneva",
-        "playcount": "42",
-        "spotify_url": "https://open.spotify.com/track/5uJDj4e09ASkZWUzQ6qOMJ",
-        "cover_url": "https://i.scdn.co/image/ab67616d0000b273b614980475db38b291e48e07",
-        "spotify_id": "5uJDj4e09ASkZWUzQ6qOMJ",
-        "prominent_color": [
-          210,
-          209,
-          214
-        ]
-      }
-    ],
-    "top_artists_last_month": [
-      {
-        "name": "Baneva",
-        "playcount": "175",
-        "spotify_url": "https://open.spotify.com/artist/19YsBPYDyAmKbcFoor4W4e",
-        "image_url": "https://i.scdn.co/image/ab6761610000e5eb7b9b0d0557c97e4fe5a2ce72",
-        "spotify_id": "19YsBPYDyAmKbcFoor4W4e",
-        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/386c6a3f616ce1755055b9fea745c3e2&w=1400&output=webp"
-      },
-      {
-        "name": "Shawn Mendes",
-        "playcount": "174",
-        "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
-        "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
-        "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr",
-        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/c66be0c4163f2ae54b228b82c2d374d2&w=1400&output=webp"
-      },
-      {
-        "name": "Ryan Beatty",
-        "playcount": "111",
-        "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
-        "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
-        "spotify_id": "60NNvDqsif0u40CXMV6jDQ",
-        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/7871e4ae2afc385e967074af63c2efd7&w=1400&output=webp"
-      },
-      {
-        "name": "5 Seconds of Summer",
-        "playcount": "74",
-        "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
-        "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
-        "spotify_id": "5Rl15oVamLq7FbSb0NNBNy",
-        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/0a63bcc6bd0fa1934fd8a2a1976a9841&w=1400&output=webp"
-      },
-      {
-        "name": "Ruel",
-        "playcount": "70",
-        "spotify_url": "https://open.spotify.com/artist/5xkAtLTf309LAGZTbvULBn",
-        "image_url": "https://i.scdn.co/image/ab6761610000e5eb9184ca89cc9c4ecd7487bb5f",
-        "spotify_id": "5xkAtLTf309LAGZTbvULBn",
-        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/7b2c3a8ed906eaccb82cb9997d6ef2df&w=1400&output=webp"
-      }
-    ],
     "favorite_albums": [
       {
         "title": "Purple Rain",
+        "year": "1984",
         "artist": "Prince and The Revolution",
         "raw_cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front",
         "banner_url": "/images/albums/purple-rain-banner.webp",
         "bg_url": "/images/albums/purple-rain-bg.webp",
         "typo_url": "/images/albums/purple-rain-typo.webp",
+        "spotify_id": "2umoqwMrmjBBPeaqgYu6J9",
         "prominent_color": [
           196,
           170,
           250
         ],
         "cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp",
-        "year": "1984",
-        "format_tag": "LP \u00b7 1984"
+        "format_tag": "LP \u00b7 1984",
+        "spotify_url": "https://open.spotify.com/album/2umoqwMrmjBBPeaqgYu6J9",
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp"
       },
       {
         "title": "Angel Face (Club Deluxe)",
+        "year": "2023",
         "artist": "Stephen Sanchez",
         "raw_cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419.jpg",
         "banner_url": "/images/albums/angel-face-banner.webp",
         "bg_url": "/images/albums/angel-face-bg.webp",
         "typo_url": "/images/albums/angel-face-typo.webp",
+        "spotify_id": "3fD6ZQKymy2oP1t6c8NEOc",
         "prominent_color": [
           213,
           86,
           69
         ],
         "cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg",
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp",
+        "format_tag": "LP \u00b7 2023",
         "spotify_url": "https://open.spotify.com/album/3fD6ZQKymy2oP1t6c8NEOc",
-        "spotify_id": "3fD6ZQKymy2oP1t6c8NEOc",
-        "year": "2023",
-        "format_tag": "LP \u00b7 2023"
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp"
       },
       {
         "title": "5SOS5 (Deluxe)",
+        "year": "2022",
         "artist": "5 Seconds of Summer",
         "raw_cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front",
         "banner_url": "/images/albums/5sos5-banner.webp",
         "bg_url": "/images/albums/5sos5-bg.webp",
         "typo_url": "/images/albums/5sos5-typo.webp",
+        "spotify_id": "26uA5pGrTovBLxikRsMQJ4",
         "prominent_color": [
           247,
           221,
           207
         ],
         "cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp",
-        "year": "2022",
-        "format_tag": "LP \u00b7 2022"
+        "format_tag": "LP \u00b7 2022",
+        "spotify_url": "https://open.spotify.com/album/26uA5pGrTovBLxikRsMQJ4",
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp"
       },
       {
         "title": "Fine Line",
+        "year": "2019",
         "artist": "Harry Styles",
         "raw_cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front",
         "banner_url": "/images/albums/fine-line-banner.webp",
         "bg_url": "/images/albums/fine-line-bg.webp",
         "typo_url": "/images/albums/fine-line-typo.webp",
+        "spotify_id": "7xV2TzoaVc0ycW7fwBwAml",
         "prominent_color": [
           115,
           194,
           214
         ],
         "cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500",
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp",
+        "format_tag": "LP \u00b7 2019",
         "spotify_url": "https://open.spotify.com/album/7xV2TzoaVc0ycW7fwBwAml",
-        "spotify_id": "7xV2TzoaVc0ycW7fwBwAml",
-        "year": "2019",
-        "format_tag": "LP \u00b7 2019"
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp"
       },
       {
         "title": "4TH WALL",
+        "year": "2023",
         "artist": "Ruel",
         "raw_cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front",
         "banner_url": "/images/albums/4th-wall-banner.webp",
         "bg_url": "/images/albums/4th-wall-bg.webp",
         "typo_url": "/images/albums/4th-wall-typo.webp",
+        "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
         "prominent_color": [
           226,
           108,
           34
         ],
         "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
-        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp",
+        "format_tag": "LP \u00b7 2023",
         "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
-        "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
-        "year": "2023",
-        "format_tag": "LP \u00b7 2023"
+        "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp"
+      }
+    ],
+    "top_tracks_last_month": [
+      {
+        "title": "Embarrassingly",
+        "artist": "Troye Sivan",
+        "ai_lyrics": {
+          "lyric1": "You've been out my life for twice the time",
+          "lyric2": "I know, it's crazy, I'm still so fucked up from you",
+          "lyric3": "Find some sort of meditation, Deep inside this masturbation, What a sticky situation"
+        },
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b2734dae177fcfce289edd39bed2",
+        "playcount": "42",
+        "spotify_id": "3KPLZ1of6GcoN68FZEqukh",
+        "spotify_url": "https://open.spotify.com/track/3KPLZ1of6GcoN68FZEqukh",
+        "cover_url_small": "https://i.scdn.co/image/ab67616d00001e024dae177fcfce289edd39bed2",
+        "prominent_color": [
+          84,
+          76,
+          68
+        ]
+      },
+      {
+        "title": "Another You (feat. Sadie Jean)",
+        "artist": "Ruel",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273fd8e42323456e6fce7d5d46d",
+        "playcount": "39",
+        "spotify_id": "26bOxdCaS6ESsR2NR4xq41",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c9/19/c9/c919c942-8744-10d5-7470-02711a937f82/mzaf_17102712051824492627.plus.aac.p.m4a",
+        "spotify_url": "https://open.spotify.com/track/26bOxdCaS6ESsR2NR4xq41",
+        "cover_url_small": "https://i.scdn.co/image/ab67616d00001e02fd8e42323456e6fce7d5d46d",
+        "prominent_color": [
+          189,
+          140,
+          104
+        ]
+      },
+      {
+        "title": "I'll Find You",
+        "artist": "5 Seconds of Summer",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b2739d309cfbe36d01585f98e406",
+        "playcount": "32",
+        "spotify_id": "2hShdJova68Ea7tMC1PGRf",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bb/36/85/bb3685a9-7d8f-b948-1e2a-d2b111de3202/mzaf_11014881394644542126.plus.aac.p.m4a",
+        "spotify_url": "https://open.spotify.com/track/2hShdJova68Ea7tMC1PGRf",
+        "cover_url_small": "https://i.scdn.co/image/ab67616d00001e029d309cfbe36d01585f98e406",
+        "prominent_color": [
+          203,
+          163,
+          185
+        ]
+      },
+      {
+        "title": "White Teeth",
+        "artist": "Ryan Beatty",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273f33f965a88903d15a1ae3e10",
+        "playcount": "32",
+        "spotify_id": "3Gqagi4hGvcHyoWznBi4q3",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/94/ac/e6/94ace697-b878-1ac0-7e2b-8cd8e516cc09/mzaf_10725456045631340049.plus.aac.p.m4a",
+        "spotify_url": "https://open.spotify.com/track/3Gqagi4hGvcHyoWznBi4q3",
+        "cover_url_small": "https://i.scdn.co/image/ab67616d00001e02f33f965a88903d15a1ae3e10",
+        "prominent_color": [
+          79,
+          117,
+          193
+        ]
+      },
+      {
+        "title": "Vincent",
+        "artist": "Don McLean",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b2730085dd4362653ef4c54ebbeb",
+        "playcount": "26",
+        "spotify_id": "0VNzEY1G4GLqcNx5qaaTl6",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/09/5a/d2/095ad2f6-3f31-d71e-6348-585c83a53cee/mzaf_2170216142700257.plus.aac.p.m4a",
+        "spotify_url": "https://open.spotify.com/track/0VNzEY1G4GLqcNx5qaaTl6",
+        "cover_url_small": "https://i.scdn.co/image/ab67616d00001e020085dd4362653ef4c54ebbeb",
+        "prominent_color": [
+          228,
+          174,
+          162
+        ]
+      }
+    ],
+    "top_artists_last_month": [
+      {
+        "name": "Shawn Mendes",
+        "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
+        "playcount": "131",
+        "top_track": {
+          "title": "When You're Gone",
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b273cce29b5f028071ddeb23f21b",
+          "playcount": "9",
+          "spotify_url": "https://open.spotify.com/track/0U1W2LZVUX7qTm7dDpqxh6",
+          "cover_url_small": "https://i.scdn.co/image/ab67616d00001e02cce29b5f028071ddeb23f21b"
+        },
+        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/c66be0c4163f2ae54b228b82c2d374d2&w=1400&output=webp",
+        "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr",
+        "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
+        "prominent_color": [
+          176,
+          176,
+          176
+        ]
+      },
+      {
+        "name": "Ryan Beatty",
+        "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
+        "playcount": "118",
+        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/7871e4ae2afc385e967074af63c2efd7&w=1400&output=webp",
+        "spotify_id": "60NNvDqsif0u40CXMV6jDQ",
+        "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
+        "prominent_color": [
+          131,
+          141,
+          163
+        ]
+      },
+      {
+        "name": "5 Seconds of Summer",
+        "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
+        "playcount": "114",
+        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/0a63bcc6bd0fa1934fd8a2a1976a9841&w=1400&output=webp",
+        "spotify_id": "5Rl15oVamLq7FbSb0NNBNy",
+        "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
+        "prominent_color": [
+          78,
+          77,
+          85
+        ]
+      },
+      {
+        "name": "Stephen Sanchez",
+        "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
+        "playcount": "85",
+        "banner_url": null,
+        "spotify_id": "5XKFrudbV4IiuE5WuTPRmT",
+        "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
+        "prominent_color": [
+          240,
+          234,
+          208
+        ]
+      },
+      {
+        "name": "Ruel",
+        "image_url": "https://i.scdn.co/image/ab6761610000e5eb9184ca89cc9c4ecd7487bb5f",
+        "playcount": "84",
+        "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/7b2c3a8ed906eaccb82cb9997d6ef2df&w=1400&output=webp",
+        "spotify_id": "5xkAtLTf309LAGZTbvULBn",
+        "spotify_url": "https://open.spotify.com/artist/5xkAtLTf309LAGZTbvULBn",
+        "prominent_color": [
+          202,
+          182,
+          165
+        ]
       }
     ]
-  }
+  },
+  "synced_at": 1794942831.754251
 }

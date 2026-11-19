@@ -100,6 +100,7 @@ export async function initAvatarDepth(img, depthSrc) {
     const current = { x: 0, y: 0 };
     const target = { x: 0, y: 0 };
     let frame = 0;
+    let lastTime = 0;
     // Latest pointer position not yet turned into a target; read in tick() so layout is measured once per frame
     let pointer = null;
     const clamp = v => Math.max(-1, Math.min(1, v));
@@ -112,18 +113,26 @@ export async function initAvatarDepth(img, depthSrc) {
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
 
-    // Ease toward the pointer and stop the loop once settled
-    const tick = () => {
+    // Ease toward the pointer (delta-time normalized so 60Hz and 120Hz feel identical) and stop once settled
+    const tick = (now) => {
+        const dt = lastTime ? Math.min((now - lastTime) / 1000, 0.1) : 1 / 60;
+        lastTime = now;
         if (pointer) {
             const rect = canvas.getBoundingClientRect();
             target.x = clamp((pointer.x - (rect.left + rect.width / 2)) / 400);
             target.y = clamp(-(pointer.y - (rect.top + rect.height / 2)) / 400);
             pointer = null;
         }
-        current.x += (target.x - current.x) * 0.12;
-        current.y += (target.y - current.y) * 0.12;
+        const ease = 1 - Math.pow(0.88, dt * 60);
+        current.x += (target.x - current.x) * ease;
+        current.y += (target.y - current.y) * ease;
         draw();
-        frame = Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.001 ? requestAnimationFrame(tick) : 0;
+        if (Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.001) {
+            frame = requestAnimationFrame(tick);
+        } else {
+            frame = 0;
+            lastTime = 0;
+        }
     };
     const follow = () => {
         if (!frame) frame = requestAnimationFrame(tick);

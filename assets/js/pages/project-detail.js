@@ -1,4 +1,4 @@
-import { initAmbientMesh, initGlobalReveal, initGlassParallax, showSyncedAt } from '../modules/core.js';
+import { initAmbientMesh, initGlobalReveal, initGlassParallax, initLibraryKeys, showSyncedAt } from '../modules/core.js';
 import { pillowResizeBilinear, normalizeToTensor } from '../modules/pillow-resize.js';
 
 const PRESET_SAMPLES = {
@@ -662,6 +662,7 @@ function initDetectorDemo() {
     let isInferring = false;
     let cameraStream = null;
     let cameraStarting = false;
+    let cameraRequestId = 0;
 
     const setUploadButtonState = (disabled, labelText) => {
         if (uploadLabel) {
@@ -674,6 +675,9 @@ function initDetectorDemo() {
         if (cameraBtn) {
             cameraBtn.disabled = disabled;
         }
+        sampleBtns.forEach(btn => {
+            btn.disabled = disabled;
+        });
         if (uploadText && labelText) {
             uploadText.textContent = labelText;
         }
@@ -723,6 +727,8 @@ function initDetectorDemo() {
     };
 
     const stopCamera = () => {
+        // Invalidate any pending getUserMedia() request even before cameraStream is assigned
+        cameraRequestId++;
         if (!cameraStream) return;
         cameraStream.getTracks().forEach(track => track.stop());
         cameraStream = null;
@@ -735,6 +741,7 @@ function initDetectorDemo() {
     };
 
     const selectPreset = (key) => {
+        if (isInferring) return;
         const preset = PRESET_SAMPLES[key];
         if (!preset) return;
         stopCamera();
@@ -874,22 +881,32 @@ function initDetectorDemo() {
 
     // Camera: the first click opens a live view over the canvas, the second takes the snapshot
     const startCamera = async () => {
-        if (cameraStarting) return;
+        if (cameraStarting || isInferring) return;
         cameraStarting = true;
+        const reqId = ++cameraRequestId;
         showStatus('Waiting for camera access...');
+        let stream;
         try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({
+            stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
                 audio: false
             });
         } catch (err) {
-            showStatus(err?.name === 'NotAllowedError'
-                ? 'Camera access was blocked. Allow it in your browser to take a snapshot.'
-                : 'No camera available.', true);
+            if (reqId === cameraRequestId) {
+                showStatus(err?.name === 'NotAllowedError'
+                    ? 'Camera access was blocked. Allow it in your browser to take a snapshot.'
+                    : 'No camera available.', true);
+            }
             return;
         } finally {
             cameraStarting = false;
         }
+        // A preset, upload, or tab hide happened while waiting for permission: release the stream
+        if (reqId !== cameraRequestId || document.hidden || isInferring) {
+            stream.getTracks().forEach(track => track.stop());
+            return;
+        }
+        cameraStream = stream;
         loadOrtRuntime().catch(() => {});
         cameraView.srcObject = cameraStream;
         cameraView.hidden = false;
@@ -937,6 +954,7 @@ function init() {
     initAmbientMesh();
     initGlobalReveal();
     initGlassParallax();
+    initLibraryKeys();
     initDetectorDemo();
     loadProjectReadme();
 }

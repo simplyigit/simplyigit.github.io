@@ -3,6 +3,7 @@ import { getCachedData, setCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
 import { displaySongTitle, shortArtistNameHtml } from '../modules/music-text.js';
 import { togglePreview, stopPreview } from '../modules/preview-player.js';
+import '../modules/genie-morph.js';
 
 // The tab on show, and each tab's mesh tint: the dominant colour of its first cover or portrait
 let activeTab = 'tracks';
@@ -39,8 +40,8 @@ function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ari
     const backdrop = backdropUrl
         ? `<div class="banner-backdrop" aria-hidden="true"><img src="${escapeHtml(backdropUrl)}" alt="" decoding="async"></div>`
         : hero ? `<div class="banner-bg-blur"></div>` : '';
-    // Only the visible tab's hero is above the fold on load
-    const imgAttrs = index === 0 && variant === 'track' ? 'fetchpriority="high"' : 'decoding="async"';
+    // Only the visible tab's hero is above the fold on load (crossorigin so WebGL Genie reuses the cached bitmap at 0ms)
+    const imgAttrs = index === 0 && variant === 'track' ? 'fetchpriority="high" crossorigin="anonymous"' : 'decoding="async"';
 
     return `
             <a href="${escapeHtml(href || "#")}" target="_blank" rel="noopener noreferrer" class="${classes}" style="${styles.join('; ')}"${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''}>
@@ -404,6 +405,7 @@ function initMusic() {
 }
 
 function initMusicTabs() {
+    const navPill = document.querySelector(".music-nav-pill");
     const tabButtons = document.querySelectorAll(".music-tab-btn");
     const container = document.getElementById("music-panes-container");
     const tracksPane = document.getElementById("music-pane-tracks");
@@ -420,7 +422,267 @@ function initMusicTabs() {
 
     const tabOrder = ["tracks", "artists", "albums"];
     let currentTab = "tracks";
-    let isTransitioning = false;
+    let indicatorAnim = null;
+    let transitionToken = 0;
+    let activeAnimations = [];
+    let activeMorphStage = null;
+    let activeMorphItems = [];
+    // Elements a transition adds inside the real cards (the album sheens), removed when it ends
+    let activeOverlays = [];
+
+    // A card copy for the morph stage: drop its view-transition-name (a duplicate name would abort
+    // a live-data view transition landing mid-morph) and any ids
+    const cloneForMorph = (card) => {
+        const clone = card.cloneNode(true);
+        [clone, ...clone.querySelectorAll("[style], [id]")].forEach((el) => {
+            el.style.viewTransitionName = "none";
+            el.removeAttribute("id");
+        });
+        return clone;
+    };
+
+    // Gliding liquid-glass pill behind the active tab button (moves cleanly across the divider)
+    let indicator = null;
+    if (navPill) {
+        indicator = document.createElement("span");
+        indicator.className = "music-tab-indicator";
+        indicator.setAttribute("aria-hidden", "true");
+        navPill.prepend(indicator);
+        navPill.classList.add("has-indicator");
+    }
+
+    const measureBtnInPill = (btn) => {
+        if (!navPill || !btn) return null;
+        const pillRect = navPill.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        return {
+            x: btnRect.left - pillRect.left - navPill.clientLeft,
+            y: btnRect.top - pillRect.top - navPill.clientTop,
+            width: btnRect.width,
+            height: btnRect.height
+        };
+    };
+
+    const positionIndicator = (tabName, { animate = false, crossDivider = false } = {}) => {
+        if (!indicator || !navPill) return;
+        const targetBtn = navPill.querySelector(`.music-tab-btn[data-tab="${tabName}"]`);
+        const to = measureBtnInPill(targetBtn);
+        if (!to || to.width === 0) return;
+
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const fromRect = indicator.getBoundingClientRect();
+        const pillRect = navPill.getBoundingClientRect();
+        const hasPrev = fromRect.width > 0;
+
+        if (indicatorAnim) {
+            try { indicatorAnim.cancel(); } catch {}
+            indicatorAnim = null;
+        }
+
+        const commitFinal = () => {
+            indicator.style.transform = `translate3d(${to.x}px, ${to.y}px, 0)`;
+            indicator.style.width = `${to.width}px`;
+            indicator.style.height = `${to.height}px`;
+        };
+
+        if (!animate || !hasPrev || prefersReducedMotion) {
+            commitFinal();
+            return;
+        }
+
+        const fromX = fromRect.left - pillRect.left - navPill.clientLeft;
+        const fromY = fromRect.top - pillRect.top - navPill.clientTop;
+        const midX = (fromX + to.x) / 2;
+        const midY = (fromY + to.y) / 2;
+        const midW = Math.max(fromRect.width, to.width) + (crossDivider ? 10 : 4);
+
+        commitFinal();
+        indicatorAnim = indicator.animate([
+            {
+                transform: `translate3d(${fromX}px, ${fromY}px, 0) scaleY(1)`,
+                width: `${fromRect.width}px`,
+                height: `${fromRect.height}px`
+            },
+            {
+                offset: 0.42,
+                transform: `translate3d(${midX}px, ${midY}px, 0) scaleY(${crossDivider ? 0.92 : 0.96})`,
+                width: `${midW}px`,
+                height: `${to.height}px`
+            },
+            {
+                transform: `translate3d(${to.x}px, ${to.y}px, 0) scaleY(1)`,
+                width: `${to.width}px`,
+                height: `${to.height}px`
+            }
+        ], {
+            duration: crossDivider ? 420 : 340,
+            easing: "cubic-bezier(0.22, 1.12, 0.36, 1)"
+        });
+        indicatorAnim.onfinish = () => { indicatorAnim = null; };
+    };
+
+    const parseCornerRadius = (raw, w, h) => {
+        if (!raw) return 0;
+        const token = raw.trim().split(/\s+/)[0];
+        const v = parseFloat(token) || 0;
+        return token.endsWith("%") ? (v / 100) * Math.min(w, h) : v;
+    };
+
+    const readFourRadii = (el, w, h) => {
+        const cs = getComputedStyle(el);
+        const maxR = Math.min(w, h) / 2;
+        return [
+            cs.borderTopLeftRadius,
+            cs.borderTopRightRadius,
+            cs.borderBottomRightRadius,
+            cs.borderBottomLeftRadius
+        ].map(r => Math.min(maxR, parseCornerRadius(r, w, h)));
+    };
+
+    const formatRadii = (r) => `${r[0].toFixed(1)}px ${r[1].toFixed(1)}px ${r[2].toFixed(1)}px ${r[3].toFixed(1)}px`;
+
+    // Measure every card's exact shell + artwork geometry relative to `container`
+    const measurePaneCards = (pane) => {
+        const origin = container.getBoundingClientRect();
+        const cards = Array.from(pane.querySelectorAll(".spotify-track-card"));
+        return cards.map((card) => {
+            const cr = card.getBoundingClientRect();
+            const cs = getComputedStyle(card);
+            const cardRadii = readFourRadii(card, cr.width, cr.height);
+            const artEl = card.querySelector(".case-art-wrapper, .album-cover");
+            const artImg = artEl?.querySelector("img");
+            let artRect = null;
+            let artRadii = [0, 0, 0, 0];
+            let artBoxShadow = "none";
+            if (artEl) {
+                const ar = artEl.getBoundingClientRect();
+                const acs = getComputedStyle(artEl);
+                // Morph shell has border: none, so exact card-box offsets match Tracks, Artists, and Albums to 0.0px
+                artRect = {
+                    left: ar.left - cr.left,
+                    top: ar.top - cr.top,
+                    width: ar.width,
+                    height: ar.height
+                };
+                // Resolve % radii (e.g. border-radius: 50% on Artist circles) into exact pixel half-sizes
+                artRadii = readFourRadii(artEl, ar.width, ar.height);
+                artBoxShadow = acs.boxShadow || "none";
+                // Flush-left square art (grid tracks, albums) inherits the card's left corners visually
+                if (artRadii[0] === 0 && Math.abs(ar.left - cr.left) < 4) {
+                    artRadii[0] = cardRadii[0];
+                    artRadii[3] = cardRadii[3];
+                }
+            }
+            const isArtist = card.classList.contains("is-artist");
+            // Cards with mask-image (e.g. .top-track-banner) clip their own outer box-shadow at rest
+            const hasMask = (cs.webkitMaskImage && cs.webkitMaskImage !== "none") || (cs.maskImage && cs.maskImage !== "none");
+            const rgb = cs.getPropertyValue("--track-color-rgb").trim();
+            return {
+                cardEl: card,
+                rect: {
+                    left: cr.left - origin.left,
+                    top: cr.top - origin.top,
+                    width: cr.width,
+                    height: cr.height
+                },
+                naturalW: cr.width,
+                naturalH: cr.height,
+                radii: cardRadii,
+                backgroundColor: cs.backgroundColor || "rgba(18, 18, 18, 0.85)",
+                borderColor: cs.borderTopColor || "rgba(255, 255, 255, 0.1)",
+                outlineShadow: isArtist ? "inset 0 0 0 1px rgba(0, 0, 0, 0.3)" : "inset 0 0 0 0px rgba(0, 0, 0, 0)",
+                boxShadow: hasMask ? "none" : (cs.boxShadow || "none"),
+                hasMask,
+                rgb,
+                artRect,
+                artRadii,
+                artBoxShadow,
+                artSrc: artImg ? (artImg.currentSrc || artImg.getAttribute("src") || "") : ""
+            };
+        });
+    };
+
+    // Snapshot mid-flight morph shells so rapid clicks smoothly redirect from their live positions!
+    const snapshotActiveMorph = () => {
+        const origin = container.getBoundingClientRect();
+        return activeMorphItems.map((item) => {
+            const cr = item.shell.getBoundingClientRect();
+            const cs = getComputedStyle(item.shell);
+            const ocs = item.outline ? getComputedStyle(item.outline) : cs;
+            let artRect = null;
+            let artRadii = [0, 0, 0, 0];
+            let artBoxShadow = "none";
+            if (item.artBox) {
+                const ar = item.artBox.getBoundingClientRect();
+                const acs = getComputedStyle(item.artBox);
+                artRect = {
+                    left: ar.left - cr.left,
+                    top: ar.top - cr.top,
+                    width: ar.width,
+                    height: ar.height
+                };
+                artRadii = readFourRadii(item.artBox, ar.width, ar.height);
+                artBoxShadow = acs.boxShadow || "none";
+            }
+            return {
+                cardEl: item.targetCardEl,
+                rect: {
+                    left: cr.left - origin.left,
+                    top: cr.top - origin.top,
+                    width: cr.width,
+                    height: cr.height
+                },
+                naturalW: item.targetNaturalW,
+                naturalH: item.targetNaturalH,
+                radii: readFourRadii(item.shell, cr.width, cr.height),
+                backgroundColor: cs.backgroundColor || "rgba(18, 18, 18, 0.85)",
+                borderColor: ocs.borderTopColor || "rgba(255, 255, 255, 0.1)",
+                outlineShadow: ocs.boxShadow && ocs.boxShadow !== "none" ? ocs.boxShadow : "inset 0 0 0 0px rgba(0, 0, 0, 0)",
+                boxShadow: cs.boxShadow || "0 10px 30px rgba(0, 0, 0, 0.4)",
+                artRect,
+                artRadii,
+                artBoxShadow,
+                artSrc: item.targetArtSrc
+            };
+        });
+    };
+
+    const teardownMorph = (activeName) => {
+        for (const anim of activeAnimations) {
+            try { anim.cancel(); } catch {}
+        }
+        activeAnimations = [];
+        activeOverlays.forEach(el => el.remove());
+        activeOverlays = [];
+        if (activeMorphStage) {
+            activeMorphStage.remove();
+            activeMorphStage = null;
+        }
+        activeMorphItems = [];
+        Object.entries(panes).forEach(([name, pane]) => {
+            const isVis = name === activeName;
+            pane.style.display = isVis ? "block" : "none";
+            pane.style.opacity = "";
+            pane.style.pointerEvents = "";
+            Object.assign(pane.style, { position: "", top: "", left: "", width: "" });
+            pane.classList.toggle("active", isVis);
+        });
+        container.style.height = "";
+    };
+
+    // Gently pre-warm a tab's images on hover/focus so the very first morph shows crisp artwork
+    const prewarmedTabs = new Set(["tracks"]);
+    const prewarmTabImages = (tabName) => {
+        if (prewarmedTabs.has(tabName) || !panes[tabName]) return;
+        prewarmedTabs.add(tabName);
+        panes[tabName].querySelectorAll("img[src]").forEach((img) => {
+            const url = img.getAttribute("src");
+            if (!url) return;
+            const warm = new Image();
+            warm.decoding = "async";
+            warm.src = url;
+        });
+    };
 
     // Deep links: /library/music#artists opens on that tab. An empty hash is the default tab;
     // any other hash is left alone.
@@ -435,18 +697,19 @@ function initMusicTabs() {
     });
 
     tabButtons.forEach(btn => {
+        const targetTab = btn.getAttribute("data-tab");
+        btn.addEventListener("pointerenter", () => prewarmTabImages(targetTab), { passive: true });
+        btn.addEventListener("focus", () => prewarmTabImages(targetTab));
+
         btn.addEventListener("click", () => {
-            const targetTab = btn.getAttribute("data-tab");
-            if (targetTab === currentTab || isTransitioning) return;
+            if (targetTab === currentTab) return;
             switchTab(targetTab);
         });
 
-        // Keyboard navigation: Left / Right arrows
+        // Keyboard navigation: Left / Right arrows (interruptible mid-morph)
         btn.addEventListener("keydown", e => {
             if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
                 e.preventDefault();
-                // switchTab ignores presses mid-transition; moving focus anyway would strand it on an unselected tab
-                if (isTransitioning) return;
                 const currentIndex = tabOrder.indexOf(currentTab);
                 const nextIndex = e.key === "ArrowRight"
                     ? (currentIndex + 1) % tabOrder.length
@@ -461,22 +724,33 @@ function initMusicTabs() {
         });
     });
 
-    // instant: swap the panes without the slide (first paint from a deep link)
+    // instant: swap the panes without animation (first paint from a deep link)
     // updateHash: false when the hash is what asked for the switch
     function switchTab(newTab, { instant = false, updateHash = true } = {}) {
-        if (newTab === currentTab || isTransitioning) return;
-        isTransitioning = true;
+        if (newTab === currentTab) return;
 
-        const outgoingPane = panes[currentTab];
+        const prevTab = currentTab;
+        const outgoingPane = panes[prevTab];
         const incomingPane = panes[newTab];
-        if (!outgoingPane || !incomingPane) {
-            isTransitioning = false;
-            return;
+        if (!outgoingPane || !incomingPane) return;
+
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const startHeight = container.getBoundingClientRect().height || container.offsetHeight;
+
+        // Capture source card geometry BEFORE tearing down any in-flight morph or hiding outgoing pane
+        let fromCards = [];
+        if (!instant && !prefersReducedMotion) {
+            fromCards = activeMorphStage && activeMorphItems.length > 0
+                ? snapshotActiveMorph()
+                : measurePaneCards(outgoingPane);
         }
 
-        const currentIndex = tabOrder.indexOf(currentTab);
-        const targetIndex = tabOrder.indexOf(newTab);
-        const direction = targetIndex > currentIndex ? "forward" : "backward";
+        if (activeAnimations.length > 0 || activeMorphStage) {
+            teardownMorph(prevTab);
+        }
+
+        const token = ++transitionToken;
+        const crossDivider = (prevTab === "albums") !== (newTab === "albums");
 
         // Update tab button states
         tabButtons.forEach(b => {
@@ -486,7 +760,7 @@ function initMusicTabs() {
             b.tabIndex = isSelected ? 0 : -1;
         });
 
-        // Update unified period badges: tracks and artists share 1m, albums is all-time
+        // Update unified period badges: tracks and artists share Past Month, albums is All-Time
         const monthlyBadge = document.getElementById("period-badge-monthly");
         const alltimeBadge = document.getElementById("period-badge-alltime");
         if (monthlyBadge && alltimeBadge) {
@@ -509,119 +783,374 @@ function initMusicTabs() {
         // A preview belongs to the Tracks tab: don't leave it playing behind another tab
         if (newTab !== 'tracks') stopPreview();
 
-        // Check prefers-reduced-motion
-        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (instant || prefersReducedMotion) {
-            outgoingPane.style.display = "none";
-            outgoingPane.classList.remove("active");
-            incomingPane.style.display = "block";
-            incomingPane.classList.add("active");
-            isTransitioning = false;
+        positionIndicator(newTab, { animate: !instant, crossDivider });
+
+        if (instant || prefersReducedMotion || fromCards.length === 0) {
+            teardownMorph(newTab);
             return;
         }
 
-        // Step 1: Measure current container height; clip while the panes slide and the height morphs
-        const startHeight = container.offsetHeight;
-        container.classList.add("is-transitioning");
+        // To or from Albums: grid cards and full-width banners share no shape, and reshaping one into
+        // the other animates layout and paint every frame (it stuttered at about 30fps). Here the panes
+        // trade places with transform and opacity only, which the compositor runs on its own.
+        if (crossDivider) {
+            const toAlbums = newTab === "albums";
+            const dir = toAlbums ? 1 : -1;
+            const easing = "cubic-bezier(0.16, 1, 0.3, 1)";
+            Object.entries(panes).forEach(([name, pane]) => {
+                pane.style.display = name === newTab || name === prevTab ? "block" : "none";
+                pane.classList.toggle("active", name === newTab);
+            });
+            // The outgoing pane floats over the container's top while the incoming one sets its height
+            Object.assign(outgoingPane.style, { position: "absolute", top: "0", left: "0", width: "100%", pointerEvents: "none" });
+            const targetHeight = incomingPane.offsetHeight;
 
-        // Step 2: Prepare outgoing pane (position absolutely over container)
-        outgoingPane.classList.add("is-animating");
-        outgoingPane.style.position = "absolute";
-        outgoingPane.style.top = "0";
-        outgoingPane.style.left = "0";
-        outgoingPane.style.width = "100%";
-        outgoingPane.style.pointerEvents = "none";
-        outgoingPane.style.zIndex = "1";
+            const anims = [
+                container.animate([
+                    { height: `${startHeight}px` },
+                    { height: `${targetHeight}px` }
+                ], { duration: 420, easing }),
+                outgoingPane.animate([
+                    { opacity: 1, transform: "none" },
+                    { opacity: 0, transform: `translate3d(${-28 * dir}px, 0, 0) scale(0.98)` }
+                // Fast from the first frame, so the two panes don't double-expose
+                ], { duration: 140, easing: "cubic-bezier(0.33, 1, 0.68, 1)", fill: "forwards" })
+            ];
 
-        // Step 3: Prepare incoming pane (in normal flow to measure height)
-        incomingPane.classList.add("is-animating");
-        incomingPane.style.display = "block";
-        incomingPane.style.position = "relative";
-        incomingPane.style.pointerEvents = "auto";
-        incomingPane.style.zIndex = "2";
+            incomingPane.querySelectorAll(".spotify-track-card").forEach((card, i) => {
+                const delay = 90 + Math.min(i, 6) * 35;
+                anims.push(card.animate([
+                    { opacity: 0, transform: `translate3d(${40 * dir}px, 0, 0) scale(0.98)` },
+                    { opacity: 1, transform: "none" }
+                ], { duration: 440, delay, easing, fill: "backwards" }));
+                if (!toAlbums) return;
+
+                // Album banners: the photo trails the card, the hand-made title overshoots it, a sheen sweeps across
+                const bg = card.querySelector(".album-banner-bg");
+                const typo = card.querySelector(".album-banner-typo");
+                const banner = card.querySelector(".album-banner");
+                if (bg) {
+                    anims.push(bg.animate([
+                        { transform: "translate3d(34px, 0, 0) scale(1.14)" },
+                        { transform: "scale(1.015)" }
+                    ], { duration: 520, delay, easing, fill: "backwards" }));
+                }
+                if (typo) {
+                    anims.push(typo.animate([
+                        { opacity: 0, transform: "translate3d(52px, 0, 0) scale(1.07)" },
+                        { opacity: 1, transform: "scale(1.015)" }
+                    ], { duration: 480, delay: delay + 40, easing, fill: "backwards" }));
+                }
+                if (banner) {
+                    const sheen = document.createElement("div");
+                    sheen.className = "music-morph-sheen";
+                    banner.appendChild(sheen);
+                    activeOverlays.push(sheen);
+                    anims.push(sheen.animate([
+                        { transform: "translate3d(-115%, 0, 0)", opacity: 0 },
+                        { offset: 0.25, opacity: 1 },
+                        { offset: 0.78, opacity: 0.85 },
+                        { transform: "translate3d(120%, 0, 0)", opacity: 0 }
+                    ], { duration: 440, delay: delay + 30, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "both" }));
+                }
+            });
+
+            activeAnimations = anims;
+            Promise.allSettled(anims.map(a => a.finished)).then(() => {
+                if (token === transitionToken) teardownMorph(newTab);
+            });
+            return;
+        }
+
+        // Mount incoming pane invisibly to measure its exact target card & artwork geometry
+        Object.entries(panes).forEach(([name, pane]) => {
+            const isTarget = name === newTab;
+            pane.style.display = isTarget ? "block" : "none";
+            pane.style.opacity = isTarget ? "0" : "";
+            pane.style.pointerEvents = isTarget ? "none" : "";
+            pane.classList.toggle("active", isTarget);
+        });
 
         const targetHeight = incomingPane.offsetHeight;
+        const toCards = measurePaneCards(incomingPane);
+        if (toCards.length === 0) {
+            teardownMorph(newTab);
+            return;
+        }
 
-        // Step 4 & 5: Clean GPU-accelerated directional slide & synchronized height morph
-        const duration = 320;
-        const easing = "cubic-bezier(0.16, 1, 0.3, 1)";
+        // Build the Dynamic Island Morph Stage
+        const stage = document.createElement("div");
+        stage.className = "music-morph-stage";
+        stage.setAttribute("aria-hidden", "true");
+        // The cloned cards are links: keep them out of the tab order while they fly
+        stage.inert = true;
+        container.appendChild(stage);
+        activeMorphStage = stage;
+        activeMorphItems = [];
 
-        // Synchronize container height morph smoothly with pane animations
-        const heightAnim = container.animate([
+        const morphDuration = 420;
+        // High-velocity Apple launch with velvety settle
+        const morphEase = "cubic-bezier(0.22, 1, 0.36, 1)";
+        const pairCount = Math.min(fromCards.length, toCards.length);
+        const anims = [];
+
+        // Detect 2-column -> 1-column expansion so bottom-right cards clear their lane before left cards widen
+        const expandingToStack = pairCount >= 3
+            && Math.abs(fromCards[1].rect.top - fromCards[2].rect.top) < 8
+            && toCards[2].rect.top - toCards[1].rect.top > 40;
+        const stepStagger = 16;
+
+        anims.push(container.animate([
             { height: `${startHeight}px` },
             { height: `${targetHeight}px` }
         ], {
-            duration: duration,
-            easing: easing,
+            duration: morphDuration + (pairCount - 1) * stepStagger,
+            easing: morphEase,
             fill: "forwards"
-        });
+        }));
 
-        const xDist = 36;
-        const outX = direction === "forward" ? -xDist : xDist;
-        const inX = direction === "forward" ? xDist : -xDist;
+        for (let i = 0; i < pairCount; i++) {
+            const from = fromCards[i];
+            const to = toCards[i];
+            const orderIdx = expandingToStack ? (pairCount - 1 - i) : i;
+            const stagger = Math.min(orderIdx, 4) * stepStagger;
 
-        // Outgoing animation: slides away with subtle scale-down and opacity fade
-        const outgoingAnim = outgoingPane.animate([
-            {
-                opacity: 1,
-                transform: "translateX(0px) scale(1)"
-            },
-            {
-                opacity: 0,
-                transform: `translateX(${outX}px) scale(0.97)`
+            const shell = document.createElement("div");
+            shell.className = "music-morph-card";
+            // Higher slots stay cleanly on top with solid opaque occlusion while crossing lanes
+            shell.style.zIndex = String(pairCount - i + 4);
+
+            // Outgoing content clone (anchored at its natural dimensions, vertically centered)
+            const outLayer = document.createElement("div");
+            outLayer.className = "music-morph-layer is-outgoing";
+            outLayer.style.width = `${from.naturalW}px`;
+            outLayer.style.height = `${from.naturalH}px`;
+            outLayer.style.marginTop = `${-Math.round(from.naturalH / 2)}px`;
+            const outClone = cloneForMorph(from.cardEl);
+            outLayer.appendChild(outClone);
+            shell.appendChild(outLayer);
+
+            // Incoming content clone (NO CSS filter so descendant backdrop-filter on artist pills stays 100% live!)
+            const inLayer = document.createElement("div");
+            inLayer.className = "music-morph-layer";
+            inLayer.style.width = `${to.naturalW}px`;
+            inLayer.style.height = `${to.naturalH}px`;
+            inLayer.style.marginTop = `${-Math.round(to.naturalH / 2)}px`;
+            const inClone = cloneForMorph(to.cardEl);
+            inLayer.appendChild(inClone);
+            shell.appendChild(inLayer);
+
+            // Dedicated floating artwork morph element: outer wrapper holds unclipped back-glow,
+            // inner clip rounds the crossfading images cleanly in both Chrome and Safari
+            let artBox = null;
+            if (from.artRect && to.artRect) {
+                artBox = document.createElement("div");
+                artBox.className = "music-morph-art";
+                const artClip = document.createElement("div");
+                artClip.className = "music-morph-art-clip";
+
+                if (from.artSrc) {
+                    const outImg = document.createElement("img");
+                    outImg.src = from.artSrc;
+                    artClip.appendChild(outImg);
+                    anims.push(outImg.animate([
+                        { opacity: 1, transform: "scale(1)" },
+                        { opacity: 0, transform: "scale(1.08)" }
+                    ], {
+                        duration: 190,
+                        delay: stagger,
+                        easing: "cubic-bezier(0.4, 0, 1, 1)",
+                        fill: "both"
+                    }));
+                }
+
+                if (to.artSrc) {
+                    const inImg = document.createElement("img");
+                    inImg.src = to.artSrc;
+                    artClip.appendChild(inImg);
+                    anims.push(inImg.animate([
+                        { opacity: 0, transform: "scale(1.1)" },
+                        { opacity: 1, transform: "scale(1)" }
+                    ], {
+                        duration: 270,
+                        delay: stagger + 75,
+                        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+                        fill: "both"
+                    }));
+                }
+
+                artBox.appendChild(artClip);
+                shell.appendChild(artBox);
+
+                anims.push(artBox.animate([
+                    {
+                        left: `${from.artRect.left}px`,
+                        top: `${from.artRect.top}px`,
+                        width: `${from.artRect.width}px`,
+                        height: `${from.artRect.height}px`,
+                        borderRadius: formatRadii(from.artRadii),
+                        boxShadow: from.artBoxShadow
+                    },
+                    {
+                        left: `${to.artRect.left}px`,
+                        top: `${to.artRect.top}px`,
+                        width: `${to.artRect.width}px`,
+                        height: `${to.artRect.height}px`,
+                        borderRadius: formatRadii(to.artRadii),
+                        boxShadow: to.artBoxShadow
+                    }
+                ], {
+                    duration: morphDuration,
+                    delay: stagger,
+                    easing: morphEase,
+                    fill: "both"
+                }));
             }
-        ], {
-            duration: 260,
-            easing: easing,
-            fill: "forwards"
-        });
 
-        // Incoming animation: slides in smoothly from opposite direction
-        const incomingAnim = incomingPane.animate([
-            {
-                opacity: 0,
-                transform: `translateX(${inX}px) scale(0.97)`
-            },
-            {
-                opacity: 1,
-                transform: "translateX(0px) scale(1)"
-            }
-        ], {
-            duration: duration,
-            easing: easing,
-            fill: "forwards"
-        });
+            // Crisp 1px card outline on top of everything (matches Tracks/Albums border and Artists ::after ring)
+            const outline = document.createElement("div");
+            outline.className = "music-morph-outline";
+            shell.appendChild(outline);
+            anims.push(outline.animate([
+                { borderColor: from.borderColor, boxShadow: from.outlineShadow },
+                { borderColor: to.borderColor, boxShadow: to.outlineShadow }
+            ], {
+                duration: morphDuration,
+                delay: stagger,
+                easing: morphEase,
+                fill: "both"
+            }));
 
-        incomingAnim.onfinish = () => {
-            // Clean up outgoing
-            outgoingPane.style.display = "none";
-            outgoingPane.style.position = "";
-            outgoingPane.style.top = "";
-            outgoingPane.style.left = "";
-            outgoingPane.style.width = "";
-            outgoingPane.style.pointerEvents = "";
-            outgoingPane.style.zIndex = "";
-            outgoingPane.classList.remove("active", "is-animating");
-            try { outgoingAnim.cancel(); } catch (e) {}
+            stage.appendChild(shell);
+            activeMorphItems.push({
+                shell,
+                outline,
+                artBox,
+                targetCardEl: to.cardEl,
+                targetNaturalW: to.naturalW,
+                targetNaturalH: to.naturalH,
+                targetArtSrc: to.artSrc
+            });
 
-            // Clean up incoming
-            incomingPane.style.display = "block";
-            incomingPane.style.position = "";
+            anims.push(shell.animate([
+                {
+                    left: `${from.rect.left}px`,
+                    top: `${from.rect.top}px`,
+                    width: `${from.rect.width}px`,
+                    height: `${from.rect.height}px`,
+                    borderRadius: formatRadii(from.radii),
+                    backgroundColor: from.backgroundColor,
+                    boxShadow: from.boxShadow
+                },
+                {
+                    left: `${to.rect.left}px`,
+                    top: `${to.rect.top}px`,
+                    width: `${to.rect.width}px`,
+                    height: `${to.rect.height}px`,
+                    borderRadius: formatRadii(to.radii),
+                    backgroundColor: to.backgroundColor,
+                    boxShadow: to.boxShadow
+                }
+            ], {
+                duration: morphDuration,
+                delay: stagger,
+                easing: morphEase,
+                fill: "both"
+            }));
+
+            // Crisp non-overlapping Dynamic Island content swap:
+            // Outgoing blurs away; incoming uses pure opacity+transform (no CSS filter) so backdrop-filter
+            // frosted glass on .track-stats-pill and .bar-glass stays live from the first frame!
+            anims.push(outLayer.animate([
+                { opacity: 1, filter: "blur(0px)", transform: "translate3d(0, 0, 0) scale(1)" },
+                {
+                    opacity: 0,
+                    filter: "blur(5px)",
+                    transform: "translate3d(0, 0, 0) scale(0.96)"
+                }
+            ], {
+                duration: 140,
+                delay: stagger,
+                easing: "cubic-bezier(0.4, 0, 1, 1)",
+                fill: "both"
+            }));
+
+            const inLayerAnim = inLayer.animate([
+                {
+                    opacity: 0,
+                    transform: "translateY(4px) scale(0.985)"
+                },
+                { opacity: 1, transform: "translate3d(0, 0, 0) scale(1)" }
+            ], {
+                duration: 260,
+                delay: stagger + 115,
+                easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+                fill: "both"
+            });
+            inLayerAnim.onfinish = () => {
+                // Release WAAPI fill immediately once landed so no residual stacking/backdrop layer lingers
+                try { inLayerAnim.cancel(); } catch {}
+            };
+            anims.push(inLayerAnim);
+        }
+
+        // Extra incoming cards beyond the paired slots cascade up with punchy parallax
+        for (let i = pairCount; i < toCards.length; i++) {
+            const to = toCards[i];
+            const extra = document.createElement("div");
+            extra.className = "music-morph-extra";
+            extra.style.left = `${to.rect.left}px`;
+            extra.style.top = `${to.rect.top}px`;
+            extra.style.width = `${to.rect.width}px`;
+            extra.style.height = `${to.rect.height}px`;
+            extra.appendChild(cloneForMorph(to.cardEl));
+            stage.appendChild(extra);
+
+            anims.push(extra.animate([
+                { opacity: 0, transform: "translate3d(0, 34px, 0) scale(0.95)" },
+                { opacity: 1, transform: "translate3d(0, 0, 0) scale(1)" }
+            ], {
+                duration: 340,
+                delay: 90 + Math.min(i - pairCount, 3) * 32,
+                easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+                fill: "both"
+            }));
+        }
+
+        // Extra outgoing cards dissolve gently downward
+        for (let i = pairCount; i < fromCards.length; i++) {
+            const from = fromCards[i];
+            const extra = document.createElement("div");
+            extra.className = "music-morph-extra";
+            extra.style.left = `${from.rect.left}px`;
+            extra.style.top = `${from.rect.top}px`;
+            extra.style.width = `${from.rect.width}px`;
+            extra.style.height = `${from.rect.height}px`;
+            extra.appendChild(cloneForMorph(from.cardEl));
+            stage.appendChild(extra);
+
+            anims.push(extra.animate([
+                { opacity: 1, filter: "blur(0px)", transform: "translateY(0px) scale(1)" },
+                { opacity: 0, filter: "blur(6px)", transform: "translateY(18px) scale(0.96)" }
+            ], {
+                duration: 210,
+                easing: "cubic-bezier(0.4, 0, 1, 1)",
+                fill: "both"
+            }));
+        }
+
+        activeAnimations = anims;
+
+        Promise.allSettled(anims.map(a => a.finished)).then(() => {
+            if (token !== transitionToken) return;
+            // Reveal real DOM pane one frame before dropping the morph stage for zero flash
+            incomingPane.style.opacity = "";
             incomingPane.style.pointerEvents = "";
-            incomingPane.style.zIndex = "";
-            incomingPane.classList.add("active");
-            incomingPane.classList.remove("is-animating");
-            try { incomingAnim.cancel(); } catch (e) {}
-
-            // Release container height cleanly
-            try { heightAnim.cancel(); } catch (e) {}
-            container.style.height = "";
-            container.classList.remove("is-transitioning");
-
-            isTransitioning = false;
-            // The hash changed while the panes were sliding: catch up with it
-            syncTabToHash();
-        };
+            requestAnimationFrame(() => {
+                if (token !== transitionToken) return;
+                teardownMorph(newTab);
+            });
+        });
     }
 
     function syncTabToHash() {
@@ -631,7 +1160,21 @@ function initMusicTabs() {
 
     // Opened on a deep link: show that tab straight away, before the first paint
     const initialTab = tabFromHash();
-    if (initialTab && initialTab !== currentTab) switchTab(initialTab, { instant: true, updateHash: false });
+    if (initialTab && initialTab !== currentTab) {
+        switchTab(initialTab, { instant: true, updateHash: false });
+    } else {
+        positionIndicator(currentTab, { animate: false });
+    }
+
+    // Keep the gliding indicator aligned across responsive resizes and webfont swaps
+    if (navPill && typeof ResizeObserver !== "undefined") {
+        new ResizeObserver(() => {
+            if (!indicatorAnim) positionIndicator(currentTab, { animate: false });
+        }).observe(navPill);
+    }
+    document.fonts?.ready.then(() => {
+        if (!indicatorAnim) positionIndicator(currentTab, { animate: false });
+    });
 
     // Hash edited by hand, or an in-page link
     window.addEventListener("hashchange", syncTabToHash);

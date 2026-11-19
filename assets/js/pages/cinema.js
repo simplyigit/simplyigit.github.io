@@ -10,6 +10,11 @@ import {
 } from '../modules/core.js';
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
+import '../modules/genie-morph.js';
+
+// Recent Watches and the Watchlist show six films each: they fill the row on wide screens (cinema.css
+// .strip-fit), and the homepage VHS only morphs films among the recent six (index.js onCinemaPage)
+const ROW_COUNT = 6;
 
 // Strip a trailing ", 2014" / "(2014)" year from Letterboxd titles
 function cleanFilmTitle(title) {
@@ -64,11 +69,13 @@ function renderFavorites(favContainer, favList) {
     });
     favContainer.innerHTML = html;
 
-    let currentSpeed = 1;
-    const normalSpeed = 1;
+    // Speed in px/sec (60 px/s = 1 px/frame at 60Hz), delta-time normalized across refresh rates
+    const normalSpeed = 60;
+    let currentSpeed = normalSpeed;
     let position = 0;
     let isHovered = false;
     let isRunning = false;
+    let lastTime = 0;
     let halfWidth = favContainer.scrollWidth / 2;
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -90,6 +97,7 @@ function renderFavorites(favContainer, favList) {
     function startMarqueeLoop() {
         if (!isRunning && !document.hidden && !reducedMotionQuery.matches) {
             isRunning = true;
+            lastTime = 0;
             marqueeRafId = requestAnimationFrame(animateMarquee);
         }
     }
@@ -111,24 +119,32 @@ function renderFavorites(favContainer, favList) {
     window.addEventListener('focus', onVisibilityOrFocus);
     window.addEventListener('blur', onVisibilityOrFocus);
 
-    function animateMarquee() {
+    function animateMarquee(now) {
         if (document.hidden || reducedMotionQuery.matches) {
             isRunning = false;
+            lastTime = 0;
             marqueeRafId = null;
             return;
         }
-        const targetSpeed = (isHovered || !document.hasFocus()) ? 0 : normalSpeed;
-        currentSpeed += (targetSpeed - currentSpeed) * 0.05;
+        const dt = lastTime ? Math.min((now - lastTime) / 1000, 0.1) : 0;
+        lastTime = now;
 
-        if (targetSpeed === 0 && Math.abs(currentSpeed) < 0.002) {
+        const targetSpeed = (isHovered || !document.hasFocus()) ? 0 : normalSpeed;
+        if (dt > 0) {
+            const alpha = 1 - Math.pow(0.95, dt * 60);
+            currentSpeed += (targetSpeed - currentSpeed) * alpha;
+        }
+
+        if (targetSpeed === 0 && Math.abs(currentSpeed) < 0.12) {
             currentSpeed = 0;
             isRunning = false;
+            lastTime = 0;
             marqueeRafId = null;
             return;
         }
 
         // Left to right: wrap back one copy as soon as the strip's left edge comes into view
-        position += currentSpeed;
+        position += currentSpeed * dt;
 
         if (halfWidth > 0 && position > 0) {
             position -= halfWidth;
@@ -143,6 +159,7 @@ function renderFavorites(favContainer, favList) {
     marqueeCleanup = () => {
         if (marqueeRafId) cancelAnimationFrame(marqueeRafId);
         isRunning = false;
+        lastTime = 0;
         marqueeRafId = null;
         window.removeEventListener('resize', updateHalfWidth);
         document.removeEventListener('visibilitychange', onVisibilityOrFocus);
@@ -151,10 +168,37 @@ function renderFavorites(favContainer, favList) {
     };
 }
 
+// The film that flew in from the homepage is the first Recent Watch: as the page appears, the rest of
+// the row slides out from under its slot while the poster flies into it. The film nearest the slot
+// comes out on top.
+function dealFromUnder(first) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cards = [...first.parentElement.children].slice(1);
+    if (cards.length === 0) return;
+    const slot = first.getBoundingClientRect();
+    first.style.zIndex = String(cards.length + 1);
+    const anims = cards.map((card, i) => {
+        card.style.zIndex = String(cards.length - i);
+        const dx = card.getBoundingClientRect().left - slot.left;
+        // Each card is clipped at the slot's right edge, so it only shows once it's out from under the
+        // slot (`clear`: the progress where it is all out)
+        const clear = Math.min(1, slot.width / dx);
+        return card.animate([
+            { transform: `translateX(${-dx}px)`, clipPath: 'inset(0 0 0 100%)' },
+            { offset: clear, transform: `translateX(${slot.width - dx}px)`, clipPath: 'inset(0 0 0 0)' },
+            { transform: 'none', clipPath: 'inset(0 0 0 0)' }
+        ], { duration: 640 + i * 40, easing: 'cubic-bezier(0.25, 1, 0.5, 1)', fill: 'both' });
+    });
+    Promise.allSettled(anims.map(a => a.finished)).then(() => {
+        anims.forEach(a => a.cancel());
+        [first, ...cards].forEach(card => { card.style.zIndex = ''; });
+    });
+}
+
 function renderRecent(recentContainer, recList) {
     if (!recentContainer || !Array.isArray(recList) || recList.length === 0) return;
     const seenSlugs = new Set();
-    recentContainer.innerHTML = recList.slice(0, 7).map((film, index) => {
+    recentContainer.innerHTML = recList.slice(0, ROW_COUNT).map((film, index) => {
         // Liked and rewatch marks sit after the stars (U+FE0E keeps the heart a text glyph, not an emoji)
         const marks = (film.is_favorite ? '<span class="overlay-mark mark-liked" title="Liked">♥\uFE0E</span>' : '')
             + (film.is_rewatch ? '<span class="overlay-mark mark-rewatch" title="Rewatch">↺</span>' : '');
@@ -170,7 +214,7 @@ function renderRecent(recentContainer, recList) {
         // data-film / data-thumb: the homepage VHS poster of this film morphs into this card (initCinema)
         return `
             <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" data-film="${escapeHtml(film.title)}" data-thumb="${escapeHtml(safeImg(film.cover_url, 150))}" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${labelNotes ? ` (${escapeHtml(labelNotes)})` : ''}">
-                ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" decoding="async">` : posterPlaceholder('recent', safeTitle)}
+                ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" crossorigin="anonymous" decoding="async">` : posterPlaceholder('recent', safeTitle)}
                 <div class="poster-overlay">
                     <div class="overlay-title">${safeTitle}</div>
                     ${stars}
@@ -182,7 +226,7 @@ function renderRecent(recentContainer, recList) {
 function renderWatchlist(watchlistContainer, watchList) {
     if (!watchlistContainer || !Array.isArray(watchList) || watchList.length === 0) return;
     const seenSlugs = new Set();
-    watchlistContainer.innerHTML = watchList.slice(0, 7).map((film, index) => {
+    watchlistContainer.innerHTML = watchList.slice(0, ROW_COUNT).map((film, index) => {
         const cTitle = cleanFilmTitle(film.title);
         const safeTitle = escapeHtml(cTitle);
         const imgUrl = safeImg(film.cover_url, 240);
@@ -226,16 +270,24 @@ function initCinema() {
     window.__vtMorph = {
         source: (library) => {
             if (library !== 'cinema') return null;
-            const el = recentCard(morphedFilm) || recentContainer?.querySelector('.strip-card[data-film]');
-            return el ? { el, key: el.dataset.film } : null;
+            const card = recentCard(morphedFilm) || recentContainer?.querySelector('.strip-card[data-film]');
+            const img = card?.querySelector('img');
+            return card ? { el: img || card, key: card.dataset.film } : null;
         },
         target: (library, key) => {
-            const el = library === 'cinema' ? recentCard(key) : null;
-            if (!el) return null;
+            const card = library === 'cinema' ? recentCard(key) : null;
+            if (!card) return null;
             morphedFilm = key;
-            // The poster may still be loading: show the small copy the homepage already has
-            if (el.dataset.thumb) el.style.background = `url("${el.dataset.thumb}") center / cover`;
-            return el;
+            const img = card.querySelector('img');
+            if (img) {
+                img.fetchPriority = 'high';
+            } else if (card.dataset.thumb) {
+                // The poster may still be loading: show the small copy the homepage already has
+                card.style.background = `url("${card.dataset.thumb}") center / cover`;
+            }
+            const target = img || card;
+            if (card === recentContainer.firstElementChild) dealFromUnder(card);
+            return target;
         }
     };
 
@@ -248,14 +300,14 @@ function initCinema() {
         },
         {
             container: recentContainer,
-            sig: (d) => (d?.recent_activity || []).slice(0, 7).map(m => `${m.title}|${m.rating || ''}|${m.is_favorite ? 'l' : ''}${m.is_rewatch ? 'r' : ''}`).join('|'),
-            images: (d) => (d.recent_activity || []).slice(0, 7).map(f => safeImg(f.cover_url, 240)),
+            sig: (d) => (d?.recent_activity || []).slice(0, ROW_COUNT).map(m => `${m.title}|${m.rating || ''}|${m.is_favorite ? 'l' : ''}${m.is_rewatch ? 'r' : ''}`).join('|'),
+            images: (d) => (d.recent_activity || []).slice(0, ROW_COUNT).map(f => safeImg(f.cover_url, 240)),
             render: (d) => renderRecent(recentContainer, d.recent_activity)
         },
         {
             container: watchlistContainer,
-            sig: (d) => (d?.watchlist || []).slice(0, 7).map(m => m.title).join('|'),
-            images: (d) => (d.watchlist || []).slice(0, 7).map(f => safeImg(f.cover_url, 240)),
+            sig: (d) => (d?.watchlist || []).slice(0, ROW_COUNT).map(m => m.title).join('|'),
+            images: (d) => (d.watchlist || []).slice(0, ROW_COUNT).map(f => safeImg(f.cover_url, 240)),
             render: (d) => renderWatchlist(watchlistContainer, d.watchlist)
         }
     ];

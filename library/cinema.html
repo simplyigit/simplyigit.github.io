@@ -27,16 +27,17 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/base.css?v=7.5">
-    <link rel="stylesheet" href="/assets/css/cinema.css?v=7.5">
-    <script src="/assets/js/vt-nav.js?v=7.5"></script>
+    <link rel="stylesheet" href="/assets/css/base.css?v=7.8">
+    <link rel="stylesheet" href="/assets/css/cinema.css?v=7.7">
+    <script src="/assets/js/vt-nav.js?v=7.11"></script>
     <script>window.__PREFETCH_MOVIES__ = fetch("/api/movies", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
     <!-- In <head> and render-blocking: the first frame already holds the content that page
          transitions morph into (deferred like every module script, so it still runs after parsing) -->
     <link rel="modulepreload" href="/assets/js/modules/core.js">
     <link rel="modulepreload" href="/assets/js/modules/cache.js">
     <link rel="modulepreload" href="/assets/js/modules/live-data.js">
-    <script type="module" src="/assets/js/pages/cinema.js?v=7.5" blocking="render"></script>
+    <link rel="modulepreload" href="/assets/js/modules/genie-morph.js">
+    <script type="module" src="/assets/js/pages/cinema.js?v=7.17" blocking="render"></script>
 </head>
 
 <body>
@@ -86,14 +87,14 @@
         <!-- Recent Watches -->
         <section class="section">
             <h2 class="section-title">Recent Watches</h2>
-            <div id="movies-recent-container" class="scroll-strip">
+            <div id="movies-recent-container" class="scroll-strip strip-fit">
             </div>
         </section>
 
         <!-- Watchlist -->
         <section class="section">
             <h2 class="section-title">Watchlist</h2>
-            <div id="movies-watchlist-container" class="scroll-strip">
+            <div id="movies-watchlist-container" class="scroll-strip strip-fit">
             </div>
         </section>
 

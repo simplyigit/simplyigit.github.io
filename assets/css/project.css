@@ -212,9 +212,11 @@
     box-shadow: 0 0 16px rgba(56, 189, 248, 0.28);
 }
 
-.detector-camera-btn:disabled {
+.detector-camera-btn:disabled,
+.detector-sample-btn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 /* The real control is the visually hidden file input: show its keyboard focus on the button */

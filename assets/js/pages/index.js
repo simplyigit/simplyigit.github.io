@@ -4,6 +4,7 @@ import { getCachedDashboard, setDashboardCachedData } from '../modules/cache.js'
 import { loadLiveData } from '../modules/live-data.js';
 import { displaySongTitle } from '../modules/music-text.js';
 import { togglePreview, stopPreview } from '../modules/preview-player.js';
+import '../modules/genie-morph.js';
 
 // The project card's picture: a small fully connected network, drawn as SVG so it can animate.
 // On hover (always, on touch screens) a signal crosses it and the output node cycles through the
@@ -135,6 +136,7 @@ function initIndex() {
     const cassettePlay = document.getElementById("cassette-play");
     const cassettePlayTime = document.getElementById("cassette-play-time");
     let cassettePreviewUrl = '';
+    let cassetteArtUrl = '';
 
     // Each library object lends its cover's colour to the page: a glow in the background mesh
     // (`slot`: book left, music middle, cinema right) and a faint wash over its own card.
@@ -218,8 +220,22 @@ function initIndex() {
                 }
             }
             if (cassetteBody && artUrl) {
-                cassetteBody.style.setProperty('--cassette-art', `url(${artUrl})`);
+                cassetteArtUrl = artUrl;
+                cassetteBody.style.setProperty('--cassette-art', `url("${artUrl.replace(/["\\]/g, '\\$&')}")`);
                 cassetteBody.classList.add('has-art');
+                // Warm both the CORS bitmap (for WebGL Genie) and the no-cors bitmap (for CSS background-image)
+                const warm = new Image();
+                warm.crossOrigin = 'anonymous';
+                warm.fetchPriority = 'high';
+                warm.src = artUrl;
+                const bgWarm = new Image();
+                bgWarm.fetchPriority = 'high';
+                bgWarm.src = artUrl;
+                const artEl = cassetteBody.querySelector('.cassette-cover-art');
+                if (artEl) {
+                    artEl.__corsImg = warm;
+                    artEl.__bgImg = bgWarm;
+                }
             }
         };
 
@@ -393,8 +409,8 @@ function initIndex() {
 
         const duplicated = list.length >= 4 ? [...list, ...list] : [...list, ...list, ...list, ...list];
 
-        // Films the cinema page lists too (its first 7 recent watches) can morph into their poster there
-        const onCinemaPage = (idx) => idx % list.length < 7;
+        // Films the cinema page lists too (its first 6 recent watches, cinema.js ROW_COUNT) can morph into their poster there
+        const onCinemaPage = (idx) => idx % list.length < 6;
 
         const applyMoviesDom = () => {
             // Update existing filmstrip items in-place if count matches so VHS marquee never resets
@@ -422,7 +438,7 @@ function initIndex() {
                         const cleanTitle = escapeHtml(film.title);
                         return `
                             <div class="vhs-filmstrip-item" title="${cleanTitle}"${onCinemaPage(idx) ? ' data-morph' : ''}>
-                                <img src="${escapeHtml(imgUrl)}" alt="${cleanTitle}" class="vhs-film-cover" loading="lazy" decoding="async">
+                                <img src="${escapeHtml(imgUrl)}" alt="${cleanTitle}" class="vhs-film-cover" crossorigin="anonymous" decoding="async">
                             </div>
                         `;
                     }).join('')}
@@ -452,7 +468,7 @@ function initIndex() {
     // runs there) gets its tracking glitch as it scrolls into view
     const touchOnly = window.matchMedia('(hover: none)').matches && 'IntersectionObserver' in window;
     const bookCard = document.getElementById('book-card');
-    if (touchOnly && bookCard) {
+    if (touchOnly && bookCard && !bookCard.classList.contains('is-deprecated')) {
         new IntersectionObserver(([entry]) => {
             bookCard.classList.toggle('is-open', entry.isIntersecting);
         }, { threshold: 0.7, rootMargin: '-12% 0px -12% 0px' }).observe(bookCard);
@@ -462,8 +478,8 @@ function initIndex() {
     // back from it. `key` names the film or book, so the other page can find the same one.
     const morphElement = (library, key) => {
         if (library === 'music') {
-            const el = document.querySelector('.has-art .cassette-cover-art-wrapper');
-            return el ? { el, key: '' } : null;
+            const el = document.querySelector('.has-art .cassette-cover-art');
+            return el ? { el, key: '', imgUrl: cassetteArtUrl } : null;
         }
         if (library === 'cinema' && indexMoviesContainer) {
             // The poster nearest the middle of the VHS window: of film `key` when landing,

@@ -466,7 +466,7 @@ def fetch_spotify_data(url, key):
     # Check existing DB for the top track's curated snippets to avoid unnecessary API calls
     existing_spotify = read_row(url, key, "spotify")
     existing_tracks = (existing_spotify.get("top_tracks_last_month") or []) if isinstance(existing_spotify, dict) else []
-    existing_top_track_name = existing_tracks[0].get("title") if existing_tracks else None
+    existing_top_track = (existing_tracks[0].get("title"), existing_tracks[0].get("artist")) if existing_tracks else None
     existing_ai_lyrics = existing_tracks[0].get("ai_lyrics") if existing_tracks else None
     # Stored previews, kept when a lookup fails so a play button doesn't come and go
     existing_previews = {
@@ -501,7 +501,7 @@ def fetch_spotify_data(url, key):
         lyric_future = None
         if raw_lfm_tracks:
             top_t = raw_lfm_tracks[0]
-            if existing_top_track_name == top_t['name'] and existing_ai_lyrics:
+            if existing_top_track == (top_t['name'], top_t['artist']['name']) and existing_ai_lyrics:
                 print(f"Top track '{top_t['name']}' hasn't changed. Using cached lyric snippets.")
             else:
                 lyric_future = executor.submit(get_lyrics, top_t['name'], top_t['artist']['name'])
@@ -521,7 +521,7 @@ def fetch_spotify_data(url, key):
                 "cover_url_small": (s_info.get('cover_url_small') if s_info else None) or cover_url,
                 "spotify_id": s_info['spotify_id'] if s_info else None
             })
-            if cover_url:
+            if cover_url and cover_url not in color_futures:
                 color_futures[cover_url] = executor.submit(get_prominent_color, cover_url)
 
         for fut, a in artist_futures.items():
@@ -563,7 +563,7 @@ def fetch_spotify_data(url, key):
         if final_tracks:
             print("Processing AI Lyrics for #1 track...")
             top_track = final_tracks[0]
-            if existing_top_track_name == top_track['title'] and existing_ai_lyrics:
+            if existing_top_track == (top_track['title'], top_track['artist']) and existing_ai_lyrics:
                 top_track['ai_lyrics'] = existing_ai_lyrics
                 print("Reused cached AI lyrics for unchanged #1 track!")
             else:

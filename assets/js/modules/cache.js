@@ -36,10 +36,10 @@ export function getCachedData(key, fallback = null) {
     return readDashboard()?.[KEY_MAP[key]] || fallback;
 }
 
-// Unified homepage cache; only usable once it holds every section
+// Unified homepage cache; usable once it holds the active live sections (books is retired)
 export function getCachedDashboard() {
     const dash = readDashboard();
-    return dash?.spotify && dash?.movies && dash?.books ? dash : null;
+    return dash?.spotify && dash?.movies ? dash : null;
 }
 
 export function setCachedData(key, data) {

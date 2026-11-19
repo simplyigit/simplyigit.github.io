@@ -148,8 +148,8 @@
     height: 100%;
 }
 
-.book-link:hover,
-.book-link:focus-visible {
+.book-link:not(.is-deprecated):hover,
+.book-link:not(.is-deprecated):focus-visible {
     transform: translateY(-4px);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
@@ -288,17 +288,17 @@
 }
 
 /* Hover: Side books tuck back into deep background shadows within card boundaries */
-.book-link:hover .book-shelf-left,
-.book-link.is-open .book-shelf-left,
-.book-link:focus-visible .book-shelf-left {
+.book-link:not(.is-deprecated):hover .book-shelf-left,
+.book-link:not(.is-deprecated).is-open .book-shelf-left,
+.book-link:not(.is-deprecated):focus-visible .book-shelf-left {
     transform: translateX(-42px) translateY(6px) translateZ(-30px) rotate(-9deg) scale(0.85);
     opacity: 0.25;
     filter: blur(0.4px);
 }
 
-.book-link:hover .book-shelf-right,
-.book-link.is-open .book-shelf-right,
-.book-link:focus-visible .book-shelf-right {
+.book-link:not(.is-deprecated):hover .book-shelf-right,
+.book-link:not(.is-deprecated).is-open .book-shelf-right,
+.book-link:not(.is-deprecated):focus-visible .book-shelf-right {
     transform: translateX(42px) translateY(6px) translateZ(-30px) rotate(9deg) scale(0.85);
     opacity: 0.25;
     filter: blur(0.4px);
@@ -323,15 +323,15 @@
 }
 
 /* On hover: opens gracefully with authentic 3D perspective */
-.book-link:hover .book-shelf-center,
-.book-link.is-open .book-shelf-center,
-.book-link:focus-visible .book-shelf-center {
+.book-link:not(.is-deprecated):hover .book-shelf-center,
+.book-link:not(.is-deprecated).is-open .book-shelf-center,
+.book-link:not(.is-deprecated):focus-visible .book-shelf-center {
     transform: translateX(36px) translateY(-3px) translateZ(28px) scale(1.04) rotateX(4deg) rotateY(-6deg);
 }
 
-.book-link:hover .book-obj-base,
-.book-link.is-open .book-obj-base,
-.book-link:focus-visible .book-obj-base {
+.book-link:not(.is-deprecated):hover .book-obj-base,
+.book-link:not(.is-deprecated).is-open .book-obj-base,
+.book-link:not(.is-deprecated):focus-visible .book-obj-base {
     box-shadow: -10px 18px 26px rgba(0, 0, 0, 0.8), 0 6px 14px rgba(0, 0, 0, 0.5);
 }
 
@@ -370,9 +370,9 @@
     box-shadow: 1px 0 2px rgba(0, 0, 0, 0.3);
 }
 
-.book-link:hover .book-pages-edge-right,
-.book-link.is-open .book-pages-edge-right,
-.book-link:focus-visible .book-pages-edge-right {
+.book-link:not(.is-deprecated):hover .book-pages-edge-right,
+.book-link:not(.is-deprecated).is-open .book-pages-edge-right,
+.book-link:not(.is-deprecated):focus-visible .book-pages-edge-right {
     display: block;
 }
 
@@ -483,9 +483,9 @@
     cursor: pointer;
 }
 
-.book-link:hover .book-front-cover-assembly,
-.book-link.is-open .book-front-cover-assembly,
-.book-link:focus-visible .book-front-cover-assembly {
+.book-link:not(.is-deprecated):hover .book-front-cover-assembly,
+.book-link:not(.is-deprecated).is-open .book-front-cover-assembly,
+.book-link:not(.is-deprecated):focus-visible .book-front-cover-assembly {
     transform: rotateY(-147deg);
 }
 
@@ -695,6 +695,12 @@
     animation: vhsTrackingTear 0.7s steps(1) both;
 }
 
+/* The colour split sits on the posters, not the viewport: Safari skips a filter whose element holds
+   a GPU layer (the rolling .vhs-filmstrip-track), so on the viewport it never showed there */
+.vhs-link.is-glitching .vhs-film-cover {
+    animation: vhsTrackingSplit 0.7s steps(1) both;
+}
+
 .vhs-link.is-glitching .vhs-osd,
 .vhs-link.is-glitching .vhs-tape-counter {
     animation: vhsOsdFlicker 0.7s steps(1) both;
@@ -719,32 +725,53 @@
 @keyframes vhsTrackingTear {
     0% {
         transform: translateX(-6px) skewX(-7deg);
-        filter: drop-shadow(3px 0 0 rgba(255, 0, 70, 0.75)) drop-shadow(-3px 0 0 rgba(0, 220, 255, 0.75)) saturate(1.7);
     }
 
     14% {
         transform: translateX(5px) skewX(4deg);
-        filter: drop-shadow(-3px 0 0 rgba(255, 0, 70, 0.7)) drop-shadow(3px 0 0 rgba(0, 220, 255, 0.7)) saturate(1.5);
     }
 
     28% {
         transform: translate(-3px, 1px) skewX(-2deg);
-        filter: drop-shadow(2px 0 0 rgba(255, 0, 70, 0.6)) drop-shadow(-2px 0 0 rgba(0, 220, 255, 0.6)) saturate(1.4);
     }
 
     44% {
         transform: translateX(3px) skewX(2deg);
-        filter: drop-shadow(-2px 0 0 rgba(255, 0, 70, 0.5)) drop-shadow(2px 0 0 rgba(0, 220, 255, 0.5));
     }
 
     60% {
         transform: translateX(-1px);
-        filter: drop-shadow(1px 0 0 rgba(255, 0, 70, 0.4)) drop-shadow(-1px 0 0 rgba(0, 220, 255, 0.4));
     }
 
     78%,
     100% {
         transform: none;
+    }
+}
+
+@keyframes vhsTrackingSplit {
+    0% {
+        filter: drop-shadow(3px 0 0 rgba(255, 0, 70, 0.75)) drop-shadow(-3px 0 0 rgba(0, 220, 255, 0.75)) saturate(1.7);
+    }
+
+    14% {
+        filter: drop-shadow(-3px 0 0 rgba(255, 0, 70, 0.7)) drop-shadow(3px 0 0 rgba(0, 220, 255, 0.7)) saturate(1.5);
+    }
+
+    28% {
+        filter: drop-shadow(2px 0 0 rgba(255, 0, 70, 0.6)) drop-shadow(-2px 0 0 rgba(0, 220, 255, 0.6)) saturate(1.4);
+    }
+
+    44% {
+        filter: drop-shadow(-2px 0 0 rgba(255, 0, 70, 0.5)) drop-shadow(2px 0 0 rgba(0, 220, 255, 0.5));
+    }
+
+    60% {
+        filter: drop-shadow(1px 0 0 rgba(255, 0, 70, 0.4)) drop-shadow(-1px 0 0 rgba(0, 220, 255, 0.4));
+    }
+
+    78%,
+    100% {
         filter: none;
     }
 }
@@ -1496,7 +1523,7 @@
     z-index: 0;
     pointer-events: none;
     opacity: 0.8;
-    animation: slowHeroOrbit 1s infinite alternate ease-in-out;
+    animation: slowHeroOrbit 8s infinite alternate ease-in-out;
 }
 
 .hero-glow-1 {
@@ -1787,14 +1814,14 @@
     pointer-events: none;
 }
 
-/* Reading is deprecated (Goodreads closed its feeds): the card stays, but isn't a link */
+/* Reading is deprecated (Goodreads closed its feeds): the card stays, static and not a link */
 .book-link.is-deprecated {
     cursor: default;
+    will-change: auto;
 }
 
-.book-link.is-deprecated:hover {
-    transform: none;
-    box-shadow: none;
+.book-link.is-deprecated .book-front-cover-assembly {
+    cursor: default;
 }
 
 .book-link.is-deprecated::after {
@@ -1834,10 +1861,10 @@
     pointer-events: none;
 }
 
-.book-link:hover::after,
+.book-link:not(.is-deprecated):hover::after,
 .cassette-link:hover::after,
 .vhs-link:hover::after,
-.book-link:focus-visible::after,
+.book-link:not(.is-deprecated):focus-visible::after,
 .cassette-link:focus-visible::after,
 .vhs-link:focus-visible::after {
     opacity: 1;

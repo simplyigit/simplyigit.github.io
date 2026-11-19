@@ -26,7 +26,7 @@ Browser ◀── /api/* (Vercel Python functions, edge-cached 10 min + 24 h sta
 
 Pages crossfade with cross-document view transitions. Between the homepage and a library page one element also morphs: the cassette's cover art into the #1 track's art, a VHS poster into that film's poster, the book into its cover (and back). `assets/js/vt-nav.js` names the two elements; each page script tells it which ones through `window.__vtMorph`. For the landing element to exist at the first frame, the page scripts sit in `<head>` with `blocking="render"`, and a page reached through a transition renders its cached data at once (`live-data.js`). Browsers without these features just crossfade.
 
-The background mesh takes its hues from the covers (`setAmbientTint` in `core.js`): on the homepage one glow per library object (the book bottom-left, the #1 track in the middle, the latest film bottom-right), each also washing its own card; on the music page the visible tab's first cover. The sync stores each cover's `prominent_color`; without one the page works it out from the image. Keys `1` / `2` / `3` open Reading, Music and Cinema.
+The background mesh takes its hues from the covers (`setAmbientTint` in `core.js`): on the homepage one glow per library object (the book bottom-left, the #1 track in the middle, the latest film bottom-right), each also washing its own card; on the music page the visible tab's first cover. The sync stores each cover's `prominent_color`; without one the page works it out from the image. Keys `2` / `3` open Music and Cinema.
 
 ## Layout
 

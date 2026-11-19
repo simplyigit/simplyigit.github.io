@@ -642,14 +642,22 @@ html:not(.vt-data-morph) [style*="view-transition-name"] {
     view-transition-name: none !important;
 }
 
-/* The one element that morphs between a homepage library object and its page (vt-nav.js) */
+/* Page crossfade: crisp ease-in-out for regular page navigations */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 280ms;
+    animation-timing-function: cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+/* The one element that morphs between a homepage library object and its page, when the leaving
+   page had no readable cover image for the WebGL Genie (vt-nav.js) */
 html:root .vt-morph.vt-morph {
     view-transition-name: page-morph !important;
 }
 
 ::view-transition-group(page-morph) {
-    animation-duration: 460ms;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(0.83, 0, 0.17, 1);
 }
 
 /* The two ends differ in shape (a wide cassette label and a square cover): crop, don't stretch */
@@ -659,7 +667,20 @@ html:root .vt-morph.vt-morph {
     height: 100%;
     object-fit: cover;
     overflow: clip; /* snapshots may paint past their box (that's how shadows travel): not these */
-    animation-duration: 460ms;
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+/* WebGL macOS Genie cover morph overlay (modules/genie-morph.js) */
+.vt-genie-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    width: 100dvw;
+    height: 100dvh;
+    pointer-events: none;
+    z-index: 9999;
 }
 
 html.vt-data-morph::view-transition-group(*) {

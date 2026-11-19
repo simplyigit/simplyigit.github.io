@@ -39,6 +39,9 @@
   /* Horizontal scroll strip */
   .scroll-strip { display: flex; gap: 10px; overflow-x: auto; padding-top: 10px; padding-bottom: 12px; margin-bottom: 72px; scrollbar-width: none; -ms-overflow-style: none; }
   .scroll-strip::-webkit-scrollbar { display: none; }
+  /* Recent Watches and Watchlist: six posters fill the row on wide screens, no scrolling (phones scroll again, below) */
+  .strip-fit { display: grid; grid-template-columns: repeat(6, 1fr); overflow: visible; }
+  .strip-fit .strip-card, .strip-fit .watchlist-card { width: auto; height: auto; aspect-ratio: 2 / 3; }
   .strip-card { flex: 0 0 auto; width: 108px; height: 162px; position: relative; border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), box-shadow 0.5s cubic-bezier(0.16,1,0.3,1), border-color 0.5s ease; display: block; text-decoration: none; color: inherit; }
   .strip-card:hover, .strip-card:focus-visible { transform: scale(1.08) translateY(-8px); box-shadow: 0 16px 40px -8px rgba(0,0,0,0.7), 0 0 24px rgba(64,188,244,0.2); border-color: rgba(64,188,244,0.35); z-index: 2; }
   .strip-card img, .strip-card .poster-bg { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -102,6 +105,18 @@
 
     .scroll-strip {
         margin-bottom: 40px;
+    }
+
+    .strip-fit {
+        display: flex;
+        overflow-x: auto;
+    }
+
+    .strip-fit .strip-card,
+    .strip-fit .watchlist-card {
+        width: 108px;
+        height: 162px;
+        aspect-ratio: auto;
     }
 }
 @media screen and (max-width: 480px) {

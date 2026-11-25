@@ -35,14 +35,56 @@ export function escapeHtml(value) {
 
 const PROXIED_IMAGE_HOSTS = ['a.ltrbxd.com', 'i.gr-assets.com'];
 
+export function safeUrl(url) {
+    const raw = String(url ?? '').trim();
+    if (!raw || raw.startsWith('//')) return '';
+    const base = typeof location !== 'undefined' && location?.origin && location.origin !== 'null'
+        ? location.origin
+        : 'https://simplyigit.me';
+    if (raw.startsWith('/')) {
+        try {
+            const parsed = new URL(raw, base);
+            return parsed.origin === base ? parsed.pathname + parsed.search + parsed.hash : '';
+        } catch {
+            return '';
+        }
+    }
+    try {
+        const parsed = new URL(raw);
+        return parsed.protocol === 'https:' ? parsed.href : '';
+    } catch {
+        return '';
+    }
+}
+
+export function safeCssUrl(url) {
+    const clean = safeUrl(url);
+    if (!clean) return '';
+    const escaped = clean.replace(/["'\\()\n\r]/g, ch => '%' + ch.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0'));
+    return `url("${escaped}")`;
+}
+
+export function safeRgb(rgb) {
+    if (!Array.isArray(rgb) || rgb.length !== 3) return null;
+    const nums = rgb.map(v => {
+        if (typeof v === 'boolean' || v === null || v === '' || (typeof v === 'string' && !/^-?\d+(?:\.\d+)?$/.test(v.trim()))) {
+            return NaN;
+        }
+        return Number(v);
+    });
+    if (nums.some(n => !Number.isFinite(n))) return null;
+    return nums.map(n => Math.max(0, Math.min(255, Math.round(n))));
+}
+
 // Letterboxd/Goodreads covers go through wsrv.nl (resized WebP; also dodges ISP blocks on their CDNs)
 export function safeImg(url, width = 0) {
-    if (!url) return '';
-    if (PROXIED_IMAGE_HOSTS.some(host => url.includes(host))) {
+    const clean = safeUrl(url);
+    if (!clean) return '';
+    if (PROXIED_IMAGE_HOSTS.some(host => clean.includes(host))) {
         const wParam = width > 0 ? `&w=${width}` : '';
-        return `https://wsrv.nl/?url=${encodeURIComponent(url)}${wParam}&output=webp`;
+        return `https://wsrv.nl/?url=${encodeURIComponent(clean)}${wParam}&output=webp`;
     }
-    return url;
+    return clean;
 }
 
 // The mesh's orbs per layout, as fractions of the canvas: centre, radius, strength and resting
@@ -67,7 +109,7 @@ const MESH_LAYOUTS = {
 const MESH_TINTS_KEY = 'simplyigit_mesh_tints';
 
 function isRgb(color) {
-    return Array.isArray(color) && color.length === 3 && color.every(c => Number.isFinite(Number(c)));
+    return safeRgb(color) !== null;
 }
 
 function hslToRgb(h, s, l) {

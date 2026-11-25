@@ -1,4 +1,4 @@
-import { initAmbientMesh, setAmbientTint, glowColor, imageColor, initGlobalReveal, initGlassParallax, initLibraryKeys, safeImg, smoothMorph, morphText, escapeHtml } from '../modules/core.js';
+import { initAmbientMesh, setAmbientTint, glowColor, imageColor, initGlobalReveal, initGlassParallax, initLibraryKeys, safeImg, safeUrl, safeCssUrl, safeRgb, smoothMorph, morphText, escapeHtml } from '../modules/core.js';
 import { initAvatarDepth } from '../modules/avatar-depth.js';
 import { getCachedDashboard, setDashboardCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
@@ -107,7 +107,7 @@ function initIndex() {
         projects.forEach((proj) => {
             const cardWidthClass = proj.type === 'wide' ? 'wide-card' : proj.type === 'full-wide' ? 'full-wide-card' : 'default-card';
             const card = document.createElement("a");
-            card.href = proj.url || "#";
+            card.href = safeUrl(proj.url) || "#";
             card.className = `glass-card ${cardWidthClass} ${proj.customClass || ''}`;
             const tagsHtml = proj.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("");
             card.innerHTML = `
@@ -144,8 +144,8 @@ function initIndex() {
     const colorRequests = {};
     async function showCardColor(slot, card, item, imageUrl) {
         const request = colorRequests[slot] = {};
-        const known = Array.isArray(item.prominent_color) && item.prominent_color.length === 3;
-        const color = known ? item.prominent_color : await imageColor(imageUrl);
+        const known = safeRgb(item.prominent_color);
+        const color = known || await imageColor(imageUrl);
         // A newer render of this card has asked since: its colour wins
         if (!color || colorRequests[slot] !== request) return;
         setAmbientTint(color, { slot });
@@ -191,7 +191,7 @@ function initIndex() {
         if (!topTrack) return;
 
         // The cassette label is ~100px wide: the 300px cover is plenty
-        const artUrl = topTrack.cover_url_small || topTrack.cover_url;
+        const artUrl = safeUrl(topTrack.cover_url_small || topTrack.cover_url);
         const songTitle = displaySongTitle(topTrack.title);
         const sig = `${topTrack.title}|${topTrack.artist}|${artUrl}|${topTrack.preview_url || ''}`;
         if (sig === renderedSpotifySig) return;
@@ -204,7 +204,7 @@ function initIndex() {
         const applySpotifyDom = () => {
             // The deck key appears only when the sync found a preview for this track
             stopPreview();
-            cassettePreviewUrl = topTrack.preview_url || '';
+            cassettePreviewUrl = safeUrl(topTrack.preview_url);
             if (cassettePlay) {
                 cassettePlay.hidden = !cassettePreviewUrl;
                 cassettePlay.setAttribute('aria-label', `Play a 30-second preview of ${songTitle} by ${topTrack.artist}`);
@@ -222,9 +222,10 @@ function initIndex() {
                     marquee.style.setProperty('--marquee-duration', `${duration.toFixed(1)}s`);
                 }
             }
-            if (cassetteBody && artUrl) {
+            const artCss = safeCssUrl(artUrl);
+            if (cassetteBody && artCss) {
                 cassetteArtUrl = artUrl;
-                cassetteBody.style.setProperty('--cassette-art', `url("${artUrl.replace(/["\\]/g, '\\$&')}")`);
+                cassetteBody.style.setProperty('--cassette-art', artCss);
                 cassetteBody.classList.add('has-art');
                 // Warm both the CORS bitmap (for WebGL Genie) and the no-cors bitmap (for CSS background-image)
                 const warm = new Image();

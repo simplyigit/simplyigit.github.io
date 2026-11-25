@@ -43,11 +43,29 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "camera=(self), microphone=(), geolocation=()"
+          "value": "camera=(), microphone=(), geolocation=()"
         },
         {
           "key": "Content-Security-Policy-Report-Only",
-          "value": "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-EbMellbmrTMXM1Sobv1op/Luo2KtXgjUA5JoQssr5l4=' 'sha256-Fet8wxO6ZPJHT1yBsXpHZDUIItwW+AnioiAA+5s3jlk=' 'sha256-Ol2rtKbK3+rRWiuCr8ELWhwWApW8TmLkS/IIk1Pbmfg=' 'sha256-E5WSbACoSgGdDf0I4SwW0JTxhGUjM2LCtTlSMzwWYkE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://wsrv.nl https://i.scdn.co https://coverartarchive.org https://*.archive.org https://a.ltrbxd.com https://i.gr-assets.com https://lastfm.freetls.fastly.net https://raw.githubusercontent.com; media-src 'self' blob: https://audio-ssl.itunes.apple.com; connect-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://static.cloudflareinsights.com 'wasm-unsafe-eval' 'sha256-EbMellbmrTMXM1Sobv1op/Luo2KtXgjUA5JoQssr5l4=' 'sha256-Fet8wxO6ZPJHT1yBsXpHZDUIItwW+AnioiAA+5s3jlk=' 'sha256-Ol2rtKbK3+rRWiuCr8ELWhwWApW8TmLkS/IIk1Pbmfg=' 'sha256-E5WSbACoSgGdDf0I4SwW0JTxhGUjM2LCtTlSMzwWYkE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://wsrv.nl https://i.scdn.co https://coverartarchive.org https://*.archive.org https://a.ltrbxd.com https://i.gr-assets.com https://lastfm.freetls.fastly.net https://raw.githubusercontent.com; media-src 'self' blob: https://audio-ssl.itunes.apple.com; connect-src 'self' https://cdn.jsdelivr.net https://cloudflareinsights.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/projects/real-deepfake-or-ai",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(), geolocation=()"
+        }
+      ]
+    },
+    {
+      "source": "/projects/real-deepfake-or-ai/(.*)",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), microphone=(), geolocation=()"
         }
       ]
     },

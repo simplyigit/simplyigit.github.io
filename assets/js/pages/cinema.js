@@ -4,6 +4,8 @@ import {
     initGlassParallax,
     initLibraryKeys,
     safeImg,
+    safeUrl,
+    safeCssUrl,
     toTransitionSlug,
     smoothMorph,
     escapeHtml
@@ -58,7 +60,7 @@ function renderFavorites(favContainer, favList) {
         const ariaHiddenAttr = idx >= favList.length ? 'aria-hidden="true" tabindex="-1"' : '';
         
         html += `
-            <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="filmstrip-card fade-in ${className}" ${ariaHiddenAttr} aria-label="${safeTitle}">
+            <a href="${escapeHtml(safeUrl(film.link) || "#")}" target="_blank" rel="noopener noreferrer" class="filmstrip-card fade-in ${className}" ${ariaHiddenAttr} aria-label="${safeTitle}">
                 <div class="filmstrip-card-inner">
                     ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="" ${priorityAttr}>` : posterPlaceholder('fav', safeTitle)}
                     <div class="poster-overlay filmstrip-overlay">
@@ -231,7 +233,7 @@ function renderRecent(recentContainer, recList) {
 
         // data-film / data-thumb: the homepage VHS poster of this film morphs into this card (initCinema)
         return `
-            <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" data-film="${escapeHtml(film.title)}" data-thumb="${escapeHtml(safeImg(film.cover_url, 150))}" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${labelNotes ? ` (${escapeHtml(labelNotes)})` : ''}">
+            <a href="${escapeHtml(safeUrl(film.link) || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" data-film="${escapeHtml(film.title)}" data-thumb="${escapeHtml(safeImg(film.cover_url, 150))}" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${labelNotes ? ` (${escapeHtml(labelNotes)})` : ''}">
                 ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="" crossorigin="anonymous" decoding="async">` : posterPlaceholder('recent', safeTitle)}
                 <div class="poster-overlay">
                     <div class="overlay-title">${safeTitle}</div>
@@ -253,7 +255,7 @@ function renderWatchlist(watchlistContainer, watchList) {
         seenSlugs.add(vtSlug);
 
         return `
-        <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="watchlist-card fade-in" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}">
+        <a href="${escapeHtml(safeUrl(film.link) || "#")}" target="_blank" rel="noopener noreferrer" class="watchlist-card fade-in" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}">
             ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="" decoding="async">` : posterPlaceholder('watch', safeTitle)}
             <div class="poster-overlay">
                 <div class="overlay-title">${safeTitle}</div>
@@ -301,7 +303,8 @@ function initCinema() {
                 img.fetchPriority = 'high';
             } else if (card.dataset.thumb) {
                 // The poster may still be loading: show the small copy the homepage already has
-                card.style.background = `url("${card.dataset.thumb}") center / cover`;
+                const thumbCss = safeCssUrl(card.dataset.thumb);
+                if (thumbCss) card.style.background = `${thumbCss} center / cover`;
             }
             const target = img || card;
             if (card === recentContainer.firstElementChild) dealFromUnder(card);

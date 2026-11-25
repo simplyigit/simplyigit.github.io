@@ -75,12 +75,16 @@ class DevHandler(http.server.SimpleHTTPRequestHandler):
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-store")
-        # Vercel matches header sources against the requested path, before rewrites
+        # Vercel matches header sources against the requested path, before rewrites;
+        # later matching rules override earlier headers of the same key.
         path = urlsplit(getattr(self, "request_path", self.path)).path
+        resolved = {}
         for pattern, headers in HEADERS:
             if pattern.fullmatch(path):
                 for key, value in headers:
-                    self.send_header(key, value)
+                    resolved[key.lower()] = (key, value)
+        for key, value in resolved.values():
+            self.send_header(key, value)
         super().end_headers()
 
     def send_error(self, code, message=None, explain=None):

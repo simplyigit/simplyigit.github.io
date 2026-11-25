@@ -1,4 +1,4 @@
-import { initAmbientMesh, setAmbientTint, initGlobalReveal, initGlassParallax, initLibraryKeys, smoothMorph, morphText, toTransitionSlug, escapeHtml } from '../modules/core.js';
+import { initAmbientMesh, setAmbientTint, initGlobalReveal, initGlassParallax, initLibraryKeys, smoothMorph, morphText, toTransitionSlug, escapeHtml, safeUrl, safeCssUrl, safeRgb } from '../modules/core.js';
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
 import { displaySongTitle, shortArtistNameHtml } from '../modules/music-text.js';
@@ -27,33 +27,38 @@ function applyTabTint() {
 // art shown until the full-size image has loaded.
 function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ariaLabel, artUrl, placeholderUrl, badge, meta, rgb, variant, backdropUrl, vtName, nameInPill = false, extraHtml = '', footerHtml = '' }) {
     const hero = index === 0;
-    const art = escapeHtml(artUrl || "");
-    const placeholder = placeholderUrl && placeholderUrl !== artUrl
-        ? ` style="background: url('${escapeHtml(placeholderUrl)}') center / cover"`
+    const safeHref = safeUrl(href) || '#';
+    const art = safeUrl(artUrl);
+    const placeholderCss = placeholderUrl && placeholderUrl !== artUrl ? safeCssUrl(placeholderUrl) : '';
+    const placeholder = placeholderCss
+        ? ` style="background: ${escapeHtml(placeholderCss)} center / cover"`
         : '';
     const tooltip = fullTitle && fullTitle !== title ? ` title="${escapeHtml(fullTitle)}"` : '';
 
     const styles = [];
-    if (hero && !backdropUrl) styles.push(`--track-art: url('${art}')`);
-    if (Array.isArray(rgb) && rgb.length === 3) {
-        const [r, g, b] = rgb;
+    const artCss = hero && !backdropUrl ? safeCssUrl(art) : '';
+    if (artCss) styles.push(`--track-art: ${artCss}`);
+    const cleanRgb = safeRgb(rgb);
+    if (cleanRgb) {
+        const [r, g, b] = cleanRgb;
         styles.push(`--track-color-rgb: ${r}, ${g}, ${b}`, `--track-color-glow: rgba(${r}, ${g}, ${b}, ${hero ? 0.6 : 0.45})`);
         if (hero) styles.push(`border-color: rgba(${r}, ${g}, ${b}, 0.3)`);
     }
     if (vtName) styles.push(`view-transition-name: ${vtName}`);
 
-    const classes = ['spotify-track-card', hero ? 'top-track-banner' : 'grid-track', variant && `is-${variant}`, backdropUrl && 'has-backdrop'].filter(Boolean).join(' ');
-    const backdrop = backdropUrl
-        ? `<div class="banner-backdrop" aria-hidden="true"><img src="${escapeHtml(backdropUrl)}" alt="" loading="lazy" decoding="async"></div>`
+    const cleanBackdrop = safeUrl(backdropUrl);
+    const classes = ['spotify-track-card', hero ? 'top-track-banner' : 'grid-track', variant && `is-${variant}`, cleanBackdrop && 'has-backdrop'].filter(Boolean).join(' ');
+    const backdrop = cleanBackdrop
+        ? `<div class="banner-backdrop" aria-hidden="true"><img src="${escapeHtml(cleanBackdrop)}" alt="" loading="lazy" decoding="async"></div>`
         : hero ? `<div class="banner-bg-blur"></div>` : '';
     // Only the visible tab's hero is above the fold on load (crossorigin so WebGL Genie reuses the cached bitmap at 0ms)
     const imgAttrs = index === 0 && variant === 'track' ? 'fetchpriority="high" crossorigin="anonymous"' : 'loading="lazy" decoding="async"';
 
     return `
-            <a href="${escapeHtml(href || "#")}" target="_blank" rel="noopener noreferrer" class="${classes}" style="${styles.join('; ')}"${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''}>
+            <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer" class="${classes}" style="${escapeHtml(styles.join('; '))}"${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''}>
                 ${backdrop}
                 <div class="case-art-wrapper"${placeholder}>
-                    <img src="${art}" alt="${escapeHtml(title)}" class="spotify-track-img" ${imgAttrs}>
+                    <img src="${escapeHtml(art)}" alt="${escapeHtml(title)}" class="spotify-track-img" ${imgAttrs}>
                 </div>
                 <div class="case-info">
                     ${nameInPill ? '' : `<div class="track-text-stack">
@@ -82,17 +87,19 @@ function playsLabel(count) {
 function renderAlbums(container, albumList) {
     if (!container || !Array.isArray(albumList)) return;
     container.innerHTML = albumList.map(album => {
-        const spotifyUrl = album.spotify_url || (album.spotify_id ? `https://open.spotify.com/album/${album.spotify_id}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`);
-        const [r, g, b] = album.prominent_color || [255, 255, 255];
-        const backdrop = album.typo_url ? album.bg_url : album.banner_url;
+        const spotifyUrl = safeUrl(album.spotify_url) || (album.spotify_id ? `https://open.spotify.com/album/${encodeURIComponent(album.spotify_id)}` : `https://open.spotify.com/search/${encodeURIComponent(album.title + ' ' + album.artist)}`);
+        const [r, g, b] = safeRgb(album.prominent_color) || [255, 255, 255];
+        const cover = safeUrl(album.optimized_cover_url || album.cover_url);
+        const backdrop = safeUrl(album.typo_url ? album.bg_url : album.banner_url);
+        const typo = safeUrl(album.typo_url);
         return `
             <a href="${escapeHtml(spotifyUrl)}" target="_blank" rel="noopener noreferrer" class="spotify-track-card album-card" style="--track-color-rgb: ${r}, ${g}, ${b}; --track-color-glow: rgba(${r}, ${g}, ${b}, 0.45)" aria-label="${escapeHtml(`${album.title} by ${album.artist}`)}">
                 <div class="album-cover">
-                    <img src="${escapeHtml(album.optimized_cover_url || album.cover_url || "")}" alt="" loading="lazy" decoding="async">
+                    <img src="${escapeHtml(cover)}" alt="" loading="lazy" decoding="async">
                 </div>
                 <div class="album-banner" aria-hidden="true">
                     ${backdrop ? `<img src="${escapeHtml(backdrop)}" alt="" class="album-banner-layer album-banner-bg" loading="lazy" decoding="async">` : ''}
-                    ${album.typo_url ? `<img src="${escapeHtml(album.typo_url)}" alt="" class="album-banner-layer album-banner-typo" loading="lazy" decoding="async">` : ''}
+                    ${typo ? `<img src="${escapeHtml(typo)}" alt="" class="album-banner-layer album-banner-typo" loading="lazy" decoding="async">` : ''}
                 </div>
             </a>`;
     }).join('');
@@ -148,7 +155,7 @@ function artistTopSongHtml(artist, totalPlays) {
     const plays = Number(song.playcount) || 0;
     const { songShare, artistShare } = topSongShares(plays, total, totalPlays);
     // A 44px thumbnail: the 300px copy is plenty
-    const coverUrl = song.cover_url_small || song.cover_url;
+    const coverUrl = safeUrl(song.cover_url_small || song.cover_url);
     const cover = coverUrl
         ? `<img src="${escapeHtml(coverUrl)}" alt="" class="artist-song-art" loading="lazy" decoding="async">`
         : `<span class="artist-song-art" aria-hidden="true"></span>`;
@@ -215,9 +222,10 @@ function trackArtUrl(track, index) {
 // 30-second preview control, on the corner of the track's cover. It sits beside the card rather
 // than inside it: the card is a link, and a button can't live inside one.
 function previewButtonHtml(track, shownTitle) {
-    if (!track.preview_url) return '';
+    const previewUrl = safeUrl(track.preview_url);
+    if (!previewUrl) return '';
     return `
-            <button type="button" class="preview-btn" data-preview="${escapeHtml(track.preview_url)}" aria-pressed="false" aria-label="${escapeHtml(`Play a 30-second preview of ${shownTitle} by ${track.artist}`)}">
+            <button type="button" class="preview-btn" data-preview="${escapeHtml(previewUrl)}" aria-pressed="false" aria-label="${escapeHtml(`Play a 30-second preview of ${shownTitle} by ${track.artist}`)}">
                 <svg class="preview-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16.5" pathLength="1"/></svg>
                 <svg class="preview-icon icon-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.2 .8v8.4L9.2 5z"/></svg>
                 <svg class="preview-icon icon-pause" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1H4v8H1.5zM6 1h2.5v8H6z"/></svg>
@@ -280,7 +288,7 @@ function renderTracks(container, trackList) {
             vtName,
             extraHtml: lyricHtml
         });
-        const rgb = Array.isArray(track.prominent_color) && track.prominent_color.length === 3 ? track.prominent_color : null;
+        const rgb = safeRgb(track.prominent_color);
         return `
             <div class="track-slot${index === 0 ? ' is-hero' : ''}"${rgb ? ` style="--track-color-rgb: ${rgb.join(', ')}"` : ''}>${card}${previewButtonHtml(track, shownTitle)}
             </div>`;

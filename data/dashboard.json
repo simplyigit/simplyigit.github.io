@@ -4,98 +4,98 @@
     "spotify": {
       "favorite_albums": [
         {
-          "title": "Purple Rain",
           "year": "1984",
+          "title": "Purple Rain",
           "artist": "Prince and The Revolution",
-          "raw_cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front",
-          "banner_url": "/images/albums/purple-rain-banner.webp",
           "bg_url": "/images/albums/purple-rain-bg.webp",
           "typo_url": "/images/albums/purple-rain-typo.webp",
+          "cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
+          "banner_url": "/images/albums/purple-rain-banner.webp",
+          "format_tag": "LP \u00b7 1984",
           "spotify_id": "2umoqwMrmjBBPeaqgYu6J9",
+          "spotify_url": "https://open.spotify.com/album/2umoqwMrmjBBPeaqgYu6J9",
+          "raw_cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front",
           "prominent_color": [
             196,
             170,
             250
           ],
-          "cover_url": "https://coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500",
-          "format_tag": "LP \u00b7 1984",
-          "spotify_url": "https://open.spotify.com/album/2umoqwMrmjBBPeaqgYu6J9",
           "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b93a7c47-a6d4-33f2-9034-53fdd991f4ba/front-500&w=500&output=webp"
         },
         {
-          "title": "Angel Face (Club Deluxe)",
           "year": "2023",
+          "title": "Angel Face (Club Deluxe)",
           "artist": "Stephen Sanchez",
-          "raw_cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419.jpg",
-          "banner_url": "/images/albums/angel-face-banner.webp",
           "bg_url": "/images/albums/angel-face-bg.webp",
           "typo_url": "/images/albums/angel-face-typo.webp",
+          "cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg",
+          "banner_url": "/images/albums/angel-face-banner.webp",
+          "format_tag": "LP \u00b7 2023",
           "spotify_id": "3fD6ZQKymy2oP1t6c8NEOc",
+          "spotify_url": "https://open.spotify.com/album/3fD6ZQKymy2oP1t6c8NEOc",
+          "raw_cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419.jpg",
           "prominent_color": [
             213,
             86,
             69
           ],
-          "cover_url": "https://coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg",
-          "format_tag": "LP \u00b7 2023",
-          "spotify_url": "https://open.spotify.com/album/3fD6ZQKymy2oP1t6c8NEOc",
           "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release/b53c56ef-d530-476e-962b-014296986cb8/38792987419-500.jpg&w=500&output=webp"
         },
         {
-          "title": "5SOS5 (Deluxe)",
           "year": "2022",
+          "title": "5SOS5 (Deluxe)",
           "artist": "5 Seconds of Summer",
-          "raw_cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front",
-          "banner_url": "/images/albums/5sos5-banner.webp",
           "bg_url": "/images/albums/5sos5-bg.webp",
           "typo_url": "/images/albums/5sos5-typo.webp",
+          "cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
+          "banner_url": "/images/albums/5sos5-banner.webp",
+          "format_tag": "LP \u00b7 2022",
           "spotify_id": "26uA5pGrTovBLxikRsMQJ4",
+          "spotify_url": "https://open.spotify.com/album/26uA5pGrTovBLxikRsMQJ4",
+          "raw_cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front",
           "prominent_color": [
             247,
             221,
             207
           ],
-          "cover_url": "https://coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500",
-          "format_tag": "LP \u00b7 2022",
-          "spotify_url": "https://open.spotify.com/album/26uA5pGrTovBLxikRsMQJ4",
           "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/9cfe783c-18f2-47bb-a88f-4f45bceb7eda/front-500&w=500&output=webp"
         },
         {
-          "title": "Fine Line",
           "year": "2019",
+          "title": "Fine Line",
           "artist": "Harry Styles",
-          "raw_cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front",
-          "banner_url": "/images/albums/fine-line-banner.webp",
           "bg_url": "/images/albums/fine-line-bg.webp",
           "typo_url": "/images/albums/fine-line-typo.webp",
+          "cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500",
+          "banner_url": "/images/albums/fine-line-banner.webp",
+          "format_tag": "LP \u00b7 2019",
           "spotify_id": "7xV2TzoaVc0ycW7fwBwAml",
+          "spotify_url": "https://open.spotify.com/album/7xV2TzoaVc0ycW7fwBwAml",
+          "raw_cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front",
           "prominent_color": [
             115,
             194,
             214
           ],
-          "cover_url": "https://coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500",
-          "format_tag": "LP \u00b7 2019",
-          "spotify_url": "https://open.spotify.com/album/7xV2TzoaVc0ycW7fwBwAml",
           "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/b9990da8-7953-4e64-aea5-065ca9cd3cb7/front-500&w=500&output=webp"
         },
         {
-          "title": "4TH WALL",
           "year": "2023",
+          "title": "4TH WALL",
           "artist": "Ruel",
-          "raw_cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front",
-          "banner_url": "/images/albums/4th-wall-banner.webp",
           "bg_url": "/images/albums/4th-wall-bg.webp",
           "typo_url": "/images/albums/4th-wall-typo.webp",
+          "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
+          "banner_url": "/images/albums/4th-wall-banner.webp",
+          "format_tag": "LP \u00b7 2023",
           "spotify_id": "6SW7IIrlj6LoWxDPinGeQp",
+          "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
+          "raw_cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front",
           "prominent_color": [
             226,
             108,
             34
           ],
-          "cover_url": "https://coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500",
-          "format_tag": "LP \u00b7 2023",
-          "spotify_url": "https://open.spotify.com/album/6SW7IIrlj6LoWxDPinGeQp",
           "optimized_cover_url": "https://wsrv.nl/?url=https%3A//coverartarchive.org/release-group/97226a36-4394-4188-b29e-3a8210d33173/front-500&w=500&output=webp"
         }
       ],
@@ -109,7 +109,7 @@
             "lyric3": "Find some sort of meditation, Deep inside this masturbation, What a sticky situation"
           },
           "cover_url": "https://i.scdn.co/image/ab67616d0000b2734dae177fcfce289edd39bed2",
-          "playcount": "42",
+          "playcount": "47",
           "spotify_id": "3KPLZ1of6GcoN68FZEqukh",
           "spotify_url": "https://open.spotify.com/track/3KPLZ1of6GcoN68FZEqukh",
           "cover_url_small": "https://i.scdn.co/image/ab67616d00001e024dae177fcfce289edd39bed2",
@@ -120,25 +120,25 @@
           ]
         },
         {
-          "title": "Another You (feat. Sadie Jean)",
-          "artist": "Ruel",
-          "cover_url": "https://i.scdn.co/image/ab67616d0000b273fd8e42323456e6fce7d5d46d",
-          "playcount": "39",
-          "spotify_id": "26bOxdCaS6ESsR2NR4xq41",
-          "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c9/19/c9/c919c942-8744-10d5-7470-02711a937f82/mzaf_17102712051824492627.plus.aac.p.m4a",
-          "spotify_url": "https://open.spotify.com/track/26bOxdCaS6ESsR2NR4xq41",
-          "cover_url_small": "https://i.scdn.co/image/ab67616d00001e02fd8e42323456e6fce7d5d46d",
+          "title": "Vincent",
+          "artist": "Don McLean",
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b2730085dd4362653ef4c54ebbeb",
+          "playcount": "37",
+          "spotify_id": "0VNzEY1G4GLqcNx5qaaTl6",
+          "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/09/5a/d2/095ad2f6-3f31-d71e-6348-585c83a53cee/mzaf_2170216142700257.plus.aac.p.m4a",
+          "spotify_url": "https://open.spotify.com/track/0VNzEY1G4GLqcNx5qaaTl6",
+          "cover_url_small": "https://i.scdn.co/image/ab67616d00001e020085dd4362653ef4c54ebbeb",
           "prominent_color": [
-            189,
-            140,
-            104
+            228,
+            174,
+            162
           ]
         },
         {
           "title": "I'll Find You",
           "artist": "5 Seconds of Summer",
           "cover_url": "https://i.scdn.co/image/ab67616d0000b2739d309cfbe36d01585f98e406",
-          "playcount": "32",
+          "playcount": "34",
           "spotify_id": "2hShdJova68Ea7tMC1PGRf",
           "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bb/36/85/bb3685a9-7d8f-b948-1e2a-d2b111de3202/mzaf_11014881394644542126.plus.aac.p.m4a",
           "spotify_url": "https://open.spotify.com/track/2hShdJova68Ea7tMC1PGRf",
@@ -147,6 +147,21 @@
             203,
             163,
             185
+          ]
+        },
+        {
+          "title": "Love Me To Heaven",
+          "artist": "Jonas Brothers",
+          "cover_url": "https://i.scdn.co/image/ab67616d0000b2737b65cfeb8531165690538f0f",
+          "playcount": "33",
+          "spotify_id": "0qCjAKgWrgThs17aU0a6P9",
+          "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4e/f2/56/4ef2563a-7430-30e0-b291-3509b27dcfe3/mzaf_2705390219234963915.plus.aac.p.m4a",
+          "spotify_url": "https://open.spotify.com/track/0qCjAKgWrgThs17aU0a6P9",
+          "cover_url_small": "https://i.scdn.co/image/ab67616d00001e027b65cfeb8531165690538f0f",
+          "prominent_color": [
+            87,
+            75,
+            49
           ]
         },
         {
@@ -163,48 +178,21 @@
             117,
             193
           ]
-        },
-        {
-          "title": "Vincent",
-          "artist": "Don McLean",
-          "cover_url": "https://i.scdn.co/image/ab67616d0000b2730085dd4362653ef4c54ebbeb",
-          "playcount": "26",
-          "spotify_id": "0VNzEY1G4GLqcNx5qaaTl6",
-          "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/09/5a/d2/095ad2f6-3f31-d71e-6348-585c83a53cee/mzaf_2170216142700257.plus.aac.p.m4a",
-          "spotify_url": "https://open.spotify.com/track/0VNzEY1G4GLqcNx5qaaTl6",
-          "cover_url_small": "https://i.scdn.co/image/ab67616d00001e020085dd4362653ef4c54ebbeb",
-          "prominent_color": [
-            228,
-            174,
-            162
-          ]
         }
       ],
       "top_artists_last_month": [
         {
-          "name": "Shawn Mendes",
-          "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
-          "playcount": "131",
-          "top_track": {
-            "title": "When You're Gone",
-            "cover_url": "https://i.scdn.co/image/ab67616d0000b273cce29b5f028071ddeb23f21b",
-            "playcount": "9",
-            "spotify_url": "https://open.spotify.com/track/0U1W2LZVUX7qTm7dDpqxh6",
-            "cover_url_small": "https://i.scdn.co/image/ab67616d00001e02cce29b5f028071ddeb23f21b"
-          },
-          "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/c66be0c4163f2ae54b228b82c2d374d2&w=1400&output=webp",
-          "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr",
-          "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
-          "prominent_color": [
-            176,
-            176,
-            176
-          ]
-        },
-        {
           "name": "Ryan Beatty",
           "image_url": "https://i.scdn.co/image/ab6761610000e5eb1fd413efd8c170a0b8c59f1c",
-          "playcount": "118",
+          "playcount": "122",
+          "top_track": {
+            "title": "White Teeth",
+            "cover_url": "https://i.scdn.co/image/ab67616d0000b273f33f965a88903d15a1ae3e10",
+            "playcount": "32",
+            "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/94/ac/e6/94ace697-b878-1ac0-7e2b-8cd8e516cc09/mzaf_10725456045631340049.plus.aac.p.m4a",
+            "spotify_url": "https://open.spotify.com/track/3Gqagi4hGvcHyoWznBi4q3",
+            "cover_url_small": "https://i.scdn.co/image/ab67616d00001e02f33f965a88903d15a1ae3e10"
+          },
           "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/7871e4ae2afc385e967074af63c2efd7&w=1400&output=webp",
           "spotify_id": "60NNvDqsif0u40CXMV6jDQ",
           "spotify_url": "https://open.spotify.com/artist/60NNvDqsif0u40CXMV6jDQ",
@@ -217,7 +205,7 @@
         {
           "name": "5 Seconds of Summer",
           "image_url": "https://i.scdn.co/image/ab6761610000e5eb87cde49a53cfbdbecf68fe02",
-          "playcount": "114",
+          "playcount": "118",
           "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/0a63bcc6bd0fa1934fd8a2a1976a9841&w=1400&output=webp",
           "spotify_id": "5Rl15oVamLq7FbSb0NNBNy",
           "spotify_url": "https://open.spotify.com/artist/5Rl15oVamLq7FbSb0NNBNy",
@@ -228,9 +216,22 @@
           ]
         },
         {
+          "name": "Shawn Mendes",
+          "image_url": "https://i.scdn.co/image/ab6761610000e5eb58b4b9419486550f6fda0535",
+          "playcount": "102",
+          "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/c66be0c4163f2ae54b228b82c2d374d2&w=1400&output=webp",
+          "spotify_id": "7n2wHs1TKAczGzO7Dd2rGr",
+          "spotify_url": "https://open.spotify.com/artist/7n2wHs1TKAczGzO7Dd2rGr",
+          "prominent_color": [
+            176,
+            176,
+            176
+          ]
+        },
+        {
           "name": "Stephen Sanchez",
           "image_url": "https://i.scdn.co/image/ab6761610000e5ebf72f412524899c92e4757429",
-          "playcount": "85",
+          "playcount": "96",
           "banner_url": null,
           "spotify_id": "5XKFrudbV4IiuE5WuTPRmT",
           "spotify_url": "https://open.spotify.com/artist/5XKFrudbV4IiuE5WuTPRmT",
@@ -241,16 +242,16 @@
           ]
         },
         {
-          "name": "Ruel",
-          "image_url": "https://i.scdn.co/image/ab6761610000e5eb9184ca89cc9c4ecd7487bb5f",
-          "playcount": "84",
-          "banner_url": "https://wsrv.nl/?url=https%3A//lastfm.freetls.fastly.net/i/u/ar0/7b2c3a8ed906eaccb82cb9997d6ef2df&w=1400&output=webp",
-          "spotify_id": "5xkAtLTf309LAGZTbvULBn",
-          "spotify_url": "https://open.spotify.com/artist/5xkAtLTf309LAGZTbvULBn",
+          "name": "Sabrina Carpenter",
+          "image_url": "https://i.scdn.co/image/ab6761610000e5eb78e45cfa4697ce3c437cb455",
+          "playcount": "75",
+          "banner_url": null,
+          "spotify_id": "74KM79TiuVKeVCqs8QtB0B",
+          "spotify_url": "https://open.spotify.com/artist/74KM79TiuVKeVCqs8QtB0B",
           "prominent_color": [
-            202,
-            182,
-            165
+            239,
+            234,
+            233
           ]
         }
       ]
@@ -370,6 +371,11 @@
     "movies": {
       "watchlist": [
         {
+          "link": "https://letterboxd.com/film/hulk-vs-wolverine/",
+          "title": "Hulk vs. Wolverine",
+          "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/2/4/9/9/42499-hulk-vs-wolverine-0-600-0-900-crop.jpg?v=68efe085be"
+        },
+        {
           "link": "https://letterboxd.com/film/crimson-peak/",
           "title": "Crimson Peak",
           "cover_url": "https://a.ltrbxd.com/resized/sm/upload/ab/6v/2r/jl/pCj8zem1NDAODdtvha9WFEB6iWR-0-600-0-900-crop.jpg?v=b019ae9643"
@@ -398,11 +404,6 @@
           "link": "https://letterboxd.com/film/purple-rain/",
           "title": "Purple Rain",
           "cover_url": "https://a.ltrbxd.com/resized/sm/upload/3u/yq/fn/hr/epUyAfIgsrpIcY0qi6dhnay5rpl-0-600-0-900-crop.jpg?v=af040301f2"
-        },
-        {
-          "link": "https://letterboxd.com/film/caught-stealing/",
-          "title": "Caught Stealing",
-          "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/1/2/9/1/9/9/1129199-caught-stealing-0-600-0-900-crop.jpg?v=d3b8da3722"
         }
       ],
       "favorite_films": [
@@ -433,12 +434,27 @@
       ],
       "recent_activity": [
         {
+          "link": "https://letterboxd.com/oneyigit/film/hulk-vs-thor/",
+          "title": "Hulk vs. Thor",
+          "rating": "\u2605\u2605\u2605",
+          "cover_url": "https://a.ltrbxd.com/resized/film-poster/8/2/8/8/9/82889-hulk-vs-thor-0-600-0-900-crop.jpg?v=dbb73f24d7",
+          "is_rewatch": false,
+          "is_favorite": false,
+          "watched_date": "2026-11-20",
+          "prominent_color": [
+            88,
+            77,
+            54
+          ]
+        },
+        {
           "link": "https://letterboxd.com/oneyigit/film/minions-monsters-2026/",
           "title": "Minions & Monsters",
           "rating": "\u2605\u2605\u2605\u00bd",
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/1/1/9/6/8/0/8/1196808-minions-monsters-2026-0-600-0-900-crop.jpg?v=8ff282e996",
           "is_rewatch": false,
           "is_favorite": false,
+          "watched_date": "2026-10-23",
           "prominent_color": [
             238,
             105,
@@ -450,8 +466,9 @@
           "title": "Avengers: Endgame",
           "rating": "\u2605\u2605\u2605\u2605",
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/2/6/6/6/0/226660-avengers-endgame-0-600-0-900-crop.jpg?v=d4006bfd5e",
-          "is_rewatch": false,
-          "is_favorite": false,
+          "is_rewatch": true,
+          "is_favorite": true,
+          "watched_date": "2026-10-03",
           "prominent_color": [
             115,
             45,
@@ -464,7 +481,8 @@
           "rating": "\u2605\u2605\u2605\u2605",
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/1/0/0/4/41004-green-lantern-first-flight-0-600-0-900-crop.jpg?v=5b5e85f566",
           "is_rewatch": false,
-          "is_favorite": false,
+          "is_favorite": true,
+          "watched_date": "2026-10-02",
           "prominent_color": [
             193,
             200,
@@ -476,8 +494,10 @@
           "title": "Green Lantern",
           "rating": "\u2605\u2605\u00bd",
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/2/0/2/9/3/20293-green-lantern-0-600-0-900-crop.jpg?v=e17d7cdcdb",
-          "is_rewatch": false,
-          "is_favorite": false,
+          "is_rewatch": true,
+          "is_favorite": true,
+          "watched_date": "2026-10-01",
+          "review_excerpt": "damn. I don't remember the cg being this bad",
           "prominent_color": [
             53,
             90,
@@ -491,6 +511,7 @@
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/5/1/4/8/4/51484-catch-me-if-you-can-0-600-0-900-crop.jpg?v=942d676423",
           "is_rewatch": false,
           "is_favorite": false,
+          "watched_date": "2026-09-21",
           "prominent_color": [
             42,
             86,
@@ -502,29 +523,17 @@
           "title": "Everything Everywhere All at Once",
           "rating": "\u2605\u2605\u2605\u2605\u2605",
           "cover_url": "https://a.ltrbxd.com/resized/film-poster/4/7/4/4/7/4/474474-everything-everywhere-all-at-once-0-600-0-900-crop.jpg?v=281f1a041e",
-          "is_rewatch": false,
-          "is_favorite": false,
+          "is_rewatch": true,
+          "is_favorite": true,
+          "watched_date": "2026-08-20",
           "prominent_color": [
             132,
             81,
             73
           ]
-        },
-        {
-          "link": "https://letterboxd.com/oneyigit/film/spider-man-brand-new-day/",
-          "title": "Spider-Man: Brand New Day",
-          "rating": "\u2605\u2605\u2605\u2605",
-          "cover_url": "https://a.ltrbxd.com/resized/film-poster/8/7/2/8/7/1/872871-spider-man-brand-new-day-0-600-0-900-crop.jpg?v=ebe6beb4fc",
-          "is_rewatch": false,
-          "is_favorite": false,
-          "prominent_color": [
-            105,
-            62,
-            74
-          ]
         }
       ]
     }
   },
-  "synced_at": 1794942831.754251
+  "synced_at": 1795636991.2158005
 }

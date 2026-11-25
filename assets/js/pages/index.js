@@ -166,6 +166,9 @@ function initIndex() {
             prefetch: window.__PREFETCH_DASHBOARD__,
             api: "/api/dashboard",
             snapshot: "/data/dashboard.json",
+            isValid: (d) => Array.isArray(d?.spotify?.top_tracks_last_month) && d.spotify.top_tracks_last_month.length > 0
+                && ((Array.isArray(d?.movies?.recent_activity) && d.movies.recent_activity.length > 0)
+                    || (Array.isArray(d?.movies?.favorite_films) && d.movies.favorite_films.length > 0)),
             readCache: getCachedDashboard,
             saveCache: setDashboardCachedData,
             loadSeed: () => import('../modules/seed-data.js').then(m => ({

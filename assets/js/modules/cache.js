@@ -32,19 +32,25 @@ function writeDashboard(dash) {
     }
 }
 
+const hasData = (v) => v != null && (
+    Array.isArray(v) ? v.length > 0
+    : typeof v === 'object' ? Object.keys(v).length > 0
+    : Boolean(v)
+);
+
 export function getCachedData(key, fallback = null) {
     return readDashboard()?.[KEY_MAP[key]] || fallback;
 }
 
-// Unified homepage cache; usable once it holds the active live sections (books is retired)
+// Unified homepage cache; usable once it holds at least one active live section (books is retired)
 export function getCachedDashboard() {
     const dash = readDashboard();
-    return dash?.spotify && dash?.movies ? dash : null;
+    return dash && (hasData(dash.spotify) || hasData(dash.movies)) ? dash : null;
 }
 
 export function setCachedData(key, data) {
     const field = KEY_MAP[key];
-    if (!field || !data) return;
+    if (!field || !hasData(data)) return;
     const dash = readDashboard() || {};
     dash[field] = data;
     dash._ts = Date.now();
@@ -53,5 +59,5 @@ export function setCachedData(key, data) {
 
 export function setDashboardCachedData(fresh) {
     if (!fresh) return;
-    writeDashboard({ ...fresh, _ts: Date.now() });
+    writeDashboard({ ...(readDashboard() || {}), ...fresh, _ts: Date.now() });
 }

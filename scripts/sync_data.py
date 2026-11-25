@@ -963,6 +963,18 @@ def fetch_existing_rows(url, key, categories):
     return {}
 
 
+def build_sync_sections(existing, last_updated):
+    """Computes per-section clean sync timestamps, preserving previous timestamps for failed sections."""
+    meta = existing.get(SYNC_META_KEY) if isinstance(existing, dict) else None
+    sections = meta.get("sections") or {} if isinstance(meta, dict) else {}
+    # Only sections that are still synced (books stopped in 2026-11)
+    sections = {c: t for c, t in sections.items() if c in SYNC_CATEGORIES}
+    with_problems = {section for section, _ in SYNC_PROBLEMS}
+    clean = [c for c in SYNC_CATEGORIES if c not in with_problems]
+    sections.update({c: last_updated for c in clean})
+    return sections, clean
+
+
 def main():
     print("Starting sync...")
     github_token = os.environ.get('GITHUB_TOKEN')
@@ -997,8 +1009,12 @@ def main():
 
     if os.environ.get("EXPORT_STATIC") == "1" or os.environ.get("GITHUB_ACTIONS") != "true":
         print("Exporting static snapshots...")
+        snapshot_sections, _ = build_sync_sections(existing, data["last_updated"])
         # Books aren't synced any more: the snapshots carry the stored copy
-        export_static_snapshots({**data, "books": read_row(url, key, "books")})
+        export_static_snapshots(
+            {**data, "books": read_row(url, key, "books")},
+            sync_meta={"last_updated": data["last_updated"], "sections": snapshot_sections},
+        )
 
     print("Uploading to Supabase...")
     for category in SYNC_CATEGORIES:
@@ -1011,14 +1027,8 @@ def main():
 
     # When this sync ran, for the site footer ("Synced 12 min ago"); the /api functions pass on the oldest
     # time among the sections a page shows. A section with problems keeps its previous time.
-    with_problems = {section for section, _ in SYNC_PROBLEMS}
-    clean = [c for c in SYNC_CATEGORIES if c not in with_problems]
+    sections, clean = build_sync_sections(existing, data["last_updated"])
     if clean:
-        meta = existing.get(SYNC_META_KEY)
-        sections = meta.get("sections") or {} if isinstance(meta, dict) else {}
-        # Only sections that are still synced (books stopped in 2026-11)
-        sections = {c: t for c, t in sections.items() if c in SYNC_CATEGORIES}
-        sections.update({c: data["last_updated"] for c in clean})
         if not upsert_row(url, key, SYNC_META_KEY, {"last_updated": data["last_updated"], "sections": sections}):
             report_problem(SYNC_META_KEY, "upload to Supabase failed")
 
@@ -1030,7 +1040,7 @@ def main():
         sys.exit(1)
     print("Sync complete!")
 
-def export_static_snapshots(data):
+def export_static_snapshots(data, sync_meta=None):
     """Exports synchronized snapshots to static data/ files and seed-data.js."""
     try:
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -1041,13 +1051,19 @@ def export_static_snapshots(data):
         movies = data.get("movies")
         books = data.get("books")
         projects = data.get("projects")
-        synced_at = data.get("last_updated")
+        meta = sync_meta if sync_meta is not None else (data.get("sync_meta") or {})
+        sections = meta.get("sections") if isinstance(meta, dict) else {}
+        if not isinstance(sections, dict):
+            sections = {}
 
         # A section that failed with nothing stored to fall back on keeps its previous snapshot
         for name, value in (("spotify", spotify), ("movies", movies), ("books", books), ("projects", projects)):
             if value:
+                payload = {"success": True, "data": value}
+                if name != "books" and sections.get(name):
+                    payload["synced_at"] = sections[name]
                 with open(os.path.join(data_dir, f"{name}.json"), "w") as f:
-                    json.dump({"success": True, "data": value, "synced_at": synced_at}, f, indent=2)
+                    json.dump(payload, f, indent=2)
 
         if not (spotify and movies and books):
             print("Skipping dashboard.json and seed-data.js: a section is missing.")
@@ -1058,8 +1074,12 @@ def export_static_snapshots(data):
             "books": books,
             "movies": movies
         }
+        dash_payload = {"success": True, "data": dashboard}
+        dash_times = [sections[k] for k in ("spotify", "movies") if sections.get(k)]
+        if dash_times:
+            dash_payload["synced_at"] = min(dash_times)
         with open(os.path.join(data_dir, "dashboard.json"), "w") as f:
-            json.dump({"success": True, "data": dashboard, "synced_at": synced_at}, f, indent=2)
+            json.dump(dash_payload, f, indent=2)
 
         seed_path = os.path.join(base_dir, "assets", "js", "modules", "seed-data.js")
         seed_content = f"""// Seed data for instantaneous 0ms first-paint (Synchronized with live data)

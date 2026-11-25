@@ -187,3 +187,119 @@ def test_favorite_albums_need_no_network():
         assert album["spotify_url"] == f"https://open.spotify.com/album/{album['spotify_id']}"
         assert len(album["spotify_id"]) == 22
         assert album["prominent_color"] and album["optimized_cover_url"].startswith("https://wsrv.nl/")
+
+
+# --- API helper & static snapshot timestamps ---
+
+def test_supabase_respond_returns_503_when_required_row_missing(monkeypatch):
+    import io
+    import json
+    import sys
+    import os
+
+    api_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "api")
+    if api_dir not in sys.path:
+        sys.path.insert(0, api_dir)
+    import _supabase
+
+    monkeypatch.setattr(_supabase, "fetch_values", lambda keys: {"sync_meta": {"last_updated": 1000}})
+
+    class FakeHandler:
+        path = "/api/spotify"
+        command = "GET"
+
+        def __init__(self):
+            self.status = None
+            self.headers = {}
+            self.wfile = io.BytesIO()
+
+        def send_response(self, status):
+            self.status = status
+
+        def send_header(self, k, v):
+            self.headers[k] = v
+
+        def end_headers(self):
+            pass
+
+    h = FakeHandler()
+    _supabase.respond(h, ["spotify"], lambda v: v.get("spotify") or {})
+    assert h.status == 503
+    assert h.headers["Cache-Control"] == _supabase.NO_CACHE_HEADER
+    body = json.loads(h.wfile.getvalue().decode("utf-8"))
+    assert body == {"success": False, "error": "Data temporarily unavailable"}
+
+
+def test_supabase_respond_head_sends_empty_body_and_content_length(monkeypatch):
+    import io
+    import sys
+    import os
+
+    api_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "api")
+    if api_dir not in sys.path:
+        sys.path.insert(0, api_dir)
+    import _supabase
+
+    monkeypatch.setattr(_supabase, "fetch_values", lambda keys: {
+        "spotify": {"top_tracks_last_month": [{"title": "X"}]},
+        "movies": {"recent_activity": [{"title": "Y"}]},
+        "sync_meta": {"last_updated": 2000, "sections": {"spotify": 1900, "movies": 1800}},
+    })
+
+    class FakeHandler:
+        path = "/api/dashboard"
+        command = "HEAD"
+
+        def __init__(self):
+            self.status = None
+            self.headers = {}
+            self.wfile = io.BytesIO()
+
+        def send_response(self, status):
+            self.status = status
+
+        def send_header(self, k, v):
+            self.headers[k] = v
+
+        def end_headers(self):
+            pass
+
+    h = FakeHandler()
+    _supabase.respond(h, ["spotify", "books", "movies"], lambda v: {"spotify": v["spotify"], "movies": v["movies"]}, required_keys=["spotify", "movies"])
+    assert h.status == 200
+    assert int(h.headers["Content-Length"]) > 0
+    assert h.wfile.getvalue() == b""
+
+
+def test_export_static_snapshots_uses_per_section_synced_at(tmp_path, monkeypatch):
+    import json
+    import os
+
+    (tmp_path / "data").mkdir()
+    (tmp_path / "assets" / "js" / "modules").mkdir(parents=True)
+    fake_sync = tmp_path / "scripts" / "sync_data.py"
+    fake_sync.parent.mkdir()
+    monkeypatch.setattr(sync_data, "__file__", str(fake_sync))
+
+    data = {
+        "spotify": {"top_tracks_last_month": [{"title": "T"}]},
+        "movies": {"recent_activity": [{"title": "M"}]},
+        "books": [{"title": "B"}],
+        "projects": {"repo": "readme"},
+        "last_updated": 9999.0,
+    }
+    sync_meta = {
+        "last_updated": 9999.0,
+        "sections": {"spotify": 9999.0, "movies": 5000.0, "projects": 8888.0},
+    }
+    sync_data.export_static_snapshots(data, sync_meta=sync_meta)
+
+    spotify_snap = json.loads((tmp_path / "data" / "spotify.json").read_text())
+    movies_snap = json.loads((tmp_path / "data" / "movies.json").read_text())
+    books_snap = json.loads((tmp_path / "data" / "books.json").read_text())
+    dash_snap = json.loads((tmp_path / "data" / "dashboard.json").read_text())
+
+    assert spotify_snap["synced_at"] == 9999.0
+    assert movies_snap["synced_at"] == 5000.0
+    assert "synced_at" not in books_snap
+    assert dash_snap["synced_at"] == 5000.0

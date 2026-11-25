@@ -1,12 +1,14 @@
 // Core shared utilities and global observers
-export const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('active');
-            observer.unobserve(entry.target);
-        }
-    });
-}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+export const observer = typeof IntersectionObserver !== 'undefined'
+    ? new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' })
+    : null;
 
 export function initGlobalReveal() {
     // When arriving via a cross-document view transition, the page crossfade already provides the
@@ -20,7 +22,7 @@ export function initGlobalReveal() {
             if (r.top < vh && r.bottom > 0) return;
         }
         el.classList.add('reveal');
-        observer.observe(el);
+        observer?.observe(el);
     });
 }
 

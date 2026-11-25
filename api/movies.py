@@ -11,3 +11,5 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         # Raw Letterboxd URLs: the frontend's safeImg() routes them through wsrv.nl, resized and as WebP
         respond(self, ["movies"], lambda values: values.get("movies") or {})
+
+    do_HEAD = do_GET

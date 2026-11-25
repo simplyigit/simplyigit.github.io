@@ -98,14 +98,14 @@ class DevHandler(http.server.SimpleHTTPRequestHandler):
             return
         super().send_error(code, message, explain)
 
-    def do_GET(self):
+    def _prepare_request(self):
         self.request_path = self.path
         parts = urlsplit(self.path)
         path = parts.path
         query = f"?{parts.query}" if parts.query else ""
 
         if path.startswith("/api/"):
-            return self.run_api_function(path[len("/api/"):].strip("/"))
+            return ("api", path[len("/api/"):].strip("/"))
 
         # cleanUrls: /foo.html is /foo for redirects too
         redirect = REDIRECTS.get(path) or REDIRECTS.get(path[:-len(".html")] if path.endswith(".html") else None)
@@ -114,14 +114,28 @@ class DevHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Location", redirect[0])
             self.send_header("Content-Length", "0")
             self.end_headers()
-            return
+            return ("done", None)
 
         if path in REWRITES:
             self.path = REWRITES[path] + query
         elif not os.path.splitext(path)[1] and os.path.isfile(os.path.join(ROOT, path.lstrip("/") + ".html")):
             # cleanUrls: /foo serves foo.html
             self.path = path + ".html" + query
-        return super().do_GET()
+        return ("static", None)
+
+    def do_GET(self):
+        kind, arg = self._prepare_request()
+        if kind == "api":
+            return self.run_api_function(arg)
+        if kind == "static":
+            return super().do_GET()
+
+    def do_HEAD(self):
+        kind, arg = self._prepare_request()
+        if kind == "api":
+            return self.run_api_function(arg)
+        if kind == "static":
+            return super().do_HEAD()
 
     def run_api_function(self, name):
         source = os.path.join(API_DIR, f"{name}.py")
@@ -134,7 +148,10 @@ class DevHandler(http.server.SimpleHTTPRequestHandler):
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
         # Vercel's handler classes only use the request/response methods this handler already has
-        module.handler.do_GET(self)
+        if self.command == "HEAD" and hasattr(module.handler, "do_HEAD"):
+            module.handler.do_HEAD(self)
+        else:
+            module.handler.do_GET(self)
 
 
 def main():

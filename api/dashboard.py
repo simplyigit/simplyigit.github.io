@@ -19,4 +19,6 @@ def build_dashboard(values):
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        respond(self, ["spotify", "books", "movies"], build_dashboard)
+        respond(self, ["spotify", "books", "movies"], build_dashboard, required_keys=["spotify", "movies"])
+
+    do_HEAD = do_GET

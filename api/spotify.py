@@ -10,3 +10,5 @@ from _supabase import respond, strip_full_lyrics  # noqa: E402
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         respond(self, ["spotify"], lambda values: strip_full_lyrics(values.get("spotify") or {}))
+
+    do_HEAD = do_GET

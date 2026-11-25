@@ -10,3 +10,5 @@ from _supabase import respond  # noqa: E402
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         respond(self, ["projects"], lambda values: values.get("projects") or {})
+
+    do_HEAD = do_GET

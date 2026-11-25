@@ -397,6 +397,7 @@ function initMusic() {
         prefetch: window.__PREFETCH_SPOTIFY__,
         api: "/api/spotify",
         snapshot: "/data/spotify.json",
+        isValid: (d) => Array.isArray(d?.top_tracks_last_month) && d.top_tracks_last_month.length > 0,
         readCache: () => getCachedData("simplyigit_cache_spotify"),
         saveCache: (data) => setCachedData("simplyigit_cache_spotify", data),
         loadSeed: () => import('../modules/seed-data.js').then(m => m.SEED_SPOTIFY),

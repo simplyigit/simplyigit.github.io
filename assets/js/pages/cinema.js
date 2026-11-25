@@ -332,6 +332,8 @@ function initCinema() {
         prefetch: window.__PREFETCH_MOVIES__,
         api: "/api/movies",
         snapshot: "/data/movies.json",
+        isValid: (d) => (Array.isArray(d?.recent_activity) && d.recent_activity.length > 0)
+            || (Array.isArray(d?.favorite_films) && d.favorite_films.length > 0),
         readCache: () => getCachedData("simplyigit_cache_movies"),
         saveCache: (data) => setCachedData("simplyigit_cache_movies", data),
         loadSeed: () => import('../modules/seed-data.js').then(m => m.SEED_MOVIES),

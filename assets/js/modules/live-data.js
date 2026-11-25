@@ -29,6 +29,12 @@ async function fetchFresh({ prefetch, api, snapshot, isValid }) {
     return null;
 }
 
+const isNonEmpty = (d) => d != null && (
+    Array.isArray(d) ? d.length > 0
+    : typeof d === 'object' ? Object.keys(d).length > 0
+    : Boolean(d)
+);
+
 /**
  * Renders fresh data directly if it arrives within ~65ms. Otherwise renders the cached copy
  * (or, on a first visit, the bundled seed) and then morphs to fresh data when it lands.
@@ -37,7 +43,7 @@ async function fetchFresh({ prefetch, api, snapshot, isValid }) {
  * `render` may be called twice, so page renderers compare signatures to decide between a
  * first paint and a morph.
  */
-export async function loadLiveData({ prefetch, api, snapshot, isValid = Boolean, readCache, saveCache, loadSeed, render }) {
+export async function loadLiveData({ prefetch, api, snapshot, isValid = isNonEmpty, readCache, saveCache, loadSeed, render }) {
     const freshPromise = fetchFresh({ prefetch, api, snapshot, isValid });
 
     let fallback = document.documentElement.classList.contains('vt-nav') ? readCache() : null;

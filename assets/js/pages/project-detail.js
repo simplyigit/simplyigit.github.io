@@ -405,15 +405,25 @@ const ORT_CDN_INTEGRITY = 'sha384-RPL/K8tc0JVaNWsunkEmCzLeieefvFX2UCRLKLmLVChCI6
 const ORT_WASM_DIR = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
 // Bump the file version whenever the model is retrained so visitors never get a stale cached copy
 const MODEL_URL = '/assets/models/convnext_sgd_int8.v1.onnx';
-const MODEL_CACHE_NAME = 'simplyigit-detector-onnx-v1';
+const MODEL_CACHE_NAME = 'simplyigit-detector-onnx-v2';
+const MODEL_EXPECTED_BYTES = 28247291;
 
-// Opens the model cache and evicts any older model file so a stale 27 MB copy isn't left behind
+// Opens the model cache, deletes any legacy v1 cache, and evicts stale model URLs
 async function openModelCache() {
+    caches.delete('simplyigit-detector-onnx-v1').catch(() => {});
     const cache = await caches.open(MODEL_CACHE_NAME);
     for (const request of await cache.keys()) {
         if (new URL(request.url).pathname !== MODEL_URL) await cache.delete(request);
     }
     return cache;
+}
+
+async function deleteCachedModel() {
+    if (!('caches' in window)) return;
+    try {
+        const cache = await caches.open(MODEL_CACHE_NAME);
+        await cache.delete(MODEL_URL);
+    } catch {}
 }
 
 let ortSessionPromise = null;
@@ -447,14 +457,18 @@ function loadOrtRuntime() {
     return ortScriptPromise;
 }
 
-async function fetchModelBufferWithCache(onProgress) {
-    if ('caches' in window) {
+async function fetchModelBufferWithCache(onProgress, { bypassCache = false } = {}) {
+    if (!bypassCache && 'caches' in window) {
         try {
             const cache = await openModelCache();
             const cachedRes = await cache.match(MODEL_URL);
             if (cachedRes && cachedRes.ok) {
                 if (onProgress) onProgress('Loading cached ConvNeXt-Tiny model...');
-                return await cachedRes.arrayBuffer();
+                const buf = await cachedRes.arrayBuffer();
+                if (buf.byteLength === MODEL_EXPECTED_BYTES) {
+                    return { buffer: buf, fromCache: true };
+                }
+                await cache.delete(MODEL_URL);
             }
         } catch {}
     }
@@ -465,16 +479,19 @@ async function fetchModelBufferWithCache(onProgress) {
         throw new Error(`Failed to fetch model (${response.status})`);
     }
 
-    const contentLength = Number(response.headers.get('content-length')) || (26.94 * 1024 * 1024);
+    const contentLength = Number(response.headers.get('content-length')) || MODEL_EXPECTED_BYTES;
     if (!response.body || !response.body.getReader) {
         const buf = await response.arrayBuffer();
+        if (buf.byteLength !== MODEL_EXPECTED_BYTES) {
+            throw new Error('Model download was incomplete; please retry.');
+        }
         if ('caches' in window) {
             try {
                 const cache = await caches.open(MODEL_CACHE_NAME);
                 await cache.put(MODEL_URL, new Response(buf, { headers: { 'Content-Type': 'application/octet-stream' } }));
             } catch {}
         }
-        return buf;
+        return { buffer: buf, fromCache: false };
     }
 
     const reader = response.body.getReader();
@@ -490,6 +507,10 @@ async function fetchModelBufferWithCache(onProgress) {
             const pct = Math.min(99, Math.round((received / contentLength) * 100));
             onProgress(`Loading ConvNeXt-Tiny INT8 (${pct}%)...`);
         }
+    }
+
+    if (received !== MODEL_EXPECTED_BYTES) {
+        throw new Error('Model download was incomplete; please retry.');
     }
 
     // Release each chunk once copied, so the model isn't held twice (~27 MB) on memory-tight phones
@@ -510,7 +531,15 @@ async function fetchModelBufferWithCache(onProgress) {
         } catch {}
     }
 
-    return fullBuffer.buffer;
+    return { buffer: fullBuffer.buffer, fromCache: false };
+}
+
+function formatOrtError(err) {
+    const msg = String(err?.message || '');
+    if (/protobuf|invalid|failed to load model|failed to fetch|incomplete/i.test(msg)) {
+        return new Error('The model download was corrupted or incomplete; please retry.');
+    }
+    return err instanceof Error ? err : new Error('Failed to load ConvNeXt-Tiny ONNX model.');
 }
 
 async function getDetectorSession(onProgress) {
@@ -519,16 +548,32 @@ async function getDetectorSession(onProgress) {
     ortSessionPromise = (async () => {
         try {
             const ort = await loadOrtRuntime();
-            const modelBuffer = await fetchModelBufferWithCache(onProgress);
+            let { buffer, fromCache } = await fetchModelBufferWithCache(onProgress);
             if (onProgress) onProgress('Initializing WASM SIMD inference session...');
-            const session = await ort.InferenceSession.create(modelBuffer, {
-                executionProviders: ['wasm'],
-                graphOptimizationLevel: 'all'
-            });
-            return { ort, session };
+            try {
+                const session = await ort.InferenceSession.create(buffer, {
+                    executionProviders: ['wasm'],
+                    graphOptimizationLevel: 'all'
+                });
+                return { ort, session };
+            } catch (err) {
+                if (!fromCache) throw formatOrtError(err);
+                await deleteCachedModel();
+                ({ buffer } = await fetchModelBufferWithCache(onProgress, { bypassCache: true }));
+                if (onProgress) onProgress('Initializing WASM SIMD inference session...');
+                try {
+                    const session = await ort.InferenceSession.create(buffer, {
+                        executionProviders: ['wasm'],
+                        graphOptimizationLevel: 'all'
+                    });
+                    return { ort, session };
+                } catch (retryErr) {
+                    throw formatOrtError(retryErr);
+                }
+            }
         } catch (err) {
             ortSessionPromise = null;
-            throw err;
+            throw formatOrtError(err);
         }
     })();
 
@@ -539,11 +584,29 @@ const MAX_CANVAS_PIXELS = 4096 * 4096;
 
 // null = not created yet, false = unavailable (no module workers, or it failed once)
 let preprocessWorker = null;
+let preprocessReqId = 0;
+const preprocessPending = new Map();
 
 function getPreprocessWorker() {
     if (preprocessWorker === null) {
         try {
-            preprocessWorker = new Worker(new URL('../workers/detector-preprocess.js', import.meta.url), { type: 'module' });
+            const worker = new Worker(new URL('../workers/detector-preprocess.js', import.meta.url), { type: 'module' });
+            worker.onmessage = (e) => {
+                const { id, rgb, tensor } = e.data || {};
+                const pending = preprocessPending.get(id);
+                if (!pending) return;
+                preprocessPending.delete(id);
+                pending.resolve({ rgb, tensor });
+            };
+            worker.onerror = (e) => {
+                e.preventDefault();
+                const err = new Error(e.message || 'Preprocessing worker failed');
+                for (const pending of preprocessPending.values()) pending.reject(err);
+                preprocessPending.clear();
+                worker.terminate();
+                preprocessWorker = false;
+            };
+            preprocessWorker = worker;
         } catch {
             preprocessWorker = false;
         }
@@ -556,113 +619,133 @@ function getPreprocessWorker() {
 async function preprocessPixels(readPixels, srcW, srcH, outW, outH) {
     const worker = getPreprocessWorker();
     if (worker) {
+        const id = ++preprocessReqId;
         try {
             return await new Promise((resolve, reject) => {
+                preprocessPending.set(id, { resolve, reject });
                 const pixels = readPixels();
-                worker.onmessage = (e) => resolve(e.data);
-                worker.onerror = (e) => {
-                    e.preventDefault();
-                    reject(new Error(e.message || 'Preprocessing worker failed'));
-                };
-                worker.postMessage({ pixels, srcW, srcH, outW, outH }, [pixels.buffer]);
+                worker.postMessage({ id, pixels, srcW, srcH, outW, outH }, [pixels.buffer]);
             });
         } catch {
-            worker.terminate();
-            preprocessWorker = false;
+            preprocessPending.delete(id);
+            if (preprocessWorker === worker) {
+                worker.terminate();
+                preprocessWorker = false;
+            }
         }
     }
     const rgb = pillowResizeBilinear(readPixels(), srcW, srcH, outW, outH);
     return { rgb, tensor: normalizeToTensor(rgb, outW, outH) };
 }
 
-async function runRealModelOnCanvas(img, canvas, onProgress) {
+async function runRealModelOnCanvas(file, img, canvas, onProgress) {
     const ctx = getPreviewContext(canvas);
     const w = canvas.width;  // 224
     const h = canvas.height; // 224
 
-    // crop.py's proportional center crop: trim int(5%) from each side
-    const natW = img.naturalWidth || img.width;
-    const natH = img.naturalHeight || img.height;
-    const marginX = Math.floor(natW * 0.05);
-    const marginY = Math.floor(natH * 0.05);
-    const cropW = Math.max(1, natW - marginX * 2);
-    const cropH = Math.max(1, natH - marginY * 2);
+    // Decode from the raw file with imageOrientation: 'none' and premultiplyAlpha: 'none' to match
+    // PIL.Image.open() in training (ignore EXIF orientation tags and embedded color profiles).
+    // Note: drawing onto a cleared 2D canvas still alpha-composites semi-transparent PNG pixels over transparent black.
+    let rawBitmap = null;
+    if (file) {
+        try {
+            rawBitmap = await createImageBitmap(file, {
+                imageOrientation: 'none',
+                premultiplyAlpha: 'none',
+                colorSpaceConversion: 'none'
+            });
+        } catch {}
+    }
 
-    // Copy the cropped region 1:1 (no scaling) to read the decoded pixels. Crops over the canvas
-    // pixel limit (iOS Safari: 4096x4096) are pre-shrunk by the browser first, so only those lose parity.
-    const shrink = Math.min(1, Math.sqrt(MAX_CANVAS_PIXELS / (cropW * cropH)));
-    const srcW = Math.max(1, Math.floor(cropW * shrink));
-    const srcH = Math.max(1, Math.floor(cropH * shrink));
-
-    // Like PIL, ignore the embedded colour profile (e.g. Display P3) where the browser supports it
-    let source = img;
-    let sx = marginX, sy = marginY, sw = cropW, sh = cropH;
+    const baseSource = rawBitmap || img;
     try {
-        source = await createImageBitmap(img, marginX, marginY, cropW, cropH, {
-            colorSpaceConversion: 'none',
-            ...(shrink < 1 && { resizeWidth: srcW, resizeHeight: srcH, resizeQuality: 'high' })
-        });
-        sx = 0; sy = 0; sw = source.width; sh = source.height;
-    } catch {}
+        // crop.py's proportional center crop: trim int(5%) from each side
+        const natW = rawBitmap ? rawBitmap.width : (img.naturalWidth || img.width);
+        const natH = rawBitmap ? rawBitmap.height : (img.naturalHeight || img.height);
+        const marginX = Math.floor(natW * 0.05);
+        const marginY = Math.floor(natH * 0.05);
+        const cropW = Math.max(1, natW - marginX * 2);
+        const cropH = Math.max(1, natH - marginY * 2);
 
-    const srcCanvas = document.createElement('canvas');
-    srcCanvas.width = srcW;
-    srcCanvas.height = srcH;
-    const srcCtx = srcCanvas.getContext('2d', { willReadFrequently: true });
-    srcCtx.drawImage(source, sx, sy, sw, sh, 0, 0, srcW, srcH);
-    if (source !== img) source.close();
+        // Copy the cropped region 1:1 (no scaling) to read the decoded pixels. Crops over the canvas
+        // pixel limit (iOS Safari: 4096x4096) are pre-shrunk by the browser first, so only those lose parity.
+        const shrink = Math.min(1, Math.sqrt(MAX_CANVAS_PIXELS / (cropW * cropH)));
+        const srcW = Math.max(1, Math.floor(cropW * shrink));
+        const srcH = Math.max(1, Math.floor(cropH * shrink));
 
-    // utils.get_transform(): Resize((224, 224)) — squashes to a square, as in training — then
-    // NCHW Float32Array [1, 3, 224, 224] with ImageNet normalization
-    const { rgb, tensor: tensorData } = await preprocessPixels(() => srcCtx.getImageData(0, 0, srcW, srcH).data, srcW, srcH, w, h);
+        let source = baseSource;
+        let sx = marginX, sy = marginY, sw = cropW, sh = cropH;
+        try {
+            source = await createImageBitmap(baseSource, marginX, marginY, cropW, cropH, {
+                imageOrientation: 'none',
+                premultiplyAlpha: 'none',
+                colorSpaceConversion: 'none',
+                ...(shrink < 1 && { resizeWidth: srcW, resizeHeight: srcH, resizeQuality: 'high' })
+            });
+            sx = 0; sy = 0; sw = source.width; sh = source.height;
+        } catch {}
 
-    // Preview exactly what the model sees
-    const preview = ctx.createImageData(w, h);
-    for (let i = 0, j = 0; i < rgb.length; i += 3, j += 4) {
-        preview.data[j] = rgb[i];
-        preview.data[j + 1] = rgb[i + 1];
-        preview.data[j + 2] = rgb[i + 2];
-        preview.data[j + 3] = 255;
+        const srcCanvas = document.createElement('canvas');
+        srcCanvas.width = srcW;
+        srcCanvas.height = srcH;
+        const srcCtx = srcCanvas.getContext('2d', { willReadFrequently: true });
+        srcCtx.clearRect(0, 0, srcW, srcH);
+        srcCtx.drawImage(source, sx, sy, sw, sh, 0, 0, srcW, srcH);
+        if (source !== baseSource) source.close();
+
+        // utils.get_transform(): Resize((224, 224)) — squashes to a square, as in training — then
+        // NCHW Float32Array [1, 3, 224, 224] with ImageNet normalization
+        const { rgb, tensor: tensorData } = await preprocessPixels(() => srcCtx.getImageData(0, 0, srcW, srcH).data, srcW, srcH, w, h);
+
+        // Preview exactly what the model sees
+        const preview = ctx.createImageData(w, h);
+        for (let i = 0, j = 0; i < rgb.length; i += 3, j += 4) {
+            preview.data[j] = rgb[i];
+            preview.data[j + 1] = rgb[i + 1];
+            preview.data[j + 2] = rgb[i + 2];
+            preview.data[j + 3] = 255;
+        }
+        ctx.putImageData(preview, 0, 0);
+
+        // Draw subtle biometric crop brackets over custom image
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+        ctx.lineWidth = 2;
+        const m = 10, len = 14;
+        ctx.beginPath(); ctx.moveTo(m, m + len); ctx.lineTo(m, m); ctx.lineTo(m + len, m); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w - m - len, m); ctx.lineTo(w - m, m); ctx.lineTo(w - m, m + len); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(m, h - m - len); ctx.lineTo(m, h - m); ctx.lineTo(m + len, h - m); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w - m - len, h - m); ctx.lineTo(w - m, h - m); ctx.lineTo(w - m, h - m - len); ctx.stroke();
+
+        const { ort, session } = await getDetectorSession(onProgress);
+        if (onProgress) onProgress('Running ConvNeXt-Tiny + SGD inference...');
+
+        const inputTensor = new ort.Tensor('float32', tensorData, [1, 3, h, w]);
+        const outputs = await session.run({ input: inputTensor });
+
+        const probsRaw = outputs.probs.data;      // Float32Array(3) [Real, AI Fake, Deepfake]
+
+        const realPct = Number((probsRaw[0] * 100).toFixed(1));
+        const aiPct = Number((probsRaw[1] * 100).toFixed(1));
+        const dfPct = Number((probsRaw[2] * 100).toFixed(1));
+
+        let prediction = "REAL";
+        let badgeClass = "verdict-real";
+        if (aiPct >= realPct && aiPct >= dfPct) {
+            prediction = "AI FAKE";
+            badgeClass = "verdict-ai";
+        } else if (dfPct >= realPct && dfPct >= aiPct) {
+            prediction = "DEEPFAKE";
+            badgeClass = "verdict-df";
+        }
+
+        return {
+            prediction,
+            badgeClass,
+            probs: { real: realPct, ai: aiPct, df: dfPct }
+        };
+    } finally {
+        if (rawBitmap) rawBitmap.close();
     }
-    ctx.putImageData(preview, 0, 0);
-
-    // Draw subtle biometric crop brackets over custom image
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
-    ctx.lineWidth = 2;
-    const m = 10, len = 14;
-    ctx.beginPath(); ctx.moveTo(m, m + len); ctx.lineTo(m, m); ctx.lineTo(m + len, m); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(w - m - len, m); ctx.lineTo(w - m, m); ctx.lineTo(w - m, m + len); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(m, h - m - len); ctx.lineTo(m, h - m); ctx.lineTo(m + len, h - m); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(w - m - len, h - m); ctx.lineTo(w - m, h - m); ctx.lineTo(w - m, h - m - len); ctx.stroke();
-
-
-    const { ort, session } = await getDetectorSession(onProgress);
-    if (onProgress) onProgress('Running ConvNeXt-Tiny + SGD inference...');
-
-    const inputTensor = new ort.Tensor('float32', tensorData, [1, 3, h, w]);
-    const outputs = await session.run({ input: inputTensor });
-
-    const probsRaw = outputs.probs.data;      // Float32Array(3) [Real, AI Fake, Deepfake]
-
-    const realPct = Number((probsRaw[0] * 100).toFixed(1));
-    const aiPct = Number((probsRaw[1] * 100).toFixed(1));
-    const dfPct = Number((probsRaw[2] * 100).toFixed(1));
-
-    let prediction = "REAL";
-    let badgeClass = "verdict-real";
-    if (aiPct >= realPct && aiPct >= dfPct) {
-        prediction = "AI FAKE";
-        badgeClass = "verdict-ai";
-    } else if (dfPct >= realPct && dfPct >= aiPct) {
-        prediction = "DEEPFAKE";
-        badgeClass = "verdict-df";
-    }
-
-    return {
-        prediction,
-        badgeClass,
-        probs: { real: realPct, ai: aiPct, df: dfPct }
-    };
 }
 
 function initDetectorDemo() {
@@ -811,16 +894,18 @@ function initDetectorDemo() {
     const analyzeFile = async (rawFile) => {
         if (!rawFile || isInferring) return;
         stopCamera();
+        isInferring = true;
+        setUploadButtonState(true, 'Analyzing...');
 
         const file = withImageName(rawFile);
         const validation = await validateImageFile(file);
         if (!validation.valid) {
+            isInferring = false;
+            setUploadButtonState(false, 'Test Custom Image');
             showStatus(validation.error, true);
             return;
         }
 
-        isInferring = true;
-        setUploadButtonState(true, 'Analyzing...');
         showStatus('Preparing image...');
 
         const objUrl = URL.createObjectURL(file);
@@ -844,7 +929,7 @@ function initDetectorDemo() {
             clearPresetSelection();
 
             try {
-                const res = await runRealModelOnCanvas(img, canvas, (statusText) => {
+                const res = await runRealModelOnCanvas(file, img, canvas, (statusText) => {
                     showStatus(statusText, false);
                 });
                 showStatus('');

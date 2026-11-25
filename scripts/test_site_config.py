@@ -74,3 +74,11 @@ def test_stats_badge_does_not_use_raw_track_color_for_text():
     match = re.search(r"\.stats-badge\s*\{([^}]*)\}", css)
     assert match, ".stats-badge rule not found in assets/css/music.css"
     assert not re.search(r"color\s*:\s*rgb\(var\(--track-color-rgb", match.group(1))
+
+
+def test_detector_model_expected_bytes_matches_file():
+    js = read("assets/js/pages/project-detail.js")
+    match = re.search(r"MODEL_EXPECTED_BYTES\s*=\s*(\d+)\s*;", js)
+    assert match, "MODEL_EXPECTED_BYTES not found in project-detail.js"
+    model_path = os.path.join(ROOT, "assets", "models", "convnext_sgd_int8.v1.onnx")
+    assert int(match.group(1)) == os.path.getsize(model_path)

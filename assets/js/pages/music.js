@@ -36,7 +36,9 @@ function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ari
     const tooltip = fullTitle && fullTitle !== title ? ` title="${escapeHtml(fullTitle)}"` : '';
 
     const styles = [];
-    const artCss = hero && !backdropUrl ? safeCssUrl(art) : '';
+    const small = safeUrl(placeholderUrl);
+    // Under blur(60px) brightness(0.12) the 300px copy looks the same as the 640px one, and it is already loading
+    const artCss = hero && !backdropUrl ? safeCssUrl(small || art) : '';
     if (artCss) styles.push(`--track-art: ${artCss}`);
     const cleanRgb = safeRgb(rgb);
     if (cleanRgb) {
@@ -53,12 +55,16 @@ function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ari
         : hero ? `<div class="banner-bg-blur"></div>` : '';
     // Only the visible tab's hero is above the fold on load (crossorigin so WebGL Genie reuses the cached bitmap at 0ms)
     const imgAttrs = index === 0 && variant === 'track' ? 'fetchpriority="high" crossorigin="anonymous"' : 'loading="lazy" decoding="async"';
+    // Small screens (and 1x displays) get the 300px copy, which is sharp at the hero's size there
+    const srcset = hero && small && small !== art
+        ? ` srcset="${escapeHtml(small)} 300w, ${escapeHtml(art)} 640w" sizes="${HERO_ART_SIZES_ATTR}"`
+        : '';
 
     const inner = `
                 ${backdrop}
                 ${interactiveCard ? `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer" class="artist-card-link" aria-label="${escapeHtml(ariaLabel || title)}"></a>` : ''}
                 <div class="case-art-wrapper"${placeholder}>
-                    <img src="${escapeHtml(art)}" alt="${escapeHtml(title)}" class="spotify-track-img" ${imgAttrs}>
+                    <img src="${escapeHtml(art)}"${srcset} alt="${escapeHtml(title)}" class="spotify-track-img" ${imgAttrs}>
                 </div>
                 <div class="case-info">
                     ${nameInPill ? '' : `<div class="track-text-stack">
@@ -265,6 +271,19 @@ function renderArtists(container, artistList, trackList = []) {
 // The #1 hero card shows the 640px cover; grid cards are ~120px, so the 300px copy is enough
 function trackArtUrl(track, index) {
     return index === 0 ? track.cover_url : (track.cover_url_small || track.cover_url);
+}
+
+// Width of the hero cover per breakpoint (.top-track-banner .case-art-wrapper in music.css), widest last
+const HERO_ART_WIDTHS = [[480, 88], [768, 96], [900, 170], [Infinity, 240]];
+const HERO_ART_SIZES_ATTR = HERO_ART_WIDTHS
+    .map(([max, w]) => (max === Infinity ? `${w}px` : `(max-width: ${max}px) ${w}px`)).join(', ');
+
+// The cover the hero's srcset picks on this screen, so a morph pre-decodes that one and not the other
+function heroArtUrlForScreen(track) {
+    const small = track.cover_url_small;
+    if (!small || !track.cover_url) return track.cover_url || small;
+    const [, width] = HERO_ART_WIDTHS.find(([max]) => max === Infinity || window.matchMedia(`(max-width: ${max}px)`).matches);
+    return width * (window.devicePixelRatio || 1) <= 300 ? small : track.cover_url;
 }
 
 // 30-second preview control, on the corner of the track's cover. It sits beside the card rather
@@ -508,7 +527,7 @@ function initMusic() {
                 const isUpdate = morph && renderedTracksSig !== '';
                 renderedTracksSig = sig;
                 if (isUpdate) {
-                    await smoothMorph(tracksContainer, () => renderTracks(tracksContainer, tracks), tracks.map(trackArtUrl).filter(Boolean));
+                    await smoothMorph(tracksContainer, () => renderTracks(tracksContainer, tracks), tracks.map((t, i) => (i === 0 ? heroArtUrlForScreen(t) : trackArtUrl(t, i))).filter(Boolean));
                 } else {
                     renderTracks(tracksContainer, tracks);
                 }

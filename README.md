@@ -10,7 +10,7 @@ Plain HTML, CSS and JavaScript (ES modules), no framework or build step, deploye
 ## How the live data works
 
 ```
-GitHub Action (hourly) ── scripts/sync_data.py ──▶ Supabase (portfolio_data table)
+yigit-server (hourly systemd timer) ── scripts/sync_data.py ──▶ Supabase (portfolio_data table)
                                                         │
 Browser ◀── /api/* (Vercel Python functions, edge-cached 10 min + 24 h stale-while-revalidate)
 ```
@@ -18,7 +18,7 @@ Browser ◀── /api/* (Vercel Python functions, edge-cached 10 min + 24 h sta
 - `scripts/sync_data.py` collects Last.fm top tracks and artists (matched to Spotify for links and artwork), Letterboxd diary and watchlist (the four favourite films are listed in `FAVORITE_FILMS`, since Letterboxd's profile page sits behind a Cloudflare challenge; their posters still come from each film's page), and the project READMEs (rendered by GitHub's markdown API). For the #1 track, Gemini picks three short lyric lines. Full lyrics (LRCLIB, with a Lyrica fallback) are only used as input and are never stored or served. Each top track also gets a 30-second preview URL from the iTunes Search API (Spotify's API no longer returns previews); tracks Apple doesn't carry simply have no play button.
 - Each sync also writes a `sync_meta` row with its time and, per section, when that section last synced without problems. The `/api` functions pass on the oldest of the sections a page shows as `synced_at`, which the footer shows as "Synced 12 min ago".
 - The anon key can read only the public rows (`spotify`, `books`, `movies`, `projects`, `sync_meta`; a Supabase select policy). A new public row has to be added to that policy; everything else, like the Spotify refresh token, stays private.
-- When any section fails, reuses stored data, or doesn't upload, the sync still stores what it can and then exits with an error, so the Action fails and GitHub emails the repo owner.
+- When any section fails, reuses stored data, or doesn't upload, the sync still stores what it can and then exits with an error, triggering an `ntfy` failure alert from the `systemd` timer.
 - Each page starts fetching its `/api` endpoint in `<head>`. If the data arrives within ~65 ms it renders directly. Otherwise the page shows its `localStorage` copy (or, on a first visit, the bundled seed) and morphs to fresh data when it lands. See `assets/js/modules/live-data.js`.
 - If the API is unreachable, pages fall back to the static snapshots in `data/*.json`.
 
@@ -40,7 +40,7 @@ assets/js/pages/*.js                                page scripts
 assets/js/modules/                                  shared utilities, cache, live-data loader, preview player, seed data
 assets/models/                                      ONNX model (file name is versioned; bump it when retraining)
 api/                                                Vercel Python functions; _supabase.py holds the shared code
-scripts/sync_data.py                                data sync, run by .github/workflows/sync-supabase.yml
+scripts/sync_data.py                                data sync, run hourly via systemd on yigit-server
 scripts/test_*.py, scripts/js-tests/                tests (sync helpers, pages vs vercel.json, resize parity), run by .github/workflows/tests.yml
 scripts/dev_server.py                               local server that behaves like Vercel
 data/*.json                                         static fallback snapshots
@@ -51,7 +51,7 @@ data/*.json                                         static fallback snapshots
 - `vercel dev` serves the pages and `/api/*`. It needs `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
 - Without Vercel, `python3 scripts/dev_server.py` serves the site like Vercel does: clean URLs, the rewrites and headers in `vercel.json`, the 404 page and the `/api` functions (with live data if `SUPABASE_URL` and `SUPABASE_ANON_KEY` are set).
 - `python3 -m http.server` also works for the front end. `/api` returns 404 and pages fall back to `data/*.json`. Open pages by file name, e.g. `/library/music.html`, since clean URLs come from `vercel.json`.
-- Running `python scripts/sync_data.py` locally, with the environment variables listed in the workflow, updates Supabase and also rewrites `data/*.json` and `assets/js/modules/seed-data.js`.
+- Running `python scripts/sync_data.py` locally (with `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `CLIENT_ID`, `CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`, `LASTFM_API_KEY`, `LASTFM_USER`, `GEMINI_API_KEY`, and optionally `GITHUB_TOKEN`) updates Supabase and also rewrites `data/*.json` and `assets/js/modules/seed-data.js` (set `GITHUB_ACTIONS=true` to skip writing static snapshots).
 - `pytest scripts/` runs the sync tests and checks the pages against `vercel.json`; `node --test scripts/js-tests/*.test.mjs` checks the detector's resize against Pillow and the music title helpers. Neither needs network or credentials, and `.github/workflows/tests.yml` runs both on every push. After upgrading Pillow, regenerate the resize fixtures with `python scripts/js-tests/make_pillow_fixtures.py`.
 - After changing a stylesheet or page script, bump its `?v=` query in the HTML. Shared modules aren't versioned; the browser revalidates them on every load.
 - `localStorage` holds one entry, `simplyigit_dashboard_cache_v2` (`assets/js/modules/cache.js`). Bump its version when the stored shape changes; older entries are then ignored and removed.

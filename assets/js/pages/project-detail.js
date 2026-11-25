@@ -92,6 +92,29 @@ async function renderMermaidDiagrams(container) {
     });
     try {
         await mermaid.run({ nodes });
+        // On narrow screens where the 720px diagram scrolls sideways, add a right-edge fade + "scroll →" hint
+        nodes.forEach((diagram) => {
+            if (!diagram.isConnected || diagram.parentElement?.classList.contains('mermaid-scroll-wrap')) return;
+            const wrap = document.createElement('div');
+            wrap.className = 'mermaid-scroll-wrap';
+            diagram.replaceWith(wrap);
+            wrap.appendChild(diagram);
+            const hint = document.createElement('span');
+            hint.className = 'mermaid-scroll-hint';
+            hint.setAttribute('aria-hidden', 'true');
+            hint.textContent = 'scroll →';
+            wrap.appendChild(hint);
+
+            const syncHint = () => {
+                const overflows = diagram.scrollWidth > diagram.clientWidth + 6;
+                const atEnd = diagram.scrollLeft + diagram.clientWidth >= diagram.scrollWidth - 8;
+                wrap.classList.toggle('is-scrollable', overflows && !atEnd);
+                wrap.classList.toggle('has-scrolled', diagram.scrollLeft > 12);
+            };
+            syncHint();
+            diagram.addEventListener('scroll', syncHint, { passive: true });
+            window.addEventListener('resize', syncHint, { passive: true });
+        });
     } catch {
         // Put the highlighted code blocks back rather than leaving raw diagram source
         nodes.forEach((diagram, i) => diagram.isConnected && diagram.replaceWith(live[i]));
@@ -720,9 +743,18 @@ async function runRealModelOnCanvas(file, img, canvas, onProgress) {
         if (onProgress) onProgress('Running ConvNeXt-Tiny + SGD inference...');
 
         const inputTensor = new ort.Tensor('float32', tensorData, [1, 3, h, w]);
+        const inferStart = performance.now();
         const outputs = await session.run({ input: inputTensor });
+        const inferenceMs = performance.now() - inferStart;
 
         const probsRaw = outputs.probs.data;      // Float32Array(3) [Real, AI Fake, Deepfake]
+        const embeddingRaw = outputs.embedding?.data || null;
+        let l2Norm = null;
+        if (embeddingRaw && embeddingRaw.length > 0) {
+            let sumSq = 0;
+            for (let i = 0; i < embeddingRaw.length; i++) sumSq += embeddingRaw[i] * embeddingRaw[i];
+            l2Norm = Math.sqrt(sumSq);
+        }
 
         const realPct = Number((probsRaw[0] * 100).toFixed(1));
         const aiPct = Number((probsRaw[1] * 100).toFixed(1));
@@ -741,7 +773,10 @@ async function runRealModelOnCanvas(file, img, canvas, onProgress) {
         return {
             prediction,
             badgeClass,
-            probs: { real: realPct, ai: aiPct, df: dfPct }
+            probs: { real: realPct, ai: aiPct, df: dfPct },
+            inferenceMs,
+            l2Norm,
+            embedding: embeddingRaw
         };
     } finally {
         if (rawBitmap) rawBitmap.close();
@@ -771,12 +806,91 @@ function initDetectorDemo() {
     const cameraCancelBtn = document.getElementById('detector-camera-cancel');
     const cameraText = document.getElementById('detector-camera-text');
     const cameraView = document.getElementById('detector-camera-view');
+    const countdownEl = document.getElementById('detector-countdown');
+    const inputCaption = document.getElementById('detector-input-caption');
+    const telemetryWrap = document.getElementById('detector-telemetry');
+    const telemetryLatency = document.getElementById('telemetry-latency');
+    const telemetryNormChip = document.getElementById('telemetry-norm-chip');
+    const telemetryNorm = document.getElementById('telemetry-norm');
+    const barcodeWrap = document.getElementById('telemetry-barcode-wrap');
+    const barcodeCanvas = document.getElementById('detector-embedding-canvas');
     const liveResult = document.getElementById('detector-live-result');
 
     let isInferring = false;
     let cameraStream = null;
     let cameraStarting = false;
     let cameraRequestId = 0;
+    let countdownTimer = 0;
+
+    const drawEmbeddingBarcode = (embedding) => {
+        if (!barcodeCanvas || !embedding || embedding.length === 0) return;
+        const bctx = barcodeCanvas.getContext('2d');
+        if (!bctx) return;
+        const w = barcodeCanvas.width;
+        const h = barcodeCanvas.height;
+        bctx.clearRect(0, 0, w, h);
+
+        let maxAbs = 0;
+        for (let i = 0; i < embedding.length; i++) {
+            const a = Math.abs(embedding[i]);
+            if (a > maxAbs) maxAbs = a;
+        }
+        const scale = maxAbs > 0 ? maxAbs : 1;
+        const stride = embedding.length / w;
+        for (let x = 0; x < w; x++) {
+            const start = Math.floor(x * stride);
+            const end = Math.max(start + 1, Math.floor((x + 1) * stride));
+            let sum = 0;
+            for (let i = start; i < end; i++) sum += embedding[i];
+            const v = (sum / (end - start)) / scale; // -1..1
+            const mag = Math.min(1, Math.abs(v) * 1.45);
+            const alpha = (0.14 + mag * 0.86).toFixed(2);
+            bctx.fillStyle = v >= 0 ? `rgba(56, 189, 248, ${alpha})` : `rgba(245, 158, 11, ${alpha})`;
+            const barH = Math.max(2, Math.round(mag * h));
+            bctx.fillRect(x, Math.round((h - barH) / 2), 1, barH);
+        }
+    };
+
+    const setInputCaption = (text, isLive = false) => {
+        if (!inputCaption) return;
+        inputCaption.textContent = text;
+        inputCaption.classList.toggle('is-live-input', isLive);
+    };
+
+    const clearTelemetry = () => {
+        if (telemetryWrap) telemetryWrap.hidden = true;
+        if (telemetryNormChip) telemetryNormChip.hidden = true;
+        if (barcodeWrap) barcodeWrap.hidden = true;
+    };
+
+    const showTelemetry = ({ inferenceMs, l2Norm, embedding } = {}) => {
+        if (!telemetryWrap || !Number.isFinite(inferenceMs)) return clearTelemetry();
+        if (telemetryLatency) telemetryLatency.textContent = `${Math.round(inferenceMs)} ms`;
+        if (Number.isFinite(l2Norm) && telemetryNormChip && telemetryNorm) {
+            telemetryNorm.textContent = l2Norm.toFixed(2);
+            telemetryNormChip.hidden = false;
+        } else if (telemetryNormChip) {
+            telemetryNormChip.hidden = true;
+        }
+        if (embedding && embedding.length > 0 && barcodeWrap && barcodeCanvas) {
+            drawEmbeddingBarcode(embedding);
+            barcodeWrap.hidden = false;
+        } else if (barcodeWrap) {
+            barcodeWrap.hidden = true;
+        }
+        telemetryWrap.hidden = false;
+    };
+
+    const cancelCountdown = () => {
+        if (countdownTimer) {
+            clearTimeout(countdownTimer);
+            countdownTimer = 0;
+        }
+        if (countdownEl) {
+            countdownEl.hidden = true;
+            countdownEl.textContent = '';
+        }
+    };
 
     const setUploadButtonState = (disabled, labelText) => {
         if (uploadLabel) {
@@ -841,6 +955,7 @@ function initDetectorDemo() {
     };
 
     const stopCamera = () => {
+        cancelCountdown();
         // Invalidate any pending getUserMedia() request even before cameraStream is assigned
         cameraRequestId++;
         if (!cameraStream) return;
@@ -860,6 +975,8 @@ function initDetectorDemo() {
         const preset = PRESET_SAMPLES[key];
         if (!preset) return;
         stopCamera();
+        clearTelemetry();
+        setInputCaption('Preset illustration', false);
         showStatus('');
         sampleBtns.forEach(btn => {
             const active = btn.getAttribute('data-sample') === key;
@@ -933,10 +1050,13 @@ function initDetectorDemo() {
                     showStatus(statusText, false);
                 });
                 showStatus('');
+                setInputCaption('Model input · 224×224 (5% crop)', true);
                 updateUI(res);
+                showTelemetry(res);
                 if (liveResult) {
                     const topConf = Math.max(res.probs.real, res.probs.ai, res.probs.df);
-                    liveResult.textContent = `Classification complete: ${res.prediction}, ${topConf.toFixed(1)}% confidence.`;
+                    const msNote = Number.isFinite(res.inferenceMs) ? ` in ${Math.round(res.inferenceMs)} ms` : '';
+                    liveResult.textContent = `Classification complete: ${res.prediction}, ${topConf.toFixed(1)}% confidence${msNote}.`;
                 }
             } catch (err) {
                 showStatus(err?.message || 'Failed to run ConvNeXt-Tiny ONNX model.', true);
@@ -1036,10 +1156,12 @@ function initDetectorDemo() {
         cameraBtn.classList.add('is-live');
         if (cameraCancelBtn) cameraCancelBtn.hidden = false;
         cameraText.textContent = 'Take Snapshot';
-        showStatus('Frame a face, then take the snapshot. Nothing leaves your browser.');
+        setInputCaption('Live camera preview (local only)', true);
+        showStatus('Frame a face, then take the snapshot (3-2-1 countdown). Nothing leaves your browser.');
     };
 
-    const takeSnapshot = () => {
+    const captureSnapshotNow = () => {
+        cancelCountdown();
         const vw = cameraView.videoWidth;
         const vh = cameraView.videoHeight;
         if (!vw || !vh) return;
@@ -1052,6 +1174,28 @@ function initDetectorDemo() {
         frame.toBlob((blob) => {
             if (blob) analyzeFile(new File([blob], 'snapshot.png', { type: 'image/png' }));
         }, 'image/png');
+    };
+
+    const takeSnapshot = () => {
+        if (!cameraStream) return;
+        if (countdownTimer) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !countdownEl) {
+            captureSnapshotNow();
+            return;
+        }
+        let step = 3;
+        const tickCountdown = () => {
+            if (!cameraStream) return cancelCountdown();
+            if (step <= 0) {
+                captureSnapshotNow();
+                return;
+            }
+            countdownEl.textContent = String(step);
+            countdownEl.hidden = false;
+            step--;
+            countdownTimer = setTimeout(tickCountdown, 750);
+        };
+        tickCountdown();
     };
 
     if (cameraBtn && cameraText && cameraView && navigator.mediaDevices?.getUserMedia) {

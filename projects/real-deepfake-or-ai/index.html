@@ -25,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/base.css?v=7.10">
-    <link rel="stylesheet" href="/assets/css/project.css?v=7.8">
+    <link rel="stylesheet" href="/assets/css/project.css?v=7.9">
     <script src="/assets/js/vt-nav.js?v=7.12"></script>
 </head>
 
@@ -105,8 +105,10 @@
                                     <canvas id="detector-preview-canvas" width="224" height="224"></canvas>
                                     <!-- Live camera view, over the canvas until a snapshot is taken -->
                                     <video class="detector-camera-view" id="detector-camera-view" playsinline muted hidden></video>
+                                    <div class="detector-countdown" id="detector-countdown" aria-live="assertive" hidden></div>
                                     <div class="detector-scan-line"></div>
                                 </div>
+                                <div class="detector-input-caption" id="detector-input-caption">Preset illustration</div>
                             </div>
 
                             <div class="detector-results-pane">
@@ -145,6 +147,18 @@
                                     </div>
                                 </div>
 
+                                <!-- Measured telemetry from real custom ONNX inference (never shown on presets) -->
+                                <div class="detector-telemetry" id="detector-telemetry" hidden>
+                                    <div class="detector-telemetry-row">
+                                        <span class="telemetry-chip"><span>INFERENCE</span><strong id="telemetry-latency">—</strong></span>
+                                        <span class="telemetry-chip" id="telemetry-norm-chip" hidden><span>‖e‖₂</span><strong id="telemetry-norm">—</strong></span>
+                                    </div>
+                                    <div class="telemetry-barcode-wrap" id="telemetry-barcode-wrap" hidden>
+                                        <span class="telemetry-barcode-label">768-D ConvNeXt embedding</span>
+                                        <canvas id="detector-embedding-canvas" width="384" height="20" role="img" aria-label="768-dimensional ConvNeXt embedding fingerprint"></canvas>
+                                    </div>
+                                </div>
+
                                 <div class="detector-status-msg" id="detector-status-msg" aria-live="polite" hidden></div>
                                 <div class="visually-hidden" id="detector-live-result" aria-live="polite" aria-atomic="true"></div>
                             </div>
@@ -178,7 +192,7 @@
         </footer>
     </div>
 
-    <script type="module" src="/assets/js/pages/project-detail.js?v=7.8"></script>
+    <script type="module" src="/assets/js/pages/project-detail.js?v=7.9"></script>
 </body>
 
 </html>

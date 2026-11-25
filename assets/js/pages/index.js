@@ -98,8 +98,82 @@ function initIndex() {
     initAmbientMesh({ layout: 'library', tinted: true });
     initLibraryKeys();
 
-    // Memoji: depth-map parallax, so the head turns toward the pointer
-    initAvatarDepth(document.querySelector('.unified-hero-tube .avatar-memoji'), '/images/pp-depth.webp');
+    // Memoji: depth-map parallax, so the head turns toward the pointer and nods on status changes
+    let avatarCtrl = null;
+    initAvatarDepth(document.querySelector('.unified-hero-tube .avatar-memoji'), '/images/pp-depth.webp')
+        .then(ctrl => { avatarCtrl = ctrl || null; })
+        .catch(() => {});
+
+    // Living Memoji status bubble + "/" Q&A palette (lazy-loaded on demand so <head> stays light)
+    const memojiTrigger = document.getElementById('memoji-trigger');
+    const memojiBubble = document.getElementById('memoji-bubble');
+    const memojiBubbleText = document.getElementById('memoji-bubble-text');
+    const statusContext = { track: null, film: null };
+    let bubblePaused = false;
+    let bubbleIndex = 0;
+    let bubbleTimer = 0;
+
+    const getStatusLines = () => {
+        const lines = ['role: ML & software developer'];
+        if (statusContext.track) {
+            lines.push(`now looping: "${statusContext.track.title}" — ${statusContext.track.artist}`);
+        }
+        if (statusContext.film) {
+            const stars = statusContext.film.rating ? ` ${statusContext.film.rating}` : '';
+            lines.push(`last watched: ${statusContext.film.title}${stars}`);
+        }
+        lines.push('press / or click me to ask anything');
+        return lines;
+    };
+
+    const showBubbleLine = (text, { nod = false } = {}) => {
+        if (!memojiBubbleText || memojiBubbleText.textContent === text) return;
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced) {
+            memojiBubbleText.textContent = text;
+            return;
+        }
+        memojiBubbleText.classList.add('is-switching');
+        setTimeout(() => {
+            memojiBubbleText.textContent = text;
+            memojiBubbleText.classList.remove('is-switching');
+            if (nod) avatarCtrl?.nod?.();
+        }, 160);
+    };
+
+    const advanceBubble = () => {
+        if (bubblePaused || document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const lines = getStatusLines();
+        bubbleIndex = (bubbleIndex + 1) % lines.length;
+        showBubbleLine(lines[bubbleIndex], { nod: true });
+    };
+
+    if (memojiBubble) {
+        memojiBubble.addEventListener('mouseenter', () => { bubblePaused = true; });
+        memojiBubble.addEventListener('mouseleave', () => { bubblePaused = false; });
+        memojiBubble.addEventListener('focusin', () => { bubblePaused = true; });
+        memojiBubble.addEventListener('focusout', () => { bubblePaused = false; });
+        bubbleTimer = setInterval(advanceBubble, 5500);
+        window.addEventListener('pagehide', () => clearInterval(bubbleTimer));
+    }
+
+    const launchMemojiPalette = async () => {
+        try {
+            const mod = await import('../modules/memoji-palette.js');
+            mod.setMemojiLiveContext(statusContext);
+            await mod.openMemojiPalette({ onNod: () => avatarCtrl?.nod?.() });
+        } catch {}
+    };
+
+    memojiTrigger?.addEventListener('click', launchMemojiPalette);
+    memojiBubble?.addEventListener('click', launchMemojiPalette);
+    document.addEventListener('keydown', (e) => {
+        if (e.defaultPrevented || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+        if (e.key !== '/') return;
+        if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
+        e.preventDefault();
+        launchMemojiPalette();
+    });
 
     // Projects Injection
     const container = document.getElementById("projects-container");
@@ -193,6 +267,7 @@ function initIndex() {
         // The cassette label is ~100px wide: the 300px cover is plenty
         const artUrl = safeUrl(topTrack.cover_url_small || topTrack.cover_url);
         const songTitle = displaySongTitle(topTrack.title);
+        statusContext.track = { title: songTitle, artist: topTrack.artist || '', plays: Number(topTrack.playcount) || 0 };
         const sig = `${topTrack.title}|${topTrack.artist}|${artUrl}|${topTrack.preview_url || ''}`;
         if (sig === renderedSpotifySig) return;
         const isUpdate = renderedSpotifySig !== '';
@@ -404,6 +479,10 @@ function initIndex() {
         if (recent.length === 0) return;
 
         const list = recent.slice(0, 10);
+        statusContext.film = {
+            title: (list[0].title || '').replace(/\s*(?:,\s*\d{4}|\(\d{4}\))$/, '').trim(),
+            rating: list[0].rating || ''
+        };
         // Compare the final image URLs, so raw and already-proxied copies of the same poster match
         const imgUrls = list.map(f => safeImg(f.cover_url, 150));
         const sig = list.map((f, i) => `${f.title}|${imgUrls[i]}`).join(';;');

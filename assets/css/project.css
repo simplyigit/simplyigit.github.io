@@ -703,3 +703,142 @@
 .detector-demo-card.is-dragover .detector-drop-hint {
     display: flex;
 }
+
+/* Transparency panel: input caption, camera countdown, latency, L2 norm & 768-D barcode */
+.detector-input-caption {
+    margin-top: 8px;
+    text-align: center;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.4px;
+    color: var(--text-secondary);
+}
+
+.detector-input-caption.is-live-input {
+    color: #7dd3fc;
+}
+
+.detector-countdown {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2, 8, 19, 0.42);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.85), 0 0 18px rgba(56, 189, 248, 0.6);
+    pointer-events: none;
+}
+
+.detector-countdown[hidden] {
+    display: none;
+}
+
+.detector-telemetry {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 9px 11px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.detector-telemetry[hidden] {
+    display: none;
+}
+
+.detector-telemetry-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.telemetry-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+}
+
+.telemetry-chip strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.telemetry-chip[hidden],
+.telemetry-barcode-wrap[hidden] {
+    display: none;
+}
+
+.telemetry-barcode-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.telemetry-barcode-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+#detector-embedding-canvas {
+    width: 100%;
+    height: 20px;
+    border-radius: 4px;
+    display: block;
+    background: rgba(2, 8, 19, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Mobile Mermaid scroll affordance (right fade + "scroll →" pill until scrolled) */
+.mermaid-scroll-wrap {
+    position: relative;
+}
+
+.mermaid-scroll-wrap.is-scrollable::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 44px;
+    background: linear-gradient(90deg, transparent, rgba(5, 11, 24, 0.92));
+    pointer-events: none;
+    border-radius: 0 8px 8px 0;
+}
+
+.mermaid-scroll-hint {
+    display: none;
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 2;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(10, 18, 34, 0.88);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #bae6fd;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.4px;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.mermaid-scroll-wrap.is-scrollable:not(.has-scrolled) .mermaid-scroll-hint {
+    display: inline-block;
+}

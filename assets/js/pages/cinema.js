@@ -220,6 +220,17 @@ function dealFromUnder(anchor) {
     });
 }
 
+const SHORT_MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+// "2026-11-20" -> "NOV 20" for the perforated ticket stub on Recent Watches
+function formatTicketDate(iso) {
+    if (!iso || typeof iso !== 'string') return '';
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
+    if (!m) return '';
+    const month = SHORT_MONTHS[Number(m[2]) - 1];
+    return month ? `${month} ${Number(m[3])}` : '';
+}
+
 function renderRecent(recentContainer, recList) {
     if (!recentContainer || !Array.isArray(recList) || recList.length === 0) return;
     const seenSlugs = new Set();
@@ -228,7 +239,12 @@ function renderRecent(recentContainer, recList) {
         const marks = (film.is_favorite ? '<span class="overlay-mark mark-liked" title="Liked">♥\uFE0E</span>' : '')
             + (film.is_rewatch ? '<span class="overlay-mark mark-rewatch" title="Rewatch">↺</span>' : '');
         const stars = (film.rating || marks) ? `<div class="overlay-rating">${renderStars(film.rating)}${marks}</div>` : '';
-        const labelNotes = [film.rating, film.is_favorite && 'liked', film.is_rewatch && 'rewatch'].filter(Boolean).join(', ');
+        const dateStamp = formatTicketDate(film.watched_date);
+        const excerpt = film.review_excerpt ? `<p class="ticket-excerpt">"${escapeHtml(film.review_excerpt)}"</p>` : '';
+        const ticketStub = (dateStamp || excerpt)
+            ? `<div class="ticket-stub">${excerpt}${dateStamp ? `<span class="ticket-date">${escapeHtml(dateStamp)}</span>` : ''}</div>`
+            : '';
+        const labelNotes = [film.rating, dateStamp, film.is_favorite && 'liked', film.is_rewatch && 'rewatch'].filter(Boolean).join(', ');
         const cTitle = cleanFilmTitle(film.title);
         const safeTitle = escapeHtml(cTitle);
         const imgUrl = safeImg(film.cover_url, 240);
@@ -243,6 +259,8 @@ function renderRecent(recentContainer, recList) {
                 <div class="poster-overlay">
                     <div class="overlay-title">${safeTitle}</div>
                     ${stars}
+                    ${ticketStub}
+                    <span class="touch-open-cue" aria-hidden="true">Letterboxd ↗</span>
                 </div>
             </a>`;
     }).join('');
@@ -279,6 +297,27 @@ function initCinema() {
     initGlobalReveal();
     initGlassParallax();
     initLibraryKeys();
+
+    // Touch tap-to-reveal: first tap opens the poster overlay & ticket stub, second tap opens Letterboxd
+    if (window.matchMedia('(hover: none)').matches) {
+        let revealedCard = null;
+        document.addEventListener('click', (e) => {
+            const card = e.target.closest('.strip-card, .watchlist-card');
+            if (!card) {
+                if (revealedCard) {
+                    revealedCard.classList.remove('is-revealed');
+                    revealedCard = null;
+                }
+                return;
+            }
+            if (revealedCard !== card) {
+                e.preventDefault();
+                if (revealedCard) revealedCard.classList.remove('is-revealed');
+                card.classList.add('is-revealed');
+                revealedCard = card;
+            }
+        });
+    }
 
     const favContainer = document.getElementById("movies-favorites-container");
     const recentContainer = document.getElementById("movies-recent-container");
@@ -326,7 +365,7 @@ function initCinema() {
         },
         {
             container: recentContainer,
-            sig: (d) => (d?.recent_activity || []).slice(0, ROW_COUNT).map(m => `${m.title}|${m.rating || ''}|${m.is_favorite ? 'l' : ''}${m.is_rewatch ? 'r' : ''}`).join('|'),
+            sig: (d) => (d?.recent_activity || []).slice(0, ROW_COUNT).map(m => `${m.title}|${m.rating || ''}|${m.is_favorite ? 'l' : ''}${m.is_rewatch ? 'r' : ''}|${m.watched_date || ''}|${m.review_excerpt || ''}`).join('|'),
             images: (d) => (d.recent_activity || []).slice(0, ROW_COUNT).map(f => safeImg(f.cover_url, 240)),
             render: (d) => renderRecent(recentContainer, d.recent_activity)
         },

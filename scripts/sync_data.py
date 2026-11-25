@@ -460,15 +460,18 @@ def spotify_search(access_token, item_name, artist_name, search_type):
     return None
 
 
-def artist_song(lfm_track, t_info):
+def artist_song(lfm_track, t_info, preview_url=None):
     """The top artist's most played song of the month, with its Spotify search result `t_info`."""
-    return {
+    song = {
         "title": lfm_track['name'],
         "playcount": lfm_track['playcount'],
         "cover_url": t_info['cover_url'] if t_info else None,
         "cover_url_small": t_info.get('cover_url_small') if t_info else None,
         "spotify_url": t_info['spotify_url'] if t_info else None
     }
+    if preview_url:
+        song["preview_url"] = preview_url
+    return song
 
 
 def fetch_spotify_data(url, key):
@@ -507,7 +510,7 @@ def fetch_spotify_data(url, key):
             for t in raw_lfm_tracks
         }
 
-        # The #1 artist's most played song this month (the list is ranked); reuse the top-5 search if it's there
+        # The #1 artist's most played song this month (the list is ranked); reuse the top-5 search/preview if it's there
         top_artist_song = None
         if raw_lfm_artists:
             top_name = raw_lfm_artists[0]['name'].casefold()
@@ -516,7 +519,10 @@ def fetch_spotify_data(url, key):
                 song_key = (hit['name'].casefold(), hit['artist']['name'].casefold())
                 if song_key not in track_search_by_key:
                     track_search_by_key[song_key] = executor.submit(spotify_search, access_token, hit['name'], hit['artist']['name'], "track")
-                top_artist_song = (hit, track_search_by_key[song_key])
+                hit_id = (hit['name'], hit['artist']['name'])
+                if hit_id not in preview_futures:
+                    preview_futures[hit_id] = executor.submit(fetch_preview_url, hit['name'], hit['artist']['name'])
+                top_artist_song = (hit, track_search_by_key[song_key], preview_futures[hit_id])
         artist_futures = {executor.submit(spotify_search, access_token, a['name'], None, "artist"): a for a in raw_lfm_artists}
         artist_banners = load_artist_banners()
 
@@ -567,8 +573,10 @@ def fetch_spotify_data(url, key):
                 color_futures[image_url] = executor.submit(get_prominent_color, image_url)
 
         if final_artists and top_artist_song:
-            hit, search_future = top_artist_song
-            final_artists[0]["top_track"] = artist_song(hit, search_future.result())
+            hit, search_future, preview_future = top_artist_song
+            hit_id = (hit['name'], hit['artist']['name'])
+            hit_preview = preview_future.result() or existing_previews.get(hit_id)
+            final_artists[0]["top_track"] = artist_song(hit, search_future.result(), preview_url=hit_preview)
 
         # Assign colors (and 30-second previews) back to tracks and artists
         for track in final_tracks:
@@ -781,26 +789,49 @@ def stars_from_rating(value):
     return "★" * int(rating) + ("½" if rating % 1 >= 0.5 else "")
 
 
+def extract_review_excerpt(description_html, raw_title="", max_len=140):
+    """Extracts a clean, spoiler-free plain-text review snippet from a Letterboxd RSS description."""
+    if not description_html:
+        return ""
+    if "(contains spoilers)" in (raw_title or "").lower() or "may contain spoilers" in description_html.lower():
+        return ""
+    # Drop the leading poster image paragraph, then strip remaining HTML tags
+    cleaned = re.sub(r'<p>\s*<img[^>]*>\s*</p>', '', description_html, flags=re.I)
+    text = html.unescape(re.sub(r'<[^>]+>', ' ', cleaned))
+    text = re.sub(r'\s+', ' ', text).strip()
+    # Letterboxd puts "Watched on Friday." / "Watched on November 20, 2026." when a diary entry has no written review
+    if not text or re.match(r'^Watched on [A-Za-z0-9, ]+\.?$', text):
+        return ""
+    if len(text) <= max_len:
+        return text
+    clipped = text[:max_len].rsplit(' ', 1)[0].rstrip(' ,;:-')
+    return (clipped or text[:max_len - 1]) + "…"
+
+
 def parse_letterboxd_item(item):
     """One entry of the Letterboxd RSS feed as a recent_activity film."""
     def lb(name):
         return (item.findtext(LETTERBOXD_NS + name) or '').strip()
 
+    raw_title = (item.findtext('title') or '').strip()
     # The feed's own elements; the <title> ("Film, 2020 - ★★★½") breaks on half-star-only
     # ratings and on reviews tagged " (contains spoilers)"
     title = lb('filmTitle')
     rating = stars_from_rating(lb('memberRating'))
     if not title:
         # Items without them (lists, or a feed change): parse the <title> instead
-        text = re.sub(r' \(contains spoilers\)$', '', (item.findtext('title') or '').strip())
+        text = re.sub(r' \(contains spoilers\)$', '', raw_title)
         rating_match = re.search(r' - (★+½?|½)$', text)
         if rating_match:
             rating = rating_match.group(1)
             text = text[:rating_match.start()]
         title = re.sub(r'(, \d{4}|\(\d{4}\))$', '', text).strip()
 
-    img_m = re.search(r'<img[^>]+src="([^">]+)"', item.findtext('description') or '')
-    return {
+    description = item.findtext('description') or ''
+    img_m = re.search(r'<img[^>]+src="([^">]+)"', description)
+    watched_date = lb('watchedDate')
+    review_excerpt = extract_review_excerpt(description, raw_title)
+    entry = {
         "title": html.unescape(title),
         "rating": rating,
         "is_rewatch": lb('rewatch').lower() == 'yes',
@@ -808,6 +839,11 @@ def parse_letterboxd_item(item):
         "link": item.findtext('link') or "",
         "cover_url": img_m.group(1) if img_m else ""
     }
+    if watched_date:
+        entry["watched_date"] = watched_date
+    if review_excerpt:
+        entry["review_excerpt"] = review_excerpt
+    return entry
 
 
 # All-time favourite films, in profile order. The profile page, the only place Letterboxd lists them,

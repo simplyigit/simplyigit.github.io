@@ -99,6 +99,8 @@ export async function initAvatarDepth(img, depthSrc) {
 
     const current = { x: 0, y: 0 };
     const target = { x: 0, y: 0 };
+    let nodImpulse = 0;
+    let nodTimer = 0;
     let frame = 0;
     let lastTime = 0;
     // Latest pointer position not yet turned into a target; read in tick() so layout is measured once per frame
@@ -123,11 +125,12 @@ export async function initAvatarDepth(img, depthSrc) {
             target.y = clamp(-(pointer.y - (rect.top + rect.height / 2)) / 400);
             pointer = null;
         }
+        const goalY = clamp(target.y + nodImpulse);
         const ease = 1 - Math.pow(0.88, dt * 60);
         current.x += (target.x - current.x) * ease;
-        current.y += (target.y - current.y) * ease;
+        current.y += (goalY - current.y) * ease;
         draw();
-        if (Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.001) {
+        if (Math.abs(target.x - current.x) + Math.abs(goalY - current.y) > 0.001) {
             frame = requestAnimationFrame(tick);
         } else {
             frame = 0;
@@ -136,6 +139,18 @@ export async function initAvatarDepth(img, depthSrc) {
     };
     const follow = () => {
         if (!frame) frame = requestAnimationFrame(tick);
+    };
+
+    // Subtle downward-then-back head nod (used when the Memoji status line cycles or palette opens)
+    const nod = () => {
+        if (!onScreen || document.hidden) return;
+        clearTimeout(nodTimer);
+        nodImpulse = -0.52;
+        follow();
+        nodTimer = setTimeout(() => {
+            nodImpulse = 0;
+            follow();
+        }, 190);
     };
 
     // The canvas sits exactly over the image; the image stays for layout and alt text
@@ -166,4 +181,6 @@ export async function initAvatarDepth(img, depthSrc) {
         target.y = 0;
         follow();
     });
+
+    return { nod };
 }

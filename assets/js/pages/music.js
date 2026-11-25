@@ -182,7 +182,7 @@ function artistPlaysHtml(artist, totalPlays) {
                     </div>`;
 }
 
-function renderArtists(container, artistList) {
+function renderArtists(container, artistList, trackList = []) {
     if (!container) return;
     const list = Array.isArray(artistList) ? artistList.filter(a => a && typeof a === 'object') : [];
     if (list.length === 0) {
@@ -195,7 +195,7 @@ function renderArtists(container, artistList) {
         let vtName = toTransitionSlug('artist', artist.name || `idx-${index}`);
         if (seenSlugs.has(vtName)) vtName = `${vtName}-${index}`;
         seenSlugs.add(vtName);
-        return musicCardHtml({
+        const card = musicCardHtml({
             index,
             variant: 'artist',
             href: artistSpotifyUrl(artist),
@@ -211,6 +211,35 @@ function renderArtists(container, artistList) {
             nameInPill: true,
             footerHtml: index === 0 ? artistTopSongHtml(artist, totalPlays) : artistPlaysHtml(artist, totalPlays)
         });
+        if (index !== 0 || !artist.top_track?.title) return card;
+
+        const song = artist.top_track;
+        const matchedTrack = (Array.isArray(trackList) ? trackList : []).find(
+            t => t?.title?.toLowerCase() === song.title.toLowerCase()
+                && t?.artist?.toLowerCase() === (artist.name || '').toLowerCase()
+        );
+        const songUrl = safeUrl(song.spotify_url || matchedTrack?.spotify_url)
+            || `https://open.spotify.com/search/${encodeURIComponent(`${song.title} ${artist.name || ''}`)}`;
+        const songPreviewUrl = safeUrl(song.preview_url || matchedTrack?.preview_url);
+        const shownSong = displaySongTitle(song.title);
+        const previewBtn = songPreviewUrl ? previewButtonHtml({
+            title: song.title,
+            artist: artist.name || '',
+            spotify_id: matchedTrack?.spotify_id ? `artist-top-${matchedTrack.spotify_id}` : `artist-top-${song.title}|${artist.name || ''}`,
+            preview_url: songPreviewUrl
+        }, shownSong) : '';
+        const rgb = safeRgb(artist.prominent_color);
+        return `
+            <div class="artist-slot is-hero"${rgb ? ` style="--track-color-rgb: ${rgb.join(', ')}"` : ''}>
+                ${card}
+                <div class="artist-song-actions">
+                    ${previewBtn}
+                    <a href="${escapeHtml(songUrl)}" target="_blank" rel="noopener noreferrer" class="artist-song-link" aria-label="${escapeHtml(`Open ${shownSong} by ${artist.name || ''} on Spotify`)}">
+                        <span>Play top song</span>
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                </div>
+            </div>`;
     }).join('');
 }
 
@@ -233,7 +262,7 @@ function previewButtonHtml(track, shownTitle) {
             </button>`;
 }
 
-// One click handler for every preview button in the Tracks tab
+// One click handler for every preview button in a music tab (Tracks or Artists #1 top song)
 function initTrackPreviews(container) {
     container.addEventListener('click', (e) => {
         const btn = e.target.closest('.preview-btn');
@@ -246,9 +275,73 @@ function initTrackPreviews(container) {
             if (!live) return;
             live.setAttribute('aria-pressed', playing ? 'true' : 'false');
             live.style.setProperty('--dash', (1 - progress).toFixed(3));
-            live.closest('.track-slot')?.classList.toggle('is-playing', playing);
+            live.closest('.track-slot, .artist-slot')?.classList.toggle('is-playing', playing);
         });
     });
+}
+
+let lyricCycleCleanup = null;
+
+function initLyricCycle(container, lyrics) {
+    if (lyricCycleCleanup) {
+        lyricCycleCleanup();
+        lyricCycleCleanup = null;
+    }
+    if (!container || !Array.isArray(lyrics) || lyrics.length < 2) return;
+    const textEl = container.querySelector('.track-ai-lyric-text');
+    const dots = [...container.querySelectorAll('.track-lyric-dot')];
+    const nextBtn = container.querySelector('.lyric-next-btn');
+    const heroSlot = container.querySelector('.track-slot.is-hero');
+    if (!textEl) return;
+
+    let idx = 0;
+    let paused = false;
+    let switchTimer = 0;
+
+    const showAt = (nextIdx) => {
+        idx = (nextIdx + lyrics.length) % lyrics.length;
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const apply = () => {
+            textEl.textContent = `"${lyrics[idx]}"`;
+            dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+            if (nextBtn) nextBtn.setAttribute('aria-label', `Next lyric quote (${idx + 1} of ${lyrics.length})`);
+        };
+        if (reduced) {
+            apply();
+            return;
+        }
+        clearTimeout(switchTimer);
+        textEl.classList.add('is-switching');
+        switchTimer = setTimeout(() => {
+            apply();
+            textEl.classList.remove('is-switching');
+        }, 180);
+    };
+
+    const onNextClick = () => showAt(idx + 1);
+    const onEnter = () => { paused = true; };
+    const onLeave = () => { paused = false; };
+    nextBtn?.addEventListener('click', onNextClick);
+    heroSlot?.addEventListener('mouseenter', onEnter);
+    heroSlot?.addEventListener('mouseleave', onLeave);
+    heroSlot?.addEventListener('focusin', onEnter);
+    heroSlot?.addEventListener('focusout', onLeave);
+
+    const intervalId = setInterval(() => {
+        if (paused || document.hidden || activeTab !== 'tracks') return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        showAt(idx + 1);
+    }, 6500);
+
+    lyricCycleCleanup = () => {
+        clearInterval(intervalId);
+        clearTimeout(switchTimer);
+        nextBtn?.removeEventListener('click', onNextClick);
+        heroSlot?.removeEventListener('mouseenter', onEnter);
+        heroSlot?.removeEventListener('mouseleave', onLeave);
+        heroSlot?.removeEventListener('focusin', onEnter);
+        heroSlot?.removeEventListener('focusout', onLeave);
+    };
 }
 
 function renderTracks(container, trackList) {
@@ -259,17 +352,25 @@ function renderTracks(container, trackList) {
         return;
     }
     const seenSlugs = new Set();
+    let heroLyrics = [];
     container.innerHTML = list.map((track, index) => {
         let vtName = toTransitionSlug('track', `${track.title}-${track.artist}`);
         if (seenSlugs.has(vtName)) vtName = `${vtName}-${index}`;
         seenSlugs.add(vtName);
 
         let lyricHtml = '';
+        let lyricBtnHtml = '';
         if (index === 0 && track.ai_lyrics) {
             const lyrics = [track.ai_lyrics.lyric1, track.ai_lyrics.lyric2, track.ai_lyrics.lyric3].filter(Boolean);
             if (lyrics.length > 0) {
-                const randomLyric = lyrics[Math.floor(Math.random() * lyrics.length)];
-                lyricHtml = `<div class="track-ai-lyric">"${escapeHtml(randomLyric)}"</div>`;
+                heroLyrics = lyrics;
+                const dotsHtml = lyrics.length > 1
+                    ? `<span class="track-lyric-dots" aria-hidden="true">${lyrics.map((_, i) => `<span class="track-lyric-dot${i === 0 ? ' is-active' : ''}"></span>`).join('')}</span>`
+                    : '';
+                lyricHtml = `<div class="track-ai-lyric"><span class="track-ai-lyric-text">"${escapeHtml(lyrics[0])}"</span>${dotsHtml}</div>`;
+                if (lyrics.length > 1) {
+                    lyricBtnHtml = `<button type="button" class="lyric-next-btn" aria-label="Next lyric quote (1 of ${lyrics.length})" title="Next lyric quote"><span aria-hidden="true">↻</span></button>`;
+                }
             }
         }
 
@@ -292,9 +393,10 @@ function renderTracks(container, trackList) {
         });
         const rgb = safeRgb(track.prominent_color);
         return `
-            <div class="track-slot${index === 0 ? ' is-hero' : ''}"${rgb ? ` style="--track-color-rgb: ${rgb.join(', ')}"` : ''}>${card}${previewButtonHtml(track, shownTitle)}
+            <div class="track-slot${index === 0 ? ' is-hero' : ''}"${rgb ? ` style="--track-color-rgb: ${rgb.join(', ')}"` : ''}>${card}${previewButtonHtml(track, shownTitle)}${lyricBtnHtml}
             </div>`;
     }).join('');
+    initLyricCycle(container, heroLyrics);
 }
 
 function initMusic() {
@@ -310,6 +412,7 @@ function initMusic() {
     if (!artistsContainer && !tracksContainer && !albumsContainer) return;
 
     if (tracksContainer) initTrackPreviews(tracksContainer);
+    if (artistsContainer) initTrackPreviews(artistsContainer);
 
     // Page transitions (vt-nav.js): the homepage cassette's cover art morphs into the #1 track's art
     // and back, as long as the Tracks tab is the one on show
@@ -348,14 +451,14 @@ function initMusic() {
 
         if (tabName === 'artists' && artistsContainer && Array.isArray(artists) && artists.length > 0) {
             // banner_url and the #1's top song too, so they appear as soon as a sync adds them
-            const sig = artists.map(a => `${a.name}-${a.banner_url || ''}-${a.top_track?.title || ''}`).join('|');
+            const sig = artists.map(a => `${a.name}-${a.banner_url || ''}-${a.top_track?.title || ''}-${a.top_track?.preview_url || ''}`).join('|');
             if (sig !== renderedArtistsSig) {
                 const isUpdate = morph && renderedArtistsSig !== '';
                 renderedArtistsSig = sig;
                 if (isUpdate) {
-                    await smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artists.flatMap(a => [a.image_url, sizedBannerUrl(a.banner_url), a.top_track?.cover_url_small || a.top_track?.cover_url]).filter(Boolean));
+                    await smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists, tracks), artists.flatMap(a => [a.image_url, sizedBannerUrl(a.banner_url), a.top_track?.cover_url_small || a.top_track?.cover_url]).filter(Boolean));
                 } else {
-                    renderArtists(artistsContainer, artists);
+                    renderArtists(artistsContainer, artists, tracks);
                 }
             } else {
                 // Same artists in same order: morph playcounts in-place without resetting DOM
@@ -821,8 +924,8 @@ function initMusicTabs({ ensureTabRendered } = {}) {
         if (updateHash) {
             history.replaceState(history.state, '', newTab === tabOrder[0] ? location.pathname + location.search : `#${newTab}`);
         }
-        // A preview belongs to the Tracks tab: don't leave it playing behind another tab
-        if (newTab !== 'tracks') stopPreview();
+        // Stop any active preview when leaving its tab
+        stopPreview();
 
         positionIndicator(newTab, { animate: !instant, crossDivider });
 

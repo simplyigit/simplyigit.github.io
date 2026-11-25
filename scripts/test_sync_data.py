@@ -362,3 +362,40 @@ def test_generate_lyric_snippets_filters_invented_lines_and_delimits_prompt(monk
     res = sync_data.generate_lyric_snippets("Circles", "Artist", lyrics)
     assert "<lyrics>" in captured["prompt"] and "</lyrics>" in captured["prompt"]
     assert res == {"lyric2": "You got me running in circles"}
+
+
+def test_parse_letterboxd_item_extracts_ticket_stub_and_filters_spoilers():
+    xml = (
+        '<item xmlns:letterboxd="https://letterboxd.com">'
+        '<title>Dune: Part Two, 2024 - ★★★★★</title>'
+        '<link>https://letterboxd.com/oneyigit/film/dune-part-two/</link>'
+        '<letterboxd:filmTitle>Dune: Part Two</letterboxd:filmTitle>'
+        '<letterboxd:memberRating>5.0</letterboxd:memberRating>'
+        '<letterboxd:watchedDate>2026-11-20</letterboxd:watchedDate>'
+        '<description><![CDATA[<p><img src="https://a.ltrbxd.com/p.jpg"/></p><p>Pure sci-fi spectacle from frame one.</p>]]></description>'
+        '</item>'
+    )
+    entry = sync_data.parse_letterboxd_item(ET.fromstring(xml))
+    assert entry["watched_date"] == "2026-11-20"
+    assert entry["review_excerpt"] == "Pure sci-fi spectacle from frame one."
+
+    # Spoiler-tagged review should omit review_excerpt but keep watched_date
+    spoiler_xml = xml.replace("★★★★★", "★★★★★ (contains spoilers)")
+    spoiler_entry = sync_data.parse_letterboxd_item(ET.fromstring(spoiler_xml))
+    assert spoiler_entry["watched_date"] == "2026-11-20"
+    assert "review_excerpt" not in spoiler_entry
+
+    # Default boilerplate "Watched on ..." is omitted
+    boiler_xml = xml.replace("Pure sci-fi spectacle from frame one.", "Watched on Thursday November 20, 2026.")
+    assert sync_data.extract_review_excerpt("<p><img src='x.jpg'/></p><p>Watched on November 20, 2026.</p>") == ""
+    assert sync_data.extract_review_excerpt(ET.fromstring(boiler_xml).findtext("description")) == ""
+
+
+def test_artist_song_includes_preview_url_when_present():
+    song = sync_data.artist_song(
+        {"name": "White Teeth", "playcount": "32"},
+        {"cover_url": "https://i.scdn.co/a.jpg", "cover_url_small": "https://i.scdn.co/b.jpg", "spotify_url": "https://open.spotify.com/track/1"},
+        preview_url="https://audio-ssl.itunes.apple.com/preview.m4a",
+    )
+    assert song["preview_url"] == "https://audio-ssl.itunes.apple.com/preview.m4a"
+    assert song["spotify_url"] == "https://open.spotify.com/track/1"

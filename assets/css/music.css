@@ -1345,3 +1345,157 @@
         left: calc(var(--art-left) + var(--art) - var(--btn) - 5px);
     }
 }
+
+/* Lyric cycling quote transition, progress dots & sibling cycle button */
+.track-ai-lyric-text {
+    display: inline;
+    transition: opacity 0.18s ease;
+}
+
+.track-ai-lyric-text.is-switching {
+    opacity: 0;
+}
+
+.track-lyric-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.track-lyric-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.track-lyric-dot.is-active {
+    background: rgba(255, 255, 255, 0.85);
+    transform: scale(1.2);
+}
+
+.lyric-next-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 4;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(10, 14, 24, 0.65);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(230, 235, 241, 0.8);
+    font-size: 0.82rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.25s ease, color 0.2s ease;
+}
+
+.track-slot.is-hero:hover .lyric-next-btn,
+.track-slot.is-hero:focus-within .lyric-next-btn,
+.lyric-next-btn:hover,
+.lyric-next-btn:focus-visible {
+    opacity: 1;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.lyric-next-btn:active {
+    transform: rotate(90deg);
+}
+
+@media (hover: none) {
+    .lyric-next-btn {
+        opacity: 0.88;
+    }
+}
+
+/* #1 Artist slot: holds the artist card link + sibling top-song Spotify link & preview button */
+.artist-slot.is-hero {
+    grid-column: 1 / -1;
+    position: relative;
+}
+
+.artist-slot.is-hero > .spotify-track-card {
+    grid-column: auto;
+}
+
+.artist-song-actions {
+    position: absolute;
+    right: 16px;
+    bottom: 14px;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.artist-song-actions .preview-btn {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 30px;
+    height: 30px;
+    opacity: 0.92;
+    transform: none;
+}
+
+.artist-song-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(10, 14, 24, 0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #f1f5f9;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.68rem;
+    font-weight: 500;
+    line-height: 1;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.artist-song-link:hover,
+.artist-song-link:focus-visible {
+    background: rgba(29, 185, 84, 0.22);
+    border-color: rgba(29, 185, 84, 0.65);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+@media screen and (max-width: 768px) {
+    .artist-song-actions {
+        top: 10px;
+        right: 10px;
+        bottom: auto;
+    }
+
+    .artist-song-link span:first-child {
+        display: none;
+    }
+
+    .artist-song-link {
+        padding: 6px 8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .track-ai-lyric-text,
+    .lyric-next-btn,
+    .artist-song-link {
+        transition: none;
+    }
+}

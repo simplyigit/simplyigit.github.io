@@ -1,0 +1,50 @@
+{
+  "role": "ML & software developer",
+  "prompts": [
+    {
+      "id": "who",
+      "question": "Who are you & what do you build?",
+      "tags": ["about", "bio", "role", "ml", "ai", "who", "intro"],
+      "answer": "I'm yiğit — a machine learning and software developer building practical AI systems (computer vision, deepfake detection, on-device inference) alongside interactive, detail-obsessed web interfaces."
+    },
+    {
+      "id": "detector",
+      "question": "Tell me about Real, Deepfake or AI",
+      "tags": ["project", "deepfake", "onnx", "convnext", "svm", "ml", "cv", "model"],
+      "answer": "It classifies face images as real, AI-generated, or deepfake using ConvNeXt-Tiny 768-D features and a calibrated linear SVM (98.66% test accuracy across 11,493 images). The int8 ONNX model runs 100% locally in your browser via WebAssembly — nothing you upload ever leaves your device.",
+      "link": { "label": "Try the live sandbox →", "href": "/projects/real-deepfake-or-ai" }
+    },
+    {
+      "id": "stack",
+      "question": "How is this website built?",
+      "tags": ["stack", "tech", "webgl", "genie", "vanilla", "vercel", "supabase", "how"],
+      "answer": "Zero frameworks and zero build step — plain HTML, CSS, and ES modules on Vercel. The Memoji head-tracking and cover-art Genie transitions run custom WebGL shaders, live music & film data syncs hourly from a homelab systemd timer into Supabase, and edge-cached Python /api functions serve it in milliseconds."
+    },
+    {
+      "id": "music",
+      "question": "What's on repeat right now?",
+      "tags": ["music", "spotify", "lastfm", "songs", "tracks", "listening", "repeat"],
+      "dynamic": "music",
+      "answer": "Live top tracks, artists, 30-second previews, and all-time favorite albums synced from Spotify and Last.fm.",
+      "link": { "label": "Open Heavy Rotation →", "href": "/library/music" }
+    },
+    {
+      "id": "cinema",
+      "question": "What have you watched lately?",
+      "tags": ["cinema", "movies", "films", "letterboxd", "watching", "favorites"],
+      "dynamic": "cinema",
+      "answer": "Recent Letterboxd diary entries, ratings, ticket stubs, watchlist picks, and all-time favorite films.",
+      "link": { "label": "Open Cinema →", "href": "/library/cinema" }
+    },
+    {
+      "id": "contact",
+      "question": "How can I reach you?",
+      "tags": ["contact", "hire", "connect", "github", "linkedin", "reach", "social"],
+      "answer": "The fastest way to see my work or reach out is on GitHub or LinkedIn.",
+      "links": [
+        { "label": "GitHub →", "href": "https://github.com/simplyigit", "external": true },
+        { "label": "LinkedIn →", "href": "https://www.linkedin.com/in/yi%C4%9Fit-erdem/", "external": true }
+      ]
+    }
+  ]
+}

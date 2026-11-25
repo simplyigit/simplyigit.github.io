@@ -271,7 +271,7 @@ def generate_lyric_snippets(title, artist, lyrics):
         print("Missing API key or lyrics for curation.")
         return None
     try:
-        client = genai.Client(api_key=api_key)
+        client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=30_000))
         prompt = (
             f"Based EXCLUSIVELY on the lyrics below for '{title}' by {artist}, "
             "select the 3 most impactful, 'hard-hitting' lines.\n"

@@ -113,7 +113,7 @@ def test_retired_reading_page_redirects_home(new_page, base_url):
     class NoRedirect(urllib.request.HTTPRedirectHandler):
         def redirect_request(self, *args, **kwargs):
             return None
-    opener = urllib.request.build_opener(NoRedirect)
+    opener = urllib.request.build_opener(NoRedirect, urllib.request.ProxyHandler({}))
     try:
         opener.open(req)
         pytest.fail("/library/reading did not redirect")
@@ -558,12 +558,13 @@ def test_detector_real_inference_on_upload(new_page, base_url, net_state):
 def test_detector_mermaid_scrolls_on_mobile(new_page, base_url, net_state):
     page, errors = new_page("390x844-touch")
     open_page(page, base_url, "/projects/real-deepfake-or-ai")
-    page.locator("pre.mermaid, .mermaid").first.scroll_into_view_if_needed()
+    scroll_through(page)  # the README and its diagram render lazily
     try:
-        page.wait_for_selector(".mermaid-scroll-wrap", timeout=30000)
+        page.wait_for_selector(".mermaid-scroll-wrap", state="attached", timeout=30000)
     except Exception:
         require_cdn(page, net_state)
         raise
+    page.locator(".mermaid-scroll-wrap").first.scroll_into_view_if_needed()
     hint = page.locator(".mermaid-scroll-wrap").first.locator("text=scroll →")
     assert hint.count() == 1 and hint.is_visible()
     assert_clean(page, errors)

@@ -48,8 +48,9 @@ IMAGE_HOSTS = (
 AUDIO_HOSTS = ("audio-ssl.itunes.apple.com",)
 CACHED_HOSTS = ("cdn.jsdelivr.net", "fonts.googleapis.com", "fonts.gstatic.com")
 
-# Rendered by Chromium for requests the stubs deliberately abort; never a page bug
-IGNORED_CONSOLE = ("GL Driver Message", "WebGL", "GPU stall")
+# Software-GL driver chatter, and the console line for a CDN file the suite is offline without
+# (only the offline-miss stub aborts with ERR_INTERNET_DISCONNECTED); never a page bug
+IGNORED_CONSOLE = ("GL Driver Message", "WebGL", "GPU stall", "net::ERR_INTERNET_DISCONNECTED")
 
 VIEWPORTS = {
     "320x568": {"viewport": {"width": 320, "height": 568}},
@@ -135,6 +136,10 @@ class DiskCache:
         return content_type, body
 
 
+# The local dev server must be reached directly, even with HTTP(S)_PROXY set in the environment
+LOCAL_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
 def free_port():
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))
@@ -154,7 +159,7 @@ def base_url():
     deadline = time.time() + 15
     while time.time() < deadline:
         try:
-            urllib.request.urlopen(url + "/robots.txt", timeout=1).close()
+            LOCAL_OPENER.open(url + "/robots.txt", timeout=1).close()
             break
         except (urllib.error.URLError, OSError):
             if proc.poll() is not None:

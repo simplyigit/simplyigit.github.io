@@ -450,6 +450,14 @@ function initCinema() {
     // Touch tap-to-reveal: Recent Watches opens the below-poster caret popover; Watchlist reveals its overlay
     if (window.matchMedia('(hover: none)').matches) {
         let revealedWatchlist = null;
+        // Which card's popover was already open when this tap began. Chromium focuses a tapped link
+        // before its click, and focusin opens the popover, so by click time every tap would look
+        // like a second tap and the first one would already open Letterboxd.
+        let tapStartCard = null;
+        document.addEventListener('pointerdown', (e) => {
+            const card = e.target.closest?.('.strip-card');
+            tapStartCard = card && recentPopover.getActiveCard() === card ? card : null;
+        }, true);
         document.addEventListener('click', (e) => {
             if (e.target.closest('.recent-popover-open')) return;
             const stripCard = e.target.closest('.strip-card');
@@ -458,7 +466,10 @@ function initCinema() {
                     revealedWatchlist.classList.remove('is-revealed');
                     revealedWatchlist = null;
                 }
-                if (recentPopover.getActiveCard() !== stripCard) {
+                // A keyboard click (detail 0) has no tap start: its card's popover opened on focus
+                const wasOpen = e.detail === 0 ? recentPopover.getActiveCard() === stripCard : tapStartCard === stripCard;
+                tapStartCard = null;
+                if (!wasOpen) {
                     e.preventDefault();
                     stripCard.classList.add('is-revealed');
                     recentPopover.showFor(stripCard);

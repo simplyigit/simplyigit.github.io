@@ -434,7 +434,7 @@
 }
 
 .book-page-byline {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'Inter Fallback', sans-serif;
     font-size: 0.36rem;
     color: #78716c;
     margin-top: 1px;
@@ -2218,7 +2218,7 @@ html.vt-nav .cassette-cover-art {
     border: none;
     outline: none;
     color: var(--text-primary);
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: 'Inter', 'Inter Fallback', -apple-system, sans-serif;
     font-size: 0.9rem;
 }
 
@@ -2247,7 +2247,7 @@ html.vt-nav .cassette-cover-art {
     border-radius: 10px;
     background: transparent;
     color: rgba(230, 235, 241, 0.82);
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: 'Inter', 'Inter Fallback', -apple-system, sans-serif;
     font-size: 0.85rem;
     text-align: left;
     cursor: pointer;

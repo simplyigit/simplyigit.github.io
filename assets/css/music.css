@@ -51,7 +51,7 @@
     display: inline-flex;
     align-items: center;
     gap: 3px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', 'Inter Fallback', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 0.58rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -97,7 +97,7 @@
     border: 1px solid transparent;
     cursor: pointer;
     transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', 'Inter Fallback', -apple-system, BlinkMacSystemFont, sans-serif;
     outline: none;
     user-select: none;
 }
@@ -453,7 +453,7 @@
 .stats-plays {
     padding: 0 14px 0 12px;
     font-size: 0.85rem;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'Inter Fallback', sans-serif;
     color: var(--text-secondary);
     white-space: nowrap;
     font-weight: 500;

@@ -187,7 +187,7 @@
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--text-secondary);
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: 'Inter', 'Inter Fallback', -apple-system, sans-serif;
     font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;

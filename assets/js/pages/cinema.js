@@ -222,7 +222,7 @@ function dealFromUnder(anchor) {
 
 const SHORT_MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
-// "2026-11-20" -> "NOV 20" for the perforated ticket stub on Recent Watches
+// "2026-11-20" -> "NOV 20" for the Recent Watches popover date stamp
 function formatTicketDate(iso) {
     if (!iso || typeof iso !== 'string') return '';
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
@@ -231,19 +231,14 @@ function formatTicketDate(iso) {
     return month ? `${month} ${Number(m[3])}` : '';
 }
 
+let recentWatchItems = [];
+
 function renderRecent(recentContainer, recList) {
     if (!recentContainer || !Array.isArray(recList) || recList.length === 0) return;
     const seenSlugs = new Set();
-    recentContainer.innerHTML = recList.slice(0, ROW_COUNT).map((film, index) => {
-        // Liked and rewatch marks sit after the stars (U+FE0E keeps the heart a text glyph, not an emoji)
-        const marks = (film.is_favorite ? '<span class="overlay-mark mark-liked" title="Liked">♥\uFE0E</span>' : '')
-            + (film.is_rewatch ? '<span class="overlay-mark mark-rewatch" title="Rewatch">↺</span>' : '');
-        const stars = (film.rating || marks) ? `<div class="overlay-rating">${renderStars(film.rating)}${marks}</div>` : '';
+    recentWatchItems = recList.slice(0, ROW_COUNT);
+    recentContainer.innerHTML = recentWatchItems.map((film, index) => {
         const dateStamp = formatTicketDate(film.watched_date);
-        const excerpt = film.review_excerpt ? `<p class="ticket-excerpt">"${escapeHtml(film.review_excerpt)}"</p>` : '';
-        const ticketStub = (dateStamp || excerpt)
-            ? `<div class="ticket-stub">${excerpt}${dateStamp ? `<span class="ticket-date">${escapeHtml(dateStamp)}</span>` : ''}</div>`
-            : '';
         const labelNotes = [film.rating, dateStamp, film.is_favorite && 'liked', film.is_rewatch && 'rewatch'].filter(Boolean).join(', ');
         const cTitle = cleanFilmTitle(film.title);
         const safeTitle = escapeHtml(cTitle);
@@ -252,18 +247,154 @@ function renderRecent(recentContainer, recList) {
         if (seenSlugs.has(vtSlug)) vtSlug = `${vtSlug}-${index}`;
         seenSlugs.add(vtSlug);
 
+        // Posters stay completely unobstructed; metadata opens in the floating caret popover below
         // data-film / data-thumb: the homepage VHS poster of this film morphs into this card (initCinema)
         return `
-            <a href="${escapeHtml(safeUrl(film.link) || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" data-film="${escapeHtml(film.title)}" data-thumb="${escapeHtml(safeImg(film.cover_url, 150))}" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${labelNotes ? ` (${escapeHtml(labelNotes)})` : ''}">
+            <a href="${escapeHtml(safeUrl(film.link) || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" data-recent-idx="${index}" data-film="${escapeHtml(film.title)}" data-thumb="${escapeHtml(safeImg(film.cover_url, 150))}" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${labelNotes ? ` (${escapeHtml(labelNotes)})` : ''}">
                 ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="" crossorigin="anonymous" decoding="async">` : posterPlaceholder('recent', safeTitle)}
-                <div class="poster-overlay">
-                    <div class="overlay-title">${safeTitle}</div>
-                    ${stars}
-                    ${ticketStub}
-                    <span class="touch-open-cue" aria-hidden="true">Letterboxd ↗</span>
-                </div>
             </a>`;
     }).join('');
+}
+
+function recentPopoverContentHtml(film) {
+    const safeTitle = escapeHtml(cleanFilmTitle(film.title));
+    const dateStamp = formatTicketDate(film.watched_date);
+    const marks = (film.is_favorite ? '<span class="overlay-mark mark-liked" title="Liked">♥\uFE0E</span>' : '')
+        + (film.is_rewatch ? '<span class="overlay-mark mark-rewatch" title="Rewatch">↺</span>' : '');
+    const stars = (film.rating || marks) ? `<div class="overlay-rating recent-popover-rating">${renderStars(film.rating)}${marks}</div>` : '';
+    const excerpt = film.review_excerpt ? `<p class="recent-popover-excerpt">"${escapeHtml(film.review_excerpt)}"</p>` : '';
+    const href = escapeHtml(safeUrl(film.link) || '#');
+    return `
+        <div class="recent-popover-head">
+            <span class="recent-popover-title">${safeTitle}</span>
+            ${dateStamp ? `<span class="recent-popover-date">${escapeHtml(dateStamp)}</span>` : ''}
+        </div>
+        ${stars}
+        ${excerpt}
+        <a href="${href}" target="_blank" rel="noopener noreferrer" class="recent-popover-open">Letterboxd ↗</a>`;
+}
+
+// Shared floating caret popover anchored directly underneath the hovered, focused, or tapped Recent Watches poster
+function initRecentPopover(recentContainer) {
+    if (!recentContainer || !recentContainer.parentElement) return { close: () => {} };
+    const section = recentContainer.parentElement;
+    section.classList.add('recent-watches-section');
+
+    let popover = section.querySelector('.recent-popover');
+    if (!popover) {
+        popover = document.createElement('div');
+        popover.id = 'recent-watch-popover';
+        popover.className = 'recent-popover';
+        popover.setAttribute('aria-hidden', 'true');
+        popover.innerHTML = '<span class="recent-popover-caret" aria-hidden="true"></span><div class="recent-popover-body"></div>';
+        section.appendChild(popover);
+    }
+    const bodyEl = popover.querySelector('.recent-popover-body');
+
+    let activeCard = null;
+    let hideTimer = 0;
+
+    const positionFor = (card) => {
+        if (!card || !card.isConnected) return;
+        const secRect = section.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        const popW = popover.offsetWidth || 248;
+        const cardCenterX = (cardRect.left + cardRect.width / 2) - secRect.left;
+        const maxLeft = Math.max(0, secRect.width - popW);
+        const left = Math.max(0, Math.min(maxLeft, cardCenterX - popW / 2));
+        const caretX = Math.max(18, Math.min(popW - 18, cardCenterX - left));
+        // Anchor to the resting strip bottom so hover scale/lift on the poster never jitters the popover
+        const top = recentContainer.offsetTop + recentContainer.offsetHeight - 2;
+
+        popover.style.setProperty('--pop-x', `${left.toFixed(1)}px`);
+        popover.style.setProperty('--pop-y', `${top.toFixed(1)}px`);
+        popover.style.setProperty('--caret-x', `${caretX.toFixed(1)}px`);
+    };
+
+    const showFor = (card) => {
+        clearTimeout(hideTimer);
+        const idx = Number(card?.dataset?.recentIdx);
+        const film = Number.isInteger(idx) ? recentWatchItems[idx] : null;
+        if (!film) return;
+        const wasOpen = popover.classList.contains('is-open');
+        if (activeCard !== card) {
+            if (activeCard) activeCard.classList.remove('is-popover-active');
+            activeCard = card;
+            activeCard.classList.add('is-popover-active');
+            bodyEl.innerHTML = recentPopoverContentHtml(film);
+        }
+        if (!wasOpen) {
+            // Place before opening so the popover rises cleanly in place rather than gliding from (0, 0)
+            popover.classList.add('is-positioning');
+            positionFor(card);
+            void popover.offsetWidth;
+            popover.classList.remove('is-positioning');
+            popover.classList.add('is-open');
+            popover.setAttribute('aria-hidden', 'false');
+        } else {
+            positionFor(card);
+        }
+    };
+
+    const close = () => {
+        clearTimeout(hideTimer);
+        if (activeCard) {
+            activeCard.classList.remove('is-popover-active', 'is-revealed');
+            activeCard = null;
+        }
+        popover.classList.remove('is-open');
+        popover.setAttribute('aria-hidden', 'true');
+    };
+
+    const scheduleClose = () => {
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(close, 110);
+    };
+
+    const isTouchOnly = () => window.matchMedia('(hover: none)').matches;
+
+    recentContainer.addEventListener('pointerover', (e) => {
+        if (e.pointerType === 'touch' || isTouchOnly()) return;
+        const card = e.target.closest('.strip-card');
+        if (card) showFor(card);
+    });
+
+    recentContainer.addEventListener('pointerleave', (e) => {
+        if (e.pointerType === 'touch' || isTouchOnly()) return;
+        scheduleClose();
+    });
+
+    recentContainer.addEventListener('focusin', (e) => {
+        const card = e.target.closest('.strip-card');
+        if (card) showFor(card);
+    });
+
+    recentContainer.addEventListener('focusout', (e) => {
+        if (!recentContainer.contains(e.relatedTarget) && !popover.contains(e.relatedTarget)) {
+            scheduleClose();
+        }
+    });
+
+    recentContainer.addEventListener('scroll', () => {
+        if (!activeCard || !popover.classList.contains('is-open')) return;
+        const stripRect = recentContainer.getBoundingClientRect();
+        const cardRect = activeCard.getBoundingClientRect();
+        if (cardRect.right < stripRect.left + 16 || cardRect.left > stripRect.right - 16) {
+            close();
+        } else {
+            positionFor(activeCard);
+        }
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+        if (activeCard && popover.classList.contains('is-open')) positionFor(activeCard);
+    }, { passive: true });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && popover.classList.contains('is-open')) close();
+    });
+
+    return { showFor, close, getActiveCard: () => activeCard, popover };
 }
 
 function renderWatchlist(watchlistContainer, watchList) {
@@ -298,31 +429,51 @@ function initCinema() {
     initGlassParallax();
     initLibraryKeys();
 
-    // Touch tap-to-reveal: first tap opens the poster overlay & ticket stub, second tap opens Letterboxd
-    if (window.matchMedia('(hover: none)').matches) {
-        let revealedCard = null;
-        document.addEventListener('click', (e) => {
-            const card = e.target.closest('.strip-card, .watchlist-card');
-            if (!card) {
-                if (revealedCard) {
-                    revealedCard.classList.remove('is-revealed');
-                    revealedCard = null;
-                }
-                return;
-            }
-            if (revealedCard !== card) {
-                e.preventDefault();
-                if (revealedCard) revealedCard.classList.remove('is-revealed');
-                card.classList.add('is-revealed');
-                revealedCard = card;
-            }
-        });
-    }
-
     const favContainer = document.getElementById("movies-favorites-container");
     const recentContainer = document.getElementById("movies-recent-container");
     const watchlistContainer = document.getElementById("movies-watchlist-container");
     if (!favContainer && !recentContainer && !watchlistContainer) return;
+
+    const recentPopover = initRecentPopover(recentContainer);
+
+    // Touch tap-to-reveal: Recent Watches opens the below-poster caret popover; Watchlist reveals its overlay
+    if (window.matchMedia('(hover: none)').matches) {
+        let revealedWatchlist = null;
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.recent-popover-open')) return;
+            const stripCard = e.target.closest('.strip-card');
+            if (stripCard) {
+                if (revealedWatchlist) {
+                    revealedWatchlist.classList.remove('is-revealed');
+                    revealedWatchlist = null;
+                }
+                if (recentPopover.getActiveCard() !== stripCard) {
+                    e.preventDefault();
+                    stripCard.classList.add('is-revealed');
+                    recentPopover.showFor(stripCard);
+                }
+                return;
+            }
+            const watchCard = e.target.closest('.watchlist-card');
+            if (watchCard) {
+                recentPopover.close();
+                if (revealedWatchlist !== watchCard) {
+                    e.preventDefault();
+                    if (revealedWatchlist) revealedWatchlist.classList.remove('is-revealed');
+                    watchCard.classList.add('is-revealed');
+                    revealedWatchlist = watchCard;
+                }
+                return;
+            }
+            if (!e.target.closest('.recent-popover')) {
+                recentPopover.close();
+                if (revealedWatchlist) {
+                    revealedWatchlist.classList.remove('is-revealed');
+                    revealedWatchlist = null;
+                }
+            }
+        });
+    }
 
     // Page transitions (vt-nav.js): a poster on the homepage VHS morphs into the same film's card in
     // Recent Watches, and back. Leaving, it's the film that flew in (else the first card).

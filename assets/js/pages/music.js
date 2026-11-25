@@ -25,7 +25,7 @@ function applyTabTint() {
 // Text arguments are raw and escaped here; `titleHtml`, `extraHtml` and `footerHtml` must already be safe HTML.
 // `fullTitle` is the tooltip when `title` is a shortened form; `placeholderUrl` is a smaller copy of the
 // art shown until the full-size image has loaded.
-function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ariaLabel, artUrl, placeholderUrl, badge, meta, rgb, variant, backdropUrl, vtName, nameInPill = false, extraHtml = '', footerHtml = '' }) {
+function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ariaLabel, artUrl, placeholderUrl, badge, meta, rgb, variant, backdropUrl, vtName, nameInPill = false, interactiveCard = false, extraHtml = '', footerHtml = '' }) {
     const hero = index === 0;
     const safeHref = safeUrl(href) || '#';
     const art = safeUrl(artUrl);
@@ -47,16 +47,16 @@ function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ari
     if (vtName) styles.push(`view-transition-name: ${vtName}`);
 
     const cleanBackdrop = safeUrl(backdropUrl);
-    const classes = ['spotify-track-card', hero ? 'top-track-banner' : 'grid-track', variant && `is-${variant}`, cleanBackdrop && 'has-backdrop'].filter(Boolean).join(' ');
+    const classes = ['spotify-track-card', hero ? 'top-track-banner' : 'grid-track', variant && `is-${variant}`, cleanBackdrop && 'has-backdrop', interactiveCard && 'has-interactive-children'].filter(Boolean).join(' ');
     const backdrop = cleanBackdrop
         ? `<div class="banner-backdrop" aria-hidden="true"><img src="${escapeHtml(cleanBackdrop)}" alt="" loading="lazy" decoding="async"></div>`
         : hero ? `<div class="banner-bg-blur"></div>` : '';
     // Only the visible tab's hero is above the fold on load (crossorigin so WebGL Genie reuses the cached bitmap at 0ms)
     const imgAttrs = index === 0 && variant === 'track' ? 'fetchpriority="high" crossorigin="anonymous"' : 'loading="lazy" decoding="async"';
 
-    return `
-            <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer" class="${classes}" style="${escapeHtml(styles.join('; '))}"${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''}>
+    const inner = `
                 ${backdrop}
+                ${interactiveCard ? `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer" class="artist-card-link" aria-label="${escapeHtml(ariaLabel || title)}"></a>` : ''}
                 <div class="case-art-wrapper"${placeholder}>
                     <img src="${escapeHtml(art)}" alt="${escapeHtml(title)}" class="spotify-track-img" ${imgAttrs}>
                 </div>
@@ -68,7 +68,16 @@ function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ari
                     ${extraHtml}
                     ${nameInPill ? namePillHtml(badge, title, meta) : `<div class="track-stats-pill"><span class="stats-badge">${escapeHtml(badge)}</span><span class="stats-plays">${escapeHtml(meta)}</span></div>`}
                     ${footerHtml}
-                </div>
+                </div>`;
+
+    if (interactiveCard) {
+        return `
+            <div class="${classes}" style="${escapeHtml(styles.join('; '))}">${inner}
+            </div>`;
+    }
+
+    return `
+            <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer" class="${classes}" style="${escapeHtml(styles.join('; '))}"${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''}>${inner}
             </a>`;
 }
 
@@ -147,26 +156,63 @@ function topSongShares(songPlays, artistPlays, totalPlays) {
     };
 }
 
-// #1 artist: their most played song this month, with the three-part bar above
-function artistTopSongHtml(artist, totalPlays) {
+// #1 artist: their most played song this month, with clickable cover art, wrapped progress ring,
+// and an optional preview button directly beneath the cover
+function artistTopSongHtml(artist, totalPlays, trackList = []) {
     const song = artist.top_track;
     if (!song || !song.title) return '';
     const total = Number(artist.playcount) || 0;
     const plays = Number(song.playcount) || 0;
     const { songShare, artistShare } = topSongShares(plays, total, totalPlays);
+    const matchedTrack = (Array.isArray(trackList) ? trackList : []).find(
+        t => t?.title?.toLowerCase() === song.title.toLowerCase()
+            && t?.artist?.toLowerCase() === (artist.name || '').toLowerCase()
+    );
+    const songUrl = safeUrl(song.spotify_url || matchedTrack?.spotify_url)
+        || `https://open.spotify.com/search/${encodeURIComponent(`${song.title} ${artist.name || ''}`)}`;
+    const songPreviewUrl = safeUrl(song.preview_url || matchedTrack?.preview_url);
+    const shownSong = displaySongTitle(song.title);
     // A 44px thumbnail: the 300px copy is plenty
     const coverUrl = safeUrl(song.cover_url_small || song.cover_url);
     const cover = coverUrl
         ? `<img src="${escapeHtml(coverUrl)}" alt="" class="artist-song-art" loading="lazy" decoding="async">`
         : `<span class="artist-song-art" aria-hidden="true"></span>`;
+    const progressRing = songPreviewUrl
+        ? `<svg class="artist-song-progress" viewBox="0 0 52 52" aria-hidden="true"><rect class="artist-song-progress-track" x="2" y="2" width="48" height="48" rx="9.5" ry="9.5" pathLength="1"/><rect class="artist-song-progress-bar" x="2" y="2" width="48" height="48" rx="9.5" ry="9.5" pathLength="1"/></svg>`
+        : '';
+    const previewBtn = songPreviewUrl ? artistPreviewButtonHtml({
+        title: song.title,
+        artist: artist.name || '',
+        spotify_id: matchedTrack?.spotify_id ? `artist-top-${matchedTrack.spotify_id}` : `artist-top-${song.title}|${artist.name || ''}`,
+        preview_url: songPreviewUrl
+    }, shownSong) : '';
     return `
-                    <div class="artist-song">
+                    <div class="artist-song${songPreviewUrl ? ' has-preview' : ''}">
                         <span class="artist-song-label">Top song</span>
-                        ${cover}
-                        <span class="artist-song-title">${escapeHtml(displaySongTitle(song.title))}</span>
+                        <div class="artist-song-media">
+                            <a href="${escapeHtml(songUrl)}" target="_blank" rel="noopener noreferrer" class="artist-song-cover-link" aria-label="${escapeHtml(`Open ${shownSong} by ${artist.name || ''} on Spotify`)}" title="${escapeHtml(`Open ${shownSong} on Spotify`)}">
+                                ${cover}
+                                ${progressRing}
+                                <span class="artist-song-cover-badge" aria-hidden="true">↗</span>
+                            </a>
+                            ${previewBtn}
+                        </div>
+                        <span class="artist-song-title">${escapeHtml(shownSong)}</span>
                         <span class="artist-song-plays">${escapeHtml(PLAYS_FMT.format(plays))} / ${escapeHtml(playsLabel(total))}</span>
-                        <span class="artist-song-bar" role="img" aria-label="${escapeHtml(displaySongTitle(song.title))}: ${plays} of ${escapeHtml(artist.name)}'s ${total} plays, out of ${totalPlays} across my top 5 artists" style="--share: ${songShare}%; --artist-share: ${artistShare}%">${BAR_TRACK_HTML}</span>
+                        <span class="artist-song-bar" role="img" aria-label="${escapeHtml(shownSong)}: ${plays} of ${escapeHtml(artist.name)}'s ${total} plays, out of ${totalPlays} across my top 5 artists" style="--share: ${songShare}%; --artist-share: ${artistShare}%">${BAR_TRACK_HTML}</span>
                     </div>`;
+}
+
+// Compact preview button directly beneath the #1 artist's top song cover (progress ring wraps the cover instead)
+function artistPreviewButtonHtml(track, shownTitle) {
+    const previewUrl = safeUrl(track.preview_url);
+    if (!previewUrl) return '';
+    const trackKey = track.spotify_id || `${track.title}|${track.artist}`;
+    return `
+                            <button type="button" class="preview-btn artist-song-play-btn" data-preview="${escapeHtml(previewUrl)}" data-track-key="${escapeHtml(trackKey)}" aria-pressed="false" aria-label="${escapeHtml(`Play a 30-second preview of ${shownTitle} by ${track.artist}`)}">
+                                <svg class="preview-icon icon-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.2 .8v8.4L9.2 5z"/></svg>
+                                <svg class="preview-icon icon-pause" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1H4v8H1.5zM6 1h2.5v8H6z"/></svg>
+                            </button>`;
 }
 
 // Bar tracks are two layers under the fills: dark glass, then a light sheen blended (overlay) with the photo
@@ -195,7 +241,8 @@ function renderArtists(container, artistList, trackList = []) {
         let vtName = toTransitionSlug('artist', artist.name || `idx-${index}`);
         if (seenSlugs.has(vtName)) vtName = `${vtName}-${index}`;
         seenSlugs.add(vtName);
-        const card = musicCardHtml({
+        const hasHeroTopSong = index === 0 && Boolean(artist.top_track?.title);
+        return musicCardHtml({
             index,
             variant: 'artist',
             href: artistSpotifyUrl(artist),
@@ -209,37 +256,9 @@ function renderArtists(container, artistList, trackList = []) {
             rgb: artist.prominent_color,
             vtName,
             nameInPill: true,
-            footerHtml: index === 0 ? artistTopSongHtml(artist, totalPlays) : artistPlaysHtml(artist, totalPlays)
+            interactiveCard: hasHeroTopSong,
+            footerHtml: index === 0 ? artistTopSongHtml(artist, totalPlays, trackList) : artistPlaysHtml(artist, totalPlays)
         });
-        if (index !== 0 || !artist.top_track?.title) return card;
-
-        const song = artist.top_track;
-        const matchedTrack = (Array.isArray(trackList) ? trackList : []).find(
-            t => t?.title?.toLowerCase() === song.title.toLowerCase()
-                && t?.artist?.toLowerCase() === (artist.name || '').toLowerCase()
-        );
-        const songUrl = safeUrl(song.spotify_url || matchedTrack?.spotify_url)
-            || `https://open.spotify.com/search/${encodeURIComponent(`${song.title} ${artist.name || ''}`)}`;
-        const songPreviewUrl = safeUrl(song.preview_url || matchedTrack?.preview_url);
-        const shownSong = displaySongTitle(song.title);
-        const previewBtn = songPreviewUrl ? previewButtonHtml({
-            title: song.title,
-            artist: artist.name || '',
-            spotify_id: matchedTrack?.spotify_id ? `artist-top-${matchedTrack.spotify_id}` : `artist-top-${song.title}|${artist.name || ''}`,
-            preview_url: songPreviewUrl
-        }, shownSong) : '';
-        const rgb = safeRgb(artist.prominent_color);
-        return `
-            <div class="artist-slot is-hero"${rgb ? ` style="--track-color-rgb: ${rgb.join(', ')}"` : ''}>
-                ${card}
-                <div class="artist-song-actions">
-                    ${previewBtn}
-                    <a href="${escapeHtml(songUrl)}" target="_blank" rel="noopener noreferrer" class="artist-song-link" aria-label="${escapeHtml(`Open ${shownSong} by ${artist.name || ''} on Spotify`)}">
-                        <span>Play top song</span>
-                        <span aria-hidden="true">↗</span>
-                    </a>
-                </div>
-            </div>`;
     }).join('');
 }
 
@@ -273,9 +292,14 @@ function initTrackPreviews(container) {
             // Look the button up again: a data refresh may have re-rendered the cards meanwhile
             const live = [...container.querySelectorAll('.preview-btn')].find(b => (b.dataset.trackKey || b.dataset.preview) === owner);
             if (!live) return;
+            const dash = (1 - progress).toFixed(3);
             live.setAttribute('aria-pressed', playing ? 'true' : 'false');
-            live.style.setProperty('--dash', (1 - progress).toFixed(3));
-            live.closest('.track-slot, .artist-slot')?.classList.toggle('is-playing', playing);
+            live.style.setProperty('--dash', dash);
+            const ownerSlot = live.closest('.track-slot, .artist-song-media');
+            if (ownerSlot) {
+                ownerSlot.classList.toggle('is-playing', playing);
+                ownerSlot.style.setProperty('--dash', dash);
+            }
         });
     });
 }
@@ -290,7 +314,6 @@ function initLyricCycle(container, lyrics) {
     if (!container || !Array.isArray(lyrics) || lyrics.length < 2) return;
     const textEl = container.querySelector('.track-ai-lyric-text');
     const dots = [...container.querySelectorAll('.track-lyric-dot')];
-    const nextBtn = container.querySelector('.lyric-next-btn');
     const heroSlot = container.querySelector('.track-slot.is-hero');
     if (!textEl) return;
 
@@ -304,7 +327,6 @@ function initLyricCycle(container, lyrics) {
         const apply = () => {
             textEl.textContent = `"${lyrics[idx]}"`;
             dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
-            if (nextBtn) nextBtn.setAttribute('aria-label', `Next lyric quote (${idx + 1} of ${lyrics.length})`);
         };
         if (reduced) {
             apply();
@@ -315,13 +337,11 @@ function initLyricCycle(container, lyrics) {
         switchTimer = setTimeout(() => {
             apply();
             textEl.classList.remove('is-switching');
-        }, 180);
+        }, 220);
     };
 
-    const onNextClick = () => showAt(idx + 1);
     const onEnter = () => { paused = true; };
     const onLeave = () => { paused = false; };
-    nextBtn?.addEventListener('click', onNextClick);
     heroSlot?.addEventListener('mouseenter', onEnter);
     heroSlot?.addEventListener('mouseleave', onLeave);
     heroSlot?.addEventListener('focusin', onEnter);
@@ -336,7 +356,6 @@ function initLyricCycle(container, lyrics) {
     lyricCycleCleanup = () => {
         clearInterval(intervalId);
         clearTimeout(switchTimer);
-        nextBtn?.removeEventListener('click', onNextClick);
         heroSlot?.removeEventListener('mouseenter', onEnter);
         heroSlot?.removeEventListener('mouseleave', onLeave);
         heroSlot?.removeEventListener('focusin', onEnter);
@@ -359,18 +378,14 @@ function renderTracks(container, trackList) {
         seenSlugs.add(vtName);
 
         let lyricHtml = '';
-        let lyricBtnHtml = '';
         if (index === 0 && track.ai_lyrics) {
             const lyrics = [track.ai_lyrics.lyric1, track.ai_lyrics.lyric2, track.ai_lyrics.lyric3].filter(Boolean);
             if (lyrics.length > 0) {
                 heroLyrics = lyrics;
                 const dotsHtml = lyrics.length > 1
-                    ? `<span class="track-lyric-dots" aria-hidden="true">${lyrics.map((_, i) => `<span class="track-lyric-dot${i === 0 ? ' is-active' : ''}"></span>`).join('')}</span>`
+                    ? `<div class="track-lyric-dots" aria-hidden="true">${lyrics.map((_, i) => `<span class="track-lyric-dot${i === 0 ? ' is-active' : ''}"></span>`).join('')}</div>`
                     : '';
-                lyricHtml = `<div class="track-ai-lyric"><span class="track-ai-lyric-text">"${escapeHtml(lyrics[0])}"</span>${dotsHtml}</div>`;
-                if (lyrics.length > 1) {
-                    lyricBtnHtml = `<button type="button" class="lyric-next-btn" aria-label="Next lyric quote (1 of ${lyrics.length})" title="Next lyric quote"><span aria-hidden="true">↻</span></button>`;
-                }
+                lyricHtml = `<div class="track-ai-lyric${lyrics.length > 1 ? ' is-cycling' : ''}"><span class="track-ai-lyric-stage"><span class="track-ai-lyric-text">"${escapeHtml(lyrics[0])}"</span></span>${dotsHtml}</div>`;
             }
         }
 
@@ -393,7 +408,7 @@ function renderTracks(container, trackList) {
         });
         const rgb = safeRgb(track.prominent_color);
         return `
-            <div class="track-slot${index === 0 ? ' is-hero' : ''}"${rgb ? ` style="--track-color-rgb: ${rgb.join(', ')}"` : ''}>${card}${previewButtonHtml(track, shownTitle)}${lyricBtnHtml}
+            <div class="track-slot${index === 0 ? ' is-hero' : ''}"${rgb ? ` style="--track-color-rgb: ${rgb.join(', ')}"` : ''}>${card}${previewButtonHtml(track, shownTitle)}
             </div>`;
     }).join('');
     initLyricCycle(container, heroLyrics);

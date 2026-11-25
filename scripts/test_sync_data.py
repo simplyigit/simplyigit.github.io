@@ -296,13 +296,15 @@ def test_export_static_snapshots_uses_per_section_synced_at(tmp_path, monkeypatc
 
     spotify_snap = json.loads((tmp_path / "data" / "spotify.json").read_text())
     movies_snap = json.loads((tmp_path / "data" / "movies.json").read_text())
-    books_snap = json.loads((tmp_path / "data" / "books.json").read_text())
     dash_snap = json.loads((tmp_path / "data" / "dashboard.json").read_text())
 
     assert spotify_snap["synced_at"] == 9999.0
     assert movies_snap["synced_at"] == 5000.0
-    assert "synced_at" not in books_snap
     assert dash_snap["synced_at"] == 5000.0
+    # Books are retired: no books.json, but the homepage card still gets them from the dashboard snapshot
+    assert not (tmp_path / "data" / "books.json").exists()
+    assert dash_snap["data"]["books"] == [{"title": "B"}]
+    assert "synced_at" not in json.dumps(dash_snap["data"]["books"])
 
 
 # --- Lyrics verification (B-22) ---

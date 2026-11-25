@@ -58,8 +58,8 @@ def upsert_row(url, key, row_key, value):
 
 
 # Everything that went wrong this run, as (section, message): failed sections, stored data reused in
-# place of a fetch, writes that didn't land. Any entry fails the run at the end, so GitHub emails about
-# it instead of the site quietly showing old data under a fresh "Synced" time.
+# place of a fetch, writes that didn't land. Any entry fails the run at the end, so the systemd unit fails
+# and sends an ntfy alert instead of the site quietly showing old data under a fresh "Synced" time.
 SYNC_PROBLEMS = []
 
 
@@ -369,7 +369,7 @@ def get_spotify_access_token(url, key, client_id, client_secret):
     if refresh_token:
         print("Retrieved refresh token from Supabase.")
     else:
-        # Last resort: the GitHub secret, which may be stale once Spotify has rotated the token
+        # Last resort: the SPOTIFY_REFRESH_TOKEN env var, which may be stale once Spotify has rotated the token
         refresh_token = os.environ.get('SPOTIFY_REFRESH_TOKEN')
         if refresh_token:
             print("Falling back to the SPOTIFY_REFRESH_TOKEN secret.")
@@ -1092,7 +1092,7 @@ def main():
             report_problem(SYNC_META_KEY, "upload to Supabase failed")
 
     if SYNC_PROBLEMS:
-        # A failed run makes GitHub email the repo owner
+        # A non-zero exit fails simplyigit-sync.service on yigit-server, which sends an ntfy alert
         print(f"Sync finished with {len(SYNC_PROBLEMS)} problem(s):")
         for section, message in SYNC_PROBLEMS:
             print(f"  - {section}: {message}")
@@ -1115,11 +1115,13 @@ def export_static_snapshots(data, sync_meta=None):
         if not isinstance(sections, dict):
             sections = {}
 
-        # A section that failed with nothing stored to fall back on keeps its previous snapshot
-        for name, value in (("spotify", spotify), ("movies", movies), ("books", books), ("projects", projects)):
+        # A section that failed with nothing stored to fall back on keeps its previous snapshot.
+        # Books get no file of their own: no page reads one since the Reading page was retired, and the
+        # homepage's deprecated book card reads them from dashboard.json and seed-data.js.
+        for name, value in (("spotify", spotify), ("movies", movies), ("projects", projects)):
             if value:
                 payload = {"success": True, "data": value}
-                if name != "books" and sections.get(name):
+                if sections.get(name):
                     payload["synced_at"] = sections[name]
                 with open(os.path.join(data_dir, f"{name}.json"), "w") as f:
                     json.dump(payload, f, indent=2)

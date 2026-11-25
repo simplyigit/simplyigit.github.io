@@ -36,6 +36,7 @@ function absolutizeReadmeImages(html, repoPath, branch) {
 function prepareReadmeHtml(html, repoPath, branch = 'main') {
     if (!html) return '';
     return absolutizeReadmeImages(html, repoPath, branch)
+        .replace(/<pre\b([^>]*?)\slang="([^"]*)"/gi, '<pre$1 data-lang="$2"')
         // The README's tables use LaTeX \multicolumn{n}{c}{...} cells, which GitHub leaves as text
         .replace(
             /<td[^>]*>\\multicolumn\{(\d+)\}\{[a-z]\}\{(.*?)\}<\/td>(?:\s*<td[^>]*><\/td>){0,4}/gi,
@@ -79,9 +80,12 @@ async function renderMermaidDiagrams(container) {
     // The README may have been re-rendered while mermaid loaded; skip blocks no longer on the page
     const live = [...blocks].filter(block => block.isConnected);
     if (live.length === 0) return;
-    const nodes = live.map(block => {
+    const nodes = live.map((block, i) => {
         const diagram = document.createElement('pre');
         diagram.className = 'mermaid';
+        diagram.tabIndex = 0;
+        diagram.setAttribute('role', 'region');
+        diagram.setAttribute('aria-label', live.length > 1 ? `Architecture diagram ${i + 1}` : 'Architecture diagram');
         diagram.textContent = block.textContent;
         block.replaceWith(diagram);
         return diagram;
@@ -111,6 +115,31 @@ function loadProjectReadme() {
         if (title && !title.closest('.markdown-heading, h1')?.previousElementSibling) {
             (title.closest('.markdown-heading') || title).remove();
         }
+        // Strip GitHub's 0x0 invisible heading anchors so they don't create broken tab stops
+        container.querySelectorAll('a.anchor').forEach(a => a.remove());
+        // Fix any cached <pre lang="..."> attributes and make scrollable regions keyboard-focusable
+        let codeIdx = 0;
+        let diagramIdx = 0;
+        container.querySelectorAll('pre').forEach(pre => {
+            if (pre.hasAttribute('lang')) {
+                pre.setAttribute('data-lang', pre.getAttribute('lang'));
+                pre.removeAttribute('lang');
+            }
+            pre.setAttribute('tabindex', '0');
+            pre.setAttribute('role', 'region');
+            if (pre.classList.contains('mermaid')) {
+                diagramIdx += 1;
+                pre.setAttribute('aria-label', `Architecture diagram ${diagramIdx}`);
+            } else {
+                codeIdx += 1;
+                pre.setAttribute('aria-label', `Code sample ${codeIdx}`);
+            }
+        });
+        container.querySelectorAll('table').forEach((table, i) => {
+            table.setAttribute('tabindex', '0');
+            table.setAttribute('role', 'region');
+            table.setAttribute('aria-label', `Data table ${i + 1}`);
+        });
         renderMermaidDiagrams(container);
     };
 
@@ -656,8 +685,10 @@ function initDetectorDemo() {
     const uploadLabel = document.getElementById('detector-upload-label');
     const uploadText = document.getElementById('detector-upload-text');
     const cameraBtn = document.getElementById('detector-camera-btn');
+    const cameraCancelBtn = document.getElementById('detector-camera-cancel');
     const cameraText = document.getElementById('detector-camera-text');
     const cameraView = document.getElementById('detector-camera-view');
+    const liveResult = document.getElementById('detector-live-result');
 
     let isInferring = false;
     let cameraStream = null;
@@ -737,6 +768,7 @@ function initDetectorDemo() {
             cameraView.hidden = true;
         }
         if (cameraBtn) cameraBtn.classList.remove('is-live');
+        if (cameraCancelBtn) cameraCancelBtn.hidden = true;
         if (cameraText) cameraText.textContent = 'Camera';
     };
 
@@ -817,6 +849,10 @@ function initDetectorDemo() {
                 });
                 showStatus('');
                 updateUI(res);
+                if (liveResult) {
+                    const topConf = Math.max(res.probs.real, res.probs.ai, res.probs.df);
+                    liveResult.textContent = `Classification complete: ${res.prediction}, ${topConf.toFixed(1)}% confidence.`;
+                }
             } catch (err) {
                 showStatus(err?.message || 'Failed to run ConvNeXt-Tiny ONNX model.', true);
             } finally {
@@ -913,6 +949,7 @@ function initDetectorDemo() {
         cameraView.play().catch(() => {});
         clearPresetSelection();
         cameraBtn.classList.add('is-live');
+        if (cameraCancelBtn) cameraCancelBtn.hidden = false;
         cameraText.textContent = 'Take Snapshot';
         showStatus('Frame a face, then take the snapshot. Nothing leaves your browser.');
     };
@@ -938,6 +975,15 @@ function initDetectorDemo() {
             if (isInferring) return;
             if (cameraStream) takeSnapshot();
             else startCamera();
+        });
+        if (cameraCancelBtn) {
+            cameraCancelBtn.addEventListener('click', stopCamera);
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && cameraStream) {
+                e.preventDefault();
+                stopCamera();
+            }
         });
         // Never leave the camera on behind a hidden or closed page
         window.addEventListener('pagehide', stopCamera);

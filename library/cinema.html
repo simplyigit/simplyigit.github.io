@@ -27,8 +27,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/base.css?v=7.8">
-    <link rel="stylesheet" href="/assets/css/cinema.css?v=7.7">
+    <link rel="stylesheet" href="/assets/css/base.css?v=7.9">
+    <link rel="stylesheet" href="/assets/css/cinema.css?v=7.8">
     <script src="/assets/js/vt-nav.js?v=7.11"></script>
     <script>window.__PREFETCH_MOVIES__ = fetch("/api/movies", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
     <!-- In <head> and render-blocking: the first frame already holds the content that page
@@ -37,11 +37,11 @@
     <link rel="modulepreload" href="/assets/js/modules/cache.js">
     <link rel="modulepreload" href="/assets/js/modules/live-data.js">
     <link rel="modulepreload" href="/assets/js/modules/genie-morph.js">
-    <script type="module" src="/assets/js/pages/cinema.js?v=7.18" blocking="render"></script>
+    <script type="module" src="/assets/js/pages/cinema.js?v=7.19" blocking="render"></script>
 </head>
 
 <body>
-    <div id="ambient-mesh">
+    <div id="ambient-mesh" aria-hidden="true">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
@@ -64,7 +64,7 @@
 
                 <a href="https://letterboxd.com/oneyigit/" target="_blank" rel="noopener noreferrer"
                     class="glass-card repo-btn">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="btn-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="btn-icon" aria-hidden="true" focusable="false">
                         <circle cx="6" cy="12" r="3" fill="#00e054" />
                         <circle cx="12" cy="12" r="3" fill="#40bcf4" />
                         <circle cx="18" cy="12" r="3" fill="#ff8000" />

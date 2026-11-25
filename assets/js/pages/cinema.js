@@ -60,7 +60,7 @@ function renderFavorites(favContainer, favList) {
         html += `
             <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="filmstrip-card fade-in ${className}" ${ariaHiddenAttr} aria-label="${safeTitle}">
                 <div class="filmstrip-card-inner">
-                    ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" ${priorityAttr}>` : posterPlaceholder('fav', safeTitle)}
+                    ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="" ${priorityAttr}>` : posterPlaceholder('fav', safeTitle)}
                     <div class="poster-overlay filmstrip-overlay">
                         <div class="overlay-title">${safeTitle}</div>
                     </div>
@@ -105,10 +105,28 @@ function renderFavorites(favContainer, favList) {
     const cards = favContainer.querySelectorAll('.filmstrip-card');
     const onEnter = () => { isHovered = true; startMarqueeLoop(); };
     const onLeave = () => { isHovered = false; startMarqueeLoop(); };
+    const onFocusIn = (e) => {
+        isHovered = true;
+        currentSpeed = 0;
+        if (!reducedMotionQuery.matches) {
+            const card = e.currentTarget;
+            const container = favContainer.parentElement;
+            if (container) {
+                container.scrollLeft = 0;
+                const containerW = container.clientWidth || 0;
+                const maxScroll = Math.max(0, favContainer.scrollWidth - containerW);
+                const ideal = (containerW / 2) - (card.offsetLeft + card.offsetWidth / 2);
+                position = Math.min(0, Math.max(-maxScroll, ideal));
+                favContainer.style.transform = `translate3d(${position}px, 0, 0)`;
+                requestAnimationFrame(() => { container.scrollLeft = 0; });
+            }
+        }
+        startMarqueeLoop();
+    };
     cards.forEach(card => {
         card.addEventListener('mouseenter', onEnter);
         card.addEventListener('mouseleave', onLeave);
-        card.addEventListener('focusin', onEnter);
+        card.addEventListener('focusin', onFocusIn);
         card.addEventListener('focusout', onLeave);
     });
 
@@ -214,7 +232,7 @@ function renderRecent(recentContainer, recList) {
         // data-film / data-thumb: the homepage VHS poster of this film morphs into this card (initCinema)
         return `
             <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="strip-card fade-in" data-film="${escapeHtml(film.title)}" data-thumb="${escapeHtml(safeImg(film.cover_url, 150))}" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}${labelNotes ? ` (${escapeHtml(labelNotes)})` : ''}">
-                ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" crossorigin="anonymous" decoding="async">` : posterPlaceholder('recent', safeTitle)}
+                ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="" crossorigin="anonymous" decoding="async">` : posterPlaceholder('recent', safeTitle)}
                 <div class="poster-overlay">
                     <div class="overlay-title">${safeTitle}</div>
                     ${stars}
@@ -236,7 +254,7 @@ function renderWatchlist(watchlistContainer, watchList) {
 
         return `
         <a href="${escapeHtml(film.link || "#")}" target="_blank" rel="noopener noreferrer" class="watchlist-card fade-in" style="transition-delay: ${index * 0.05}s; view-transition-name: ${vtSlug}" aria-label="${safeTitle}">
-            ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="${safeTitle}" decoding="async">` : posterPlaceholder('watch', safeTitle)}
+            ${imgUrl ? `<img src="${escapeHtml(imgUrl)}" alt="" decoding="async">` : posterPlaceholder('watch', safeTitle)}
             <div class="poster-overlay">
                 <div class="overlay-title">${safeTitle}</div>
             </div>

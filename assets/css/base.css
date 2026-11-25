@@ -426,11 +426,11 @@ footer p {
 /* A deprecated page (Reading): shown in place, not a link */
 .lib-nav-item.is-disabled,
 .lib-nav-item.is-disabled:hover {
-    color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.52);
     background: none;
     cursor: default;
     text-decoration: line-through;
-    text-decoration-color: rgba(255, 255, 255, 0.2);
+    text-decoration-color: rgba(255, 255, 255, 0.45);
 }
 
 /* The current page: lifted, with its icon in the section's colour */

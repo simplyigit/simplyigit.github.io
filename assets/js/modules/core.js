@@ -125,6 +125,7 @@ function readStoredTints() {
 function paintMeshCanvas(layout, colors) {
     const canvas = document.createElement('canvas');
     canvas.className = 'ambient-mesh-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
     const W = 540, H = 360;
     canvas.width = W;
     canvas.height = H;
@@ -194,7 +195,7 @@ let mesh = null;
 export function initAmbientMesh({ layout = 'default', tinted = false } = {}) {
     if (!document.getElementById('ambient-mesh')) {
         document.body.insertAdjacentHTML('afterbegin', `
-            <div id="ambient-mesh">
+            <div id="ambient-mesh" aria-hidden="true">
                 <div class="orb orb-1"></div>
                 <div class="orb orb-2"></div>
                 <div class="orb orb-3"></div>

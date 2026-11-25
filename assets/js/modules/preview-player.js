@@ -28,6 +28,12 @@ function ensureAudio() {
     audio.addEventListener('error', stopPreview);
     // Leaving the page (or it going into the back/forward cache) must not leave audio running
     window.addEventListener('pagehide', stopPreview);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && current) {
+            e.preventDefault();
+            stopPreview();
+        }
+    });
     return audio;
 }
 

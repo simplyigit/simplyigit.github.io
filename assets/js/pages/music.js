@@ -707,14 +707,20 @@ function initMusicTabs() {
             switchTab(targetTab);
         });
 
-        // Keyboard navigation: Left / Right arrows (interruptible mid-morph)
+        // Keyboard navigation: Left / Right / Home / End (WAI-ARIA tabs pattern, interruptible mid-morph)
         btn.addEventListener("keydown", e => {
-            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+            let nextIndex = null;
+            if (e.key === "ArrowRight") {
+                nextIndex = (tabOrder.indexOf(currentTab) + 1) % tabOrder.length;
+            } else if (e.key === "ArrowLeft") {
+                nextIndex = (tabOrder.indexOf(currentTab) - 1 + tabOrder.length) % tabOrder.length;
+            } else if (e.key === "Home") {
+                nextIndex = 0;
+            } else if (e.key === "End") {
+                nextIndex = tabOrder.length - 1;
+            }
+            if (nextIndex !== null) {
                 e.preventDefault();
-                const currentIndex = tabOrder.indexOf(currentTab);
-                const nextIndex = e.key === "ArrowRight"
-                    ? (currentIndex + 1) % tabOrder.length
-                    : (currentIndex - 1 + tabOrder.length) % tabOrder.length;
                 const nextTab = tabOrder[nextIndex];
                 const nextBtn = document.querySelector(`.music-tab-btn[data-tab="${nextTab}"]`);
                 if (nextBtn) {

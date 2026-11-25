@@ -24,20 +24,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/base.css?v=7.8">
-    <link rel="stylesheet" href="/assets/css/project.css?v=7.6">
+    <link rel="stylesheet" href="/assets/css/base.css?v=7.9">
+    <link rel="stylesheet" href="/assets/css/project.css?v=7.7">
     <script src="/assets/js/vt-nav.js?v=7.11"></script>
 </head>
 
 <body>
-    <div id="ambient-mesh">
+    <div id="ambient-mesh" aria-hidden="true">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
     </div>
     <div class="container fade-in">
 
-        <section class="section project-topbar">
+        <nav class="section project-topbar" aria-label="Project navigation">
             <a href="/" class="glass-card back-btn">
                 <span class="arrow arrow-back">→</span> Portfolio
             </a>
@@ -45,14 +45,14 @@
             <a href="https://github.com/simplyigit/Real-Deepfake-or-AI" target="_blank" rel="noopener noreferrer"
                 class="glass-card repo-btn">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-                    stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                    stroke-linecap="round" stroke-linejoin="round" class="btn-icon" aria-hidden="true" focusable="false">
                     <path
                         d="M9 19c-5 1.5-5-5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
                     </path>
                 </svg>
                 Repository <span class="arrow arrow-forward">→</span>
             </a>
-        </section>
+        </nav>
 
         <main>
         <header class="hero subpage-hero project-header">
@@ -85,15 +85,16 @@
                                     Deepfake
                                 </button>
                                 <label class="detector-upload-btn" id="detector-upload-label" for="detector-file-input" title="Analyze a local image in your browser (.jpg, .jpeg, .png, .webp). You can also drop or paste one.">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     <span id="detector-upload-text">Test Custom Image</span>
                                     <input type="file" id="detector-file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="visually-hidden">
                                 </label>
                                 <!-- Shown by project-detail.js when the browser can open a camera -->
                                 <button type="button" class="detector-camera-btn" id="detector-camera-btn" title="Take a snapshot with your camera; it stays in your browser" hidden>
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                                     <span id="detector-camera-text">Camera</span>
                                 </button>
+                                <button type="button" class="detector-camera-cancel-btn" id="detector-camera-cancel" hidden>Cancel</button>
                             </div>
                         </div>
 
@@ -145,6 +146,7 @@
                                 </div>
 
                                 <div class="detector-status-msg" id="detector-status-msg" aria-live="polite" hidden></div>
+                                <div class="visually-hidden" id="detector-live-result" aria-live="polite" aria-atomic="true"></div>
                             </div>
                         </div>
 
@@ -176,7 +178,7 @@
         </footer>
     </div>
 
-    <script type="module" src="/assets/js/pages/project-detail.js?v=7.6"></script>
+    <script type="module" src="/assets/js/pages/project-detail.js?v=7.7"></script>
 </body>
 
 </html>

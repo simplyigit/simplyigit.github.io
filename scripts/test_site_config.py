@@ -67,3 +67,10 @@ def test_retired_reading_page_is_not_linked(page):
 def test_reading_page_redirects_home():
     redirects = json.loads(read("vercel.json")).get("redirects", [])
     assert {"source": "/library/reading", "destination": "/", "permanent": False} in redirects
+
+
+def test_stats_badge_does_not_use_raw_track_color_for_text():
+    css = read("assets/css/music.css")
+    match = re.search(r"\.stats-badge\s*\{([^}]*)\}", css)
+    assert match, ".stats-badge rule not found in assets/css/music.css"
+    assert not re.search(r"color\s*:\s*rgb\(var\(--track-color-rgb", match.group(1))

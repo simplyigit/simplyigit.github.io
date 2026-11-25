@@ -34,7 +34,15 @@
   .star + .overlay-mark, .star-half + .overlay-mark { margin-left: 4px; }
   .overlay-mark + .overlay-mark { margin-left: 2px; }
   .star { color: #ff8000; font-size: 0.65rem; }
-  .star-half { color: #ff8000; font-size: 0.65rem; opacity: 0.7; }
+  .star-half {
+      display: inline-block;
+      font-size: 0.65rem;
+      opacity: 1;
+      background: linear-gradient(90deg, #ff8000 50%, rgba(255, 128, 0, 0.22) 50%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+  }
 
   /* Horizontal scroll strip */
   .scroll-strip { display: flex; gap: 10px; overflow-x: auto; padding-top: 10px; padding-bottom: 12px; margin-bottom: 72px; scrollbar-width: none; -ms-overflow-style: none; }
@@ -146,4 +154,43 @@
 h2.section-title {
     font-size: 1.3rem;
     opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animated-filmstrip-container {
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .animated-filmstrip-track {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        width: 100%;
+        padding: 24px 14px;
+        box-sizing: border-box;
+        transform: none !important;
+    }
+
+    .filmstrip-card[aria-hidden="true"] {
+        display: none;
+    }
+
+    .filmstrip-card,
+    .filmstrip-card.landscape {
+        width: auto;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        padding: 0;
+    }
+
+    .filmstrip-card .overlay-title {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 560px) {
+    .animated-filmstrip-track {
+        grid-template-columns: 1fr;
+    }
 }

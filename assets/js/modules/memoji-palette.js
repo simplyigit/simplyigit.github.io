@@ -148,6 +148,13 @@ function ensureDialog() {
     });
 
     dialog.addEventListener('keydown', (e) => {
+        // One Esc closes, as the ESC key in the header says. Without this, a type="search" field
+        // with text takes the first Esc to clear itself and the palette stays open.
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            dialog.close();
+            return;
+        }
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             selectIndex(activeIndex + 1);

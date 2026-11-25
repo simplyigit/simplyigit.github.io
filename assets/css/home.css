@@ -1556,9 +1556,6 @@
     }
 }
 
-  /* Filmstrip reel decoration */
-  .filmstrip { display: flex; align-items: center; gap: 4px; margin-bottom: 14px; }
-
 @media (prefers-reduced-motion: reduce) {
     .spool-inner,
     .cassette-song-marquee {

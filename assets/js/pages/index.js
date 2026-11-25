@@ -430,6 +430,7 @@ function initIndex() {
                     const cleanTitle = film.title || "";
                     item.title = cleanTitle;
                     item.toggleAttribute('data-morph', onCinemaPage(idx));
+                    item.toggleAttribute('data-first', idx % list.length === 0);
                     if (img) {
                         img.src = imgUrl;
                         img.alt = cleanTitle;
@@ -444,7 +445,7 @@ function initIndex() {
                         const imgUrl = safeImg(film.cover_url, 150);
                         const cleanTitle = escapeHtml(film.title);
                         return `
-                            <div class="vhs-filmstrip-item" title="${cleanTitle}"${onCinemaPage(idx) ? ' data-morph' : ''}>
+                            <div class="vhs-filmstrip-item" title="${cleanTitle}"${onCinemaPage(idx) ? ' data-morph' : ''}${idx % list.length === 0 ? ' data-first' : ''}>
                                 <img src="${escapeHtml(imgUrl)}" alt="${cleanTitle}" class="vhs-film-cover" crossorigin="anonymous" decoding="async">
                             </div>
                         `;
@@ -489,26 +490,25 @@ function initIndex() {
             return el ? { el, key: '', imgUrl: cassetteArtUrl } : null;
         }
         if (library === 'cinema' && indexMoviesContainer) {
-            // The poster nearest the middle of the VHS window: of film `key` when landing,
-            // of any film the cinema page also lists when leaving
+            // When leaving Home (!key), prefer the #1 recent film if it is visible in the VHS window;
+            // otherwise (and when landing with `key`) pick the matching poster nearest the middle.
             const bay = indexMoviesContainer.getBoundingClientRect();
             const middle = (bay.left + bay.right) / 2;
-            let best = null;
-            indexMoviesContainer.querySelectorAll('.vhs-filmstrip-item[data-morph]').forEach(item => {
-                const img = item.querySelector('img');
-                if (!img || (key && item.title !== key)) return;
-                const box = item.getBoundingClientRect();
-                const centre = (box.left + box.right) / 2;
-                if (centre < bay.left || centre > bay.right) return;
-                const distance = Math.abs(centre - middle);
-                if (!best || distance < best.distance) best = { el: img, key: item.title, distance };
-            });
-            return best;
-        }
-        if (library === 'reading' && indexBooksContainer) {
-            const el = indexBooksContainer.querySelector('.book-shelf-center');
-            const title = el?.querySelector('.book-cover-art')?.alt;
-            return title && (!key || key === title) ? { el, key: title } : null;
+            const pickBest = (selector) => {
+                let best = null;
+                indexMoviesContainer.querySelectorAll(selector).forEach(item => {
+                    const img = item.querySelector('img');
+                    if (!img || (key && item.title !== key)) return;
+                    const box = item.getBoundingClientRect();
+                    const centre = (box.left + box.right) / 2;
+                    if (centre < bay.left || centre > bay.right) return;
+                    const distance = Math.abs(centre - middle);
+                    if (!best || distance < best.distance) best = { el: img, key: item.title, distance };
+                });
+                return best;
+            };
+            return (!key && pickBest('.vhs-filmstrip-item[data-morph][data-first]'))
+                || pickBest('.vhs-filmstrip-item[data-morph]');
         }
         return null;
     };
@@ -533,15 +533,6 @@ function initIndex() {
         vhsCard.addEventListener('animationend', (e) => {
             if (e.animationName === 'vhsTrackingTear') vhsCard.classList.remove('is-glitching');
         });
-        if (touchOnly) {
-            const seen = new IntersectionObserver(([entry]) => {
-                if (!entry.isIntersecting) return;
-                seen.disconnect();
-                glitch();
-            }, { threshold: 0.7 });
-            seen.observe(vhsCard);
-        }
-
         const updateTimer = () => {
             if (!hoverStartTime || !vhsTimer) return;
             const elapsed = Math.floor((Date.now() - hoverStartTime) / 1000);
@@ -553,11 +544,11 @@ function initIndex() {
         };
 
         // Hover or keyboard focus plays the tape: the reel rolls, the OSD reads PLAY and the counter runs
-        const play = () => {
+        const play = ({ runGlitch = true } = {}) => {
             if (vhsInterval) return;
             hoverStartTime = Date.now();
             vhsCard.classList.add('is-playing');
-            glitch();
+            if (runGlitch) glitch();
             if (vhsTimer) vhsTimer.textContent = 'SP 0:00:00';
             vhsInterval = setInterval(updateTimer, 200);
         };
@@ -571,8 +562,20 @@ function initIndex() {
             if (vhsTimer) vhsTimer.textContent = 'SP 0:00:00';
         };
 
-        vhsCard.addEventListener('mouseenter', play);
-        vhsCard.addEventListener('focusin', play);
+        if (touchOnly) {
+            let hasGlitched = false;
+            new IntersectionObserver(([entry]) => {
+                if (entry.isIntersecting) {
+                    play({ runGlitch: !hasGlitched });
+                    hasGlitched = true;
+                } else {
+                    stop();
+                }
+            }, { threshold: 0.7 }).observe(vhsCard);
+        }
+
+        vhsCard.addEventListener('mouseenter', () => play());
+        vhsCard.addEventListener('focusin', () => play());
         vhsCard.addEventListener('mouseleave', stop);
         vhsCard.addEventListener('focusout', stop);
         // Back from another page (back/forward cache): the pointer may no longer be over the tape

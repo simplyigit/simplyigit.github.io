@@ -338,7 +338,6 @@
     background: #050a14;
 }
 
-#detector-canvas,
 #detector-preview-canvas {
     width: 100%;
     height: 100%;
@@ -405,7 +404,6 @@
     gap: 8px;
 }
 
-.verdict-label,
 .verdict-eyebrow {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.62rem;
@@ -415,7 +413,6 @@
     text-transform: uppercase;
 }
 
-.verdict-value,
 .verdict-conf-val {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.92rem;
@@ -433,21 +430,18 @@
     line-height: 1.2;
 }
 
-.verdict-badge.real,
 .verdict-badge.verdict-real {
     color: #10b981;
     background: rgba(16, 185, 129, 0.12);
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.verdict-badge.ai,
 .verdict-badge.verdict-ai {
     color: #f59e0b;
     background: rgba(245, 158, 11, 0.12);
     border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-.verdict-badge.deepfake,
 .verdict-badge.verdict-df {
     color: #ef4444;
     background: rgba(239, 68, 68, 0.12);
@@ -488,9 +482,9 @@
     transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.prob-fill.real, .prob-fill.fill-real { background: linear-gradient(90deg, #059669, #10b981); }
-.prob-fill.ai, .prob-fill.fill-ai { background: linear-gradient(90deg, #d97706, #f59e0b); }
-.prob-fill.deepfake, .prob-fill.fill-df { background: linear-gradient(90deg, #dc2626, #ef4444); }
+.prob-fill.fill-real { background: linear-gradient(90deg, #059669, #10b981); }
+.prob-fill.fill-ai { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.prob-fill.fill-df { background: linear-gradient(90deg, #dc2626, #ef4444); }
 
 .detector-status-msg {
     font-family: 'JetBrains Mono', monospace;

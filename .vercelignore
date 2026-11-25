@@ -7,3 +7,4 @@ projects/**/*.png
 .github/
 .claude/
 .DS_Store
+FEATURES.md

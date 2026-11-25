@@ -224,8 +224,9 @@ function trackArtUrl(track, index) {
 function previewButtonHtml(track, shownTitle) {
     const previewUrl = safeUrl(track.preview_url);
     if (!previewUrl) return '';
+    const trackKey = track.spotify_id || `${track.title}|${track.artist}`;
     return `
-            <button type="button" class="preview-btn" data-preview="${escapeHtml(previewUrl)}" aria-pressed="false" aria-label="${escapeHtml(`Play a 30-second preview of ${shownTitle} by ${track.artist}`)}">
+            <button type="button" class="preview-btn" data-preview="${escapeHtml(previewUrl)}" data-track-key="${escapeHtml(trackKey)}" aria-pressed="false" aria-label="${escapeHtml(`Play a 30-second preview of ${shownTitle} by ${track.artist}`)}">
                 <svg class="preview-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16.5" pathLength="1"/></svg>
                 <svg class="preview-icon icon-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.2 .8v8.4L9.2 5z"/></svg>
                 <svg class="preview-icon icon-pause" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1H4v8H1.5zM6 1h2.5v8H6z"/></svg>
@@ -238,9 +239,10 @@ function initTrackPreviews(container) {
         const btn = e.target.closest('.preview-btn');
         if (!btn) return;
         const url = btn.dataset.preview;
-        togglePreview(url, url, ({ playing, progress }) => {
+        const owner = btn.dataset.trackKey || url;
+        togglePreview(owner, url, ({ playing, progress }) => {
             // Look the button up again: a data refresh may have re-rendered the cards meanwhile
-            const live = [...container.querySelectorAll('.preview-btn')].find(b => b.dataset.preview === url);
+            const live = [...container.querySelectorAll('.preview-btn')].find(b => (b.dataset.trackKey || b.dataset.preview) === owner);
             if (!live) return;
             live.setAttribute('aria-pressed', playing ? 'true' : 'false');
             live.style.setProperty('--dash', (1 - progress).toFixed(3));

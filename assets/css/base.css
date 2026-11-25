@@ -359,8 +359,7 @@ footer p {
     position: relative;
 }
 
-.spotify-track-card,
-.classical-book-card {
+.spotify-track-card {
     text-decoration: none !important;
     color: inherit !important;
 }
@@ -512,14 +511,12 @@ footer p {
 }
 
 .glass-card:focus-visible,
-.classical-book-card:focus-visible,
 .filmstrip-card:focus-visible,
 .strip-card:focus-visible,
 .watchlist-card:focus-visible,
 .spotify-track-card:focus-visible,
 .lib-nav-item:focus-visible,
 .music-tab-btn:focus-visible,
-.reading-shelf-btn:focus-visible,
 .detector-sample-btn:focus-visible,
 .social-icon:focus-visible {
     outline: 2px solid rgba(255, 255, 255, 0.5);

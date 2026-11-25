@@ -21,12 +21,12 @@
         }
     } catch (e) {}
 
-    // "home", "music", "cinema", "reading" or null
+    // "home", "music", "cinema" or null
     function pageOf(url) {
         try {
             var path = new URL(url, location.href).pathname.replace(/(\/index)?(\.html)?$/, "").replace(/\/+$/, "");
             if (path === "") return "home";
-            var m = /^\/library\/(music|cinema|reading)$/.exec(path);
+            var m = /^\/library\/(music|cinema)$/.exec(path);
             return m ? m[1] : null;
         } catch (e) {
             return null;
@@ -105,8 +105,8 @@
             var radius = parseFloat(getComputedStyle(picked.el).borderTopLeftRadius) || 0;
             var imgUrl = sourceImageUrl(picked);
             var dataUrl = snapshotDataUrl(picked);
-            // Keep .vt-morph only if we don't have an image for WebGL Genie
-            if (!imgUrl && !dataUrl) picked.el.classList.add("vt-morph");
+            // Always keep .vt-morph on the source element so the CSS page-morph fallback works if WebGL is unavailable
+            picked.el.classList.add("vt-morph");
             sessionStorage.setItem(MORPH_KEY, JSON.stringify({
                 library: library,
                 key: picked.key || "",
@@ -131,6 +131,7 @@
         if (!vt) return done();
         try {
             var morph = readMorph();
+            try { sessionStorage.removeItem(MORPH_KEY); } catch (e) {}
             var target = morph && window.__vtMorph && window.__vtMorph.target(morph.library, morph.key);
             if (target && (morph.dataUrl || morph.imgUrl) && morph.fromRect && window.__runGenieMorph) {
                 var started = window.__runGenieMorph({

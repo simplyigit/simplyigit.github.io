@@ -188,18 +188,19 @@ function renderFavorites(favContainer, favList) {
     };
 }
 
-// The film that flew in from the homepage is the first Recent Watch: as the page appears, the rest of
-// the row slides out from under its slot while the poster flies into it. The film nearest the slot
-// comes out on top.
-function dealFromUnder(first) {
+// As the page appears, cards to the right of the morphed slot slide out from under it while its poster flies in.
+function dealFromUnder(anchor) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const cards = [...first.parentElement.children].slice(1);
+    const siblings = [...(anchor.parentElement?.children || [])];
+    const anchorIdx = siblings.indexOf(anchor);
+    const cards = anchorIdx >= 0 ? siblings.slice(anchorIdx + 1) : [];
     if (cards.length === 0) return;
-    const slot = first.getBoundingClientRect();
-    first.style.zIndex = String(cards.length + 1);
+    const slot = anchor.getBoundingClientRect();
+    anchor.style.zIndex = String(cards.length + 1);
     const anims = cards.map((card, i) => {
-        card.style.zIndex = String(cards.length - i);
         const dx = card.getBoundingClientRect().left - slot.left;
+        if (dx <= 0) return null;
+        card.style.zIndex = String(cards.length - i);
         // Each card is clipped at the slot's right edge, so it only shows once it's out from under the
         // slot (`clear`: the progress where it is all out)
         const clear = Math.min(1, slot.width / dx);
@@ -208,10 +209,14 @@ function dealFromUnder(first) {
             { offset: clear, transform: `translateX(${slot.width - dx}px)`, clipPath: 'inset(0 0 0 0)' },
             { transform: 'none', clipPath: 'inset(0 0 0 0)' }
         ], { duration: 640 + i * 40, easing: 'cubic-bezier(0.25, 1, 0.5, 1)', fill: 'both' });
-    });
+    }).filter(Boolean);
+    if (anims.length === 0) {
+        anchor.style.zIndex = '';
+        return;
+    }
     Promise.allSettled(anims.map(a => a.finished)).then(() => {
         anims.forEach(a => a.cancel());
-        [first, ...cards].forEach(card => { card.style.zIndex = ''; });
+        [anchor, ...cards].forEach(card => { card.style.zIndex = ''; });
     });
 }
 
@@ -307,7 +312,7 @@ function initCinema() {
                 if (thumbCss) card.style.background = `${thumbCss} center / cover`;
             }
             const target = img || card;
-            if (card === recentContainer.firstElementChild) dealFromUnder(card);
+            dealFromUnder(card);
             return target;
         }
     };

@@ -121,16 +121,25 @@ function readStoredTints() {
     }
 }
 
+const meshImageCache = new Map();
+
 // A single floating-point, triangular-dithered canvas (no 8-bit banding) of a layout's orbs
 function paintMeshCanvas(layout, colors) {
     const canvas = document.createElement('canvas');
     canvas.className = 'ambient-mesh-canvas';
     canvas.setAttribute('aria-hidden', 'true');
-    const W = 540, H = 360;
+    const W = 360, H = 240;
     canvas.width = W;
     canvas.height = H;
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return null;
+
+    const cacheKey = `${layout}|${colors.join('|')}`;
+    const cached = meshImageCache.get(cacheKey);
+    if (cached) {
+        ctx.putImageData(cached, 0, 0);
+        return canvas;
+    }
 
     const img = ctx.createImageData(W, H);
     const data = img.data;
@@ -182,6 +191,10 @@ function paintMeshCanvas(layout, colors) {
             idx += 4;
         }
     }
+    if (meshImageCache.size >= 12) {
+        meshImageCache.delete(meshImageCache.keys().next().value);
+    }
+    meshImageCache.set(cacheKey, img);
     ctx.putImageData(img, 0, 0);
     return canvas;
 }
@@ -212,7 +225,7 @@ export function initAmbientMesh({ layout = 'default', tinted = false } = {}) {
         if (canvas) {
             ambientMesh.appendChild(canvas);
             ambientMesh.classList.add('canvas-ready');
-            mesh = { container: ambientMesh, layout, canvas, paintedKey: colors.join('|'), tints, repaintQueued: false };
+            mesh = { container: ambientMesh, layout, canvas, paintedKey: colors.join('|'), tints, repaintTimer: 0 };
         }
     }
 
@@ -252,7 +265,7 @@ export function initAmbientMesh({ layout = 'default', tinted = false } = {}) {
 
 // Repaints the mesh with the tints asked for and crossfades to it
 function repaintMesh() {
-    mesh.repaintQueued = false;
+    mesh.repaintTimer = 0;
     const colors = meshOrbColors(mesh.layout, mesh.tints);
     const key = colors.join('|');
     if (key === mesh.paintedKey) return;
@@ -291,9 +304,11 @@ export function setAmbientTint(rgb, { slot = 'music', persist = true } = {}) {
     }
     if (!mesh) return;
     mesh.tints[slot] = tint;
-    if (mesh.repaintQueued) return;
-    mesh.repaintQueued = true;
-    requestAnimationFrame(repaintMesh);
+    if (mesh.repaintTimer) clearTimeout(mesh.repaintTimer);
+    mesh.repaintTimer = setTimeout(() => {
+        mesh.repaintTimer = 0;
+        requestAnimationFrame(repaintMesh);
+    }, 40);
 }
 
 // The colour of an image, for covers the sync hasn't given a prominent_color: the average of its

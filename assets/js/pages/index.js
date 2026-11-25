@@ -279,7 +279,10 @@ function initIndex() {
         renderedBooksSig = sig;
 
         const heroBook = top3[0];
-        showCardColor('book', document.querySelector('#book-card .hero-book-body'), heroBook, safeImg(heroBook.cover_url, 240));
+        const bookCardEl = document.getElementById('book-card');
+        if (!bookCardEl?.classList.contains('is-deprecated')) {
+            showCardColor('book', bookCardEl?.querySelector('.hero-book-body'), heroBook, safeImg(heroBook.cover_url, 240));
+        }
         const safeTitle = escapeHtml(heroBook.title);
         const safeAuthor = escapeHtml(heroBook.author);
         const heroCover = safeImg(heroBook.cover_url, 240);
@@ -368,7 +371,7 @@ function initIndex() {
                         <div class="book-front-cover-assembly">
                             <div class="book-cover-outside">
                                 <div class="book-ribbon-tag"></div>
-                                <img src="${escapeHtml(heroCover)}" class="book-cover-art" alt="${safeTitle}" decoding="async">
+                                <img src="${escapeHtml(heroCover)}" class="book-cover-art" alt="${safeTitle}" loading="lazy" decoding="async">
                                 <div class="book-cover-emboss-spine"></div>
                                 <div class="book-cover-glare"></div>
                             </div>

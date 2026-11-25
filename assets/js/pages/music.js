@@ -8,6 +8,12 @@ import '../modules/genie-morph.js';
 // The tab on show, and each tab's mesh tint: the dominant colour of its first cover or portrait
 let activeTab = 'tracks';
 const tabTints = {};
+const PLAYS_FMT = new Intl.NumberFormat();
+
+function sizedBannerUrl(url) {
+    if (!url || !url.startsWith('https://wsrv.nl/')) return url;
+    return url.replace(/([?&])w=\d+/, '$1w=900');
+}
 
 // Only the Tracks tint is remembered: the homepage uses the same one (the #1 track), so going
 // back and forth keeps the background still
@@ -38,10 +44,10 @@ function musicCardHtml({ index, href, title, fullTitle, titleHtml, subtitle, ari
 
     const classes = ['spotify-track-card', hero ? 'top-track-banner' : 'grid-track', variant && `is-${variant}`, backdropUrl && 'has-backdrop'].filter(Boolean).join(' ');
     const backdrop = backdropUrl
-        ? `<div class="banner-backdrop" aria-hidden="true"><img src="${escapeHtml(backdropUrl)}" alt="" decoding="async"></div>`
+        ? `<div class="banner-backdrop" aria-hidden="true"><img src="${escapeHtml(backdropUrl)}" alt="" loading="lazy" decoding="async"></div>`
         : hero ? `<div class="banner-bg-blur"></div>` : '';
     // Only the visible tab's hero is above the fold on load (crossorigin so WebGL Genie reuses the cached bitmap at 0ms)
-    const imgAttrs = index === 0 && variant === 'track' ? 'fetchpriority="high" crossorigin="anonymous"' : 'decoding="async"';
+    const imgAttrs = index === 0 && variant === 'track' ? 'fetchpriority="high" crossorigin="anonymous"' : 'loading="lazy" decoding="async"';
 
     return `
             <a href="${escapeHtml(href || "#")}" target="_blank" rel="noopener noreferrer" class="${classes}" style="${styles.join('; ')}"${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''}>
@@ -68,7 +74,7 @@ function namePillHtml(badge, name, meta) {
 }
 
 function playsLabel(count) {
-    return `${Number(count).toLocaleString()} plays`;
+    return `${PLAYS_FMT.format(Number(count))} plays`;
 }
 
 // Favourites, not a ranking: every album gets the same card, its cover beside the hand-made banner.
@@ -82,11 +88,11 @@ function renderAlbums(container, albumList) {
         return `
             <a href="${escapeHtml(spotifyUrl)}" target="_blank" rel="noopener noreferrer" class="spotify-track-card album-card" style="--track-color-rgb: ${r}, ${g}, ${b}; --track-color-glow: rgba(${r}, ${g}, ${b}, 0.45)" aria-label="${escapeHtml(`${album.title} by ${album.artist}`)}">
                 <div class="album-cover">
-                    <img src="${escapeHtml(album.optimized_cover_url || album.cover_url || "")}" alt="" decoding="async">
+                    <img src="${escapeHtml(album.optimized_cover_url || album.cover_url || "")}" alt="" loading="lazy" decoding="async">
                 </div>
                 <div class="album-banner" aria-hidden="true">
-                    ${backdrop ? `<img src="${escapeHtml(backdrop)}" alt="" class="album-banner-layer album-banner-bg" decoding="async">` : ''}
-                    ${album.typo_url ? `<img src="${escapeHtml(album.typo_url)}" alt="" class="album-banner-layer album-banner-typo" decoding="async">` : ''}
+                    ${backdrop ? `<img src="${escapeHtml(backdrop)}" alt="" class="album-banner-layer album-banner-bg" loading="lazy" decoding="async">` : ''}
+                    ${album.typo_url ? `<img src="${escapeHtml(album.typo_url)}" alt="" class="album-banner-layer album-banner-typo" loading="lazy" decoding="async">` : ''}
                 </div>
             </a>`;
     }).join('');
@@ -144,14 +150,14 @@ function artistTopSongHtml(artist, totalPlays) {
     // A 44px thumbnail: the 300px copy is plenty
     const coverUrl = song.cover_url_small || song.cover_url;
     const cover = coverUrl
-        ? `<img src="${escapeHtml(coverUrl)}" alt="" class="artist-song-art" decoding="async">`
+        ? `<img src="${escapeHtml(coverUrl)}" alt="" class="artist-song-art" loading="lazy" decoding="async">`
         : `<span class="artist-song-art" aria-hidden="true"></span>`;
     return `
                     <div class="artist-song">
                         <span class="artist-song-label">Top song</span>
                         ${cover}
                         <span class="artist-song-title">${escapeHtml(displaySongTitle(song.title))}</span>
-                        <span class="artist-song-plays">${escapeHtml(plays.toLocaleString())} / ${escapeHtml(playsLabel(total))}</span>
+                        <span class="artist-song-plays">${escapeHtml(PLAYS_FMT.format(plays))} / ${escapeHtml(playsLabel(total))}</span>
                         <span class="artist-song-bar" role="img" aria-label="${escapeHtml(displaySongTitle(song.title))}: ${plays} of ${escapeHtml(artist.name)}'s ${total} plays, out of ${totalPlays} across my top 5 artists" style="--share: ${songShare}%; --artist-share: ${artistShare}%">${BAR_TRACK_HTML}</span>
                     </div>`;
 }
@@ -189,7 +195,7 @@ function renderArtists(container, artistList) {
             title: artist.name,
             artUrl: artist.image_url,
             // Last.fm's community-picked header photo, else a wide crop of the profile photo
-            backdropUrl: artist.banner_url || artist.image_url,
+            backdropUrl: sizedBannerUrl(artist.banner_url || artist.image_url),
             badge: `#${index + 1}`,
             // Cards 2-5 are short: their pill holds just rank and name
             meta: index === 0 ? playsLabel(artist.playcount) : '',
@@ -287,7 +293,6 @@ function initMusic() {
     initGlobalReveal();
     initGlassParallax();
     initLibraryKeys();
-    initMusicTabs();
 
     const artistsContainer = document.getElementById("spotify-artists-container");
     const tracksContainer = document.getElementById("spotify-tracks-container");
@@ -310,20 +315,16 @@ function initMusic() {
     let renderedAlbumsSig = '';
     let renderedArtistsSig = '';
     let renderedTracksSig = '';
+    let latestData = null;
 
-    // First call paints directly; later calls morph only the sections whose content changed, one at a time
-    const render = async (data) => {
+    const renderPane = async (tabName, data, { morph = false } = {}) => {
+        if (!data) return;
         const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
 
-        tabTints.tracks = tracks?.[0]?.prominent_color;
-        tabTints.artists = artists?.[0]?.prominent_color;
-        tabTints.albums = albums?.[0]?.prominent_color;
-        applyTabTint();
-
-        if (albumsContainer && Array.isArray(albums) && albums.length > 0) {
+        if (tabName === 'albums' && albumsContainer && Array.isArray(albums) && albums.length > 0) {
             const sig = albums.map(a => a.title).join('|');
             if (sig !== renderedAlbumsSig) {
-                const isUpdate = renderedAlbumsSig !== '';
+                const isUpdate = morph && renderedAlbumsSig !== '';
                 renderedAlbumsSig = sig;
                 if (isUpdate) {
                     const images = albums.flatMap(a => [a.optimized_cover_url || a.cover_url, a.typo_url ? a.bg_url : a.banner_url, a.typo_url]);
@@ -332,16 +333,17 @@ function initMusic() {
                     renderAlbums(albumsContainer, albums);
                 }
             }
+            return;
         }
 
-        if (artistsContainer && Array.isArray(artists) && artists.length > 0) {
+        if (tabName === 'artists' && artistsContainer && Array.isArray(artists) && artists.length > 0) {
             // banner_url and the #1's top song too, so they appear as soon as a sync adds them
             const sig = artists.map(a => `${a.name}-${a.banner_url || ''}-${a.top_track?.title || ''}`).join('|');
             if (sig !== renderedArtistsSig) {
-                const isUpdate = renderedArtistsSig !== '';
+                const isUpdate = morph && renderedArtistsSig !== '';
                 renderedArtistsSig = sig;
                 if (isUpdate) {
-                    await smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artists.flatMap(a => [a.image_url, a.banner_url, a.top_track?.cover_url_small || a.top_track?.cover_url]).filter(Boolean));
+                    await smoothMorph(artistsContainer, () => renderArtists(artistsContainer, artists), artists.flatMap(a => [a.image_url, sizedBannerUrl(a.banner_url), a.top_track?.cover_url_small || a.top_track?.cover_url]).filter(Boolean));
                 } else {
                     renderArtists(artistsContainer, artists);
                 }
@@ -359,7 +361,7 @@ function initMusic() {
                     if (songPlays && artist.top_track) {
                         const total = Number(artist.playcount) || 0;
                         const trackPlays = Number(artist.top_track.playcount) || 0;
-                        morphText(songPlays, `${trackPlays.toLocaleString()} / ${playsLabel(total)}`);
+                        morphText(songPlays, `${PLAYS_FMT.format(trackPlays)} / ${playsLabel(total)}`);
                         if (bar) {
                             const { songShare, artistShare } = topSongShares(trackPlays, total, totalPlays);
                             bar.style.setProperty('--share', `${songShare}%`);
@@ -368,13 +370,14 @@ function initMusic() {
                     }
                 });
             }
+            return;
         }
 
-        if (tracksContainer && Array.isArray(tracks) && tracks.length > 0) {
+        if (tabName === 'tracks' && tracksContainer && Array.isArray(tracks) && tracks.length > 0) {
             // preview_url too, so the play buttons appear as soon as a sync adds them
             const sig = tracks.map(t => `${t.title}-${t.artist}-${t.preview_url || ''}`).join('|');
             if (sig !== renderedTracksSig) {
-                const isUpdate = renderedTracksSig !== '';
+                const isUpdate = morph && renderedTracksSig !== '';
                 renderedTracksSig = sig;
                 if (isUpdate) {
                     await smoothMorph(tracksContainer, () => renderTracks(tracksContainer, tracks), tracks.map(trackArtUrl).filter(Boolean));
@@ -393,6 +396,25 @@ function initMusic() {
         }
     };
 
+    const ensureTabRendered = (tabName) => {
+        if (latestData) renderPane(tabName, latestData, { morph: false });
+    };
+
+    initMusicTabs({ ensureTabRendered });
+
+    // First call paints directly; later calls morph only the active tab if its content changed
+    const render = async (data) => {
+        latestData = data;
+        const { top_artists_last_month: artists, top_tracks_last_month: tracks, favorite_albums: albums } = data;
+
+        tabTints.tracks = tracks?.[0]?.prominent_color;
+        tabTints.artists = artists?.[0]?.prominent_color;
+        tabTints.albums = albums?.[0]?.prominent_color;
+        applyTabTint();
+
+        await renderPane(activeTab, data, { morph: true });
+    };
+
     loadLiveData({
         prefetch: window.__PREFETCH_SPOTIFY__,
         api: "/api/spotify",
@@ -405,7 +427,7 @@ function initMusic() {
     });
 }
 
-function initMusicTabs() {
+function initMusicTabs({ ensureTabRendered } = {}) {
     const navPill = document.querySelector(".music-nav-pill");
     const tabButtons = document.querySelectorAll(".music-tab-btn");
     const container = document.getElementById("music-panes-container");
@@ -676,6 +698,7 @@ function initMusicTabs() {
     const prewarmTabImages = (tabName) => {
         if (prewarmedTabs.has(tabName) || !panes[tabName]) return;
         prewarmedTabs.add(tabName);
+        ensureTabRendered?.(tabName);
         panes[tabName].querySelectorAll("img[src]").forEach((img) => {
             const url = img.getAttribute("src");
             if (!url) return;
@@ -736,6 +759,7 @@ function initMusicTabs() {
     function switchTab(newTab, { instant = false, updateHash = true } = {}) {
         if (newTab === currentTab) return;
 
+        ensureTabRendered?.(newTab);
         const prevTab = currentTab;
         const outgoingPane = panes[prevTab];
         const incomingPane = panes[newTab];

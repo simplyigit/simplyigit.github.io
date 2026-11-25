@@ -362,7 +362,7 @@
 
 .top-track-banner .case-title {
     font-size: 2.8rem;
-    font-weight: 800;
+    font-weight: 700;
     color: #fff;
     line-height: 1.2;
     /* Increased to prevent cut-off */
@@ -443,7 +443,7 @@
     color: #eef2f7;
     color: color-mix(in oklab, rgb(var(--track-color-rgb, 29, 185, 84)) 28%, white);
     font-size: 0.65rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     white-space: nowrap;
@@ -607,7 +607,7 @@
     min-width: 0;
     padding: 0 8px 0 16px;
     font-size: 2rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.02em;
     color: #fff;

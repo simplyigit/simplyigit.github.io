@@ -67,6 +67,12 @@
   .watchlist-card:hover .watchlist-badge, .watchlist-card:focus-visible .watchlist-badge { opacity: 1; }
   .watchlist-badge svg { width: 10px; height: 10px; color: #e6ebf1; }
 
+  /* Until cinema.js fills them, the strips keep their filled height: a frame painted before the first
+     render (a slow first visit) then doesn't push the page down. The containers must stay truly empty
+     in cinema.html (no whitespace) for :empty to match. */
+  .animated-filmstrip-track:empty { min-height: 220px; }
+  .strip-fit:empty::before { content: ''; aspect-ratio: 2 / 3; border: 1px solid transparent; }
+
   /* Floating glass caret popover underneath Recent Watches posters */
   .recent-popover {
       position: absolute;
@@ -238,6 +244,10 @@
         height: 170px;
     }
 
+    .animated-filmstrip-track:empty {
+        min-height: 170px;
+    }
+
     .filmstrip-card.landscape {
         width: 304px; /* 19 x 16 */
     }
@@ -253,7 +263,9 @@
     }
 
     .strip-fit .strip-card,
-    .strip-fit .watchlist-card {
+    .strip-fit .watchlist-card,
+    .strip-fit:empty::before {
+        flex: 0 0 auto;
         width: 108px;
         height: 162px;
         aspect-ratio: auto;

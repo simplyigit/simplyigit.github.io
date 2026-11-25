@@ -96,8 +96,18 @@ function renderFavorites(favContainer, favList) {
         }
     });
 
+    // Scrolled out of view, the strip stops asking for frames; it picks up where it was on return
+    let onScreen = true;
+    const visibilityObserver = 'IntersectionObserver' in window
+        ? new IntersectionObserver(([entry]) => {
+            onScreen = entry.isIntersecting;
+            if (onScreen) startMarqueeLoop();
+        })
+        : null;
+    visibilityObserver?.observe(favContainer.parentElement || favContainer);
+
     function startMarqueeLoop() {
-        if (!isRunning && !document.hidden && !reducedMotionQuery.matches) {
+        if (!isRunning && onScreen && !document.hidden && !reducedMotionQuery.matches) {
             isRunning = true;
             lastTime = 0;
             marqueeRafId = requestAnimationFrame(animateMarquee);
@@ -140,7 +150,7 @@ function renderFavorites(favContainer, favList) {
     window.addEventListener('blur', onVisibilityOrFocus);
 
     function animateMarquee(now) {
-        if (document.hidden || reducedMotionQuery.matches) {
+        if (!onScreen || document.hidden || reducedMotionQuery.matches) {
             isRunning = false;
             lastTime = 0;
             marqueeRafId = null;
@@ -181,6 +191,7 @@ function renderFavorites(favContainer, favList) {
         isRunning = false;
         lastTime = 0;
         marqueeRafId = null;
+        visibilityObserver?.disconnect();
         window.removeEventListener('resize', updateHalfWidth);
         document.removeEventListener('visibilitychange', onVisibilityOrFocus);
         window.removeEventListener('focus', onVisibilityOrFocus);

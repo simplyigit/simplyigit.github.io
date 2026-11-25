@@ -28,7 +28,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,400&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/base.css?v=7.11">
-    <link rel="stylesheet" href="/assets/css/cinema.css?v=7.14">
+    <link rel="stylesheet" href="/assets/css/cinema.css?v=7.15">
     <script src="/assets/js/vt-nav.js?v=7.12"></script>
     <script>window.__PREFETCH_MOVIES__ = fetch("/api/movies", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
     <!-- In <head> and render-blocking: the first frame already holds the content that page
@@ -37,7 +37,7 @@
     <link rel="modulepreload" href="/assets/js/modules/cache.js">
     <link rel="modulepreload" href="/assets/js/modules/live-data.js">
     <link rel="modulepreload" href="/assets/js/modules/genie-morph.js">
-    <script type="module" src="/assets/js/pages/cinema.js?v=7.23" blocking="render"></script>
+    <script type="module" src="/assets/js/pages/cinema.js?v=7.24" blocking="render"></script>
 </head>
 
 <body>
@@ -79,23 +79,20 @@
         <section class="section">
             <h2 class="section-title">All-Time Favorites</h2>
             <div class="animated-filmstrip-container">
-                <div id="movies-favorites-container" class="animated-filmstrip-track">
-                </div>
+                <div id="movies-favorites-container" class="animated-filmstrip-track"></div>
             </div>
         </section>
 
         <!-- Recent Watches -->
         <section class="section recent-watches-section">
             <h2 class="section-title">Recent Watches</h2>
-            <div id="movies-recent-container" class="scroll-strip strip-fit">
-            </div>
+            <div id="movies-recent-container" class="scroll-strip strip-fit"></div>
         </section>
 
         <!-- Watchlist -->
         <section class="section">
             <h2 class="section-title">Watchlist</h2>
-            <div id="movies-watchlist-container" class="scroll-strip strip-fit">
-            </div>
+            <div id="movies-watchlist-container" class="scroll-strip strip-fit"></div>
         </section>
 
         </main>

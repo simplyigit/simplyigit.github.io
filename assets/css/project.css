@@ -358,15 +358,24 @@
     display: none;
 }
 
+/* A full-size layer whose top edge is the line: sweeping it with transform (not `top`) keeps the
+   scan on the compositor, so it causes no layout shifts. The wrap's overflow: hidden clips it. */
 .detector-scan-line {
     position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.detector-scan-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
     left: 0;
     right: 0;
     height: 2px;
     background: linear-gradient(90deg, transparent, #38bdf8, transparent);
     box-shadow: 0 0 12px #38bdf8;
-    opacity: 0;
-    pointer-events: none;
 }
 
 .detector-canvas-wrap.is-scanning .detector-scan-line {
@@ -374,8 +383,8 @@
 }
 
 @keyframes scanSweep {
-    0% { top: 0%; opacity: 1; }
-    100% { top: 100%; opacity: 0; }
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(100%); opacity: 0; }
 }
 
 .detector-results-pane {

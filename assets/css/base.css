@@ -215,7 +215,22 @@ p {
     display: flex;
 }
 
+/* The pointer spotlight below, written on every mousemove (initGlassParallax). Registered as
+   non-inheriting, so a move restyles the card and its ::before only, not every element inside it;
+   the ::before takes the card's value explicitly. */
+@property --mouse-x {
+    syntax: '*';
+    inherits: false;
+}
+
+@property --mouse-y {
+    syntax: '*';
+    inherits: false;
+}
+
 .glass-card::before {
+    --mouse-x: inherit;
+    --mouse-y: inherit;
     content: '';
     position: absolute;
     top: 0;

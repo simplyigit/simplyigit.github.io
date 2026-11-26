@@ -401,3 +401,40 @@ def test_artist_song_includes_preview_url_when_present():
     )
     assert song["preview_url"] == "https://audio-ssl.itunes.apple.com/preview.m4a"
     assert song["spotify_url"] == "https://open.spotify.com/track/1"
+
+
+def test_fetch_lastfm_top_retries_transient_500_and_succeeds(monkeypatch):
+    calls = []
+    responses = [
+        type("R", (), {"status_code": 500, "json": lambda self: (_ for _ in ()).throw(ValueError("html"))})(),
+        type("R", (), {"status_code": 200, "json": lambda self: {"toptracks": {"track": [{"name": "Song A"}]}}})(),
+        type("R", (), {"status_code": 200, "json": lambda self: {"topartists": {"artist": [{"name": "Artist A"}]}}})(),
+    ]
+
+    def fake_get(url, params=None, headers=None, timeout=None):
+        calls.append(params["method"])
+        return responses.pop(0)
+
+    monkeypatch.setattr(sync_data.requests, "get", fake_get)
+    monkeypatch.setattr(sync_data.time, "sleep", lambda _s: None)
+
+    tracks, artists = sync_data.fetch_lastfm_top("super-secret-lfm-key", "simplyigit")
+    assert calls == ["user.getTopTracks", "user.getTopTracks", "user.getTopArtists"]
+    assert tracks == [{"name": "Song A"}]
+    assert artists == [{"name": "Artist A"}]
+
+
+def test_fetch_lastfm_top_error_redacts_api_key(monkeypatch):
+    def fake_get(url, params=None, headers=None, timeout=None):
+        return type("R", (), {"status_code": 500})()
+
+    monkeypatch.setattr(sync_data.requests, "get", fake_get)
+    monkeypatch.setattr(sync_data.time, "sleep", lambda _s: None)
+
+    with pytest.raises(RuntimeError) as exc_info:
+        sync_data.fetch_lastfm_top("super-secret-lfm-key", "simplyigit")
+
+    msg = str(exc_info.value)
+    assert "500" in msg
+    assert "user.getTopTracks" in msg
+    assert "super-secret-lfm-key" not in msg

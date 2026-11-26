@@ -396,17 +396,37 @@ def get_spotify_access_token(url, key, client_id, client_secret):
     return token_json.get('access_token')
 
 
-def fetch_lastfm_top(lfm_key, lfm_user):
+def fetch_lastfm_top(lfm_key, lfm_user, retry_delays=(2, 5)):
     """This month's top 200 tracks and top 5 artists from Last.fm, most played first.
-    The deeper track list (one request) also yields each top artist's most played song of the month."""
+    The deeper track list (one request) also yields each top artist's most played song of the month.
+    Retries transient 5xx/429/network errors and never leaks api_key in exception messages."""
     lfm_base = "https://ws.audioscrobbler.com/2.0/"
     lfm_headers = {"User-Agent": f"simplyigit-api/1.0 ({lfm_user})"}
     lfm_params = {"api_key": lfm_key, "user": lfm_user, "format": "json", "period": "1month", "limit": 5}
 
     def lfm_get(method, **params):
-        res = requests.get(lfm_base, params={**lfm_params, "method": method, **params}, headers=lfm_headers, timeout=10)
-        res.raise_for_status()
-        return res.json()
+        attempts = len(retry_delays) + 1
+        last_err = None
+        for attempt in range(attempts):
+            try:
+                res = requests.get(lfm_base, params={**lfm_params, "method": method, **params}, headers=lfm_headers, timeout=10)
+            except requests.RequestException as exc:
+                last_err = f"Last.fm {method} request failed ({type(exc).__name__})"
+            else:
+                if res.status_code == 200:
+                    try:
+                        return res.json()
+                    except ValueError:
+                        last_err = f"Last.fm {method} returned invalid JSON"
+                elif res.status_code >= 500 or res.status_code == 429:
+                    last_err = f"Last.fm {method} returned HTTP {res.status_code}"
+                else:
+                    raise RuntimeError(f"Last.fm {method} returned HTTP {res.status_code}")
+
+            if attempt < len(retry_delays):
+                time.sleep(retry_delays[attempt])
+
+        raise RuntimeError(last_err or f"Last.fm {method} failed")
 
     tracks = lfm_get("user.getTopTracks", limit=200).get("toptracks", {}).get("track", [])
     artists = lfm_get("user.getTopArtists").get("topartists", {}).get("artist", [])

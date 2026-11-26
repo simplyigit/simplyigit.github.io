@@ -1,10 +1,9 @@
-import { initAmbientMesh, setAmbientTint, glowColor, imageColor, initGlobalReveal, initGlassParallax, initLibraryKeys, safeImg, safeUrl, safeCssUrl, safeRgb, smoothMorph, morphText, escapeHtml } from '../modules/core.js';
+import { initAmbientMesh, loadGenieMorphWhenIdle, setAmbientTint, glowColor, imageColor, initGlobalReveal, initGlassParallax, initLibraryKeys, safeImg, safeUrl, safeCssUrl, safeRgb, smoothMorph, morphText, escapeHtml } from '../modules/core.js';
 import { initAvatarDepth } from '../modules/avatar-depth.js';
 import { getCachedDashboard, setDashboardCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
 import { displaySongTitle } from '../modules/music-text.js';
 import { togglePreview, stopPreview } from '../modules/preview-player.js';
-import '../modules/genie-morph.js';
 
 // The project card's picture: a small fully connected network, drawn as SVG so it can animate.
 // On hover (always, on touch screens) a signal crosses it and the output node cycles through the
@@ -96,6 +95,7 @@ const projects = [
 function initIndex() {
     // One glow per library object, tinted by its cover once the data is in (showCardColor)
     initAmbientMesh({ layout: 'library', tinted: true });
+    loadGenieMorphWhenIdle();
     initLibraryKeys();
 
     // Memoji: depth-map parallax, so the head turns toward the pointer and nods on status changes

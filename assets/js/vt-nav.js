@@ -90,6 +90,17 @@
         try { return JSON.parse(sessionStorage.getItem(MORPH_KEY)); } catch (e) { return null; }
     }
 
+    // Arriving through a morphing transition (the leaving page stored one): load the Genie warp now,
+    // render-blocking like the page script, so window.__runGenieMorph exists by pagereveal. Cold loads
+    // skip it here and fetch it when idle (loadGenieMorphWhenIdle in core.js).
+    if (d.classList.contains("vt-nav") && pageOf(location.href) && readMorph()) {
+        var genie = document.createElement("script");
+        genie.type = "module";
+        genie.src = "/assets/js/modules/genie-morph.js";
+        genie.setAttribute("blocking", "render");
+        document.head.appendChild(genie);
+    }
+
     // Leaving: capture source box + local image snapshot for the WebGL Genie warp (and .vt-morph as fallback)
     addEventListener("pageswap", function (e) {
         clearMorph();

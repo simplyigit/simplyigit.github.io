@@ -475,6 +475,16 @@ export function initGlassParallax() {
     });
 }
 
+// The WebGL Genie page-transition warp (genie-morph.js) only runs when a page is revealed through a
+// morphing view transition. vt-nav.js loads it up front, render-blocking, when the page arrives
+// through one; otherwise it's fetched once the page is idle, ready for a back/forward-cache arrival.
+export function loadGenieMorphWhenIdle() {
+    const load = () => { import('./genie-morph.js').catch(() => {}); };
+    const idle = () => (window.requestIdleCallback ? requestIdleCallback(load, { timeout: 5000 }) : setTimeout(load, 2000));
+    if (document.readyState === 'complete') idle();
+    else window.addEventListener('load', idle, { once: true });
+}
+
 // --- Zero-Flicker Preload & Smooth Morph Utilities ---
 
 export function toTransitionSlug(prefix, raw) {

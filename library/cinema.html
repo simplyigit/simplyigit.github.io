@@ -29,15 +29,14 @@
         rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/base.css?v=7.12">
     <link rel="stylesheet" href="/assets/css/cinema.css?v=7.16">
-    <script src="/assets/js/vt-nav.js?v=7.12"></script>
+    <script src="/assets/js/vt-nav.js?v=7.13"></script>
     <script>window.__PREFETCH_MOVIES__ = fetch("/api/movies", { priority: "high" }).then(r => r.ok ? r.json() : null).catch(() => null);</script>
     <!-- In <head> and render-blocking: the first frame already holds the content that page
          transitions morph into (deferred like every module script, so it still runs after parsing) -->
     <link rel="modulepreload" href="/assets/js/modules/core.js">
     <link rel="modulepreload" href="/assets/js/modules/cache.js">
     <link rel="modulepreload" href="/assets/js/modules/live-data.js">
-    <link rel="modulepreload" href="/assets/js/modules/genie-morph.js">
-    <script type="module" src="/assets/js/pages/cinema.js?v=7.25" blocking="render"></script>
+    <script type="module" src="/assets/js/pages/cinema.js?v=7.26" blocking="render"></script>
 </head>
 
 <body>

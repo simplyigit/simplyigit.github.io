@@ -1,4 +1,5 @@
 import {
+    loadGenieMorphWhenIdle,
     initAmbientMesh,
     initGlobalReveal,
     initGlassParallax,
@@ -12,7 +13,6 @@ import {
 } from '../modules/core.js';
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
-import '../modules/genie-morph.js';
 
 // Recent Watches and the Watchlist show six films each: they fill the row on wide screens (cinema.css
 // .strip-fit), and the homepage VHS only morphs films among the recent six (index.js onCinemaPage)
@@ -436,6 +436,7 @@ function renderWatchlist(watchlistContainer, watchList) {
 
 function initCinema() {
     initAmbientMesh();
+    loadGenieMorphWhenIdle();
     initGlobalReveal();
     initGlassParallax();
     initLibraryKeys();

@@ -1,9 +1,8 @@
-import { initAmbientMesh, setAmbientTint, initGlobalReveal, initGlassParallax, initLibraryKeys, smoothMorph, morphText, toTransitionSlug, escapeHtml, safeUrl, safeCssUrl, safeRgb } from '../modules/core.js';
+import { initAmbientMesh, loadGenieMorphWhenIdle, setAmbientTint, initGlobalReveal, initGlassParallax, initLibraryKeys, smoothMorph, morphText, toTransitionSlug, escapeHtml, safeUrl, safeCssUrl, safeRgb } from '../modules/core.js';
 import { getCachedData, setCachedData } from '../modules/cache.js';
 import { loadLiveData } from '../modules/live-data.js';
 import { displaySongTitle, shortArtistNameHtml } from '../modules/music-text.js';
 import { togglePreview, stopPreview } from '../modules/preview-player.js';
-import '../modules/genie-morph.js';
 
 // The tab on show, and each tab's mesh tint: the dominant colour of its first cover or portrait
 let activeTab = 'tracks';
@@ -436,6 +435,7 @@ function renderTracks(container, trackList) {
 function initMusic() {
     // Tinted by the visible tab's first cover once the data is in (applyTabTint)
     initAmbientMesh({ tinted: true });
+    loadGenieMorphWhenIdle();
     initGlobalReveal();
     initGlassParallax();
     initLibraryKeys();

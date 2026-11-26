@@ -174,6 +174,11 @@ function ensureDialog() {
     return dialog;
 }
 
+// Warms the Q&A fetch ahead of the first open (index.js calls it on hover, focus or idle)
+export function prefetchMemojiQa() {
+    return loadQaData();
+}
+
 export function setMemojiLiveContext(partial) {
     liveContext = { ...liveContext, ...partial };
 }

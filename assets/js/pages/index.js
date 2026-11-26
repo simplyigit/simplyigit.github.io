@@ -165,6 +165,24 @@ function initIndex() {
         } catch {}
     };
 
+    // Fetch the palette module and its Q&A before they're asked for (pointer or focus on the Memoji,
+    // or once the page is idle), so the first "/" opens it without waiting on the network
+    let paletteWarmed = false;
+    const prewarmMemojiPalette = () => {
+        if (paletteWarmed) return;
+        paletteWarmed = true;
+        import('../modules/memoji-palette.js').then(mod => mod.prefetchMemojiQa()).catch(() => {});
+    };
+    [memojiTrigger, memojiBubble].forEach(el => {
+        el?.addEventListener('pointerenter', prewarmMemojiPalette, { once: true, passive: true });
+        el?.addEventListener('focus', prewarmMemojiPalette, { once: true });
+    });
+    const whenIdle = window.requestIdleCallback
+        ? (fn) => requestIdleCallback(fn, { timeout: 4000 })
+        : (fn) => setTimeout(fn, 1500);
+    if (document.readyState === 'complete') whenIdle(prewarmMemojiPalette);
+    else window.addEventListener('load', () => whenIdle(prewarmMemojiPalette), { once: true });
+
     memojiTrigger?.addEventListener('click', launchMemojiPalette);
     memojiBubble?.addEventListener('click', launchMemojiPalette);
     document.addEventListener('keydown', (e) => {

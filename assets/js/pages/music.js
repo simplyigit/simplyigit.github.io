@@ -698,8 +698,7 @@ function initMusicTabs({ ensureTabRendered } = {}) {
         return token.endsWith("%") ? (v / 100) * Math.min(w, h) : v;
     };
 
-    const readFourRadii = (el, w, h) => {
-        const cs = getComputedStyle(el);
+    const readFourRadii = (el, w, h, cs = getComputedStyle(el)) => {
         const maxR = Math.min(w, h) / 2;
         return [
             cs.borderTopLeftRadius,
@@ -718,7 +717,7 @@ function initMusicTabs({ ensureTabRendered } = {}) {
         return cards.map((card) => {
             const cr = card.getBoundingClientRect();
             const cs = getComputedStyle(card);
-            const cardRadii = readFourRadii(card, cr.width, cr.height);
+            const cardRadii = readFourRadii(card, cr.width, cr.height, cs);
             const artEl = card.querySelector(".case-art-wrapper, .album-cover");
             const artImg = artEl?.querySelector("img");
             let artRect = null;
@@ -735,7 +734,7 @@ function initMusicTabs({ ensureTabRendered } = {}) {
                     height: ar.height
                 };
                 // Resolve % radii (e.g. border-radius: 50% on Artist circles) into exact pixel half-sizes
-                artRadii = readFourRadii(artEl, ar.width, ar.height);
+                artRadii = readFourRadii(artEl, ar.width, ar.height, acs);
                 artBoxShadow = acs.boxShadow || "none";
                 // Flush-left square art (grid tracks, albums) inherits the card's left corners visually
                 if (artRadii[0] === 0 && Math.abs(ar.left - cr.left) < 4) {
@@ -791,7 +790,7 @@ function initMusicTabs({ ensureTabRendered } = {}) {
                     width: ar.width,
                     height: ar.height
                 };
-                artRadii = readFourRadii(item.artBox, ar.width, ar.height);
+                artRadii = readFourRadii(item.artBox, ar.width, ar.height, acs);
                 artBoxShadow = acs.boxShadow || "none";
             }
             return {
@@ -804,7 +803,7 @@ function initMusicTabs({ ensureTabRendered } = {}) {
                 },
                 naturalW: item.targetNaturalW,
                 naturalH: item.targetNaturalH,
-                radii: readFourRadii(item.shell, cr.width, cr.height),
+                radii: readFourRadii(item.shell, cr.width, cr.height, cs),
                 backgroundColor: cs.backgroundColor || "rgba(18, 18, 18, 0.85)",
                 borderColor: ocs.borderTopColor || "rgba(255, 255, 255, 0.1)",
                 outlineShadow: ocs.boxShadow && ocs.boxShadow !== "none" ? ocs.boxShadow : "inset 0 0 0 0px rgba(0, 0, 0, 0)",
@@ -961,10 +960,13 @@ function initMusicTabs({ ensureTabRendered } = {}) {
         // Stop any active preview when leaving its tab
         stopPreview();
 
-        positionIndicator(newTab, { animate: !instant, crossDivider });
+        // The indicator is measured once the incoming pane is mounted (below), so its reads share that
+        // layout instead of forcing one of their own after the tab buttons restyle
+        const glideIndicator = () => positionIndicator(newTab, { animate: !instant, crossDivider });
 
         if (instant || prefersReducedMotion || fromCards.length === 0) {
             teardownMorph(newTab);
+            glideIndicator();
             return;
         }
 
@@ -982,6 +984,7 @@ function initMusicTabs({ ensureTabRendered } = {}) {
             // The outgoing pane floats over the container's top while the incoming one sets its height
             Object.assign(outgoingPane.style, { position: "absolute", top: "0", left: "0", width: "100%", pointerEvents: "none" });
             const targetHeight = incomingPane.offsetHeight;
+            glideIndicator();
 
             const anims = [
                 container.animate([
@@ -1051,6 +1054,7 @@ function initMusicTabs({ ensureTabRendered } = {}) {
 
         const targetHeight = incomingPane.offsetHeight;
         const toCards = measurePaneCards(incomingPane);
+        glideIndicator();
         if (toCards.length === 0) {
             teardownMorph(newTab);
             return;

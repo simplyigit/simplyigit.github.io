@@ -565,35 +565,171 @@ function formatOrtError(err) {
     return err instanceof Error ? err : new Error('Failed to load ConvNeXt-Tiny ONNX model.');
 }
 
+const SESSION_OPTIONS = { executionProviders: ['wasm'], graphOptimizationLevel: 'all' };
+
+// Creates the session with create(buffer), re-downloading once if a cached model turns out to be corrupt
+async function createSessionWithRetry(create, onProgress) {
+    let { buffer, fromCache } = await fetchModelBufferWithCache(onProgress);
+    if (onProgress) onProgress('Initializing WASM SIMD inference session...');
+    try {
+        return await create(buffer);
+    } catch (err) {
+        if (!fromCache) throw formatOrtError(err);
+        await deleteCachedModel();
+        ({ buffer } = await fetchModelBufferWithCache(onProgress, { bypassCache: true }));
+        if (onProgress) onProgress('Initializing WASM SIMD inference session...');
+        try {
+            return await create(buffer);
+        } catch (retryErr) {
+            throw formatOrtError(retryErr);
+        }
+    }
+}
+
+// --- Inference off the main thread ---
+// ONNX Runtime runs in a worker made from the SRI-checked runtime plus detectorWorkerMain(), so
+// creating the session and every run (seconds on a phone) never freeze the page. Where workers
+// aren't available, or the worker fails, the model runs on the main thread as before.
+
+// The worker's own code: runs after the ONNX Runtime bundle in the same script, so `ort` is global.
+// It's stringified into the worker, so it can't use anything from this module.
+function detectorWorkerMain() {
+    let session = null;
+    self.onmessage = async ({ data }) => {
+        const { id, type } = data || {};
+        try {
+            if (type === 'init') {
+                ort.env.wasm.wasmPaths = data.wasmPaths;
+                ort.env.wasm.numThreads = 1;
+                session = await ort.InferenceSession.create(data.buffer, data.options);
+                self.postMessage({ id, ok: true });
+            } else if (type === 'run') {
+                const input = new ort.Tensor('float32', data.tensor, data.dims);
+                const start = performance.now();
+                const outputs = await session.run({ input });
+                const inferenceMs = performance.now() - start;
+                // Copies: an output can be a view into the runtime's memory, which can't be transferred
+                const probs = Float32Array.from(outputs.probs.data);
+                const embedding = outputs.embedding ? Float32Array.from(outputs.embedding.data) : null;
+                self.postMessage({ id, ok: true, probs, embedding, inferenceMs },
+                    embedding ? [probs.buffer, embedding.buffer] : [probs.buffer]);
+            }
+        } catch (err) {
+            self.postMessage({ id, ok: false, error: String((err && err.message) || err) });
+        }
+    };
+}
+
+let ortWorkerPromise = null;
+let ortWorkerDisabled = false;
+
+function startOrtWorker(runtimeSource) {
+    let url = URL.createObjectURL(new Blob([runtimeSource, `\n;(${detectorWorkerMain})();\n`], { type: 'text/javascript' }));
+    const worker = new Worker(url, { name: 'simplyigit-detector' });
+    const pending = new Map();
+    let nextId = 0;
+    const releaseUrl = () => {
+        if (url) URL.revokeObjectURL(url);
+        url = null;
+    };
+    const client = {
+        dead: false,
+        call(message, transfer = []) {
+            if (client.dead) return Promise.reject(new Error('The detector worker stopped.'));
+            return new Promise((resolve, reject) => {
+                const id = ++nextId;
+                pending.set(id, { resolve, reject });
+                worker.postMessage({ ...message, id }, transfer);
+            });
+        },
+        // Stops the worker for good: the page falls back to the main thread
+        stop(err = new Error('The detector worker stopped.')) {
+            if (client.dead) return;
+            client.dead = true;
+            ortWorkerDisabled = true;
+            ortWorkerPromise = null;
+            worker.terminate();
+            releaseUrl();
+            for (const p of pending.values()) p.reject(err);
+            pending.clear();
+        }
+    };
+    worker.onmessage = ({ data }) => {
+        releaseUrl();
+        const p = pending.get(data?.id);
+        if (!p) return;
+        pending.delete(data.id);
+        if (data.ok) p.resolve(data);
+        else p.reject(new Error(data.error || 'Inference failed.'));
+    };
+    worker.onerror = (e) => {
+        e.preventDefault();
+        client.stop(new Error(e.message || 'The detector worker failed.'));
+    };
+    return client;
+}
+
+// Resolves to the worker client, or null to run on the main thread
+function getOrtWorker() {
+    if (ortWorkerDisabled || typeof Worker === 'undefined' || typeof Blob === 'undefined') return Promise.resolve(null);
+    if (!ortWorkerPromise) {
+        ortWorkerPromise = (async () => {
+            try {
+                // Fetched with its integrity hash, so the worker runs exactly the bytes the <script> path would
+                const res = await fetch(ORT_CDN_URL, { integrity: ORT_CDN_INTEGRITY, mode: 'cors', credentials: 'omit' });
+                if (!res.ok) throw new Error(`ONNX Runtime Web: HTTP ${res.status}`);
+                return startOrtWorker(await res.text());
+            } catch {
+                ortWorkerPromise = null; // a network blip: try the worker again next time
+                return null;
+            }
+        })();
+    }
+    return ortWorkerPromise;
+}
+
+// Loads the runtime ahead of the first image (hover/focus on the upload button)
+function warmDetectorRuntime() {
+    getOrtWorker().then(client => client || loadOrtRuntime()).catch(() => {});
+}
+
+// Resolves to { run(tensor, dims) -> { probs, embedding, inferenceMs } }
 async function getDetectorSession(onProgress) {
     if (ortSessionPromise) return ortSessionPromise;
 
     ortSessionPromise = (async () => {
         try {
-            const ort = await loadOrtRuntime();
-            let { buffer, fromCache } = await fetchModelBufferWithCache(onProgress);
-            if (onProgress) onProgress('Initializing WASM SIMD inference session...');
-            try {
-                const session = await ort.InferenceSession.create(buffer, {
-                    executionProviders: ['wasm'],
-                    graphOptimizationLevel: 'all'
-                });
-                return { ort, session };
-            } catch (err) {
-                if (!fromCache) throw formatOrtError(err);
-                await deleteCachedModel();
-                ({ buffer } = await fetchModelBufferWithCache(onProgress, { bypassCache: true }));
-                if (onProgress) onProgress('Initializing WASM SIMD inference session...');
+            const client = await getOrtWorker();
+            if (client) {
                 try {
-                    const session = await ort.InferenceSession.create(buffer, {
-                        executionProviders: ['wasm'],
-                        graphOptimizationLevel: 'all'
-                    });
-                    return { ort, session };
-                } catch (retryErr) {
-                    throw formatOrtError(retryErr);
+                    await createSessionWithRetry(buffer => client.call(
+                        { type: 'init', buffer, wasmPaths: ORT_WASM_DIR, options: SESSION_OPTIONS }, [buffer]), onProgress);
+                    return {
+                        run: (tensor, dims) => client.call({ type: 'run', tensor, dims }, [tensor.buffer]).catch(err => {
+                            if (client.dead) ortSessionPromise = null;
+                            throw err;
+                        })
+                    };
+                } catch (err) {
+                    // Whatever broke in the worker, the main thread gets its own attempt
+                    client.stop(err);
                 }
             }
+
+            const ort = await loadOrtRuntime();
+            const session = await createSessionWithRetry(buffer => ort.InferenceSession.create(buffer, SESSION_OPTIONS), onProgress);
+            return {
+                run: async (tensor, dims) => {
+                    const input = new ort.Tensor('float32', tensor, dims);
+                    const start = performance.now();
+                    const outputs = await session.run({ input });
+                    return {
+                        probs: outputs.probs.data,
+                        embedding: outputs.embedding?.data || null,
+                        inferenceMs: performance.now() - start
+                    };
+                }
+            };
         } catch (err) {
             ortSessionPromise = null;
             throw formatOrtError(err);
@@ -739,16 +875,11 @@ async function runRealModelOnCanvas(file, img, canvas, onProgress) {
         ctx.beginPath(); ctx.moveTo(m, h - m - len); ctx.lineTo(m, h - m); ctx.lineTo(m + len, h - m); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(w - m - len, h - m); ctx.lineTo(w - m, h - m); ctx.lineTo(w - m, h - m - len); ctx.stroke();
 
-        const { ort, session } = await getDetectorSession(onProgress);
+        const detector = await getDetectorSession(onProgress);
         if (onProgress) onProgress('Running ConvNeXt-Tiny + SGD inference...');
 
-        const inputTensor = new ort.Tensor('float32', tensorData, [1, 3, h, w]);
-        const inferStart = performance.now();
-        const outputs = await session.run({ input: inputTensor });
-        const inferenceMs = performance.now() - inferStart;
-
-        const probsRaw = outputs.probs.data;      // Float32Array(3) [Real, AI Fake, Deepfake]
-        const embeddingRaw = outputs.embedding?.data || null;
+        // probs: Float32Array(3) [Real, AI Fake, Deepfake]; embedding: the 768-D ConvNeXt features
+        const { probs: probsRaw, embedding: embeddingRaw, inferenceMs } = await detector.run(tensorData, [1, 3, h, w]);
         let l2Norm = null;
         if (embeddingRaw && embeddingRaw.length > 0) {
             let sumSq = 0;
@@ -999,7 +1130,7 @@ function initDetectorDemo() {
 
     if (uploadLabel) {
         // Warm up ONNX Runtime script on hover/focus
-        const warmUp = () => { loadOrtRuntime().catch(() => {}); };
+        const warmUp = () => { warmDetectorRuntime(); };
         uploadLabel.addEventListener('mouseenter', warmUp, { once: true });
         uploadLabel.addEventListener('focusin', warmUp, { once: true });
         uploadLabel.addEventListener('click', (e) => {
@@ -1148,7 +1279,7 @@ function initDetectorDemo() {
             return;
         }
         cameraStream = stream;
-        loadOrtRuntime().catch(() => {});
+        warmDetectorRuntime();
         cameraView.srcObject = cameraStream;
         cameraView.hidden = false;
         cameraView.play().catch(() => {});

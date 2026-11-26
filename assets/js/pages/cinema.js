@@ -305,8 +305,10 @@ function initRecentPopover(recentContainer) {
     let activeCard = null;
     let hideTimer = 0;
 
-    const positionFor = (card) => {
-        if (!card || !card.isConnected) return;
+    // Geometry is read before any of a hover's DOM writes (the popover's width is fixed in CSS, so its
+    // content doesn't matter), so reading it never forces a layout mid-handler
+    const measureFor = (card) => {
+        if (!card || !card.isConnected) return null;
         const secRect = section.getBoundingClientRect();
         const cardRect = card.getBoundingClientRect();
         const popW = popover.offsetWidth || 248;
@@ -316,11 +318,17 @@ function initRecentPopover(recentContainer) {
         const caretX = Math.max(18, Math.min(popW - 18, cardCenterX - left));
         // Anchor to the resting strip bottom so hover scale/lift on the poster never jitters the popover
         const top = recentContainer.offsetTop + recentContainer.offsetHeight - 2;
-
-        popover.style.setProperty('--pop-x', `${left.toFixed(1)}px`);
-        popover.style.setProperty('--pop-y', `${top.toFixed(1)}px`);
-        popover.style.setProperty('--caret-x', `${caretX.toFixed(1)}px`);
+        return { left, top, caretX };
     };
+
+    const applyPosition = (pos) => {
+        if (!pos) return;
+        popover.style.setProperty('--pop-x', `${pos.left.toFixed(1)}px`);
+        popover.style.setProperty('--pop-y', `${pos.top.toFixed(1)}px`);
+        popover.style.setProperty('--caret-x', `${pos.caretX.toFixed(1)}px`);
+    };
+
+    const positionFor = (card) => applyPosition(measureFor(card));
 
     const showFor = (card) => {
         clearTimeout(hideTimer);
@@ -328,6 +336,7 @@ function initRecentPopover(recentContainer) {
         const film = Number.isInteger(idx) ? recentWatchItems[idx] : null;
         if (!film) return;
         const wasOpen = popover.classList.contains('is-open');
+        const pos = measureFor(card);
         if (activeCard !== card) {
             if (activeCard) activeCard.classList.remove('is-popover-active');
             activeCard = card;
@@ -337,13 +346,14 @@ function initRecentPopover(recentContainer) {
         if (!wasOpen) {
             // Place before opening so the popover rises cleanly in place rather than gliding from (0, 0)
             popover.classList.add('is-positioning');
-            positionFor(card);
-            void popover.offsetWidth;
+            applyPosition(pos);
+            // Commit that resting state before opening: a style flush is enough, no layout needed
+            void getComputedStyle(popover).transform;
             popover.classList.remove('is-positioning');
             popover.classList.add('is-open');
             popover.setAttribute('aria-hidden', 'false');
         } else {
-            positionFor(card);
+            applyPosition(pos);
         }
     };
 
